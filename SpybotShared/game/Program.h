@@ -1,5 +1,4 @@
-#ifndef PROGRAM_H
-#define PROGRAM_H
+#pragma once
 
 #include "Standard.h"
 #include "LinkedList.h"
@@ -56,22 +55,20 @@ public:
 	void setProgramID(int progID);
 protected:
 private:
-	LinkedList<Coord*>* tiles;
+	LinkedList<Coord*>* tiles_;
 
-	LinkedList<ProgramAction*>* actionList;
-	int actionsLeft;
+	LinkedList<ProgramAction*>* actionList_;
+	int actionsLeft_;
 
-	PROGRAM type;
-	int maxHealth;
-	int moves, maxMoves;
-	int color[3];
-	int team;
-	Player* owner;
-	std::string name;
-	std::string description;
-	int cost;
+	PROGRAM type_;
+	int maxHealth_;
+	int moves_, maxMoves_;
+	int color_[3];
+	int team_;
+	Player* owner_;
+	std::string name_;
+	std::string description_;
+	int cost_;
 
 	int programID_;
 };
-
-#endif // PROGRAM_H

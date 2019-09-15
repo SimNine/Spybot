@@ -2,8 +2,7 @@
 
 #include "Standard.h"
 
-class AnimationParticle
-{
+class AnimationParticle {
 public:
 	AnimationParticle(int type);
 	~AnimationParticle();

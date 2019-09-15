@@ -7,8 +7,8 @@
 
 ProgramInventoryButton::ProgramInventoryButton(ANCHOR a, Coord disp, PROGRAM t, GUIContainer* p)
 	: GUIObject(p, a, disp, { 30, 30 }) {
-	icon = _program_icons[t];
-	progType = t;
+	icon_ = _program_icons[t];
+	progType_ = t;
 }
 
 ProgramInventoryButton::~ProgramInventoryButton() {
@@ -16,13 +16,11 @@ ProgramInventoryButton::~ProgramInventoryButton() {
 }
 
 void ProgramInventoryButton::setTransparency(int a) {
-	startAlpha = a;
-	endAlpha = a;
-	currAlpha = a;
+	currAlpha_ = a;
 }
 
 bool ProgramInventoryButton::mouseDown() {
-	_currProgram = progType;
+	_currProgram = progType_;
 	_gameOverlay->tryPlacingProgram(_currProgram);
 	return true;
 }
@@ -32,7 +30,7 @@ bool ProgramInventoryButton::mouseUp() {
 }
 
 void ProgramInventoryButton::draw() {
-	SDL_RenderCopy(_renderer, icon, NULL, &bounds);
+	SDL_RenderCopy(_renderer, icon_, NULL, &bounds_);
 
 	if (_debug >= DEBUG_NORMAL)
 		drawBounds();

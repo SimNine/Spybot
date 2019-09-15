@@ -21,11 +21,11 @@ public:
 	LinkedList<Node*>* getNeighbors();
 protected:
 private:
-	Coord pos;
-	int nodeType;
-	NODESTATUS nodeStatus;
-	int zone;
-	int id;
-	SDL_Texture* img;
-	LinkedList<Node*>* neighbors;
+	Coord pos_;
+	int nodeType_;
+	NODESTATUS nodeStatus_;
+	int zone_;
+	int id_;
+	SDL_Texture* img_;
+	LinkedList<Node*>* neighbors_;
 };

@@ -1,5 +1,4 @@
-#ifndef GUIBUTTON_H
-#define GUIBUTTON_H
+#pragma once
 
 #include "Standard.h"
 #include "GUIObject.h"
@@ -9,11 +8,11 @@ class GUIContainer;
 class GUIButton : public GUIObject {
 public:
 	// construct with strings
-	GUIButton(GUIContainer* parent, ANCHOR anchor, Coord disp, Coord dims, void(*func) (void), 
+	GUIButton(GUIContainer* parent, ANCHOR anchor, Coord disp, Coord dims, void(*func) (void),
 		std::string normal);
-	GUIButton(GUIContainer* parent, ANCHOR anchor, Coord disp, Coord dims, void(*func) (void), 
+	GUIButton(GUIContainer* parent, ANCHOR anchor, Coord disp, Coord dims, void(*func) (void),
 		std::string normal, std::string over);
-	GUIButton(GUIContainer* parent, ANCHOR anchor, Coord disp, Coord dims, void(*func) (void), 
+	GUIButton(GUIContainer* parent, ANCHOR anchor, Coord disp, Coord dims, void(*func) (void),
 		std::string normal, std::string over, std::string pressed);
 
 	// construct with single string
@@ -32,10 +31,8 @@ public:
 	void setTransparency(int);
 protected:
 private:
-	SDL_Texture* bkgNormal;
-	SDL_Texture* bkgOver;
-	SDL_Texture* bkgPressed;
+	SDL_Texture* bkgNormal_;
+	SDL_Texture* bkgOver_;
+	SDL_Texture* bkgPressed_;
 	void(*func) (void);
 };
-
-#endif // GUIBUTTON_H

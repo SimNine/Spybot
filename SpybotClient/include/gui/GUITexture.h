@@ -1,5 +1,4 @@
-#ifndef GUITEXTURE_H
-#define GUITEXTURE_H
+#pragma once
 
 #include "Standard.h"
 #include "GUIObject.h"
@@ -27,5 +26,3 @@ private:
 	SDL_Texture* texture_;
 	bool willDestroyTexture_;
 };
-
-#endif // GUITEXTURE_H

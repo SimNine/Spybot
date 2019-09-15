@@ -15,18 +15,17 @@ class GUITextbox;
 class ConnectionManager;
 class Server;
 class BackgroundOverlay;
-class LocalLoginOverlay;
 
-// screen dimensions
-extern int _SCREEN_WIDTH;
-extern int _SCREEN_HEIGHT;
+/*
+GLOBAL VARIABLES
+*/
 
 // tile default width
-extern int _TILE_WIDTH;
+extern int _tileWidth;
 
 // default game dims
-extern int _BOARD_WIDTH;
-extern int _BOARD_HEIGHT;
+extern int _boardWidth;
+extern int _boardHeight;
 
 // window to render in
 extern SDL_Window* _window;
@@ -43,7 +42,6 @@ extern GameOverlay* _gameOverlay;
 extern LobbyOverlay* _lobbyOverlay;
 extern NotifyOverlay* _notifyOverlay;
 extern BackgroundOverlay* _backgroundOverlay;
-extern LocalLoginOverlay* _localLoginOverlay;
 
 // mouse data
 extern Coord _mousePos;
@@ -67,9 +65,6 @@ extern GUIContainer* _heldContainer;
 // GUITextbox currently active
 extern GUITextbox* _activeTextbox;
 
-// credit counter
-extern int _numCredits;
-
 // client entity
 extern Client* _client;
 
@@ -78,3 +73,28 @@ extern ConnectionManager* _connectionManager;
 
 // server monolith
 extern Server* _server;
+
+/*
+PREFERENCES
+*/
+
+// screen dimensions
+extern int _screenWidth;
+extern int _screenHeight;
+
+/*
+PROGRESS
+*/
+
+extern bool _progressAchievements[ACHIEVEMENT_NUM_ACHIEVEMENTS];
+extern bool _progressNightfall;
+extern bool _progressFreeform;
+extern int _progressGamesPlayed;
+extern int _progressGamesWon;
+extern int _progressGamesLost;
+extern int _progressProgramsKilled;
+extern int _progressCreditsCollected;
+extern int _progressFreeformGamesWon;
+extern long _progressTotalSecondsPlayed;
+extern long _progressTotalSecondsPlayedThisSession;
+extern int _progressMSPlayed; // this is a temporary variable while seconds are incremented

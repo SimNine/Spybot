@@ -233,3 +233,22 @@ Overlay stack, users stored per singleplayer game
 -Users are now stored per campaign
 -Owned programs are now owned per user, and not stored as global variables
 -Serverside, the game now checks for a win condition after every move, and sends a message to the game indicating a win for a team
+
+2.2.0 - 5/28/18
+GUI effects, achievements, stats saving
+-----
+-Refactored GUIObject, removed unnecessary instance variables and separated setBounds into setDisplacement and setDimensions
+-Added correct transparency and fade functions to remaining GUI classes
+-Fixed attack hit animation colors
+-Default text-based GUIButtons now get darker when pressed
+-Added campaign selection GUI and container to MainOverlay
+-Added saveProgress and loadProgress functions to Main.h, which store stats and achievements to progress.dat
+-Added global booleans representing the unlock state of the Nightfall and Freeform campaigns, as well as achievements
+-Added new GUIContainer for achievements to MainOverlay
+-Added an AchievementButton class with a backlight effect for the MainOverlay container
+-Added PopupAchievement class that appears within NotifyOverlay (in a similar manner as PopupNotification)
+-Added gamewide gamesWon, gamesPlayed, gamesLost, totalTimePlayed, and similar global vars as stats
+-Created a few achievement icons, implemented acquisition of time-based achievements
+-Refactored pause menus on the mapOverlay and gameOverlay
+-Removed GUIObject's fade() and fadeStep(int) methods
+-Added GUIEffect system; GUI effects such as Fade and Transform are now encapsulated in objects, which are queued up per GUIObject

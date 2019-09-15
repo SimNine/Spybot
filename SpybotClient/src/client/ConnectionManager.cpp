@@ -22,15 +22,15 @@ ConnectionManager::~ConnectionManager() {
 }
 
 void ConnectionManager::recieveMessage(Message message) {
-	mtx.lock();
+	mtx_.lock();
 	msgQueue_->addLast(new Message(message));
-	mtx.unlock();
+	mtx_.unlock();
 }
 
 Message* ConnectionManager::pollMessage() {
-	mtx.lock();
+	mtx_.lock();
 	Message* ret = msgQueue_->poll();
-	mtx.unlock();
+	mtx_.unlock();
 	return ret;
 }
 

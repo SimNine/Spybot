@@ -3,8 +3,7 @@
 #include "Standard.h"
 #include "Animation.h"
 
-class AnimationTileFade : public Animation
-{
+class AnimationTileFade : public Animation {
 public:
 	AnimationTileFade(Coord pos, int time, Uint8 r, Uint8 g, Uint8 b);
 	~AnimationTileFade();

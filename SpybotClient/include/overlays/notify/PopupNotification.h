@@ -1,12 +1,11 @@
-#ifndef NOTIFICATION_H
-#define NOTIFICATION_H
+#pragma once
 
 #include "Standard.h"
 
-class Notification {
+class PopupNotification {
 public:
-	Notification(std::string content, int duration, int size);
-	virtual ~Notification();
+	PopupNotification(std::string content, int duration, int size);
+	virtual ~PopupNotification();
 
 	void tick(int ms);
 	void setTimeLeft(int ms);
@@ -23,5 +22,3 @@ private:
 	int timeLeft_;
 	int textSize_;
 };
-
-#endif // NOTIFICATION_H

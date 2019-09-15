@@ -15,13 +15,5 @@ public:
 	void draw();
 	void tick(int ms);
 private:
-	User* user_;
-	GUITexture* wins_;
-	GUITexture* losses_;
-	GUITexture* username_;
-
-	GUIButton* createButton_;
-	GUIButtonParamaterized<User*>* deleteButton_;
-	GUIButtonParamaterized<User*>* loadButton_;
 };
 

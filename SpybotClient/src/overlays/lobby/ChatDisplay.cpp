@@ -34,8 +34,8 @@ void ChatDisplay::draw() {
 		currStr = loadString("> " + inputText_, FONT_NORMAL, textSize_, { 255, 255, 255, 255 });
 		SDL_QueryTexture(currStr, NULL, NULL, &strBounds.w, &strBounds.h);
 		yOffset -= strBounds.h;
-		strBounds.x = bounds.x + 5;
-		strBounds.y = bounds.y + bounds.h + yOffset;
+		strBounds.x = bounds_.x + 5;
+		strBounds.y = bounds_.y + bounds_.h + yOffset;
 		SDL_RenderCopy(_renderer, currStr, NULL, &strBounds);
 		SDL_DestroyTexture(currStr);
 
@@ -45,8 +45,8 @@ void ChatDisplay::draw() {
 			currStr = loadString(*chatLog_->getObjectAt(i), FONT_NORMAL, textSize_, { 255, 255, 255, 255 });
 			SDL_QueryTexture(currStr, NULL, NULL, &strBounds.w, &strBounds.h);
 			yOffset -= strBounds.h;
-			strBounds.x = bounds.x + 5;
-			strBounds.y = bounds.y + bounds.h + yOffset;
+			strBounds.x = bounds_.x + 5;
+			strBounds.y = bounds_.y + bounds_.h + yOffset;
 
 			// render and destroy
 			SDL_RenderCopy(_renderer, currStr, NULL, &strBounds);
@@ -64,8 +64,8 @@ void ChatDisplay::draw() {
 		currStr = loadString("> " + inputText_, FONT_NORMAL, textSize_, { 255, 255, 255, 255 });
 		SDL_QueryTexture(currStr, NULL, NULL, &strBounds.w, &strBounds.h);
 		yOffset -= strBounds.h;
-		strBounds.x = bounds.x + 5;
-		strBounds.y = bounds.y + bounds.h + yOffset;
+		strBounds.x = bounds_.x + 5;
+		strBounds.y = bounds_.y + bounds_.h + yOffset;
 		SDL_RenderCopy(_renderer, currStr, NULL, &strBounds);
 		SDL_DestroyTexture(currStr);
 
@@ -75,8 +75,8 @@ void ChatDisplay::draw() {
 			currStr = loadString(*chatLog_->getObjectAt(i), FONT_NORMAL, textSize_, { 255, 255, 255, 255 });
 			SDL_QueryTexture(currStr, NULL, NULL, &strBounds.w, &strBounds.h);
 			yOffset -= strBounds.h;
-			strBounds.x = bounds.x + 5;
-			strBounds.y = bounds.y + bounds.h + yOffset;
+			strBounds.x = bounds_.x + 5;
+			strBounds.y = bounds_.y + bounds_.h + yOffset;
 
 			// set fade
 			currTime = *chatLogTiming_->getObjectAt(i);

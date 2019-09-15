@@ -4,16 +4,16 @@ template<class T>
 class ListNode {
 public:
 	ListNode(T obj) {
-		contents = obj;
-		next = NULL;
-		prev = NULL;
+		contents_ = obj;
+		next_ = NULL;
+		prev_ = NULL;
 	};
 	~ListNode() {
 
 	};
-	T contents;
-	ListNode* next;
-	ListNode* prev;
+	T contents_;
+	ListNode* next_;
+	ListNode* prev_;
 protected:
 private:
 };

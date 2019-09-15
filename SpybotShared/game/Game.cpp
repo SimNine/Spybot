@@ -12,39 +12,39 @@
 
 Game::Game(bool serverSide) {
 	serverSide_ = serverSide;
-	teamList = new LinkedList<Team*>();
+	teamList_ = new LinkedList<Team*>();
 	initBoard();
-	status_ = GAMESTATUS_NO_GAME;
+	status_ = GAMESTATUS_PREGAME;
 }
 
 Game::Game(bool serverSide, std::string lvlStr) {
 	serverSide_ = serverSide;
-	teamList = new LinkedList<Team*>();
+	teamList_ = new LinkedList<Team*>();
 	initBoard();
 	loadLevel(lvlStr);
-	status_ = GAMESTATUS_PLACING_PROGRAMS;
+	status_ = GAMESTATUS_PREGAME;
 }
 
 Game::~Game() {
-	while (teamList->getLength() > 0)
-		delete teamList->poll();
-	delete teamList;
+	while (teamList_->getLength() > 0)
+		delete teamList_->poll();
+	delete teamList_;
 }
 
 void Game::initBoard() {
 	// initialize the board
 	for (int x = 0; x < 200; x++) {
 		for (int y = 0; y < 200; y++) {
-			gridTiles[x][y] = TILE_NONE;
-			gridItems[x][y] = ITEM_NONE;
-			gridPrograms[x][y] = NULL;
+			gridTiles_[x][y] = TILE_NONE;
+			gridItems_[x][y] = ITEM_NONE;
+			gridPrograms_[x][y] = NULL;
 		}
 	}
 
-	gridLeftBound = 100;
-	gridRightBound = 100;
-	gridTopBound = 100;
-	gridBottomBound = 100;
+	gridLeftBound_ = 100;
+	gridRightBound_ = 100;
+	gridTopBound_ = 100;
+	gridBottomBound_ = 100;
 }
 
 void Game::setTileAt(Coord pos, TILE t) {
@@ -53,57 +53,57 @@ void Game::setTileAt(Coord pos, TILE t) {
 		return;
 
 	// set the tile
-	gridTiles[pos.x][pos.y] = t;
+	gridTiles_[pos.x][pos.y] = t;
 
 	// try increasing bounds
 	if (t != TILE_NONE) {
-		if (pos.x < gridLeftBound)
-			gridLeftBound = pos.x;
-		else if (pos.x + 1 > gridRightBound)
-			gridRightBound = pos.x + 1;
+		if (pos.x < gridLeftBound_)
+			gridLeftBound_ = pos.x;
+		else if (pos.x + 1 > gridRightBound_)
+			gridRightBound_ = pos.x + 1;
 
-		if (pos.y < gridTopBound)
-			gridTopBound = pos.y;
-		else if (pos.y + 1 > gridBottomBound)
-			gridBottomBound = pos.y + 1;
+		if (pos.y < gridTopBound_)
+			gridTopBound_ = pos.y;
+		else if (pos.y + 1 > gridBottomBound_)
+			gridBottomBound_ = pos.y + 1;
 	} else { // try decreasing bounds
-		if (pos.x == gridLeftBound) {
+		if (pos.x == gridLeftBound_) {
 			bool b = true;
-			while (b && gridLeftBound < 100) {
+			while (b && gridLeftBound_ < 100) {
 				for (int i = 0; i < 200; i++)
-					if (gridTiles[gridLeftBound][i] != TILE_NONE)
+					if (gridTiles_[gridLeftBound_][i] != TILE_NONE)
 						b = false;
 				if (b)
-					gridLeftBound++;
+					gridLeftBound_++;
 			}
-		} else if (pos.x + 1 == gridRightBound) {
+		} else if (pos.x + 1 == gridRightBound_) {
 			bool b = true;
-			while (b && gridRightBound > 100) {
+			while (b && gridRightBound_ > 100) {
 				for (int i = 0; i < 200; i++)
-					if (gridTiles[gridRightBound - 1][i] != TILE_NONE)
+					if (gridTiles_[gridRightBound_ - 1][i] != TILE_NONE)
 						b = false;
 				if (b)
-					gridRightBound--;
+					gridRightBound_--;
 			}
 		}
 
-		if (pos.y == gridTopBound) {
+		if (pos.y == gridTopBound_) {
 			bool b = true;
-			while (b && gridTopBound < 100) {
+			while (b && gridTopBound_ < 100) {
 				for (int i = 0; i < 200; i++)
-					if (gridTiles[i][gridTopBound] != TILE_NONE)
+					if (gridTiles_[i][gridTopBound_] != TILE_NONE)
 						b = false;
 				if (b)
-					gridTopBound++;
+					gridTopBound_++;
 			}
-		} else if (pos.y + 1 == gridBottomBound) {
+		} else if (pos.y + 1 == gridBottomBound_) {
 			bool b = true;
-			while (b && gridBottomBound > 100) {
+			while (b && gridBottomBound_ > 100) {
 				for (int i = 0; i < 200; i++)
-					if (gridTiles[i][gridBottomBound - 1] != TILE_NONE)
+					if (gridTiles_[i][gridBottomBound_ - 1] != TILE_NONE)
 						b = false;
 				if (b)
-					gridBottomBound--;
+					gridBottomBound_--;
 			}
 		}
 	}
@@ -172,11 +172,11 @@ void Game::saveLevel() {
 		lvl.write((char*)&sizeOfBool, 1);
 
 		// write the size of the game grid to the file
-		if (_debug >= DEBUG_NORMAL) printf("saving grid bounds... left:%i, right:%i, top:%i, bottom:%i\n", gridLeftBound, gridRightBound, gridTopBound, gridBottomBound);
-		lvl.write((char*)&gridLeftBound, sizeOfInt);
-		lvl.write((char*)&gridRightBound, sizeOfInt);
-		lvl.write((char*)&gridTopBound, sizeOfInt);
-		lvl.write((char*)&gridBottomBound, sizeOfInt);
+		if (_debug >= DEBUG_NORMAL) printf("saving grid bounds... left:%i, right:%i, top:%i, bottom:%i\n", gridLeftBound_, gridRightBound_, gridTopBound_, gridBottomBound_);
+		lvl.write((char*)&gridLeftBound_, sizeOfInt);
+		lvl.write((char*)&gridRightBound_, sizeOfInt);
+		lvl.write((char*)&gridTopBound_, sizeOfInt);
+		lvl.write((char*)&gridBottomBound_, sizeOfInt);
 
 		// write the enum of the level's background
 		lvl.write((char*)&bkg_, sizeOfInt);
@@ -184,14 +184,14 @@ void Game::saveLevel() {
 		// collect all the programs in a linked list
 		if (_debug >= DEBUG_NORMAL) printf("gathering program list...\n");
 		LinkedList<Program*> progs = LinkedList<Program*>();
-		for (int x = gridLeftBound; x < gridRightBound; x++) {
-			for (int y = gridTopBound; y < gridBottomBound; y++) {
-				if (gridPrograms[x][y] == NULL) {
+		for (int x = gridLeftBound_; x < gridRightBound_; x++) {
+			for (int y = gridTopBound_; y < gridBottomBound_; y++) {
+				if (gridPrograms_[x][y] == NULL) {
 					continue;
 				}
-				if (progs.contains(gridPrograms[x][y])) {
+				if (progs.contains(gridPrograms_[x][y])) {
 					if (_debug >= DEBUG_NORMAL) printf("saving program\n");
-					progs.addLast(gridPrograms[x][y]);
+					progs.addLast(gridPrograms_[x][y]);
 				}
 			}
 		}
@@ -221,11 +221,11 @@ void Game::saveLevel() {
 
 		// write the grid to the file
 		if (_debug >= DEBUG_NORMAL) printf("saving tiles, items, and program pointers...\n");
-		for (int x = gridLeftBound; x < gridRightBound; x++) {
-			for (int y = gridTopBound; y < gridBottomBound; y++) {
-				lvl.write((char*)(&(gridTiles[x][y])), sizeOfInt);
-				lvl.write((char*)(&(gridItems[x][y])), sizeOfInt);
-				int index = progs.getIndexOf(gridPrograms[x][y]);
+		for (int x = gridLeftBound_; x < gridRightBound_; x++) {
+			for (int y = gridTopBound_; y < gridBottomBound_; y++) {
+				lvl.write((char*)(&(gridTiles_[x][y])), sizeOfInt);
+				lvl.write((char*)(&(gridItems_[x][y])), sizeOfInt);
+				int index = progs.getIndexOf(gridPrograms_[x][y]);
 				lvl.write((char*)(&index), sizeOfInt);
 			}
 		}
@@ -302,7 +302,7 @@ void Game::loadLevel(std::string str) {
 			Team* t = getTeamByNum(team);
 			if (t == NULL) {
 				t = new Team(team);
-				teamList->addFirst(t);
+				teamList_->addFirst(t);
 			}
 
 			// create this program's player if it doesn't exist
@@ -335,13 +335,13 @@ void Game::loadLevel(std::string str) {
 				// items
 				ITEM itm;
 				lvl.read((char*)(&itm), sizeOfInt);
-				gridItems[x][y] = itm;
+				gridItems_[x][y] = itm;
 
 				// programs
 				int indx;
 				lvl.read((char*)(&indx), sizeOfInt);
-				gridPrograms[x][y] = progs.getObjectAt(indx);
-				if (gridPrograms[x][y] != NULL) gridPrograms[x][y]->addTail({ x, y });
+				gridPrograms_[x][y] = progs.getObjectAt(indx);
+				if (gridPrograms_[x][y] != NULL) gridPrograms_[x][y]->addTail({ x, y });
 			}
 		}
 
@@ -358,24 +358,24 @@ void Game::removeReferencesToProgram(Program* p) {
 
 	for (int i = 0; i < 200; i++)
 		for (int j = 0; j < 200; j++)
-			if (gridPrograms[i][j] == p)
-				gridPrograms[i][j] = NULL;
+			if (gridPrograms_[i][j] == p)
+				gridPrograms_[i][j] = NULL;
 }
 
 int Game::getLeftBound() {
-	return gridLeftBound;
+	return gridLeftBound_;
 }
 
 int Game::getRightBound() {
-	return gridRightBound;
+	return gridRightBound_;
 }
 
 int Game::getTopBound() {
-	return gridTopBound;
+	return gridTopBound_;
 }
 
 int Game::getBottomBound() {
-	return gridBottomBound;
+	return gridBottomBound_;
 }
 
 void Game::setBackground(BACKGROUND b) {
@@ -392,7 +392,7 @@ void Game::setProgramAt(Coord pos, Program* p) {
 		return;
 
 	// place the program
-	gridPrograms[pos.x][pos.y] = p;
+	gridPrograms_[pos.x][pos.y] = p;
 }
 
 void Game::setItemAt(Coord pos, ITEM i) {
@@ -401,21 +401,21 @@ void Game::setItemAt(Coord pos, ITEM i) {
 		return;
 
 	// place the item here
-	gridItems[pos.x][pos.y] = i;
+	gridItems_[pos.x][pos.y] = i;
 }
 
 TILE Game::getTileAt(Coord pos) {
 	if (pos.x >= 200 || pos.x < 0 || pos.y >= 200 || pos.y < 0)
 		return TILE_NONE;
-	return gridTiles[pos.x][pos.y];
+	return gridTiles_[pos.x][pos.y];
 }
 
 Program* Game::getProgramAt(Coord pos) {
-	return gridPrograms[pos.x][pos.y];
+	return gridPrograms_[pos.x][pos.y];
 }
 
 ITEM Game::getItemAt(Coord pos) {
-	return gridItems[pos.x][pos.y];
+	return gridItems_[pos.x][pos.y];
 }
 
 bool Game::isOOB(Coord pos) {
@@ -426,14 +426,14 @@ bool Game::isOOB(Coord pos) {
 }
 
 bool Game::isTiled(Coord pos) {
-	if (isOOB(pos) || gridTiles[pos.x][pos.y] == TILE_NONE)
+	if (isOOB(pos) || gridTiles_[pos.x][pos.y] == TILE_NONE)
 		return false;
 	else
 		return true;
 }
 
 Player* Game::getPlayerByID(int playerID) {
-	Iterator<Team*> itTeams = teamList->getIterator();
+	Iterator<Team*> itTeams = teamList_->getIterator();
 	while (itTeams.hasNext()) {
 		Team* currTeam = itTeams.next();
 		Player* p = currTeam->getPlayerByID(playerID);
@@ -450,9 +450,7 @@ GAMESTATUS Game::getStatus() {
 
 void Game::setStatus(GAMESTATUS g) {
 	switch (g) {
-	case GAMESTATUS_NO_GAME:
-		break;
-	case GAMESTATUS_PLACING_PROGRAMS:
+	case GAMESTATUS_PREGAME:
 		break;
 	case GAMESTATUS_PLAYING:
 		for (int x = 0; x < 200; x++) for (int y = 0; y < 200; y++)
@@ -471,17 +469,15 @@ void Game::setStatus(GAMESTATUS g) {
 					// send the current player turn to each client
 					msg.type = MSGTYPE_NEXTTURN;
 					msg.clientID = 0;
-					msg.playerID = teamList->getFirst()->getAllPlayers()->getFirst()->getPlayerID();
+					msg.playerID = teamList_->getFirst()->getAllPlayers()->getFirst()->getPlayerID();
 					_server->sendMessageToAllClients(msg);
 
 					// set the turn to be the first player
-					currTurnPlayer = getPlayerByID(msg.playerID);
+					currTurnPlayer_ = getPlayerByID(msg.playerID);
 				}
 			}
 		break;
-	case GAMESTATUS_WON:
-		break;
-	case GAMESTATUS_LOST:
+	case GAMESTATUS_END:
 		break;
 	}
 
@@ -502,11 +498,11 @@ void Game::moveProgramTo(Program* p, Coord c) {
 }
 
 Player* Game::getCurrTurnPlayer() {
-	return currTurnPlayer;
+	return currTurnPlayer_;
 }
 
 void Game::setCurrTurnPlayer(Player* p) {
-	currTurnPlayer = p;
+	currTurnPlayer_ = p;
 
 	if (serverSide_) {
 		// send a message saying it's this player's turn
@@ -519,11 +515,11 @@ void Game::setCurrTurnPlayer(Player* p) {
 }
 
 LinkedList<Team*>* Game::getAllTeams() {
-	return teamList;
+	return teamList_;
 }
 
 Team* Game::getTeamByNum(int teamNum) {
-	Iterator<Team*> it = teamList->getIterator();
+	Iterator<Team*> it = teamList_->getIterator();
 	while (it.hasNext()) {
 		Team* curr = it.next();
 		if (curr->getTeamNum() == teamNum)
@@ -536,16 +532,16 @@ Team* Game::getTeamByNum(int teamNum) {
 Player* Game::getFollowingPlayer(Player* currPlayer) {
 	Team* currTeam = getTeamByNum(currPlayer->getTeam());
 
-	int teamIndex = teamList->getIndexOf(currTeam);
+	int teamIndex = teamList_->getIndexOf(currTeam);
 	int playerIndex = currTeam->getAllPlayers()->getIndexOf(currPlayer);
 
 	// if this is the last player on the current team
 	if (currTeam->getAllPlayers()->getLast() == currPlayer) {
 		// if this is the last team
-		if (teamList->getLast() == currTeam) {
-			return teamList->getFirst()->getAllPlayers()->getFirst();
+		if (teamList_->getLast() == currTeam) {
+			return teamList_->getFirst()->getAllPlayers()->getFirst();
 		} else {
-			return teamList->getObjectAt(teamIndex + 1)->getAllPlayers()->getFirst();
+			return teamList_->getObjectAt(teamIndex + 1)->getAllPlayers()->getFirst();
 		}
 	} else { // if this is NOT the last player on the current team
 		return currTeam->getAllPlayers()->getObjectAt(playerIndex + 1);
@@ -561,7 +557,7 @@ bool Game::isServerSide() {
 void Game::checkForWinCondition() {
 	int currTeamWinning = -1;
 
-	Iterator<Team*> itTeam = teamList->getIterator();
+	Iterator<Team*> itTeam = teamList_->getIterator();
 	while (itTeam.hasNext()) { // check each team
 		Team* currTeam = itTeam.next();
 		Iterator<Player*> itPlayer = currTeam->getAllPlayers()->getIterator();
@@ -583,7 +579,7 @@ void Game::checkForWinCondition() {
 		Message m;
 		m.type = MSGTYPE_INFO;
 		m.infoType = MSGINFOTYPE_GAMESTATUS;
-		m.statusType = GAMESTATUS_WON;
+		m.statusType = GAMESTATUS_END;
 		m.team = currTeamWinning;
 		_server->sendMessageToAllClients(m);
 		printf("SERVER: game detected winning condition for team %i\n", currTeamWinning);

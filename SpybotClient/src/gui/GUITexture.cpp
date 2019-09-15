@@ -27,7 +27,7 @@ GUITexture::GUITexture(GUIContainer* parent, ANCHOR a, Coord disp, std::string s
 	texture_ = loadString(str, FONT_NORMAL, fontSize, _color_white);
 	int w, h;
 	SDL_QueryTexture(texture_, NULL, NULL, &w, &h);
-	setBounds(disp, { w, h });
+	setDimensions({ w, h });
 	willDestroyTexture_ = true;
 }
 
@@ -45,21 +45,24 @@ bool GUITexture::mouseUp() {
 }
 
 void GUITexture::draw() {
-	SDL_RenderCopy(_renderer, texture_, NULL, &bounds);
+	SDL_SetTextureAlphaMod(texture_, currAlpha_);
+	SDL_RenderCopy(_renderer, texture_, NULL, &bounds_);
 
-	if (_debug >= DEBUG_NORMAL) drawBounds();
+	if (_debug >= DEBUG_NORMAL)
+		drawBounds();
 }
 
 void GUITexture::setTransparency(int a) {
-	if (a > 255) currAlpha = 255;
-	else if (a < 0) currAlpha = 0;
-	else currAlpha = a;
-
-	SDL_SetTextureAlphaMod(texture_, currAlpha);
+	if (a > 255)
+		currAlpha_ = 255;
+	else if (a < 0)
+		currAlpha_ = 0;
+	else
+		currAlpha_ = a;
 }
 
 void GUITexture::tick(int ms) {
-	fadeStep(ms);
+	processEffects(ms);
 	return;
 }
 

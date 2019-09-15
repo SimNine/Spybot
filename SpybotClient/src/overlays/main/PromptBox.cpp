@@ -11,14 +11,14 @@ PromptBox::PromptBox(ANCHOR anchor, Coord disp, Coord dims, GUIContainer* parent
 	: GUIContainer(parent, anchor, disp, dims, _color_bkg_standard) {
 	promptText_ = prompt;
 
-	okButton_ = new GUIButton(this, ANCHOR_SOUTHWEST, { 20, -20 }, "Ok", 50, onOk);
-	addObject(okButton_);
+	okButton_ = new GUIButton(this, ANCHOR_SOUTHWEST, { 20, -20 }, "OK", 50, onOk);
+	this->addObject(okButton_);
 
-	cancelButton_ = new GUIButton(this, ANCHOR_SOUTHEAST, { -20, -20 }, "Cancel", 50, onCancel);
-	addObject(cancelButton_);
+	cancelButton_ = new GUIButton(this, ANCHOR_SOUTHEAST, { -20, -20 }, "CANCEL", 50, onCancel);
+	this->addObject(cancelButton_);
 
-	entryField_ = new GUITextbox(this, ANCHOR_NORTHWEST, { 5, 50 }, { bounds.w - 10, textSize_ }, DEFAULT_MSG_TEXTSIZE, false);
-	addObject(entryField_);
+	entryField_ = new GUITextbox(this, ANCHOR_NORTHWEST, { 5, 50 }, { bounds_.w - 10, textSize_ }, DEFAULT_MSG_TEXTSIZE, false);
+	this->addObject(entryField_);
 }
 
 PromptBox::~PromptBox() {
@@ -38,10 +38,10 @@ void PromptBox::draw() {
 
 	// draw prompt
 	SDL_Rect tempBounds;
-	SDL_Texture* name = loadString(promptText_, FONT_NORMAL, textSize_, { 255, 255, 255, 255 });
+	SDL_Texture* name = loadString(promptText_, FONT_NORMAL, textSize_, { 255, 255, 255, (Uint8)currAlpha_ });
 	SDL_QueryTexture(name, NULL, NULL, &tempBounds.w, &tempBounds.h);
-	tempBounds.x = bounds.x + 5;
-	tempBounds.y = bounds.y + 5;
+	tempBounds.x = bounds_.x + 5;
+	tempBounds.y = bounds_.y + 5;
 	SDL_RenderCopy(_renderer, name, NULL, &tempBounds);
 	SDL_DestroyTexture(name);
 }

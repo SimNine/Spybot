@@ -2,14 +2,13 @@
 
 #include "Standard.h"
 
-class Server;
 struct Message;
 class Player;
 class User;
 
 class Pipe {
 public:
-	Pipe(SOCKET socket, Server* server);
+	Pipe(SOCKET socket);
 	virtual ~Pipe();
 
 	void listenData();
@@ -17,11 +16,11 @@ public:
 
 	int getClientID();
 
-	User* getUser();
-	void setUser(User* user);
+	std::string getUser();
+	void setUser(std::string user);
 
-	Player* getPlayer();
-	void setPlayer(Player* p);
+	int getPlayer();
+	void setPlayer(int playerID);
 
 	void close();
 	bool isClosed();
@@ -29,13 +28,10 @@ protected:
 
 private:
 	SOCKET socket_;
-	Server* server_;
 	int clientID_;
 
-	// the user that the client is currently logged in as
-	User* user_;
-
-	Player* player_;
+	std::string user_;
+	int playerID_;
 
 	bool closed_;
 };

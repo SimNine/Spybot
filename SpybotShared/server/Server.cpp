@@ -45,27 +45,27 @@ Server::~Server() {
 }
 
 void Server::processAllMessages() {
-	mtx.lock();
+	mtx_.lock();
 	while (msgQueue_->getLength() > 0) {
 		Message* m = msgQueue_->removeFirst();
 		processMessage(m);
 		delete m;
 	}
-	mtx.unlock();
+	mtx_.unlock();
 }
 
 void Server::sendMessageToAllClients(Message message) {
 	Iterator<Pipe*> it = clients_->getIterator();
 	while (it.hasNext()) {
 		Pipe* curr = it.next();
-		if (curr->getUser() != NULL)
+		if (curr->getUser() != "")
 			curr->sendData(message);
 	}
 }
 
 void Server::sendMessageToClient(Message message, int clientID) {
 	Pipe* curr = getClientByID(clientID);
-	if (curr->getUser() != NULL)
+	if (curr->getUser() != "")
 		curr->sendData(message);
 }
 
@@ -73,7 +73,7 @@ void Server::sendMessageToAllClientsExcept(Message message, int clientID) {
 	Iterator<Pipe*> it = clients_->getIterator();
 	while (it.hasNext()) {
 		Pipe* curr = it.next();
-		if (curr->getClientID() != clientID && curr->getUser() != NULL)
+		if (curr->getClientID() != clientID && curr->getUser() != "")
 			curr->sendData(message);
 	}
 }
@@ -92,14 +92,105 @@ Pipe* Server::getClientByID(int clientID) {
 }
 
 void Server::recieveMessage(Message message) {
-	mtx.lock();
+	mtx_.lock();
 	msgQueue_->addLast(new Message(message));
-	mtx.unlock();
+	mtx_.unlock();
 }
 
+// attempts attempts to log a Client in
+void Server::tryLogin(Pipe* client, Message m) {
+	char* tokens[1024];
+	int numTokens = tokenize(tokens, (std::string(m.text) + "\n").c_str(), '\n');
+	std::string username = std::string(tokens[0]);
+	std::string password = std::string(tokens[1]);
+
+	if (m.type == MSGTYPE_CREATEUSER) {
+		if (username.length() <= 0) {
+			printf("SERVER ERR: client tried to create an account with a blank username\n");
+
+			Message m;
+			m.type = MSGTYPE_CREATEUSER;
+			strncpy_s(m.text, DEFAULT_MSG_TEXTSIZE, "ERR: username cannot be blank", DEFAULT_MSG_TEXTSIZE);
+			client->sendData(m);
+		} else if (getUserByName(username) != NULL) {
+			printf("SERVER ERR: client tried to create an account with a name that already exists\n");
+
+			Message m;
+			m.type = MSGTYPE_CREATEUSER;
+			strncpy_s(m.text, DEFAULT_MSG_TEXTSIZE, "ERR: username already taken", DEFAULT_MSG_TEXTSIZE);
+			client->sendData(m);
+		} else if (password.length() <= 0) {
+			printf("SERVER ERR: tried to create an account with a blank password\n");
+
+			Message m;
+			m.type = MSGTYPE_CREATEUSER;
+			strncpy_s(m.text, DEFAULT_MSG_TEXTSIZE, "ERR: password cannot be blank", DEFAULT_MSG_TEXTSIZE);
+			client->sendData(m);
+		} else {
+			// create and login the new user
+			User* newUser = new User();
+			newUser->username_ = username;
+			newUser->password_ = password;
+			users_->addFirst(newUser);
+			saveUsers();
+
+			// log in the user
+			login(client, newUser);
+		}
+	} else if (m.type == MSGTYPE_LOGIN) {
+		if (username.length() <= 0) {
+			printf("SERVER ERR: client tried to log into an account with a blank username\n");
+
+			Message m;
+			m.type = MSGTYPE_CREATEUSER;
+			strncpy_s(m.text, DEFAULT_MSG_TEXTSIZE, "ERR: username cannot be blank", DEFAULT_MSG_TEXTSIZE);
+			client->sendData(m);
+		} else {
+			User* requestedUser = getUserByName(username);
+			if (requestedUser == NULL) {
+				printf("SERVER ERR: requested user does not exist in database\n");
+
+				Message m;
+				m.type = MSGTYPE_CREATEUSER;
+				strncpy_s(m.text, DEFAULT_MSG_TEXTSIZE, "ERR: user not found", DEFAULT_MSG_TEXTSIZE);
+				client->sendData(m);
+			} else if (requestedUser->loggedIn_) {
+				printf("SERVER ERR: requested user is already logged in\n");
+
+				Message m;
+				m.type = MSGTYPE_CREATEUSER;
+				strncpy_s(m.text, DEFAULT_MSG_TEXTSIZE, "ERR: user already logged in", DEFAULT_MSG_TEXTSIZE);
+				client->sendData(m);
+			} else if (password.length() <= 0) {
+				printf("SERVER ERR: tried to log into an account with a blank password\n");
+
+				Message m;
+				m.type = MSGTYPE_CREATEUSER;
+				strncpy_s(m.text, DEFAULT_MSG_TEXTSIZE, "ERR: password cannot be blank", DEFAULT_MSG_TEXTSIZE);
+				client->sendData(m);
+			} else {
+				if (requestedUser->password_.compare(password) == 0) {
+					// log in this client
+					login(client, requestedUser);
+				} else {
+					printf("SERVER: client tried to log into user %s with wrong password %s\n", requestedUser->username_.c_str(), password.c_str());
+
+					Message m;
+					m.type = MSGTYPE_CREATEUSER;
+					strncpy_s(m.text, DEFAULT_MSG_TEXTSIZE, "ERR: incorrect password", DEFAULT_MSG_TEXTSIZE);
+					client->sendData(m);
+				}
+			}
+		}
+	}
+
+	destroyTokens(tokens);
+}
+
+// logs a Client in as the given User
 void Server::login(Pipe* client, User* user) {
 	// set this client's user
-	client->setUser(user);
+	client->setUser(user->username_);
 
 	// if there is no owner client, make this it
 	if (ownerClient_ == NULL)
@@ -110,7 +201,7 @@ void Server::login(Pipe* client, User* user) {
 	m.clientID = client->getClientID();
 	m.actionID = (client == ownerClient_) ? 9000 : 0;
 	m.type = MSGTYPE_LOGIN;
-	strncpy_s(m.text, DEFAULT_MSG_TEXTSIZE, client->getUser()->username_.c_str(), DEFAULT_MSG_TEXTSIZE);
+	strncpy_s(m.text, DEFAULT_MSG_TEXTSIZE, client->getUser().c_str(), DEFAULT_MSG_TEXTSIZE);
 	sendMessageToAllClientsExcept(m, client->getClientID());
 
 	// send the issuing client a message for every client currently connected
@@ -119,14 +210,14 @@ void Server::login(Pipe* client, User* user) {
 		Pipe* curr = it.next();
 
 		// check that this client is logged in
-		if (curr->getUser() == NULL)
+		if (curr->getUser() == "")
 			continue;
 
 		// send the newly connected client a list of all clients
 		Message m;
 		m.type = MSGTYPE_LOGIN;
 		m.clientID = curr->getClientID();
-		strncpy_s(m.text, DEFAULT_MSG_TEXTSIZE, curr->getUser()->username_.c_str(), DEFAULT_MSG_TEXTSIZE);
+		strncpy_s(m.text, DEFAULT_MSG_TEXTSIZE, curr->getUser().c_str(), DEFAULT_MSG_TEXTSIZE);
 		m.actionID = ((curr == ownerClient_) ? 9000 : 0);
 		client->sendData(m);
 	}
@@ -135,7 +226,7 @@ void Server::login(Pipe* client, User* user) {
 	for (int i = 0; i < PROGRAM_NUM_PROGTYPES; i++) {
 		m.type = MSGTYPE_PROGINVENTORY;
 		m.progType = (PROGRAM)i;
-		m.programID = client->getUser()->progs_[i];
+		m.programID = getUserByName(client->getUser())->progs_[i];
 		client->sendData(m);
 	}
 
@@ -162,93 +253,8 @@ void Server::processMessage(Message* msg) {
 	}
 
 	// if this client isn't logged in (and isn't the server)
-	if (issuingClient != NULL && issuingClient->getUser() == NULL) {
-		char* tokens[1024];
-		int numTokens = tokenize(tokens, (std::string(msg->text) + "\n").c_str(), '\n');
-		std::string username = std::string(tokens[0]);
-		std::string password = std::string(tokens[1]);
-
-		if (msg->type == MSGTYPE_CREATEUSER) {
-			if (username.length() <= 0) {
-				printf("SERVER ERR: client tried to create an account with a blank username\n");
-
-				Message m;
-				m.type = MSGTYPE_CREATEUSER;
-				strncpy_s(m.text, DEFAULT_MSG_TEXTSIZE, "ERR: username cannot be blank", DEFAULT_MSG_TEXTSIZE);
-				issuingClient->sendData(m);
-			} else if (getUserByName(username) != NULL) {
-				printf("SERVER ERR: client tried to create an account with a name that already exists\n");
-
-				Message m;
-				m.type = MSGTYPE_CREATEUSER;
-				strncpy_s(m.text, DEFAULT_MSG_TEXTSIZE, "ERR: username already taken", DEFAULT_MSG_TEXTSIZE);
-				issuingClient->sendData(m);
-			} else if (password.length() <= 0) {
-				printf("SERVER ERR: tried to create an account with a blank password\n");
-
-				Message m;
-				m.type = MSGTYPE_CREATEUSER;
-				strncpy_s(m.text, DEFAULT_MSG_TEXTSIZE, "ERR: password cannot be blank", DEFAULT_MSG_TEXTSIZE);
-				issuingClient->sendData(m);
-			} else {
-				// create and login the new user
-				User* newUser = new User();
-				newUser->username_ = username;
-				newUser->password_ = password;
-				users_->addFirst(newUser);
-				saveUsers();
-
-				// log in the user
-				login(issuingClient, newUser);
-			}
-		} else if (msg->type == MSGTYPE_LOGIN) {
-			if (username.length() <= 0) {
-				printf("SERVER ERR: client tried to log into an account with a blank username\n");
-
-				Message m;
-				m.type = MSGTYPE_CREATEUSER;
-				strncpy_s(m.text, DEFAULT_MSG_TEXTSIZE, "ERR: username cannot be blank", DEFAULT_MSG_TEXTSIZE);
-				issuingClient->sendData(m);
-			} else {
-				User* requestedUser = getUserByName(username);
-				if (requestedUser == NULL) {
-					printf("SERVER ERR: requested user does not exist in database\n");
-
-					Message m;
-					m.type = MSGTYPE_CREATEUSER;
-					strncpy_s(m.text, DEFAULT_MSG_TEXTSIZE, "ERR: user not found", DEFAULT_MSG_TEXTSIZE);
-					issuingClient->sendData(m);
-				} else if (requestedUser->loggedIn_) {
-					printf("SERVER ERR: requested user is already logged in\n");
-
-					Message m;
-					m.type = MSGTYPE_CREATEUSER;
-					strncpy_s(m.text, DEFAULT_MSG_TEXTSIZE, "ERR: user already logged in", DEFAULT_MSG_TEXTSIZE);
-					issuingClient->sendData(m);
-				} else if (password.length() <= 0) {
-					printf("SERVER ERR: tried to log into an account with a blank password\n");
-
-					Message m;
-					m.type = MSGTYPE_CREATEUSER;
-					strncpy_s(m.text, DEFAULT_MSG_TEXTSIZE, "ERR: password cannot be blank", DEFAULT_MSG_TEXTSIZE);
-					issuingClient->sendData(m);
-				} else {
-					if (requestedUser->password_.compare(password) == 0) {
-						// log in this client
-						login(issuingClient, requestedUser);
-					} else {
-						printf("SERVER: client tried to log into user %s with wrong password %s\n", requestedUser->username_.c_str(), password.c_str());
-
-						Message m;
-						m.type = MSGTYPE_CREATEUSER;
-						strncpy_s(m.text, DEFAULT_MSG_TEXTSIZE, "ERR: incorrect password", DEFAULT_MSG_TEXTSIZE);
-						issuingClient->sendData(m);
-					}
-				}
-			}
-		}
-
-		destroyTokens(tokens);
+	if (issuingClient != NULL && issuingClient->getUser() == "") {
+		tryLogin(issuingClient, *msg);
 		return;
 	}
 
@@ -268,11 +274,11 @@ void Server::processMessage(Message* msg) {
 		if (game_->getStatus() != GAMESTATUS_PLAYING)
 			return;
 
-		if (game_->getCurrTurnPlayer() != issuingClient->getPlayer())
+		if (game_->getCurrTurnPlayer()->getPlayerID() != issuingClient->getPlayer())
 			return;
 
 		{
-			Player* p = issuingClient->getPlayer();
+			Player* p = game_->getPlayerByID(issuingClient->getPlayer());
 			p->moveSelectedProgram(msg->pos);
 		}
 		break;
@@ -316,6 +322,11 @@ void Server::processMessage(Message* msg) {
 
 			game_ = new Game(true, savePath_ + "/" + to_string(msg->levelNum) + ".urf");
 			sendMessageToAllClients(*msg);
+
+			Iterator<Pipe*> it = clients_->getIterator();
+			while (it.hasNext()) {
+				it.next()->setPlayer(-1);
+			}
 		} else {
 			Message err;
 			err.type = MSGTYPE_ERROR;
@@ -330,7 +341,7 @@ void Server::processMessage(Message* msg) {
 		if (game_ == NULL) {
 			printf("SERVER ERR: client %i tried to join a game that doesn't exist\n", msg->clientID);
 			return;
-		} else if (issuingClient->getPlayer() == NULL) {
+		} else if (issuingClient->getPlayer() == -1) {
 			printf("SERVER: client %i has joined the current game\n", msg->clientID);
 
 			// if team 0 doesn't exist, create it
@@ -345,7 +356,7 @@ void Server::processMessage(Message* msg) {
 			newPlayer->setPlayerID(msg->playerID);
 			Team* teamPtr = game_->getTeamByNum(team);
 			teamPtr->getAllPlayers()->addFirst(newPlayer);
-			issuingClient->setPlayer(newPlayer);
+			issuingClient->setPlayer(msg->playerID);
 
 			// send this client's new unique playerID to every client
 			sendMessageToAllClients(*msg);
@@ -357,10 +368,10 @@ void Server::processMessage(Message* msg) {
 	case MSGTYPE_SELECT:
 	{
 		if (msg->selectType == MSGSELECTTYPE_TILE) {
-			Player* p = issuingClient->getPlayer();
+			Player* p = game_->getPlayerByID(issuingClient->getPlayer());
 			p->setSelectedTile(msg->pos);
 		} else if (msg->selectType == MSGSELECTTYPE_ACTION) {
-			Player* p = issuingClient->getPlayer();
+			Player* p = game_->getPlayerByID(issuingClient->getPlayer());
 			p->setSelectedAction(p->getSelectedProgram()->getActions()->getObjectAt(msg->actionID));
 		}
 		break;
@@ -428,12 +439,12 @@ void Server::processMessage(Message* msg) {
 		sendMessageToAllClients(*msg);
 		break;
 	case MSGTYPE_ACTION:
-		issuingClient->getPlayer()->useSelectedActionAt(msg->pos);
+		game_->getPlayerByID(issuingClient->getPlayer())->useSelectedActionAt(msg->pos);
 		break;
 	case MSGTYPE_PLACEPROG:
 	{
 		// check for correct game status
-		if (game_->getStatus() != GAMESTATUS_PLACING_PROGRAMS) {
+		if (game_->getStatus() != GAMESTATUS_PREGAME) {
 			Message err;
 			err.type = MSGTYPE_ERROR;
 			strncpy_s(err.text, DEFAULT_MSG_TEXTSIZE, "ERR: what did you do? the gamestatus does not indicate placing programs", DEFAULT_MSG_TEXTSIZE);
@@ -455,12 +466,12 @@ void Server::processMessage(Message* msg) {
 			Iterator<Pipe*> it = clients_->getIterator();
 			while (it.hasNext()) {
 				Pipe* curr = it.next();
-				if (curr->getPlayer() == currProg->getOwner())
-					u = curr->getUser();
+				if (game_->getPlayerByID(curr->getPlayer()) == currProg->getOwner())
+					u = getUserByName(curr->getUser());
 			}
 
 			if (u == NULL)
-				printf("SERVER ERR?: replaced program had no related user?\n");
+				printf("SERVER ERR: replaced program had no related user?\n");
 
 			u->progs_[currProg->getType()]++;
 			currProg->getOwner()->getProgList()->remove(currProg);
@@ -474,7 +485,7 @@ void Server::processMessage(Message* msg) {
 		response.team = 0;
 		if (msg->progType != PROGRAM_NONE) {
 			Program* p = new Program(msg->progType, 0, msg->pos);
-			issuingClient->getUser()->progs_[msg->progType]--;
+			getUserByName(issuingClient->getUser())->progs_[msg->progType]--;
 			p->setProgramID(randInt());
 			game_->getPlayerByID(msg->playerID)->addProgram(p);
 			game_->setProgramAt(msg->pos, p);
@@ -488,23 +499,23 @@ void Server::processMessage(Message* msg) {
 
 		sendMessageToAllClients(response);
 	}
-		break;
+	break;
 	case MSGTYPE_PROGINVENTORY:
-		issuingClient->getUser()->progs_[msg->progType] += msg->programID;
+		getUserByName(issuingClient->getUser())->progs_[msg->progType] += msg->programID;
 		saveUsers();
 
 		Message m;
 		m.type = MSGTYPE_PROGINVENTORY;
 		m.clientID = 0;
 		m.progType = msg->progType;
-		m.programID = issuingClient->getUser()->progs_[msg->progType];
+		m.programID = getUserByName(issuingClient->getUser())->progs_[msg->progType];
 		sendMessageToClient(m, msg->clientID);
 		break;
 	}
 }
 
 void Server::connect(SOCKET client) {
-	Pipe* newPipe = new Pipe(client, this);
+	Pipe* newPipe = new Pipe(client);
 	clients_->addFirst(newPipe);
 
 	std::thread newThread(&Pipe::listenData, newPipe);
@@ -534,7 +545,7 @@ void Server::disconnect(Pipe* client) {
 
 	// remove the player from the game
 	if (game_ != NULL) {
-		Player* p = client->getPlayer();
+		Player* p = game_->getPlayerByID(client->getPlayer());
 		Team* t = game_->getTeamByNum(p->getTeam());
 		t->getAllPlayers()->remove(p);
 		delete p;
@@ -552,8 +563,8 @@ void Server::quitAll() {
 	while (it.hasNext()) {
 		Pipe* curr = it.next();
 
-		if (curr->getPlayer() != NULL) {
-			curr->setPlayer(NULL);
+		if (curr->getPlayer() != -1) {
+			curr->setPlayer(-1);
 
 			Message m;
 			m.type = MSGTYPE_LEAVE;

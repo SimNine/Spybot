@@ -16,7 +16,7 @@
 #include "BackgroundOverlay.h"
 
 LobbyOverlay::LobbyOverlay()
-	: GUIContainer(NULL, ANCHOR_NORTHWEST, { 0, 0 }, { _SCREEN_WIDTH, _SCREEN_HEIGHT }, NULL) {
+	: GUIContainer(NULL, ANCHOR_NORTHWEST, { 0, 0 }, { _screenWidth, _screenHeight }, _color_clear) {
 	buildGUI();
 }
 
@@ -73,7 +73,7 @@ void LobbyOverlay::draw() {
 	int yOffsetDefault = 50;
 	int yOffset = yOffsetDefault;
 	int textSize = 24;
-	SDL_Rect configBounds = *gameConnectedPlayerContainer_->getBounds();
+	SDL_Rect configBounds = gameConnectedPlayerContainer_->getBounds();
 	while (clients.hasNext()) {
 		ClientMirror* currID = clients.next();
 		SDL_Rect textBound;
@@ -93,9 +93,9 @@ void LobbyOverlay::draw() {
 
 	// render highlight for selected gamemode
 	if (gameConfigButtonSelected_ != NULL) {
-		SDL_Rect* tempRect = gameConfigButtonSelected_->getBounds();
+		SDL_Rect tempRect = gameConfigButtonSelected_->getBounds();
 		SDL_Texture* buttonSelected = loadTexture(_lobby_button_gamemode_selected);
-		SDL_RenderCopy(_renderer, buttonSelected, NULL, tempRect);
+		SDL_RenderCopy(_renderer, buttonSelected, NULL, &tempRect);
 		SDL_DestroyTexture(buttonSelected);
 	}
 }

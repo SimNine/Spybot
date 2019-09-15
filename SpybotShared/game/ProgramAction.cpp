@@ -2,17 +2,17 @@
 #include "ProgramAction.h"
 
 ProgramAction::ProgramAction(ACTIONTYPE t, std::string name, std::string description, int range, int power, int reqSize) {
-	this->type = t;
-	this->name = name;
-	this->description = description;
-	this->range = range;
-	this->power = power;
-	this->requiredSize = reqSize;
-	this->actionID = -1;
+	this->type_ = t;
+	this->name_ = name;
+	this->description_ = description;
+	this->range_ = range;
+	this->power_ = power;
+	this->requiredSize_ = reqSize;
+	this->actionID_ = -1;
 }
 
 ProgramAction::ProgramAction(MOVEPRESET p) {
-	this->actionID = -1;
+	this->actionID_ = -1;
 
 	switch (p) {
 	case MOVEPRESET_BASH:
@@ -218,15 +218,15 @@ ProgramAction::ProgramAction(MOVEPRESET p) {
 ProgramAction::~ProgramAction() {
 	//if (debug >= DEBUG_NORMAL)
 	{
-		printf("Move '%s' deleted\n", name.c_str());
+		printf("Move '%s' deleted\n", name_.c_str());
 	}
 }
 
 void ProgramAction::setMove(ACTIONTYPE t, std::string name, std::string description, int range, int power, int reqSize) {
-	this->type = t;
-	this->name = name;
-	this->description = description;
-	this->range = range;
-	this->power = power;
-	this->requiredSize = reqSize;
+	this->type_ = t;
+	this->name_ = name;
+	this->description_ = description;
+	this->range_ = range;
+	this->power_ = power;
+	this->requiredSize_ = reqSize;
 }

@@ -6,7 +6,7 @@
 #include "GlowSpeck.h"
 
 BackgroundOverlay::BackgroundOverlay()
-	: GUIContainer(NULL, ANCHOR_NORTHWEST, { 0, 0 }, { _SCREEN_WIDTH, _SCREEN_HEIGHT }, NULL) {
+	: GUIContainer(NULL, ANCHOR_NORTHWEST, { 0, 0 }, { _screenWidth, _screenHeight }, _color_clear) {
 	glowList_ = new LinkedList<GlowSpeck*>();
 	textBkgDisplacement_ = 0;
 }
@@ -26,8 +26,8 @@ void BackgroundOverlay::draw() {
 	// draw the text chunk
 	SDL_Rect destRect;
 	SDL_QueryTexture(_main_bkgdata, NULL, NULL, &destRect.w, &destRect.h);
-	for (int x = 0; x < _SCREEN_WIDTH; x += destRect.w) {
-		for (int y = -textBkgDisplacement_; y < _SCREEN_HEIGHT + textBkgDisplacement_; y += destRect.h) {
+	for (int x = 0; x < _screenWidth; x += destRect.w) {
+		for (int y = -textBkgDisplacement_; y < _screenHeight + textBkgDisplacement_; y += destRect.h) {
 			destRect.x = x;
 			destRect.y = y;
 			SDL_RenderCopy(_renderer, _main_bkgdata, NULL, &destRect);
@@ -57,8 +57,8 @@ void BackgroundOverlay::tick(int ms) {
 			delList.addFirst(currObj);
 		} else if (currObj->getPos().x + currObj->getRadius() < 0 ||
 			currObj->getPos().y + currObj->getRadius() < 0 ||
-			currObj->getPos().x > _SCREEN_WIDTH ||
-			currObj->getPos().y > _SCREEN_HEIGHT) {
+			currObj->getPos().x > _screenWidth ||
+			currObj->getPos().y > _screenHeight) {
 			delList.addFirst(currObj);
 		}
 	}

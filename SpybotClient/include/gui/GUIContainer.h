@@ -1,51 +1,42 @@
-#ifndef GUI_CONTAINER_H
-#define GUI_CONTAINER_H
+#pragma once
 
 #include "Standard.h"
 #include "GUIObject.h"
 #include "LinkedList.h"
 
-class GUIContainer : public GUIObject
-{
-    public:
-        GUIContainer(GUIContainer* parent, ANCHOR anch, Coord disp, Coord dims, SDL_Texture* bkg);
-		GUIContainer(GUIContainer* parent, ANCHOR anch, Coord disp, Coord dims, SDL_Color col);
-        GUIContainer(GUIContainer* parent, ANCHOR anch, Coord disp, SDL_Texture* bkg);
+class GUIContainer : public GUIObject {
+public:
+	GUIContainer(GUIContainer* parent, ANCHOR anch, Coord disp, Coord dims, SDL_Color col);
 
-        virtual ~GUIContainer();
-        SDL_Texture* getBackgroundImg();
-        SDL_Color getBackgroundCol();
-        void setBackgroundImg(SDL_Texture*);
-        void setBackgroundCol(SDL_Color);
-        void addObject(GUIObject*);
-        void removeObject(GUIObject*);
-        void addAllObjects(LinkedList<GUIObject*>*);
-        LinkedList<GUIObject*>* getContents();
-        void setPressed(bool);
+	virtual ~GUIContainer();
+	SDL_Color getBackgroundCol();
+	void setBackgroundCol(SDL_Color);
+	void addObject(GUIObject*);
+	void removeObject(GUIObject*);
+	void addAllObjects(LinkedList<GUIObject*>*);
+	LinkedList<GUIObject*>* getContents();
+	void setPressed(bool);
 
-        void resetBounds();
-        void draw();
-        bool mouseDown();
-        bool mouseUp();
-        void tick(int);
-        void setTransparency(int);
+	void resetBounds();
+	void draw();
+	bool mouseDown();
+	bool mouseUp();
+	void tick(int);
+	void setTransparency(int);
 
-        void incDisplacement(Coord);
+	void incDisplacement(Coord);
 
-        bool isMovable();
-        void setMovable(bool);
+	bool isMovable();
+	void setMovable(bool);
 
-    protected:
-        SDL_Color* bkgCol;
-        SDL_Texture* bkgImg;
-        void drawBkg();
-        void drawContents();
+protected:
+	SDL_Color bkgCol_;
+	void drawBkg();
+	void drawContents();
 
-        bool movable;
+	bool movable_;
 
-        LinkedList<GUIObject*>* contents;
+	LinkedList<GUIObject*>* contents_;
 
-    private:
+private:
 };
-
-#endif // GUI_CONTAINER_H

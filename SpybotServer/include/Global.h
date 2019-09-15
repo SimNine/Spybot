@@ -1,5 +1,4 @@
-#ifndef GLOBAL_H
-#define GLOBAL_H
+#pragma once
 
 #include "Standard.h"
 
@@ -13,5 +12,3 @@ extern bool _quit;
 
 // debug level flag
 extern DEBUG _debug;
-
-#endif

@@ -28,21 +28,23 @@ public:
 	void loadMap(std::string);
 	void switchMap(MAPPRESET);
 
-	void togglePauseMenu();
+	void pauseMenuHide();
+	void pauseMenuShow();
 protected:
 private:
-	double bkgX;
-	double bkgY;
-	double shiftSpeed;
-	LinkedList<Node*>* nodeList;
-	bool isAnimOccurring;
-	Node* selectedNode;
+	SDL_Texture* bkgImg_;
+	double bkgX_, bkgY_;
+	double shiftSpeed_;
+	LinkedList<Node*>* nodeList_;
+	bool isAnimOccurring_;
+	Node* selectedNode_;
+	GUIContainer* levelConfirm_;
+	GUIButton* invToggleButton_;
+	ProgramInventoryDisplay* invDisplay_;
+	GUIContainer* pauseMenu_;
+
 	void drawBkg();
 	void drawNodes();
-	GUIContainer* levelConfirm;
-	GUIButton* invToggleButton;
-	ProgramInventoryDisplay* invDisplay;
-	GUIContainer* pauseMenu;
 
 	void generateDefaultMaps();
 };

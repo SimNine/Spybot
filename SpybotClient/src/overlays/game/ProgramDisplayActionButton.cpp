@@ -25,9 +25,7 @@ ProgramDisplayActionButton::~ProgramDisplayActionButton() {
 }
 
 void ProgramDisplayActionButton::setTransparency(int a) {
-	startAlpha = a;
-	endAlpha = a;
-	currAlpha = a;
+	currAlpha_ = a;
 }
 
 bool ProgramDisplayActionButton::mouseDown() {
@@ -59,10 +57,10 @@ void ProgramDisplayActionButton::draw() {
 		SDL_SetRenderDrawColor(_renderer, 255, 0, 0, 140);
 	else
 		SDL_SetRenderDrawColor(_renderer, 120, 120, 120, 140);
-	SDL_RenderFillRect(_renderer, &bounds);
+	SDL_RenderFillRect(_renderer, &bounds_);
 
 	// create clip rect
-	SDL_Rect clipRect = bounds;
+	SDL_Rect clipRect = bounds_;
 	clipRect.x += 5;
 	clipRect.y += 5;
 	clipRect.w = 50;
@@ -71,25 +69,25 @@ void ProgramDisplayActionButton::draw() {
 	// draw action icon
 	SDL_Color col = { 0, 0, 0, 0 };
 	SDL_Texture* tex = NULL;
-	if (action_->type == ACTIONTYPE_DAMAGE) {
+	if (action_->type_ == ACTIONTYPE_DAMAGE) {
 		tex = _game_icon_action_attack;
 		col = _color_action_attack;
-	} else if (action_->type == ACTIONTYPE_HEAL || action_->type == ACTIONTYPE_MAXHEALTHUP) {
+	} else if (action_->type_ == ACTIONTYPE_HEAL || action_->type_ == ACTIONTYPE_MAXHEALTHUP) {
 		tex = _game_icon_action_medic;
 		col = _color_action_medic;
-	} else if (action_->type == ACTIONTYPE_MAXHEALTHDOWN) {
+	} else if (action_->type_ == ACTIONTYPE_MAXHEALTHDOWN) {
 		tex = _game_icon_action_unmedic;
 		col = _color_action_unmedic;
-	} else if (action_->type == ACTIONTYPE_SPEEDDOWN) {
+	} else if (action_->type_ == ACTIONTYPE_SPEEDDOWN) {
 		tex = _game_icon_action_slow;
 		col = _color_action_slow;
-	} else if (action_->type == ACTIONTYPE_SPEEDUP) {
+	} else if (action_->type_ == ACTIONTYPE_SPEEDUP) {
 		tex = _game_icon_action_speedup;
 		col = _color_action_speedup;
-	} else if (action_->type == ACTIONTYPE_TILEPLACE) {
+	} else if (action_->type_ == ACTIONTYPE_TILEPLACE) {
 		tex = _game_icon_action_tilecreate;
 		col = _color_action_tilecreate;
-	} else if (action_->type == ACTIONTYPE_TILEDELETE) {
+	} else if (action_->type_ == ACTIONTYPE_TILEDELETE) {
 		tex = _game_icon_action_tiledestroy;
 		col = _color_action_tiledestroy;
 	} else
@@ -102,22 +100,22 @@ void ProgramDisplayActionButton::draw() {
 
 	// draw action name
 	SDL_SetRenderDrawColor(_renderer, 255, 255, 255, 255);
-	clipRect.x = bounds.x + 60;
-	clipRect.y = bounds.y + 10;
-	drawString(action_->name, FONT_NORMAL, 30, _color_white, clipRect);
+	clipRect.x = bounds_.x + 60;
+	clipRect.y = bounds_.y + 10;
+	drawString(action_->name_, FONT_NORMAL, 30, _color_white, clipRect);
 
 	// draw action specs
-	clipRect.x = bounds.x + bounds.w - 80;
-	clipRect.y = bounds.y;
-	drawString("Range: " + to_string(action_->range), FONT_NORMAL, 20, _color_white, clipRect);
+	clipRect.x = bounds_.x + bounds_.w - 80;
+	clipRect.y = bounds_.y;
+	drawString("Range: " + to_string(action_->range_), FONT_NORMAL, 20, _color_white, clipRect);
 	clipRect.y += 20;
-	drawString("Power: " + to_string(action_->power), FONT_NORMAL, 20, _color_white, clipRect);
+	drawString("Power: " + to_string(action_->power_), FONT_NORMAL, 20, _color_white, clipRect);
 	clipRect.y += 20;
-	drawString("Min Size: " + to_string(action_->requiredSize), FONT_NORMAL, 20, _color_white, clipRect);
+	drawString("Min Size: " + to_string(action_->requiredSize_), FONT_NORMAL, 20, _color_white, clipRect);
 
 	// draw tooltip
 	if (mouseIsOver) {
-		SDL_Texture* descText = loadString(this->action_->description, FONT_NORMAL, 20, _color_white);
+		SDL_Texture* descText = loadString(this->action_->description_, FONT_NORMAL, 20, _color_white);
 		SDL_QueryTexture(descText, NULL, NULL, &clipRect.w, &clipRect.h);
 		clipRect.x = _mousePos.x - clipRect.w;
 		clipRect.y = _mousePos.y;

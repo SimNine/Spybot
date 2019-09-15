@@ -1,5 +1,4 @@
-#ifndef PAIR_H
-#define PAIR_H
+#pragma once
 
 template <class T>
 class Pair {
@@ -16,5 +15,3 @@ public:
 protected:
 private:
 };
-
-#endif // PAIR_H

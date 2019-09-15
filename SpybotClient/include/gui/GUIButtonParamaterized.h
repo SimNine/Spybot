@@ -15,14 +15,14 @@ public:
 	}
 
 	bool mouseDown() {
-		pressed = true;
+		pressed_ = true;
 		return true;
 	}
 
 	bool mouseUp() {
-		if (pressed)
+		if (pressed_)
 			func_(obj_);
-		pressed = false;
+		pressed_ = false;
 		return true;
 	}
 protected:

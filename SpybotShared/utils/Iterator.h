@@ -1,10 +1,9 @@
-#ifndef ITERATOR_H_INCLUDED
-#define ITERATOR_H_INCLUDED
+#pragma once
 
 template<class T> class Iterator {
 public:
 	Iterator(ListNode<T>* n) {
-		currNode = n;
+		currNode_ = n;
 	};
 
 	~Iterator() {
@@ -12,21 +11,19 @@ public:
 	}
 
 	bool hasNext() {
-		if (currNode != NULL)
+		if (currNode_ != NULL)
 			return true;
 		else
 			return false;
 	}
 
 	T next() {
-		T temp = currNode->contents;
-		currNode = currNode->next;
+		T temp = currNode_->contents_;
+		currNode_ = currNode_->next_;
 		return temp;
 	}
 
 protected:
 private:
-	ListNode<T>* currNode;
+	ListNode<T>* currNode_;
 };
-
-#endif // ITERATOR_H_INCLUDED

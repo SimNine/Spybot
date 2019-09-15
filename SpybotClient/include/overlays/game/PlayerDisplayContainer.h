@@ -1,5 +1,4 @@
-#ifndef PLAYERDISPLAYCONTAINER_H
-#define PLAYERDISPLAYCONTAINER_H
+#pragma once
 
 #include "Standard.h"
 #include "GUIContainer.h"
@@ -14,5 +13,3 @@ public:
 protected:
 private:
 };
-
-#endif // PLAYERDISPLAYCONTAINER_H

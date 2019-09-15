@@ -1,5 +1,4 @@
-#ifndef STANDARD_H_INCLUDED
-#define STANDARD_H_INCLUDED
+#pragma once
 
 #include <string>
 #include <stdio.h>
@@ -28,5 +27,3 @@
 #include "Enums.h"
 #include "Coord.h"
 #include "Data.h"
-
-#endif // STANDARD_H_INCLUDED

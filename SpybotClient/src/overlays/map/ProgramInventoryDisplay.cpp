@@ -20,8 +20,8 @@ ProgramInventoryDisplay::~ProgramInventoryDisplay() {
 
 void ProgramInventoryDisplay::updateContents() {
 	// clear contents
-	while (contents->getLength() > 0) {
-		GUIObject* curr = contents->removeFirst();
+	while (contents_->getLength() > 0) {
+		GUIObject* curr = contents_->removeFirst();
 		delete curr;
 	}
 
@@ -47,14 +47,14 @@ void ProgramInventoryDisplay::updateContents() {
 			addObject(progButton);
 
 			row++;
-			if (100 + (row + 3)*h > _SCREEN_HEIGHT) {
+			if (100 + (row + 3)*h > _screenHeight) {
 				col++;
 				row = 0;
 			}
 		}
 	}
 
-	setBounds({ -20, 20 }, { 100 * (col + 1) + 40, _SCREEN_HEIGHT - 40 });
+	setDimensions({ 100 * (col + 1) + 40, _screenHeight - 40 });
 }
 
 void ProgramInventoryDisplay::resetBounds() {

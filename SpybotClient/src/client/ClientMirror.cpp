@@ -9,6 +9,7 @@ ClientMirror::ClientMirror() {
 		ownedProgs_[i] = 0;
 		inPlayProgs_[i] = 0;
 	}
+	credits_ = 0;
 }
 
 ClientMirror::~ClientMirror() {

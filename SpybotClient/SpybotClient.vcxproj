@@ -73,7 +73,7 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>C:\Users\curff\Desktop\Workspaces\C &amp; C++\Spybot\SpybotClient\include\overlays\background;C:\Users\curff\Desktop\Workspaces\C &amp; C++\Spybot\SpybotClient\include\overlays\locallogin;C:\Users\curff\Desktop\Workspaces\C &amp; C++\Spybot\SpybotClient\include\overlays\title;C:\Users\curff\Desktop\Workspaces\C &amp; C++\Spybot\SpybotClient\include\overlays\notify;C:\Users\curff\Desktop\Workspaces\C &amp; C++\Spybot\SpybotClient\include\overlays\map;C:\Users\curff\Desktop\Workspaces\C &amp; C++\Spybot\SpybotClient\include\overlays\main;C:\Users\curff\Desktop\Workspaces\C &amp; C++\Spybot\SpybotClient\include\overlays\lobby;C:\Users\curff\Desktop\Workspaces\C &amp; C++\Spybot\SpybotClient\include\overlays\game\animations\particles;C:\Users\curff\Desktop\Workspaces\C &amp; C++\Spybot\SpybotClient\include\overlays\game\animations;C:\Users\curff\Desktop\Workspaces\C &amp; C++\Spybot\SpybotClient\include\overlays\game;C:\Users\curff\Desktop\Workspaces\C &amp; C++\Spybot\SpybotClient\include\client;C:\Users\curff\Desktop\Workspaces\C &amp; C++\Spybot\SpybotClient\include\gui;C:\Users\curff\Desktop\Workspaces\C &amp; C++\Spybot\SpybotClient\include;C:\Users\curff\Desktop\Workspaces\C &amp; C++\Spybot\SpybotClient;C:\Users\curff\Desktop\Workspaces\C &amp; C++\Spybot\SpybotShared\utils;C:\Users\curff\Desktop\Workspaces\C &amp; C++\Spybot\SpybotShared\server;C:\Users\curff\Desktop\Workspaces\C &amp; C++\Spybot\SpybotShared\game;C:\Users\curff\Desktop\Workspaces\C &amp; C++\Spybot\SpybotShared;C:\Users\curff\Desktop\Workspaces\C &amp; C++\[Libraries]\SDL2-2.0.7-VC++\include;C:\Users\curff\Desktop\Workspaces\C &amp; C++\[Libraries]\SDL2_ttf-2.0.14-VC++\include;C:\Users\curff\Desktop\Workspaces\C &amp; C++\[Libraries]\SDL2_mixer-2.0.2-VC++\include;C:\Users\curff\Desktop\Workspaces\C &amp; C++\[Libraries]\SDL2_image-2.0.2-VC++\include;$(IncludePath)</IncludePath>
+    <IncludePath>C:\Users\curff\Desktop\Workspaces\C &amp; C++\Spybot\SpybotClient\include\overlays\background;C:\Users\curff\Desktop\Workspaces\C &amp; C++\Spybot\SpybotClient\include\overlays\locallogin;C:\Users\curff\Desktop\Workspaces\C &amp; C++\Spybot\SpybotClient\include\overlays\title;C:\Users\curff\Desktop\Workspaces\C &amp; C++\Spybot\SpybotClient\include\overlays\notify;C:\Users\curff\Desktop\Workspaces\C &amp; C++\Spybot\SpybotClient\include\overlays\map;C:\Users\curff\Desktop\Workspaces\C &amp; C++\Spybot\SpybotClient\include\overlays\main;C:\Users\curff\Desktop\Workspaces\C &amp; C++\Spybot\SpybotClient\include\overlays\lobby;C:\Users\curff\Desktop\Workspaces\C &amp; C++\Spybot\SpybotClient\include\overlays\game\animations\particles;C:\Users\curff\Desktop\Workspaces\C &amp; C++\Spybot\SpybotClient\include\overlays\game\animations;C:\Users\curff\Desktop\Workspaces\C &amp; C++\Spybot\SpybotClient\include\overlays\game;C:\Users\curff\Desktop\Workspaces\C &amp; C++\Spybot\SpybotClient\include\client;C:\Users\curff\Desktop\Workspaces\C &amp; C++\Spybot\SpybotClient\include\gui\GUIEffects;C:\Users\curff\Desktop\Workspaces\C &amp; C++\Spybot\SpybotClient\include\gui;C:\Users\curff\Desktop\Workspaces\C &amp; C++\Spybot\SpybotClient\include;C:\Users\curff\Desktop\Workspaces\C &amp; C++\Spybot\SpybotClient;C:\Users\curff\Desktop\Workspaces\C &amp; C++\Spybot\SpybotShared\utils;C:\Users\curff\Desktop\Workspaces\C &amp; C++\Spybot\SpybotShared\server;C:\Users\curff\Desktop\Workspaces\C &amp; C++\Spybot\SpybotShared\game;C:\Users\curff\Desktop\Workspaces\C &amp; C++\Spybot\SpybotShared;C:\Users\curff\Desktop\Workspaces\C &amp; C++\[Libraries]\SDL2-2.0.7-VC++\include;C:\Users\curff\Desktop\Workspaces\C &amp; C++\[Libraries]\SDL2_ttf-2.0.14-VC++\include;C:\Users\curff\Desktop\Workspaces\C &amp; C++\[Libraries]\SDL2_mixer-2.0.2-VC++\include;C:\Users\curff\Desktop\Workspaces\C &amp; C++\[Libraries]\SDL2_image-2.0.2-VC++\include;$(IncludePath)</IncludePath>
     <LibraryPath>C:\Users\curff\Desktop\Workspaces\C &amp; C++\[Libraries]\SDL2_image-2.0.2-VC++\lib\x86;C:\Users\curff\Desktop\Workspaces\C &amp; C++\[Libraries]\SDL2_mixer-2.0.2-VC++\lib\x86;C:\Users\curff\Desktop\Workspaces\C &amp; C++\[Libraries]\SDL2_ttf-2.0.14-VC++\lib\x86;C:\Users\curff\Desktop\Workspaces\C &amp; C++\[Libraries]\SDL2-2.0.7-VC++\lib\x86;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -81,7 +81,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>C:\Users\curff\Desktop\Workspaces\C &amp; C++\Spybot\SpybotClient\include\overlays\background;C:\Users\curff\Desktop\Workspaces\C &amp; C++\Spybot\SpybotClient\include\overlays\locallogin;C:\Users\curff\Desktop\Workspaces\C &amp; C++\Spybot\SpybotClient\include\overlays\title;C:\Users\curff\Desktop\Workspaces\C &amp; C++\Spybot\SpybotClient\include\overlays\notify;C:\Users\curff\Desktop\Workspaces\C &amp; C++\Spybot\SpybotClient\include\overlays\map;C:\Users\curff\Desktop\Workspaces\C &amp; C++\Spybot\SpybotClient\include\overlays\main;C:\Users\curff\Desktop\Workspaces\C &amp; C++\Spybot\SpybotClient\include\overlays\lobby;C:\Users\curff\Desktop\Workspaces\C &amp; C++\Spybot\SpybotClient\include\overlays\game\animations\particles;C:\Users\curff\Desktop\Workspaces\C &amp; C++\Spybot\SpybotClient\include\overlays\game\animations;C:\Users\curff\Desktop\Workspaces\C &amp; C++\Spybot\SpybotClient\include\overlays\game;C:\Users\curff\Desktop\Workspaces\C &amp; C++\Spybot\SpybotClient\include\client;C:\Users\curff\Desktop\Workspaces\C &amp; C++\Spybot\SpybotClient\include\gui;C:\Users\curff\Desktop\Workspaces\C &amp; C++\Spybot\SpybotClient\include;C:\Users\curff\Desktop\Workspaces\C &amp; C++\Spybot\SpybotClient;C:\Users\curff\Desktop\Workspaces\C &amp; C++\Spybot\SpybotShared\utils;C:\Users\curff\Desktop\Workspaces\C &amp; C++\Spybot\SpybotShared\server;C:\Users\curff\Desktop\Workspaces\C &amp; C++\Spybot\SpybotShared\game;C:\Users\curff\Desktop\Workspaces\C &amp; C++\Spybot\SpybotShared;C:\Users\curff\Desktop\Workspaces\C &amp; C++\[Libraries]\SDL2-2.0.7-VC++\include;C:\Users\curff\Desktop\Workspaces\C &amp; C++\[Libraries]\SDL2_ttf-2.0.14-VC++\include;C:\Users\curff\Desktop\Workspaces\C &amp; C++\[Libraries]\SDL2_mixer-2.0.2-VC++\include;C:\Users\curff\Desktop\Workspaces\C &amp; C++\[Libraries]\SDL2_image-2.0.2-VC++\include;$(IncludePath)</IncludePath>
+    <IncludePath>C:\Users\curff\Desktop\Workspaces\C &amp; C++\Spybot\SpybotClient\include\overlays\background;C:\Users\curff\Desktop\Workspaces\C &amp; C++\Spybot\SpybotClient\include\overlays\locallogin;C:\Users\curff\Desktop\Workspaces\C &amp; C++\Spybot\SpybotClient\include\overlays\title;C:\Users\curff\Desktop\Workspaces\C &amp; C++\Spybot\SpybotClient\include\overlays\notify;C:\Users\curff\Desktop\Workspaces\C &amp; C++\Spybot\SpybotClient\include\overlays\map;C:\Users\curff\Desktop\Workspaces\C &amp; C++\Spybot\SpybotClient\include\overlays\main;C:\Users\curff\Desktop\Workspaces\C &amp; C++\Spybot\SpybotClient\include\overlays\lobby;C:\Users\curff\Desktop\Workspaces\C &amp; C++\Spybot\SpybotClient\include\overlays\game\animations\particles;C:\Users\curff\Desktop\Workspaces\C &amp; C++\Spybot\SpybotClient\include\overlays\game\animations;C:\Users\curff\Desktop\Workspaces\C &amp; C++\Spybot\SpybotClient\include\overlays\game;C:\Users\curff\Desktop\Workspaces\C &amp; C++\Spybot\SpybotClient\include\client;C:\Users\curff\Desktop\Workspaces\C &amp; C++\Spybot\SpybotClient\include\gui\GUIEffects;C:\Users\curff\Desktop\Workspaces\C &amp; C++\Spybot\SpybotClient\include\gui;C:\Users\curff\Desktop\Workspaces\C &amp; C++\Spybot\SpybotClient\include;C:\Users\curff\Desktop\Workspaces\C &amp; C++\Spybot\SpybotClient;C:\Users\curff\Desktop\Workspaces\C &amp; C++\Spybot\SpybotShared\utils;C:\Users\curff\Desktop\Workspaces\C &amp; C++\Spybot\SpybotShared\server;C:\Users\curff\Desktop\Workspaces\C &amp; C++\Spybot\SpybotShared\game;C:\Users\curff\Desktop\Workspaces\C &amp; C++\Spybot\SpybotShared;C:\Users\curff\Desktop\Workspaces\C &amp; C++\[Libraries]\SDL2-2.0.7-VC++\include;C:\Users\curff\Desktop\Workspaces\C &amp; C++\[Libraries]\SDL2_ttf-2.0.14-VC++\include;C:\Users\curff\Desktop\Workspaces\C &amp; C++\[Libraries]\SDL2_mixer-2.0.2-VC++\include;C:\Users\curff\Desktop\Workspaces\C &amp; C++\[Libraries]\SDL2_image-2.0.2-VC++\include;$(IncludePath)</IncludePath>
     <LibraryPath>C:\Users\curff\Desktop\Workspaces\C &amp; C++\[Libraries]\SDL2_image-2.0.2-VC++\lib\x86;C:\Users\curff\Desktop\Workspaces\C &amp; C++\[Libraries]\SDL2_mixer-2.0.2-VC++\lib\x86;C:\Users\curff\Desktop\Workspaces\C &amp; C++\[Libraries]\SDL2_ttf-2.0.14-VC++\lib\x86;C:\Users\curff\Desktop\Workspaces\C &amp; C++\[Libraries]\SDL2-2.0.7-VC++\lib\x86;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -186,6 +186,9 @@
     <ClInclude Include="include\gui\GUIButton.h" />
     <ClInclude Include="include\gui\GUIButtonParamaterized.h" />
     <ClInclude Include="include\gui\GUIContainer.h" />
+    <ClInclude Include="include\gui\GUIEffects\GUIEffect.h" />
+    <ClInclude Include="include\gui\GUIEffects\GUIEffectFade.h" />
+    <ClInclude Include="include\gui\GUIEffects\GUIEffectTranslate.h" />
     <ClInclude Include="include\gui\GUIObject.h" />
     <ClInclude Include="include\gui\GUISlider.h" />
     <ClInclude Include="include\gui\GUITextbox.h" />
@@ -206,16 +209,16 @@
     <ClInclude Include="include\overlays\game\ProgramDisplayContainer.h" />
     <ClInclude Include="include\overlays\lobby\ChatDisplay.h" />
     <ClInclude Include="include\overlays\lobby\LobbyOverlay.h" />
-    <ClInclude Include="include\overlays\locallogin\LocalLoginOverlay.h" />
-    <ClInclude Include="include\overlays\locallogin\UserDisplay.h" />
+    <ClInclude Include="include\overlays\main\AchievementButton.h" />
     <ClInclude Include="include\overlays\main\MainOverlay.h" />
-    <ClInclude Include="include\overlays\main\GlowSpeck.h" />
     <ClInclude Include="include\overlays\main\PromptBox.h" />
+    <ClInclude Include="include\overlays\main\UserDisplay.h" />
     <ClInclude Include="include\overlays\map\MapOverlay.h" />
     <ClInclude Include="include\overlays\map\Node.h" />
     <ClInclude Include="include\overlays\map\ProgramInventoryButton.h" />
     <ClInclude Include="include\overlays\map\ProgramInventoryDisplay.h" />
-    <ClInclude Include="include\overlays\notify\Notification.h" />
+    <ClInclude Include="include\overlays\notify\PopupAchievement.h" />
+    <ClInclude Include="include\overlays\notify\PopupNotification.h" />
     <ClInclude Include="include\overlays\notify\NotifyOverlay.h" />
     <ClInclude Include="include\overlays\title\TitleOverlay.h" />
     <ClInclude Include="include\Pipe.h" />
@@ -246,6 +249,9 @@
     <ClCompile Include="src\Global.cpp" />
     <ClCompile Include="src\gui\GUIButton.cpp" />
     <ClCompile Include="src\gui\GUIContainer.cpp" />
+    <ClCompile Include="src\gui\GUIEffects\GUIEffect.cpp" />
+    <ClCompile Include="src\gui\GUIEffects\GUIEffectFade.cpp" />
+    <ClCompile Include="src\gui\GUIEffects\GUIEffectTranslate.cpp" />
     <ClCompile Include="src\gui\GUIObject.cpp" />
     <ClCompile Include="src\gui\GUISlider.cpp" />
     <ClCompile Include="src\gui\GUITextbox.cpp" />
@@ -266,15 +272,16 @@
     <ClCompile Include="src\overlays\game\ProgramDisplayContainer.cpp" />
     <ClCompile Include="src\overlays\lobby\ChatDisplay.cpp" />
     <ClCompile Include="src\overlays\lobby\LobbyOverlay.cpp" />
-    <ClCompile Include="src\overlays\locallogin\LocalLoginOverlay.cpp" />
-    <ClCompile Include="src\overlays\locallogin\UserDisplay.cpp" />
+    <ClCompile Include="src\overlays\main\AchievementButton.cpp" />
     <ClCompile Include="src\overlays\main\MainOverlay.cpp" />
     <ClCompile Include="src\overlays\main\PromptBox.cpp" />
+    <ClCompile Include="src\overlays\main\UserDisplay.cpp" />
     <ClCompile Include="src\overlays\map\MapOverlay.cpp" />
     <ClCompile Include="src\overlays\map\Node.cpp" />
     <ClCompile Include="src\overlays\map\ProgramInventoryButton.cpp" />
     <ClCompile Include="src\overlays\map\ProgramInventoryDisplay.cpp" />
-    <ClCompile Include="src\overlays\notify\Notification.cpp" />
+    <ClCompile Include="src\overlays\notify\PopupAchievement.cpp" />
+    <ClCompile Include="src\overlays\notify\PopupNotification.cpp" />
     <ClCompile Include="src\overlays\notify\NotifyOverlay.cpp" />
     <ClCompile Include="src\overlays\title\TitleOverlay.cpp" />
     <ClCompile Include="src\Pipe.cpp" />

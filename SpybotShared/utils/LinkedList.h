@@ -16,7 +16,7 @@ public:
 		ListNode<T>* currNode = firstNode;
 		while (currNode != NULL) {
 			ListNode<T>* temp = currNode;
-			currNode = currNode->next;
+			currNode = currNode->next_;
 			delete temp;
 		}
 	};
@@ -27,8 +27,8 @@ public:
 			firstNode = n;
 			lastNode = n;
 		} else {
-			n->prev = lastNode;
-			lastNode->next = n;
+			n->prev_ = lastNode;
+			lastNode->next_ = n;
 			lastNode = n;
 		}
 		length++;
@@ -40,8 +40,8 @@ public:
 			firstNode = n;
 			lastNode = n;
 		} else {
-			n->next = firstNode;
-			firstNode->prev = n;
+			n->next_ = firstNode;
+			firstNode->prev_ = n;
 			firstNode = n;
 		}
 		length++;
@@ -50,43 +50,43 @@ public:
 	void addAllLast(LinkedList<T>* l2) {
 		ListNode<T>* currNode = l2->firstNode;
 		while (currNode != NULL) {
-			addLast(currNode->contents);
-			currNode = currNode->next;
+			addLast(currNode->contents_);
+			currNode = currNode->next_;
 		}
 	};
 
 	void addAllFirst(LinkedList<T>* l2) {
 		ListNode<T>* currNode = l2->lastNode;
 		while (currNode != NULL) {
-			addFirst(currNode->contents);
-			currNode = currNode->prev;
+			addFirst(currNode->contents_);
+			currNode = currNode->prev_;
 		}
 	};
 
 	T getFirst() {
 		if (firstNode == NULL) return NULL;
-		else return firstNode->contents;
+		else return firstNode->contents_;
 	}
 
 	T getLast() {
 		if (lastNode == NULL) return NULL;
-		else return lastNode->contents;
+		else return lastNode->contents_;
 	}
 
 	T removeFirst() {
 		if (length == 0) return NULL;
 
 		ListNode<T>* tempNode = firstNode;
-		if (firstNode->next == NULL) {
+		if (firstNode->next_ == NULL) {
 			firstNode = NULL;
 			lastNode = NULL;
 		} else {
-			firstNode = firstNode->next;
-			firstNode->prev = NULL;
+			firstNode = firstNode->next_;
+			firstNode->prev_ = NULL;
 		}
 
 		length--;
-		T temp = tempNode->contents;
+		T temp = tempNode->contents_;
 		delete tempNode;
 		return temp;
 	}
@@ -95,16 +95,16 @@ public:
 		if (length == 0) return NULL;
 
 		ListNode<T>* tempNode = lastNode;
-		if (lastNode->prev == NULL) {
+		if (lastNode->prev_ == NULL) {
 			firstNode = NULL;
 			lastNode = NULL;
 		} else {
-			lastNode = lastNode->prev;
-			lastNode->next = NULL;
+			lastNode = lastNode->prev_;
+			lastNode->next_ = NULL;
 		}
 
 		length--;
-		T temp = tempNode->contents;
+		T temp = tempNode->contents_;
 		delete tempNode;
 		return temp;
 	}
@@ -121,9 +121,9 @@ public:
 		int counter = 0;
 
 		while (curr != NULL) {
-			if (counter == index) return curr->contents;
+			if (counter == index) return curr->contents_;
 			counter++;
-			curr = curr->next;
+			curr = curr->next_;
 		}
 		return NULL;
 	}
@@ -138,11 +138,11 @@ public:
 		int num = 0;
 		ListNode<T>* curr = firstNode;
 		while (curr != NULL) {
-			if (curr->contents == obj) {
+			if (curr->contents_ == obj) {
 				return num;
 			}
 			num++;
-			curr = curr->next;
+			curr = curr->next_;
 		}
 		return -1;
 	}
@@ -164,29 +164,29 @@ public:
 	bool remove(T obj) {
 		ListNode<T>* currNode = firstNode;
 		while (currNode != NULL) {
-			if (currNode->contents == obj) {
+			if (currNode->contents_ == obj) {
 				if (currNode == firstNode && currNode == lastNode) {
 					firstNode = NULL;
 					lastNode = NULL;
 				} else if (currNode == lastNode) {
-					lastNode = currNode->prev;
-					lastNode->next = NULL;
+					lastNode = currNode->prev_;
+					lastNode->next_ = NULL;
 				} else if (currNode == firstNode) {
-					firstNode = currNode->next;
-					firstNode->prev = NULL;
+					firstNode = currNode->next_;
+					firstNode->prev_ = NULL;
 				} else {
-					ListNode<T>* nxt = currNode->next;
-					ListNode<T>* prv = currNode->prev;
+					ListNode<T>* nxt = currNode->next_;
+					ListNode<T>* prv = currNode->prev_;
 
-					nxt->prev = prv;
-					prv->next = nxt;
+					nxt->prev_ = prv;
+					prv->next_ = nxt;
 				}
 
 				delete currNode;
 				length--;
 				return true;
 			}
-			currNode = currNode->next;
+			currNode = currNode->next_;
 		}
 		return false;
 	}
@@ -212,13 +212,13 @@ public:
 			if (counter == i)
 				break;
 			counter++;
-			curr = curr->next;
+			curr = curr->next_;
 		}
 		if (curr == NULL)
 			return NULL;
 
-		T temp = curr->contents;
-		curr->contents = obj;
+		T temp = curr->contents_;
+		curr->contents_ = obj;
 		return temp;
 	}
 
@@ -232,16 +232,16 @@ public:
 	void forEach(void(*func)(T)) {
 		ListNode<T>* currNode = firstNode;
 		while (currNode != NULL) {
-			func(currNode->contents);
-			currNode = currNode->next;
+			func(currNode->contents_);
+			currNode = currNode->next_;
 		}
 	}
 
 	void forEachBackwards(void(*func)(T)) {
 		ListNode<T>* currNode = lastNode;
 		while (currNode != NULL) {
-			func(currNode->contents);
-			currNode = currNode->prev;
+			func(currNode->contents_);
+			currNode = currNode->prev_;
 		}
 	}
 

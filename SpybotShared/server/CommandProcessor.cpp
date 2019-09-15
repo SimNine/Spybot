@@ -26,8 +26,7 @@ void processCommandResponse(std::string message, int clientID) {
 }
 
 void processCommand(std::string cmd, int clientID) {
-	// tokenize
-	// (gotta add a newline because that's how the tokenizer works)
+	// tokenize (gotta add a newline because that's how the tokenizer works)
 	char* tokens[1024];
 	int numTokens = tokenize(tokens, (cmd + "\n").c_str(), ' ');
 
@@ -41,8 +40,8 @@ void processCommand(std::string cmd, int clientID) {
 		else {
 			std::string str = "the owner client is " + ownerClient->getClientID();
 			processCommandResponse(str, clientID);
-			if (ownerClient->getUser() != NULL) {
-				std::string loginStr = " <logged in as " + ownerClient->getUser()->username_ + ">";
+			if (ownerClient->getUser() != "") {
+				std::string loginStr = " <logged in as " + ownerClient->getUser() + ">";
 				processCommandResponse(loginStr, clientID);
 			}
 		}
@@ -53,8 +52,8 @@ void processCommand(std::string cmd, int clientID) {
 			Pipe* curr = it.next();
 			std::string str = "" + curr->getClientID();
 			processCommandResponse(str, clientID);
-			if (curr->getUser() != NULL) {
-				std::string clientStr = "<logged in as " + curr->getUser()->username_ + ">";
+			if (curr->getUser() != "") {
+				std::string clientStr = "<logged in as " + curr->getUser() + ">";
 				processCommandResponse(clientStr, clientID);
 			} else {
 				processCommandResponse("<not logged in>", clientID);

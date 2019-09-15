@@ -13,18 +13,17 @@
 #include "GUITextbox.h"
 #include "ConnectionManager.h"
 #include "Server.h"
-#include "LocalLoginOverlay.h"
 
-// initial screen dimension constants
-int _SCREEN_WIDTH = 800;
-int _SCREEN_HEIGHT = 600;
+/*
+GLOBAL VARIABLES
+*/
 
 // default tile width
-int _TILE_WIDTH = 32;
+int _tileWidth = 32;
 
 // default board dims
-int _BOARD_WIDTH = 200;
-int _BOARD_HEIGHT = 200;
+int _boardWidth = 200;
+int _boardHeight = 200;
 
 // window to render to
 SDL_Window* _window = NULL;
@@ -41,7 +40,6 @@ GameOverlay* _gameOverlay = NULL;
 LobbyOverlay* _lobbyOverlay = NULL;
 NotifyOverlay* _notifyOverlay = NULL;
 BackgroundOverlay* _backgroundOverlay = NULL;
-LocalLoginOverlay* _localLoginOverlay = NULL;
 
 // mouse position
 Coord _mousePos = { 0, 0 };
@@ -59,14 +57,11 @@ DEBUG _debug = DEBUG_NONE;
 // program ID currently selected (to be placed)
 PROGRAM _currProgram = PROGRAM_NONE;
 
-// GUIContainer currently held by the mouse
+// GUIContainer currently held by the mouse, if any
 GUIContainer* _heldContainer = NULL;
 
-// GUITextbox currently active
+// GUITextbox currently active, if any
 GUITextbox* _activeTextbox = NULL;
-
-// credit counter
-int _numCredits = 0;
 
 // client monolith
 Client* _client = NULL;
@@ -76,3 +71,28 @@ ConnectionManager* _connectionManager = NULL;
 
 // server monolith
 Server* _server = NULL;
+
+/*
+PREFERENCES
+*/
+
+// initial (and minimum) screen dimension constants
+int _screenWidth = 800;
+int _screenHeight = 600;
+
+/*
+PROGRESS / STATS
+*/
+
+bool _progressAchievements[ACHIEVEMENT_NUM_ACHIEVEMENTS];
+bool _progressNightfall = false;
+bool _progressFreeform = false;
+int _progressGamesPlayed = 0;
+int _progressGamesWon = 0;
+int _progressGamesLost = 0;
+int _progressProgramsKilled = 0;
+int _progressCreditsCollected = 0;
+int _progressFreeformGamesWon = 0;
+long _progressTotalSecondsPlayed = 0;
+long _progressTotalSecondsPlayedThisSession = 0;
+int _progressMSPlayed = 0; // this is a temporary variable while seconds are incremented

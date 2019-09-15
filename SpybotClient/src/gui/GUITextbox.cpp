@@ -5,7 +5,7 @@
 #include "ResourceLoader.h"
 
 GUITextbox::GUITextbox(GUIContainer* parent, ANCHOR anchor, Coord disp, Coord dims, int maxChars, bool censored)
-	: GUIContainer(parent, anchor, disp, dims, { 120, 120, 120, 140 }) {
+	: GUIObject(parent, anchor, disp, dims) {
 	maxChars_ = maxChars;
 	textSize_ = dims.y;
 	contentText_ = "";
@@ -14,35 +14,41 @@ GUITextbox::GUITextbox(GUIContainer* parent, ANCHOR anchor, Coord disp, Coord di
 
 
 GUITextbox::~GUITextbox() {
-
+	// dtor
 }
 
 void GUITextbox::draw() {
 	// draw the box
-	GUIContainer::drawBkg();
+	int newAlpha = (int)((currAlpha_ / 255.0)*140);
+	SDL_SetRenderDrawColor(_renderer, 120, 120, 120, newAlpha);
+	SDL_SetRenderDrawBlendMode(_renderer, SDL_BLENDMODE_BLEND);
+	SDL_RenderFillRect(_renderer, &bounds_);
 
 	// draw bounds
 	if (_debug >= DEBUG_NORMAL)
-		GUIContainer::drawBounds();
+		GUIObject::drawBounds();
 
 	// draw text box
-	if (_activeTextbox == this)
-		SDL_SetRenderDrawColor(_renderer, 50, 50, 50, 200);
-	else
-		SDL_SetRenderDrawColor(_renderer, 100, 100, 100, 200);
-	SDL_RenderFillRect(_renderer, &bounds);
+	if (_activeTextbox == this) {
+		int newAlpha = (int)((currAlpha_ / 255.0)*200);
+		SDL_SetRenderDrawColor(_renderer, 50, 50, 50, newAlpha);
+	} else {
+		int newAlpha = (int)((currAlpha_ / 255.0)*200);
+		SDL_SetRenderDrawColor(_renderer, 100, 100, 100, newAlpha);
+	}
+	SDL_RenderFillRect(_renderer, &bounds_);
 
 	// draw current contents
-	SDL_Rect tempBounds = bounds;
+	SDL_Rect tempBounds = bounds_;
 	tempBounds.w = 0;
 	SDL_Texture* content;
 	if (censored_) {
 		std::string ast = "";
 		for (unsigned int i = 0; i < contentText_.length(); i++)
 			ast += "*";
-		content = loadString(ast, FONT_NORMAL, textSize_, _color_white);
+		content = loadString(ast, FONT_NORMAL, textSize_, { 255, 255, 255, (Uint8)currAlpha_ });
 	} else
-		content = loadString(contentText_, FONT_NORMAL, textSize_, _color_white);
+		content = loadString(contentText_, FONT_NORMAL, textSize_, { 255, 255, 255, (Uint8)currAlpha_ });
 	SDL_QueryTexture(content, NULL, NULL, &tempBounds.w, NULL);
 	SDL_RenderCopy(_renderer, content, NULL, &tempBounds);
 	SDL_DestroyTexture(content);
@@ -53,7 +59,7 @@ void GUITextbox::draw() {
 		tempBounds.y += 5;
 		tempBounds.w = 2;
 		tempBounds.h -= 10;
-		SDL_SetRenderDrawColor(_renderer, 255, 255, 255, 255);
+		SDL_SetRenderDrawColor(_renderer, 255, 255, 255, currAlpha_);
 		SDL_RenderFillRect(_renderer, &tempBounds);
 	}
 }
@@ -89,7 +95,26 @@ bool GUITextbox::mouseUp() {
 }
 
 void GUITextbox::tick(int ms) {
+	processEffects(ms);
 	cursorFade_ += ms;
 	if (cursorFade_ > 1000)
 		cursorFade_ -= 1000;
+}
+
+void GUITextbox::setTransparency(int alpha) {
+	if (alpha > 255)
+		currAlpha_ = 255;
+	else if (alpha < 0)
+		currAlpha_ = 0;
+	else
+		currAlpha_ = alpha;
+}
+
+void GUITextbox::resetBounds() {
+	recomputePosition();
+
+	if (parent_ == NULL) {
+		setDisplacement({ 0,0 });
+		setDimensions({ _screenWidth, _screenHeight });
+	}
 }

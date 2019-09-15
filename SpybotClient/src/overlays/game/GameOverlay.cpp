@@ -22,11 +22,13 @@
 #include "Animation.h"
 #include "ConnectionManager.h"
 #include "MiscUtil.h"
+#include "GUIEffectFade.h"
 
 GameOverlay::GameOverlay()
-	: GUIContainer(NULL, ANCHOR_NORTHWEST, { 0, 0 }, { _SCREEN_WIDTH, _SCREEN_HEIGHT }, loadTexture("resources/company_4.png")) {
+	: GUIContainer(NULL, ANCHOR_NORTHWEST, { 0, 0 }, { _screenWidth, _screenHeight }, _color_black) {
 	buildGUI();
 
+	bkgImg_ = _game_backgrounds[0];
 	editorMode_ = false;
 	brushMode_ = BRUSH_NONE;
 	brushTileType_ = TILE_NONE;
@@ -743,7 +745,7 @@ void GameOverlay::buildGUI() {
 		_game_button_viewTeams);
 	debugOptions_->addObject(teamViewButton);
 	GUIButton* winGameButton = new GUIButton(debugOptions_, ANCHOR_NORTHWEST, { 10, 70 }, { 200, 50 },
-		[] () {Message m; m.type = MSGTYPE_INFO; m.infoType = MSGINFOTYPE_GAMESTATUS; m.statusType = GAMESTATUS_WON; _connectionManager->sendMessage(m); },
+		[] () {Message m; m.type = MSGTYPE_INFO; m.infoType = MSGINFOTYPE_GAMESTATUS; m.statusType = GAMESTATUS_END; _connectionManager->sendMessage(m); },
 		_game_button_win);
 	debugOptions_->addObject(winGameButton);
 	GUIButton* stepButton = new GUIButton(debugOptions_, ANCHOR_NORTHWEST, { 10, 130 }, { 200, 50 },
@@ -753,49 +755,23 @@ void GameOverlay::buildGUI() {
 	debugOptions_->setTransparency(0);
 	addObject(debugOptions_);
 
-	// pause menu
-	pauseMenu_ = new GUIContainer(this, ANCHOR_CENTER, { 0, 0 }, { 220, 5 * 60 + 10 }, _color_bkg_standard);
-	GUIButton* resumeGameButton = new GUIButton(pauseMenu_, ANCHOR_NORTHWEST, { 10, 10 }, { 200, 50 },
-		[] () {_gameOverlay->togglePauseMenu(); },
-		_game_button_resume);
-	pauseMenu_->addObject(resumeGameButton);
-	/*GUIButton* resetGameButton = new GUIButton(ANCHOR_NORTHWEST, {10, 70}, {200, 50}, pauseMenu_,
-									[](){client->loadGame(mapScreen->getSelectedNode()->getLevelId());},
-									game_button_reset);
-	pauseMenu_->addObject(resetGameButton);*/
-	GUIButton* exitToMapButton = new GUIButton(pauseMenu_, ANCHOR_NORTHWEST, { 10, 130 }, { 200, 50 },
-		[] () {Message m; m.type = MSGTYPE_LEAVE; _connectionManager->sendMessage(m); },
-		_game_button_quitToMap);
-	pauseMenu_->addObject(exitToMapButton);
-	GUIButton* exitToMainButton = new GUIButton(pauseMenu_, ANCHOR_NORTHWEST, { 10, 190 }, { 200, 50 },
-		[] () {Message m; m.type = MSGTYPE_LEAVE; _connectionManager->sendMessage(m); },
-		_game_button_quitToMain);
-	pauseMenu_->addObject(exitToMainButton);
-	GUIButton* exitToDesktopButton = new GUIButton(pauseMenu_, ANCHOR_NORTHWEST, { 10, 250 }, { 200, 50 },
-		[] () {_quit = true; },
-		_game_button_quitToDesktop);
-	pauseMenu_->addObject(exitToDesktopButton);
-	pauseMenu_->setTransparency(0);
-	pauseMenu_->setMovable(false);
-	addObject(pauseMenu_);
-
 	// end turn button
 	turnButton_ = new GUIButton(this, ANCHOR_SOUTHEAST, { -10, -10 }, { 200, 50 },
 		[] () {Message msg; msg.type = MSGTYPE_NEXTTURN; msg.playerID = _client->getPlayer()->getPlayerID(); _connectionManager->sendMessage(msg); },
 		_game_button_endTurn);
 	turnButton_->setTransparency(0);
-	addObject(turnButton_);
+	this->addObject(turnButton_);
 
 	// player display window
 	playerDisp_ = new PlayerDisplayContainer(ANCHOR_NORTHWEST, { 10, 10 }, { 200, 200 }, this);
 	playerDisp_->setTransparency(255);
-	addObject(playerDisp_);
+	this->addObject(playerDisp_);
 
 	// program display window
 	progDisp_ = new ProgramDisplayContainer(ANCHOR_NORTHEAST, { -10, 10 }, { 300, 400 }, this);
 	progDisp_->setMovable(false);
 	progDisp_->setTransparency(0);
-	addObject(progDisp_);
+	this->addObject(progDisp_);
 
 	// pre-game options
 	preGameOptions_ = new GUIContainer(this, ANCHOR_NORTHWEST, { 220, 10 }, { 220, 130 }, _color_bkg_standard);
@@ -808,14 +784,47 @@ void GameOverlay::buildGUI() {
 		[] () {Message m; m.type = MSGTYPE_LEAVE; _connectionManager->sendMessage(m); },
 		_game_button_quitToMap);
 	preGameOptions_->addObject(backToMapButton);
-	addObject(preGameOptions_);
+	this->addObject(preGameOptions_);
 
 	// add the program inventory display
 	progInv_ = new ProgramInventoryDisplay(ANCHOR_NORTHEAST, { 0, 0 }, { 0, 0 }, this);
-	addObject(progInv_);
+	this->addObject(progInv_);
 
 	// create but DON'T ADD the chat display
 	chatDisplay_ = new ChatDisplay(ANCHOR_SOUTHWEST, { 0, 0 }, { 800, 500 }, this, 19);
+
+	// pause menu
+	pauseMenu_ = new GUIContainer(NULL, ANCHOR_CENTER, { 0, 0 }, { _screenWidth, _screenHeight }, _color_bkg_standard);
+	pauseMenu_->setTransparency(0);
+	this->addObject(pauseMenu_);
+
+	GUITexture* pauseText = new GUITexture(pauseMenu_, ANCHOR_CENTER, { -200, -200 }, "PAUSED", 150);
+	pauseMenu_->addObject(pauseText);
+
+	GUIContainer* pauseMenuOptions_ = new GUIContainer(pauseMenu_, ANCHOR_CENTER, { 0, 0 }, { 220, 4 * 60 + 10 }, _color_bkg_standard);
+	pauseMenu_->addObject(pauseMenuOptions_);
+	GUIButton* resumeGameButton = new GUIButton(pauseMenuOptions_, ANCHOR_NORTHWEST, { 10, 10 }, { 200, 50 },
+		[] () {
+		_gameOverlay->pauseMenuHide();
+	}, _game_button_resume);
+	pauseMenuOptions_->addObject(resumeGameButton);
+	GUIButton* exitToMapButton = new GUIButton(pauseMenuOptions_, ANCHOR_NORTHWEST, { 10, 70 }, { 200, 50 },
+		[] () {
+		_overlayStack->removeAll();
+		_overlayStack->push(_mapOverlay);
+	}, _game_button_quitToMap);
+	pauseMenuOptions_->addObject(exitToMapButton);
+	GUIButton* exitToMainButton = new GUIButton(pauseMenuOptions_, ANCHOR_NORTHWEST, { 10, 130 }, { 200, 50 },
+		[] () {
+		_overlayStack->removeAll();
+		_overlayStack->push(_mapOverlay);
+	}, _game_button_quitToMain);
+	pauseMenuOptions_->addObject(exitToMainButton);
+	GUIButton* exitToDesktopButton = new GUIButton(pauseMenuOptions_, ANCHOR_NORTHWEST, { 10, 190 }, { 200, 50 },
+		[] () {
+		_quit = true;
+	}, _game_button_quitToDesktop);
+	pauseMenuOptions_->addObject(exitToDesktopButton);
 }
 
 void GameOverlay::resetBounds() {
@@ -827,9 +836,6 @@ void GameOverlay::resetBounds() {
 }
 
 bool GameOverlay::mouseDown() {
-	if (pauseMenu_->isVisible())
-		return pauseMenu_->mouseDown();
-
 	if (GUIContainer::mouseDown())
 		return true;
 
@@ -850,8 +856,8 @@ bool GameOverlay::mouseDown() {
 		{
 			// find the clicked tile
 			Coord click;
-			click.x = (bkgPos_.x + _mousePos.x) / _TILE_WIDTH;
-			click.y = (bkgPos_.y + _mousePos.y) / _TILE_WIDTH;
+			click.x = (bkgPos_.x + _mousePos.x) / _tileWidth;
+			click.y = (bkgPos_.y + _mousePos.y) / _tileWidth;
 
 			if (brushMode_ == BRUSH_PROGRAMS) {
 				// TODO
@@ -866,11 +872,10 @@ bool GameOverlay::mouseDown() {
 			}
 			return true;
 		}
-	} else // if not in editor mode
-	{
-		Coord click = { (bkgPos_.x + _mousePos.x) / _TILE_WIDTH, (bkgPos_.y + _mousePos.y) / _TILE_WIDTH };
+	} else { // if not in editor mode
+		Coord click = { (bkgPos_.x + _mousePos.x) / _tileWidth, (bkgPos_.y + _mousePos.y) / _tileWidth };
 
-		if (_client->getGame()->getStatus() == GAMESTATUS_PLACING_PROGRAMS) {
+		if (_client->getGame()->getStatus() == GAMESTATUS_PREGAME) {
 			Message msg;
 			msg.type = MSGTYPE_SELECT;
 			msg.pos = click;
@@ -912,9 +917,6 @@ bool GameOverlay::mouseDown() {
 }
 
 bool GameOverlay::mouseUp() {
-	if (pauseMenu_->isVisible())
-		return pauseMenu_->mouseUp();
-
 	GUIContainer::mouseUp();
 
 	bool r = false;
@@ -946,23 +948,23 @@ bool GameOverlay::mouseUp() {
 
 void GameOverlay::drawBkg() {
 	// draw background image
-	SDL_RenderCopy(_renderer, bkgImg, NULL, NULL);
+	SDL_RenderCopy(_renderer, bkgImg_, NULL, NULL);
 }
 
 void GameOverlay::drawGrid() {
 	SDL_Rect tileRect;
 
 	// set temp variables
-	Coord topLeft = { bkgPos_.x / _TILE_WIDTH, bkgPos_.y / _TILE_WIDTH };
+	Coord topLeft = { bkgPos_.x / _tileWidth, bkgPos_.y / _tileWidth };
 	Coord bottomRight;
-	bottomRight.x = topLeft.x + _SCREEN_WIDTH / _TILE_WIDTH + 1;
-	bottomRight.y = topLeft.y + _SCREEN_HEIGHT / _TILE_WIDTH + 1;
+	bottomRight.x = topLeft.x + _screenWidth / _tileWidth + 1;
+	bottomRight.y = topLeft.y + _screenHeight / _tileWidth + 1;
 
 	// check for overflows
-	if (bottomRight.x > _BOARD_WIDTH)
-		bottomRight.x = _BOARD_WIDTH;
-	if (bottomRight.y > _BOARD_HEIGHT)
-		bottomRight.y = _BOARD_HEIGHT;
+	if (bottomRight.x > _boardWidth)
+		bottomRight.x = _boardWidth;
+	if (bottomRight.y > _boardHeight)
+		bottomRight.y = _boardHeight;
 	if (topLeft.x < 0)
 		topLeft.x = 0;
 	if (topLeft.y < 0)
@@ -979,9 +981,9 @@ void GameOverlay::drawGrid() {
 
 			// default position of a tile,
 			// assuming it is 28x28 px
-			int xDefault = 4 + _TILE_WIDTH*curr.x - bkgPos_.x;
-			int yDefault = 4 + _TILE_WIDTH*curr.y - bkgPos_.y;
-			int sizeDefault = _TILE_WIDTH - 4;
+			int xDefault = 4 + _tileWidth*curr.x - bkgPos_.x;
+			int yDefault = 4 + _tileWidth*curr.y - bkgPos_.y;
+			int sizeDefault = _tileWidth - 4;
 			tileRect.x = xDefault;
 			tileRect.y = yDefault;
 			tileRect.w = sizeDefault;
@@ -1103,11 +1105,11 @@ void GameOverlay::drawGrid() {
 						prog == _client->getGame()->getCurrTurnPlayer()->getSelectedProgram()) {
 						tileRect.x = xDefault - 2;
 						tileRect.y = yDefault - 2;
-						tileRect.w = _TILE_WIDTH;
-						tileRect.h = _TILE_WIDTH;
+						tileRect.w = _tileWidth;
+						tileRect.h = _tileWidth;
 						SDL_Color c = _client->getGame()->getCurrTurnPlayer()->getColor();
 						SDL_SetTextureColorMod(_tile_selected, c.r, c.g, c.b);
-						SDL_SetTextureAlphaMod(_tile_selected, ((double)-textureTickCount_ / 1000.0) * 255 + 255);
+						SDL_SetTextureAlphaMod(_tile_selected, (Uint8)((double)-textureTickCount_ / 1000.0) * 255 + 255);
 						SDL_RenderCopy(_renderer, _tile_selected, NULL, &tileRect);
 					}
 
@@ -1161,10 +1163,10 @@ void GameOverlay::drawGrid() {
 				if (curr == pCurr->getSelectedTile()) {
 					tileRect.x = xDefault - 2;
 					tileRect.y = yDefault - 2;
-					tileRect.w = _TILE_WIDTH;
-					tileRect.h = _TILE_WIDTH;
+					tileRect.w = _tileWidth;
+					tileRect.h = _tileWidth;
 					SDL_SetTextureColorMod(_tile_selected, pCurr->getColor().r, pCurr->getColor().g, pCurr->getColor().b);
-					SDL_SetTextureAlphaMod(_tile_selected, ((double)-textureTickCount_ / 1000.0) * 255 + 255);
+					SDL_SetTextureAlphaMod(_tile_selected, (Uint8)((double)-textureTickCount_ / 1000.0) * 255 + 255);
 					SDL_RenderCopy(_renderer, _tile_selected, NULL, &tileRect);
 				}
 			}
@@ -1200,7 +1202,7 @@ void GameOverlay::drawGrid() {
 				tileRect.w = sizeDefault + 4;
 				tileRect.h = sizeDefault + 4;
 
-				switch (_client->getGame()->getCurrTurnPlayer()->getSelectedAction()->type) {
+				switch (_client->getGame()->getCurrTurnPlayer()->getSelectedAction()->type_) {
 				case ACTIONTYPE_DAMAGE:
 					SDL_RenderCopy(_renderer, _tile_actionDamage, NULL, &tileRect);
 					break;
@@ -1235,7 +1237,7 @@ void GameOverlay::drawGrid() {
 			while (it.hasNext()) {
 				Animation* currAnim = it.next();
 				if (currAnim->getPos() == curr)
-					currAnim->draw({ xDefault + _TILE_WIDTH / 2, yDefault + _TILE_WIDTH / 2 });
+					currAnim->draw({ xDefault + _tileWidth / 2, yDefault + _tileWidth / 2 });
 			}
 		}
 	}
@@ -1244,18 +1246,18 @@ void GameOverlay::drawGrid() {
 	if (_debug >= DEBUG_NORMAL) {
 		tileRect.x = -bkgPos_.x + 4;
 		tileRect.y = -bkgPos_.y + 4;
-		tileRect.w = _TILE_WIDTH * _BOARD_WIDTH - 4;
-		tileRect.h = _TILE_WIDTH * _BOARD_HEIGHT - 4;
+		tileRect.w = _tileWidth * _boardWidth - 4;
+		tileRect.h = _tileWidth * _boardHeight - 4;
 		SDL_SetRenderDrawColor(_renderer, 0, 0, 255, 0);
 		SDL_RenderDrawRect(_renderer, &tileRect);
 
-		SDL_RenderDrawLine(_renderer, -bkgPos_.x + (_BOARD_WIDTH / 2)*_TILE_WIDTH, -bkgPos_.y + 4, -bkgPos_.x + (_BOARD_WIDTH / 2)*_TILE_WIDTH, -bkgPos_.y + _BOARD_HEIGHT*_TILE_WIDTH); // vert
-		SDL_RenderDrawLine(_renderer, -bkgPos_.x + 4, -bkgPos_.y + (_BOARD_HEIGHT / 2)*_TILE_WIDTH, -bkgPos_.x + _BOARD_WIDTH*_TILE_WIDTH, -bkgPos_.y + (_BOARD_HEIGHT / 2)*_TILE_WIDTH); // horiz
+		SDL_RenderDrawLine(_renderer, -bkgPos_.x + (_boardWidth / 2)*_tileWidth, -bkgPos_.y + 4, -bkgPos_.x + (_boardWidth / 2)*_tileWidth, -bkgPos_.y + _boardHeight*_tileWidth); // vert
+		SDL_RenderDrawLine(_renderer, -bkgPos_.x + 4, -bkgPos_.y + (_boardHeight / 2)*_tileWidth, -bkgPos_.x + _boardWidth*_tileWidth, -bkgPos_.y + (_boardHeight / 2)*_tileWidth); // horiz
 
-		tileRect.x = -bkgPos_.x + _client->getGame()->getLeftBound()*_TILE_WIDTH;
-		tileRect.y = -bkgPos_.y + _client->getGame()->getTopBound()*_TILE_WIDTH;
-		tileRect.w = (_client->getGame()->getRightBound() - _client->getGame()->getLeftBound())*_TILE_WIDTH;
-		tileRect.h = (_client->getGame()->getBottomBound() - _client->getGame()->getTopBound())*_TILE_WIDTH;
+		tileRect.x = -bkgPos_.x + _client->getGame()->getLeftBound()*_tileWidth;
+		tileRect.y = -bkgPos_.y + _client->getGame()->getTopBound()*_tileWidth;
+		tileRect.w = (_client->getGame()->getRightBound() - _client->getGame()->getLeftBound())*_tileWidth;
+		tileRect.h = (_client->getGame()->getBottomBound() - _client->getGame()->getTopBound())*_tileWidth;
 		SDL_RenderDrawRect(_renderer, &tileRect);
 	}
 }
@@ -1273,37 +1275,22 @@ void GameOverlay::draw() {
 		gridItemEditPanel_->draw();
 		gridBkgPanel_->draw();
 	}
-
-	if (pauseMenu_->isVisible()) {
-		// draw black shading on game
-		SDL_SetRenderDrawColor(_renderer, 0, 0, 0, 140);
-		SDL_RenderFillRect(_renderer, &bounds);
-
-		// draw large "pause" text
-		SDL_Texture* pause = loadString("PAUSED", FONT_NORMAL, 200, _color_white);
-		SDL_Rect pauseRect = { 50, 50, 0, 0 };
-		SDL_QueryTexture(pause, NULL, NULL, &pauseRect.w, &pauseRect.h);
-		SDL_RenderCopy(_renderer, pause, NULL, &pauseRect);
-		SDL_DestroyTexture(pause);
-
-		pauseMenu_->draw();
-	}
 }
 
 void GameOverlay::shiftBkg(Coord disp) {
 	if (!canShiftScreen_) return;
 
-	if (bkgPos_.x + disp.x + _SCREEN_WIDTH / 2 < _client->getGame()->getLeftBound()*_TILE_WIDTH)
-		bkgPos_.x = _client->getGame()->getLeftBound()*_TILE_WIDTH - _SCREEN_WIDTH / 2;
-	else if (bkgPos_.x + disp.x + _SCREEN_WIDTH / 2 > _client->getGame()->getRightBound()*_TILE_WIDTH)
-		bkgPos_.x = _client->getGame()->getRightBound()*_TILE_WIDTH - _SCREEN_WIDTH / 2;
+	if (bkgPos_.x + disp.x + _screenWidth / 2 < _client->getGame()->getLeftBound()*_tileWidth)
+		bkgPos_.x = _client->getGame()->getLeftBound()*_tileWidth - _screenWidth / 2;
+	else if (bkgPos_.x + disp.x + _screenWidth / 2 > _client->getGame()->getRightBound()*_tileWidth)
+		bkgPos_.x = _client->getGame()->getRightBound()*_tileWidth - _screenWidth / 2;
 	else
 		bkgPos_.x += disp.x;
 
-	if (bkgPos_.y + disp.y + _SCREEN_HEIGHT / 2 < _client->getGame()->getTopBound()*_TILE_WIDTH)
-		bkgPos_.y = _client->getGame()->getTopBound()*_TILE_WIDTH - _SCREEN_HEIGHT / 2;
-	else if (bkgPos_.y + disp.y + _SCREEN_HEIGHT / 2 > _client->getGame()->getBottomBound()*_TILE_WIDTH)
-		bkgPos_.y = _client->getGame()->getBottomBound()*_TILE_WIDTH - _SCREEN_HEIGHT / 2;
+	if (bkgPos_.y + disp.y + _screenHeight / 2 < _client->getGame()->getTopBound()*_tileWidth)
+		bkgPos_.y = _client->getGame()->getTopBound()*_tileWidth - _screenHeight / 2;
+	else if (bkgPos_.y + disp.y + _screenHeight / 2 > _client->getGame()->getBottomBound()*_tileWidth)
+		bkgPos_.y = _client->getGame()->getBottomBound()*_tileWidth - _screenHeight / 2;
 	else
 		bkgPos_.y += disp.y;
 }
@@ -1335,15 +1322,15 @@ void GameOverlay::setBrushItem(ITEM i) {
 }
 
 void GameOverlay::setBackgroundImg(BACKGROUND b) {
-	bkgImg = _game_backgrounds[b];
+	bkgImg_ = _game_backgrounds[b];
 	//client->getGame()->setBackground(b);
 }
 
 void GameOverlay::checkShiftable() {
 	if (_client->getGame() == NULL)
 		canShiftScreen_ = false;
-	else if ((_client->getGame()->getRightBound() - _client->getGame()->getLeftBound())*_TILE_WIDTH < _SCREEN_WIDTH - 200 &&
-		(_client->getGame()->getBottomBound() - _client->getGame()->getTopBound())*_TILE_WIDTH < _SCREEN_HEIGHT - 200)
+	else if ((_client->getGame()->getRightBound() - _client->getGame()->getLeftBound())*_tileWidth < _screenWidth - 200 &&
+		(_client->getGame()->getBottomBound() - _client->getGame()->getTopBound())*_tileWidth < _screenHeight - 200)
 		canShiftScreen_ = false;
 	else
 		canShiftScreen_ = true;
@@ -1370,7 +1357,7 @@ void GameOverlay::tick(int ms) {
 
 	// fade out the playerTurn display if it is visible
 	if (currTurn_->isVisible() && currTurn_->getTransparency() == 255)
-		currTurn_->fade(0, 500);
+		currTurn_->addEffect(new GUIEffectFade(0, 500, currTurn_->getTransparency(), 0));
 
 	// tick all animations
 	Iterator<Animation*> it = animList_->getIterator();
@@ -1426,12 +1413,12 @@ void GameOverlay::tick(int ms) {
 	// if the mouse is at an edge, try to shift the background
 	if (_mousePos.x < 20)
 		shiftBkg({ -shiftAmt, 0 });
-	else if (_mousePos.x > _SCREEN_WIDTH - 20)
+	else if (_mousePos.x > _screenWidth - 20)
 		shiftBkg({ shiftAmt, 0 });
 
 	if (_mousePos.y < 20)
 		shiftBkg({ 0, -shiftAmt });
-	else if (_mousePos.y > _SCREEN_HEIGHT - 20)
+	else if (_mousePos.y > _screenHeight - 20)
 		shiftBkg({ 0, shiftAmt });
 }
 
@@ -1449,8 +1436,8 @@ void GameOverlay::centerScreen() {
 		bkgPos_.x = 100;
 		bkgPos_.y = 100;
 	} else {
-		bkgPos_.x = (_client->getGame()->getRightBound() + _client->getGame()->getLeftBound())*_TILE_WIDTH / 2 - _SCREEN_WIDTH / 2;
-		bkgPos_.y = (_client->getGame()->getBottomBound() + _client->getGame()->getTopBound())*_TILE_WIDTH / 2 - _SCREEN_HEIGHT / 2;
+		bkgPos_.x = (_client->getGame()->getRightBound() + _client->getGame()->getLeftBound())*_tileWidth / 2 - _screenWidth / 2;
+		bkgPos_.y = (_client->getGame()->getBottomBound() + _client->getGame()->getTopBound())*_tileWidth / 2 - _screenHeight / 2;
 	}
 }
 
@@ -1459,7 +1446,7 @@ void GameOverlay::tryPlacingProgram(PROGRAM p) {
 	Coord selectedTile = _client->getPlayer()->getSelectedTile();
 
 	// check for correct game state
-	if (_client->getGame()->getStatus() != GAMESTATUS_PLACING_PROGRAMS)
+	if (_client->getGame()->getStatus() != GAMESTATUS_PREGAME)
 		return;
 
 	// check for valid value of p
@@ -1511,20 +1498,19 @@ void GameOverlay::toggleEditorMode() {
 	editorMode_ = !editorMode_;
 }
 
-void GameOverlay::togglePauseMenu() {
-	if (pauseMenu_->isVisible())
-		pauseMenu_->setTransparency(0);
-	else
-		pauseMenu_->setTransparency(255);
+void GameOverlay::pauseMenuShow() {
+	pauseMenu_->setTransparency(255);
+}
+
+void GameOverlay::pauseMenuHide() {
+	pauseMenu_->setTransparency(0);
 }
 
 void GameOverlay::changeGameStatus(GAMESTATUS g) {
 	// refactor this whole system
 
 	switch (g) {
-	case GAMESTATUS_NO_GAME:
-		break;
-	case GAMESTATUS_PLACING_PROGRAMS:
+	case GAMESTATUS_PREGAME:
 		for (int i = 0; i < PROGRAM_NUM_PROGTYPES; i++)
 			_client->getMyClientMirror()->inPlayProgs_[i] = 0;
 
@@ -1540,18 +1526,11 @@ void GameOverlay::changeGameStatus(GAMESTATUS g) {
 		turnButton_->setTransparency(255);
 		progInv_->setTransparency(0);
 		break;
-	case GAMESTATUS_WON:
+	case GAMESTATUS_END:
 		// TODO: refactor this
 		for (int i = 0; i < PROGRAM_NUM_PROGTYPES; i++)
 			_client->getMyClientMirror()->ownedProgs_[i] += _client->getMyClientMirror()->inPlayProgs_[i];
 		_mapOverlay->getSelectedNode()->winNode();
-		_mapOverlay->clearSelectedNode();
-		break;
-	case GAMESTATUS_LOST:
-		// TODO: refactor this
-		for (int i = 0; i < PROGRAM_NUM_PROGTYPES; i++)
-			_client->getMyClientMirror()->ownedProgs_[i] += _client->getMyClientMirror()->inPlayProgs_[i];
-		pauseMenu_->setTransparency(0);
 		_mapOverlay->clearSelectedNode();
 		break;
 	}
@@ -1567,8 +1546,8 @@ void GameOverlay::setPlayerTurnDisplay(std::string name) {
 	int wid = 0;
 	int hei = 0;
 	SDL_QueryTexture(nameTex, NULL, NULL, &wid, &hei);
-	currTurn_->setBounds({ 0, 50 }, { wid, hei });
-	currTurn_->fade(255, 500);
+	currTurn_->setDimensions({ wid, hei });
+	currTurn_->addEffect(new GUIEffectFade(0, 500, currTurn_->getTransparency(), 255));
 }
 
 void GameOverlay::toggleTurnButtonShown(bool b) {
@@ -1592,6 +1571,6 @@ void GameOverlay::showWin(int teamID) {
 	int wid = 0;
 	int hei = 0;
 	SDL_QueryTexture(winTex, NULL, NULL, &wid, &hei);
-	winningTeam_->setBounds({ 0, 50 }, { wid, hei });
-	winningTeam_->fade(255, 500);
+	winningTeam_->setDimensions({ wid, hei });
+	winningTeam_->addEffect(new GUIEffectFade(0, 500, winningTeam_->getTransparency(), 255));
 }

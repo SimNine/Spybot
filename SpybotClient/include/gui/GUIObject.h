@@ -1,25 +1,29 @@
-#ifndef GUIOBJECT_H
-#define GUIOBJECT_H
+#pragma once
 
 #include "Standard.h"
+#include "LinkedList.h"
 
 class GUIContainer;
+class GUIEffect;
 
 class GUIObject {
 public:
 	GUIObject(GUIContainer* parent, ANCHOR anchor, Coord disp, Coord dims);
-
 	virtual ~GUIObject();
-	SDL_Rect* getBounds();
-	void setBounds(Coord disp, Coord dims);
-	int getXAnchor();
-	int getYAnchor();
+
+	SDL_Rect getBounds();
+	void setDisplacement(Coord disp);
+	Coord getDisplacement();
+	void setDimensions(Coord dims);
+	Coord getDimensions();
+
 	bool isMouseOver();
 	bool isVisible();
 	void setPressed(bool pressed);
-	void fade(int endAlpha, int fadeDuration);
-	void fadeStep(int);
 	int getTransparency();
+
+	void processEffects(int ms);
+	void addEffect(GUIEffect* e);
 
 	void recomputePosition();
 
@@ -31,19 +35,17 @@ public:
 	virtual void tick(int millisec) = 0;
 	virtual void resetBounds() = 0;
 protected:
-	Coord displacement;
-	ANCHOR anchor;
-	SDL_Rect bounds;
-	GUIContainer* parent;
-	bool pressed;
 	void drawBounds();
 
-	int currAlpha;
-	int endAlpha;
-	int startAlpha;
-	int fadeInitDuration;
-	int fadeCurrDuration;
-private:
-};
+	Coord displacement_;
+	ANCHOR anchor_;
+	SDL_Rect bounds_;
+	GUIContainer* parent_;
+	bool pressed_;
 
-#endif // GUIOBJECT_H
+	int currAlpha_;
+private:
+	LinkedList<GUIEffect*>* effectList_;
+	int getXAnchor();
+	int getYAnchor();
+};

@@ -1,5 +1,4 @@
-#ifndef SERVER_H
-#define SERVER_H
+#pragma once
 
 #include "Standard.h"
 #include "LinkedList.h"
@@ -20,6 +19,7 @@ public:
 	void connect(SOCKET client);
 	void disconnect(Pipe* client);
 	void login(Pipe* client, User* user);
+	void tryLogin(Pipe* client, Message message);
 
 	void sendMessageToClient(Message message, int clientID);
 	void sendMessageToAllClients(Message message);
@@ -31,6 +31,7 @@ public:
 
 	Game* getGame();
 	LinkedList<User*>* getUsers();
+	User* getUserByName(std::string name);
 	Pipe* getOwner();
 	bool isLocal();
 protected:
@@ -55,17 +56,14 @@ private:
 	LinkedList<User*>* users_;
 	void loadUsers();
 	void saveUsers();
-	User* getUserByName(std::string name);
 
 	// message processing core
 	void processMessage(Message* msg);
 	LinkedList<Message*>* msgQueue_;
-	std::mutex mtx;
+	std::mutex mtx_;
 
 	// message processing helpers
 	void resyncClient(int clientID);
 	void resyncAll();
 	void quitAll();
 };
-
-#endif // SERVER_H

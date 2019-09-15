@@ -5,8 +5,7 @@
 
 class AnimationParticle;
 
-class Animation
-{
+class Animation {
 public:
 	Animation(Coord pos, ANIMTYPE type);
 	virtual ~Animation();

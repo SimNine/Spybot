@@ -9,13 +9,12 @@
 #include "Client.h"
 #include "ConnectionManager.h"
 
-Pipe::Pipe(SOCKET client, Server* server) {
+Pipe::Pipe(SOCKET client) {
 	// fill in fields
 	socket_ = client;
-	server_ = server;
-	player_ = NULL;
 	closed_ = false;
-	user_ = NULL;
+	playerID_ = -1;
+	user_ = "";
 
 	// set client ID
 	clientID_ = randInt();
@@ -30,8 +29,8 @@ Pipe::Pipe(SOCKET client, Server* server) {
 
 Pipe::~Pipe() {
 	closed_ = true;
-	if (user_ != NULL)
-		user_->loggedIn_ = false;
+	//if (user_ != "")
+		//user_->loggedIn_ = false;
 }
 
 void Pipe::sendData(Message m) {
@@ -46,12 +45,12 @@ int Pipe::getClientID() {
 	return clientID_;
 }
 
-Player* Pipe::getPlayer() {
-	return player_;
+int Pipe::getPlayer() {
+	return playerID_;
 }
 
-void Pipe::setPlayer(Player* p) {
-	player_ = p;
+void Pipe::setPlayer(int playerID) {
+	playerID_ = playerID;
 }
 
 void Pipe::close() {
@@ -64,10 +63,10 @@ bool Pipe::isClosed() {
 	return closed_;
 }
 
-User* Pipe::getUser() {
+std::string Pipe::getUser() {
 	return user_;
 }
 
-void Pipe::setUser(User* user) {
+void Pipe::setUser(std::string user) {
 	user_ = user;
 }

@@ -45,10 +45,14 @@ Mix_Chunk* loadSound(std::string path) {
 SDL_Texture* loadString(std::string str, FONT ft, int fsize, SDL_Color col) {
 	// load the font in the correct size
 	TTF_Font* f;
-	if (ft == FONT_NORMAL) f = TTF_OpenFont("resources/AGENCYR.ttf", fsize);
-	else if (ft == FONT_BOLD) f = TTF_OpenFont("resources/AGENCYB.ttf", fsize);
-	else f = TTF_OpenFont("resources/AGENCYR.ttf", fsize);
-	if (!f) printf("TTF_OpenFont: %s\n", TTF_GetError());
+	if (ft == FONT_NORMAL) 
+		f = TTF_OpenFont("resources/AGENCYR.ttf", fsize);
+	else if (ft == FONT_BOLD) 
+		f = TTF_OpenFont("resources/AGENCYB.ttf", fsize);
+	else 
+		f = TTF_OpenFont("resources/AGENCYR.ttf", fsize);
+	if (!f) 
+		printf("TTF_OpenFont: %s\n", TTF_GetError());
 
 	// load the surface
 	SDL_Surface* s = TTF_RenderText_Blended(f, str.c_str(), col);
@@ -59,6 +63,7 @@ SDL_Texture* loadString(std::string str, FONT ft, int fsize, SDL_Color col) {
 
 	// load the texture
 	SDL_Texture* t = SDL_CreateTextureFromSurface(_renderer, s);
+	SDL_SetTextureAlphaMod(t, col.a);
 
 	// free and return
 	TTF_CloseFont(f);

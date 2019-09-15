@@ -1,5 +1,4 @@
-#ifndef CONNECTIONMANAGER_H
-#define CONNECTIONMANAGER_H
+#pragma once
 
 #include "Standard.h"
 #include "LinkedList.h"
@@ -36,11 +35,9 @@ private:
 
 	// message passing utils
 	LinkedList<Message*>* msgQueue_;
-	std::mutex mtx;
+	std::mutex mtx_;
 
 	// all clients connected to server (null if no connection)
 	LinkedList<ClientMirror*>* clientList_;
 	ClientMirror* serverOwner_;
 };
-
-#endif // CONNECTIONMANAGER_H

@@ -114,6 +114,10 @@ std::string _game_disp_compturn;
 SDL_Texture* _main_bkgdata;
 SDL_Texture* _main_bkgsplotch;
 SDL_Texture* _main_bkgsplotch2;
+std::string _main_campaign_classic;
+std::string _main_campaign_nightfall;
+std::string _main_campaign_procedural;
+std::string _main_campaign_bkg;
 
 // SDL_Mixer music
 Mix_Music* _music_title;
@@ -137,6 +141,7 @@ Mix_Chunk* _sound_pickup_files;
 
 // colors
 SDL_Color _color_bkg_standard;
+SDL_Color _color_clear;
 SDL_Color _color_black;
 SDL_Color _color_white;
 SDL_Color _color_action_medic;
@@ -150,6 +155,14 @@ SDL_Color _color_action_tiledestroy;
 // animations
 SDL_Texture* _particle_basic;
 SDL_Texture* _particle_selectring;
+
+// achievements
+SDL_Texture* _achievement_badge;
+SDL_Texture* _achievement_badge_large;
+SDL_Texture* _achievement_texture[ACHIEVEMENT_NUM_ACHIEVEMENTS];
+SDL_Texture* _achievement_locked;
+std::string _achievement_name[ACHIEVEMENT_NUM_ACHIEVEMENTS];
+std::string _achievement_description[ACHIEVEMENT_NUM_ACHIEVEMENTS];
 
 // initialize all data
 void initData() {
@@ -396,6 +409,10 @@ void initData() {
 	_main_bkgdata = loadTexture("resources/main/menu_bkgdata.png");
 	_main_bkgsplotch = loadTexture("resources/main/menu_bkgsplotch.png");
 	_main_bkgsplotch2 = loadTexture("resources/main/menu_bkgsplotch2.png");
+	_main_campaign_classic = "resources/main/campaign_classic_icon.png";
+	_main_campaign_nightfall = "resources/main/campaign_nightfall_icon.png";
+	_main_campaign_procedural = "resources/main/campaign_procedural_icon.png";
+	_main_campaign_bkg = "resources/main/campaign_icon.png";
 
 	// SDL_Mixer music
 	_music_title = loadMusic("resources/sounds/title_music.flac");
@@ -418,6 +435,7 @@ void initData() {
 
 	// colors
 	_color_bkg_standard = { 120, 120, 120, 140 };
+	_color_clear = { 0, 0, 0, 0 };
 	_color_black = { 0, 0, 0, 255 };
 	_color_white = { 255, 255, 255, 255 };
 	_color_action_medic = { 255, 80, 80, 255 };
@@ -431,4 +449,96 @@ void initData() {
 	// animations
 	_particle_basic = loadTexture("resources/board/particle.png");
 	_particle_selectring = loadTexture("resources/board/particle_selectring.png");
+
+	// achievements
+	_achievement_badge = loadTexture("resources/achievements/plaque.png");
+	_achievement_badge_large = loadTexture("resources/achievements/plaque_large.png");
+
+	_achievement_locked = loadTexture("resources/achievements/achievement_locked.png");
+	_achievement_texture[ACHIEVEMENT_FIRSTATTEMPTEDCYBERCRIME] = loadTexture("resources/achievements/game_started.png");
+	_achievement_texture[ACHIEVEMENT_FIRSTCOMMITTEDCYBERCRIME] = loadTexture("resources/achievements/game_finished.png");
+	_achievement_texture[ACHIEVEMENT_FIRSTCOMMITTEDCYBERCRIME] = loadTexture("resources/achievements/game_won.png");
+	_achievement_texture[ACHIEVEMENT_PARTICIPATION] = loadTexture("resources/achievements/thumbs.png");
+
+	_achievement_name[ACHIEVEMENT_FIRSTATTEMPTEDCYBERCRIME] = "First Attempted Cybercrime";
+	_achievement_name[ACHIEVEMENT_FIRSTCOMMITTEDCYBERCRIME] = "First Committed Cybercrime";
+	_achievement_name[ACHIEVEMENT_FIRSTSUCCESSFULCYBERCRIME] = "First Successful Cybercrime";
+	_achievement_name[ACHIEVEMENT_BABYHACKER] = "Baby Hacker";
+	_achievement_name[ACHIEVEMENT_CASUALHACKER] = "Casual Hacker";
+	_achievement_name[ACHIEVEMENT_AMATEURHACKER] = "Amateur Hacker";
+	_achievement_name[ACHIEVEMENT_EXPERIENCEDHACKER] = "Experienced Hacker";
+	_achievement_name[ACHIEVEMENT_EXPERTHACKER] = "Expert Hacker";
+	_achievement_name[ACHIEVEMENT_PROFESSIONALHACKER] = "Professional Hacker";
+	_achievement_name[ACHIEVEMENT_HACKERMAN] = "Hackerman";
+	_achievement_name[ACHIEVEMENT_BITCOIN] = "Bitcoin";
+	_achievement_name[ACHIEVEMENT_BITCOINCASH] = "Bitcoin Cash";
+	_achievement_name[ACHIEVEMENT_RIPPLE] = "Ripple";
+	_achievement_name[ACHIEVEMENT_ETHEREUM] = "Ethereum";
+	_achievement_name[ACHIEVEMENT_LITECOIN] = "Litecoin";
+	_achievement_name[ACHIEVEMENT_RAIBLOCKS] = "Raiblocks";
+	_achievement_name[ACHIEVEMENT_DOGECOIN] = "Dogecoin";
+	_achievement_name[ACHIEVEMENT_GARLICOIN] = "Garlicoin";
+	_achievement_name[ACHIEVEMENT_OLDSCHOOL] = "Oldschool";
+	_achievement_name[ACHIEVEMENT_NIGHTFALL] = "Nightfall";
+	_achievement_name[ACHIEVEMENT_DIGITALWANDERER] = "Digital Wanderer";
+	_achievement_name[ACHIEVEMENT_DIGITALEXPLORER] = "Digital Explorer";
+	_achievement_name[ACHIEVEMENT_DIGITALCARTOGRAPHER] = "Digital Cartographer";
+	_achievement_name[ACHIEVEMENT_DIGITALPIONEER] = "Digital Pioneer";
+	_achievement_name[ACHIEVEMENT_DIGITALMAGELLAN] = "Digital Magellan";
+	_achievement_name[ACHIEVEMENT_PARTICIPATION] = "Particiation";
+	_achievement_name[ACHIEVEMENT_ONEMINUTE] = "One Minute";
+	_achievement_name[ACHIEVEMENT_FIVEMINUTES] = "Five Minutes";
+	_achievement_name[ACHIEVEMENT_ONEHOUR] = "One Hour";
+	_achievement_name[ACHIEVEMENT_FIVEHOURS] = "Five Hours";
+	_achievement_name[ACHIEVEMENT_TENHOURS] = "Ten Hours";
+	_achievement_name[ACHIEVEMENT_FIFTYHOURS] = "Fifty Hours";
+	_achievement_name[ACHIEVEMENT_CENTENNIAL] = "Centennial";
+	_achievement_name[ACHIEVEMENT_CASUALGAMER] = "Casual Gamer";
+	_achievement_name[ACHIEVEMENT_SERIOUSCASUALGAMER] = "Serious Casual Gamer";
+	_achievement_name[ACHIEVEMENT_GAMER] = "Gamer";
+	_achievement_name[ACHIEVEMENT_DEDICATEDGAMER] = "Dedicated Gamer";
+	_achievement_name[ACHIEVEMENT_TAKEABREAK] = "You Should Take a Break";
+	_achievement_name[ACHIEVEMENT_TIMETOSTOP] = "IT'S TIME TO STOP";
+	_achievement_name[ACHIEVEMENT_WHY] = "WHY";
+
+	_achievement_description[ACHIEVEMENT_FIRSTATTEMPTEDCYBERCRIME] = "Start a campaign game";
+	_achievement_description[ACHIEVEMENT_FIRSTCOMMITTEDCYBERCRIME] = "Finish a campaign game";
+	_achievement_description[ACHIEVEMENT_FIRSTSUCCESSFULCYBERCRIME] = "Win a campaign game";
+	_achievement_description[ACHIEVEMENT_BABYHACKER] = "Kill a program in campaign mode";
+	_achievement_description[ACHIEVEMENT_CASUALHACKER] = "Kill ten programs in campaign mode";
+	_achievement_description[ACHIEVEMENT_AMATEURHACKER] = "Kill one hundred programs in campaign mode";
+	_achievement_description[ACHIEVEMENT_EXPERIENCEDHACKER] = "Kill five hundred programs in campaign mode";
+	_achievement_description[ACHIEVEMENT_EXPERTHACKER] = "Kill one thousand programs in campaign mode";
+	_achievement_description[ACHIEVEMENT_PROFESSIONALHACKER] = "Kill two thousand programs in campaign mode";
+	_achievement_description[ACHIEVEMENT_HACKERMAN] = "Kill five thousand programs in campaign mode";
+	_achievement_description[ACHIEVEMENT_BITCOIN] = "Collect a credit";
+	_achievement_description[ACHIEVEMENT_BITCOINCASH] = "Collect 1k credits";
+	_achievement_description[ACHIEVEMENT_RIPPLE] = "Collect 2k credits";
+	_achievement_description[ACHIEVEMENT_ETHEREUM] = "Collect 5k credits";
+	_achievement_description[ACHIEVEMENT_LITECOIN] = "Collect 10k credits";
+	_achievement_description[ACHIEVEMENT_RAIBLOCKS] = "Collect 50k credits";
+	_achievement_description[ACHIEVEMENT_DOGECOIN] = "Collect 100k credits";
+	_achievement_description[ACHIEVEMENT_GARLICOIN] = "Collect 500k credits";
+	_achievement_description[ACHIEVEMENT_OLDSCHOOL] = "Completed the classic campaign";
+	_achievement_description[ACHIEVEMENT_NIGHTFALL] = "Completed the nightfall campaign";
+	_achievement_description[ACHIEVEMENT_DIGITALWANDERER] = "Win one freeform game";
+	_achievement_description[ACHIEVEMENT_DIGITALEXPLORER] = "Win ten freeform games";
+	_achievement_description[ACHIEVEMENT_DIGITALCARTOGRAPHER] = "Win fifty freeform games";
+	_achievement_description[ACHIEVEMENT_DIGITALPIONEER] = "Win one hundred freeform games";
+	_achievement_description[ACHIEVEMENT_DIGITALMAGELLAN] = "Win five hundred freeform games";
+	_achievement_description[ACHIEVEMENT_PARTICIPATION] = "Play Spybot on your computer";
+	_achievement_description[ACHIEVEMENT_ONEMINUTE] = "Play Spybot for one minute total";
+	_achievement_description[ACHIEVEMENT_FIVEMINUTES] = "Play Spybot for five minutes total";
+	_achievement_description[ACHIEVEMENT_ONEHOUR] = "Play Spybot for one hour total";
+	_achievement_description[ACHIEVEMENT_FIVEHOURS] = "Play Spybot for five hours total";
+	_achievement_description[ACHIEVEMENT_TENHOURS] = "Play Spybot for ten hours total";
+	_achievement_description[ACHIEVEMENT_FIFTYHOURS] = "Play Spybot for fifty hours total";
+	_achievement_description[ACHIEVEMENT_CENTENNIAL] = "Play Spybot for 100 hours total";
+	_achievement_description[ACHIEVEMENT_CASUALGAMER] = "Play Spybot for five minutes in one session";
+	_achievement_description[ACHIEVEMENT_SERIOUSCASUALGAMER] = "Play Spybot for thirty minutes in one session";
+	_achievement_description[ACHIEVEMENT_GAMER] = "Play Spybot for one hour in one session";
+	_achievement_description[ACHIEVEMENT_DEDICATEDGAMER] = "Play Spybot for three hours in one session";
+	_achievement_description[ACHIEVEMENT_TAKEABREAK] = "Play Spybot for five hours in one session";
+	_achievement_description[ACHIEVEMENT_TIMETOSTOP] = "Play Spybot for seven hours in one session";
+	_achievement_description[ACHIEVEMENT_WHY] = "Play Spybot for ten hours in one session";
 }

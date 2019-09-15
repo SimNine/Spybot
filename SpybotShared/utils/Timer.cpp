@@ -3,11 +3,11 @@
 
 Timer::Timer() {
 	//Initialize the variables
-	mStartTicks = 0;
-	mPausedTicks = 0;
+	mStartTicks_ = 0;
+	mPausedTicks_ = 0;
 
-	mPaused = false;
-	mStarted = false;
+	mPaused_ = false;
+	mStarted_ = false;
 }
 
 Timer::~Timer() {
@@ -16,51 +16,51 @@ Timer::~Timer() {
 
 void Timer::start() {
 	//Start the timer
-	mStarted = true;
+	mStarted_ = true;
 
 	//Unpause the timer
-	mPaused = false;
+	mPaused_ = false;
 
 	//Get the current clock time
-	mStartTicks = SDL_GetTicks();
-	mPausedTicks = 0;
+	mStartTicks_ = SDL_GetTicks();
+	mPausedTicks_ = 0;
 }
 
 void Timer::stop() {
 	//Stop the timer
-	mStarted = false;
+	mStarted_ = false;
 
 	//Unpause the timer
-	mPaused = false;
+	mPaused_ = false;
 
 	//Clear tick variables
-	mStartTicks = 0;
-	mPausedTicks = 0;
+	mStartTicks_ = 0;
+	mPausedTicks_ = 0;
 }
 
 void Timer::pause() {
 	//If the timer is running and isn't already paused
-	if (mStarted && !mPaused) {
+	if (mStarted_ && !mPaused_) {
 		//Pause the timer
-		mPaused = true;
+		mPaused_ = true;
 
 		//Calculate the paused ticks
-		mPausedTicks = SDL_GetTicks() - mStartTicks;
-		mStartTicks = 0;
+		mPausedTicks_ = SDL_GetTicks() - mStartTicks_;
+		mStartTicks_ = 0;
 	}
 }
 
 void Timer::unpause() {
 	//If the timer is running and paused
-	if (mStarted && mPaused) {
+	if (mStarted_ && mPaused_) {
 		//Unpause the timer
-		mPaused = false;
+		mPaused_ = false;
 
 		//Reset the starting ticks
-		mStartTicks = SDL_GetTicks() - mPausedTicks;
+		mStartTicks_ = SDL_GetTicks() - mPausedTicks_;
 
 		//Reset the paused ticks
-		mPausedTicks = 0;
+		mPausedTicks_ = 0;
 	}
 }
 
@@ -69,14 +69,14 @@ Uint32 Timer::getTicks() {
 	Uint32 time = 0;
 
 	//If the timer is running
-	if (mStarted) {
+	if (mStarted_) {
 		//If the timer is paused
-		if (mPaused) {
+		if (mPaused_) {
 			//Return the number of ticks when the timer was paused
-			time = mPausedTicks;
+			time = mPausedTicks_;
 		} else {
 			//Return the current time minus the start time
-			time = SDL_GetTicks() - mStartTicks;
+			time = SDL_GetTicks() - mStartTicks_;
 		}
 	}
 
@@ -85,10 +85,10 @@ Uint32 Timer::getTicks() {
 
 bool Timer::isStarted() {
 	//Timer is running and paused or unpaused
-	return mStarted;
+	return mStarted_;
 }
 
 bool Timer::isPaused() {
 	//Timer is running and paused
-	return mPaused && mStarted;
+	return mPaused_ && mStarted_;
 }

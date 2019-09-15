@@ -1,5 +1,4 @@
-#ifndef CLIENT_H
-#define CLIENT_H
+#pragma once
 
 #include "Standard.h"
 #include "LinkedList.h"
@@ -41,5 +40,3 @@ private:
 	// clientmirror entity
 	ClientMirror* myClientMirror_;
 };
-
-#endif // SERVER_H

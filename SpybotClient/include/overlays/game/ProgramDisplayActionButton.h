@@ -1,5 +1,4 @@
-#ifndef PROGRAMDISPLAYACTIONBUTTON_H
-#define PROGRAMDISPLAYACTIONBUTTON_H
+#pragma once
 
 #include "Standard.h"
 #include "GUIObject.h"
@@ -24,5 +23,3 @@ class ProgramDisplayActionButton : public GUIObject
 		ProgramAction* action_;
 		int actionNum_;
 };
-
-#endif // PROGRAMDISPLAYACTIONBUTTON_H

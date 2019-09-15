@@ -16,15 +16,15 @@ protected:
 private:
 	int radius_;
 
-	Uint8 rCol;
-	Uint8 gCol;
-	Uint8 bCol;
+	Uint8 rCol_;
+	Uint8 gCol_;
+	Uint8 bCol_;
 
-	float xPos, yPos;
-	float xVel, yVel;
-	float xAcc, yAcc;
+	float xPos_, yPos_;
+	float xVel_, yVel_;
+	float xAcc_, yAcc_;
 
-	float aPos;
-	float aVel;
-	float aAcc;
+	float aPos_;
+	float aVel_;
+	float aAcc_;
 };

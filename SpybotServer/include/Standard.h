@@ -1,5 +1,4 @@
-#ifndef STANDARD_H
-#define STANDARD_H
+#pragma once
 
 #include <mutex>
 #include <string>
@@ -35,5 +34,3 @@ typedef struct SDL_Color {
 	Uint8 b;
 	Uint8 a;
 } SDL_Color;
-
-#endif

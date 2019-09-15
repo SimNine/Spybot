@@ -47,7 +47,8 @@ public:
 	void changeGameStatus(GAMESTATUS gs);
 
 	// misc
-	void togglePauseMenu();
+	void pauseMenuShow();
+	void pauseMenuHide();
 	void toggleTurnButtonShown(bool b);
 	ChatDisplay* getChatDisplay();
 	void addAnimation(Animation* a);
@@ -55,6 +56,7 @@ public:
 	void showWin(int teamID);
 protected:
 private:
+	SDL_Texture* bkgImg_;
 	Coord bkgPos_;
 	int textureTickCount_;
 	int turnTickCount_;

@@ -1,5 +1,4 @@
-#ifndef MISCUTIL_H
-#define MISCUTIL_H
+#pragma once
 
 #include <string>
 #include <mutex>
@@ -21,5 +20,3 @@ void destroyTokens(char** tokens);
 extern int currRand;
 extern std::mutex randMutex;
 int randInt();
-
-#endif // MISCUTIL_H

@@ -20,6 +20,7 @@
 #include "ConnectionManager.h"
 #include "BackgroundOverlay.h"
 #include "MapOverlay.h"
+#include "Server.h"
 
 Client::Client() {
 	game_ = NULL;
@@ -147,7 +148,7 @@ void Client::processMessage(Message* msg) {
 			_overlayStack->push(_gameOverlay);
 			_gameOverlay->updateProgramInventoryDisplay();
 
-			if (msg->statusType == GAMESTATUS_WON) {
+			if (msg->statusType == GAMESTATUS_END) {
 				_gameOverlay->showWin(msg->team);
 			}
 		}
@@ -205,8 +206,11 @@ void Client::processMessage(Message* msg) {
 		myClientID_ = msg->clientID;
 		_notifyOverlay->addNotification("Connection to server confirmed");
 		_notifyOverlay->addNotification("Assigned client ID " + to_string(msg->clientID));
-		_mainOverlay->hideIPEntry();
-		_mainOverlay->loginShow();
+		
+		if (!_server->isLocal()) {
+			_mainOverlay->hideIPEntry(1000);
+			_mainOverlay->loginShow(1000);
+		}
 	}
 	break;
 	case MSGTYPE_DISCONNECT:
@@ -290,8 +294,8 @@ void Client::processMessage(Message* msg) {
 
 		// if coming from an external server, go to the lobby screen
 		if (_server == NULL) {
-			_mainOverlay->loginHide();
-			_mainOverlay->showMainContainer();
+			_mainOverlay->loginHide(0);
+			_mainOverlay->showMainContainer(0);
 			_overlayStack->removeAll();
 			_overlayStack->push(_backgroundOverlay);
 			_overlayStack->push(_lobbyOverlay);

@@ -5,14 +5,14 @@
 #include "Server.h"
 #include "MiscUtil.h"
 #include "User.h"
+#include "Global.h"
 
-Pipe::Pipe(SOCKET client, Server* server) {
+Pipe::Pipe(SOCKET client) {
 	// fill in fields
 	socket_ = client;
-	server_ = server;
-	player_ = NULL;
 	closed_ = false;
-	user_ = NULL;
+	playerID_ = -1;
+	user_ = "";
 
 	// set client ID
 	clientID_ = randInt();
@@ -27,8 +27,8 @@ Pipe::Pipe(SOCKET client, Server* server) {
 
 Pipe::~Pipe() {
 	closed_ = true;
-	if (user_ != NULL)
-		user_->loggedIn_ = false;
+	if (user_ == "")
+		_server->getUserByName(user_)->loggedIn_ = false;
 }
 
 void Pipe::listenData() {
@@ -60,7 +60,7 @@ void Pipe::listenData() {
 		bytesRead = recv(socket_, readBuffer, readBufferLength, 0);
 		if (bytesRead > 0) {
 			Message m = deserializeMessage(readBuffer);
-			server_->recieveMessage(m);
+			_server->recieveMessage(m);
 		} else if (bytesRead == 0) {
 			closed_ = true;
 			printf("SERVER: received shutdown from clientID %u\n", clientID_);
@@ -70,7 +70,7 @@ void Pipe::listenData() {
 		}
 	}
 
-	server_->disconnect(this);
+	_server->disconnect(this);
 
 	// shutdown and socket closure should have already happened, but if they didn't, might as well do it again
 	shutdown(socket_, SD_SEND);
@@ -98,12 +98,12 @@ int Pipe::getClientID() {
 	return clientID_;
 }
 
-Player* Pipe::getPlayer() {
-	return player_;
+int Pipe::getPlayer() {
+	return playerID_;
 }
 
-void Pipe::setPlayer(Player* p) {
-	player_ = p;
+void Pipe::setPlayer(int p) {
+	playerID_ = p;
 }
 
 void Pipe::close() {
@@ -116,10 +116,10 @@ bool Pipe::isClosed() {
 	return closed_;
 }
 
-User* Pipe::getUser() {
+std::string Pipe::getUser() {
 	return user_;
 }
 
-void Pipe::setUser(User* user) {
+void Pipe::setUser(std::string user) {
 	user_ = user;
 }

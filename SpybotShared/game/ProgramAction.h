@@ -1,5 +1,4 @@
-#ifndef PROGRAMMOVE_H
-#define PROGRAMMOVE_H
+#pragma once
 
 #include "Standard.h"
 
@@ -8,17 +7,16 @@ public:
 	ProgramAction(MOVEPRESET);
 	ProgramAction(ACTIONTYPE, std::string, std::string, int, int, int);
 	virtual ~ProgramAction();
-	ACTIONTYPE type;
-	std::string name;
-	std::string description;
-	int range;
-	int power;
-	int requiredSize;
-	bool hitsFriendlies, hitsEnemies;
-	int actionID;
+
+	ACTIONTYPE type_;
+	std::string name_;
+	std::string description_;
+	int range_;
+	int power_;
+	int requiredSize_;
+	bool hitsFriendlies_, hitsEnemies_;
+	int actionID_;
 protected:
 private:
 	void setMove(ACTIONTYPE, std::string, std::string, int, int, int);
 };
-
-#endif // PROGRAMMOVE_H

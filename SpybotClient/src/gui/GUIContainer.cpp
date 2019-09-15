@@ -3,64 +3,32 @@
 
 #include "Global.h"
 
-GUIContainer::GUIContainer(GUIContainer* parent, ANCHOR anchorPoint, Coord disp, Coord dims, SDL_Texture* bkg)
-	: GUIObject(parent, anchorPoint, disp, dims) {
-	movable = true;
-	bkgImg = bkg;
-	bkgCol = NULL;
-	contents = new LinkedList<GUIObject*>();
-}
-
-GUIContainer::GUIContainer(GUIContainer* parent, ANCHOR anch, Coord disp, SDL_Texture* bkg)
-	: GUIObject(parent, anch, disp, { 0, 0 }) {
-	movable = true;
-	bkgImg = bkg;
-	bkgCol = NULL;
-	SDL_QueryTexture(bkg, NULL, NULL, &bounds.w, &bounds.h);
-	contents = new LinkedList<GUIObject*>();
-}
-
 GUIContainer::GUIContainer(GUIContainer* parent, ANCHOR anch, Coord disp, Coord dims, SDL_Color col)
 	: GUIObject(parent, anch, disp, dims) {
-	movable = true;
-	bkgImg = NULL;
-	bkgCol = new SDL_Color(col);
-	contents = new LinkedList<GUIObject*>();
+	movable_ = false;
+	bkgCol_ = col;
+	contents_ = new LinkedList<GUIObject*>();
 }
 
 GUIContainer::~GUIContainer() {
-	if (bkgCol != NULL)
-		delete bkgCol;
-}
-
-SDL_Texture* GUIContainer::getBackgroundImg() {
-	return bkgImg;
+	// dtor
 }
 
 SDL_Color GUIContainer::getBackgroundCol() {
-	return *bkgCol;
-}
-
-void GUIContainer::setBackgroundImg(SDL_Texture* bkg) {
-	bkgImg = bkg;
-	if (bkgCol != NULL) {
-		delete bkgCol;
-		bkgCol = NULL;
-	}
+	return bkgCol_;
 }
 
 void GUIContainer::setBackgroundCol(SDL_Color col) {
-	bkgCol = new SDL_Color(col);
-	bkgImg = NULL;
+	bkgCol_ = col;
 }
 
 LinkedList<GUIObject*>* GUIContainer::getContents() {
-	return contents;
+	return contents_;
 }
 
 // looks for and attempts to click an object within this container
 bool GUIContainer::mouseDown() {
-	Iterator<GUIObject*> it = contents->getIterator();
+	Iterator<GUIObject*> it = contents_->getIterator();
 	while (it.hasNext()) {
 		GUIObject* curr = it.next();
 		if (curr->isVisible() && curr->isMouseOver()) {
@@ -70,8 +38,8 @@ bool GUIContainer::mouseDown() {
 
 	if (isMovable() && isMouseOver()) {
 		_heldContainer = this;
-		parent->removeObject(this);
-		parent->addObject(this);
+		parent_->removeObject(this);
+		parent_->addObject(this);
 		return true;
 	}
 
@@ -80,7 +48,7 @@ bool GUIContainer::mouseDown() {
 
 bool GUIContainer::mouseUp() {
 	bool ret = false;
-	Iterator<GUIObject*> it = contents->getIterator();
+	Iterator<GUIObject*> it = contents_->getIterator();
 	while (it.hasNext() && !ret) {
 		GUIObject* curr = it.next();
 		if (curr->isVisible() && curr->isMouseOver()) {
@@ -95,94 +63,92 @@ bool GUIContainer::mouseUp() {
 }
 
 void GUIContainer::setPressed(bool p) {
-	Iterator<GUIObject*> it = contents->getIterator();
+	Iterator<GUIObject*> it = contents_->getIterator();
 	while (it.hasNext()) {
 		it.next()->setPressed(p);
 	}
 }
 
 void GUIContainer::resetBounds() {
-	recomputePosition();
-
-	if (parent == NULL) {
-		setBounds({ 0, 0 }, { _SCREEN_WIDTH, _SCREEN_HEIGHT });
+	if (parent_ == NULL) {
+		setDisplacement({ 0,0 });
+		setDimensions({ _screenWidth, _screenHeight });
 	}
 
-	contents->forEach([] (GUIObject* g) {g->resetBounds(); });
+	recomputePosition();
+
+	contents_->forEach([] (GUIObject* g) {g->resetBounds(); });
 }
 
 void GUIContainer::addObject(GUIObject* obj) {
-	contents->addFirst(obj);
+	contents_->addFirst(obj);
 }
 
 void GUIContainer::addAllObjects(LinkedList<GUIObject*>* objList) {
-	contents->addAllFirst(objList);
+	contents_->addAllFirst(objList);
 }
 
 void GUIContainer::drawBkg() {
-	// if this container has no parent (and is therefore an overlay)
-	if (parent == NULL) {
-		//Clear screen
-		SDL_SetRenderDrawColor(_renderer, 0xFF, 0xFF, 0xFF, 0xFF);
-		SDL_RenderClear(_renderer);
-	}
-
-	if (bkgCol != NULL) {
-		// draw background color
-		SDL_SetRenderDrawColor(_renderer, bkgCol->r, bkgCol->g, bkgCol->b, bkgCol->a);
+	// draw background color if not clear
+	if (bkgCol_.a != 0) {
+		int newAlpha = (int)((currAlpha_ / 255.0)*bkgCol_.a);
+		SDL_SetRenderDrawColor(_renderer, bkgCol_.r, bkgCol_.g, bkgCol_.b, newAlpha);
 		SDL_SetRenderDrawBlendMode(_renderer, SDL_BLENDMODE_BLEND);
-		SDL_RenderFillRect(_renderer, &bounds);
-	} else if (bkgImg != NULL) {
-		// draw background image
-		SDL_RenderCopy(_renderer, bkgImg, NULL, &bounds);
+		SDL_RenderFillRect(_renderer, &bounds_);
 	}
 }
 
 void GUIContainer::drawContents() {
-	contents->forEachBackwards([] (GUIObject* g) {if (g->isVisible()) g->draw(); });
+	contents_->forEachBackwards([] (GUIObject* g) {if (g->isVisible()) g->draw(); });
 }
 
 void GUIContainer::draw() {
 	drawBkg();
 	drawContents();
 
-	if (_debug >= DEBUG_NORMAL) drawBounds();
+	if (_debug >= DEBUG_NORMAL)
+		drawBounds();
 }
 
 void GUIContainer::setTransparency(int a) {
-	if (a > 255) currAlpha = 255;
-	else if (a < 0) currAlpha = 0;
-	else currAlpha = a;
+	if (a > 255)
+		currAlpha_ = 255;
+	else if (a < 0)
+		currAlpha_ = 0;
+	else
+		currAlpha_ = a;
 
-	Iterator<GUIObject*> it = contents->getIterator();
+	Iterator<GUIObject*> it = contents_->getIterator();
 	while (it.hasNext()) {
-		it.next()->setTransparency(currAlpha);
+		it.next()->setTransparency(currAlpha_);
 	}
 }
 
 void GUIContainer::tick(int ms) {
-	fadeStep(ms);
+	processEffects(ms);
 
-	Iterator<GUIObject*> it = contents->getIterator();
+	Iterator<GUIObject*> it = contents_->getIterator();
 	while (it.hasNext()) {
 		it.next()->tick(ms);
 	}
 }
 
 void GUIContainer::incDisplacement(Coord delta) {
-	displacement = delta + displacement;
+	displacement_ = delta + displacement_;
 	resetBounds();
 }
 
 bool GUIContainer::isMovable() {
-	if (movable && parent != NULL && currAlpha > 0) return true;
-	else return false;
+	if (movable_ && parent_ != NULL && currAlpha_ > 0)
+		return true;
+	else
+		return false;
 }
 
 void GUIContainer::setMovable(bool m) {
-	movable = m;
+	movable_ = m;
 }
 
 void GUIContainer::removeObject(GUIObject* o) {
-	contents->remove(o);
+	contents_->remove(o);
 }

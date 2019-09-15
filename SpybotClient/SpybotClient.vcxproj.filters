@@ -109,11 +109,11 @@
     <Filter Include="Header Files\overlays\background">
       <UniqueIdentifier>{8aa17f04-c539-4d22-95b5-f653cf0e9113}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\overlays\locallogin">
-      <UniqueIdentifier>{72cb4fa3-3642-4ce9-8b1f-94917b1cd796}</UniqueIdentifier>
+    <Filter Include="Header Files\gui\GUIEffects">
+      <UniqueIdentifier>{1423b4ff-49ac-430e-913c-dcdbbcd8b390}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\overlays\locallogin">
-      <UniqueIdentifier>{6d1fa3ff-43a3-464c-bdaf-c5924ea2ed3a}</UniqueIdentifier>
+    <Filter Include="Source Files\gui\GUIEffects">
+      <UniqueIdentifier>{18a42207-a86d-4562-8bf5-789c2ff32ce0}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -276,16 +276,10 @@
     <ClInclude Include="include\overlays\map\ProgramInventoryDisplay.h">
       <Filter>Header Files\overlays\map</Filter>
     </ClInclude>
-    <ClInclude Include="include\overlays\notify\Notification.h">
-      <Filter>Header Files\overlays\notify</Filter>
-    </ClInclude>
     <ClInclude Include="include\overlays\lobby\ChatDisplay.h">
       <Filter>Header Files\overlays\lobby</Filter>
     </ClInclude>
     <ClInclude Include="include\overlays\main\MainOverlay.h">
-      <Filter>Header Files\overlays\main</Filter>
-    </ClInclude>
-    <ClInclude Include="include\overlays\main\GlowSpeck.h">
       <Filter>Header Files\overlays\main</Filter>
     </ClInclude>
     <ClInclude Include="include\overlays\game\GameOverlay.h">
@@ -309,17 +303,32 @@
     <ClInclude Include="include\overlays\background\BackgroundOverlay.h">
       <Filter>Header Files\overlays\background</Filter>
     </ClInclude>
-    <ClInclude Include="include\overlays\locallogin\LocalLoginOverlay.h">
-      <Filter>Header Files\overlays\locallogin</Filter>
-    </ClInclude>
-    <ClInclude Include="include\overlays\locallogin\UserDisplay.h">
-      <Filter>Header Files\overlays\locallogin</Filter>
-    </ClInclude>
     <ClInclude Include="include\gui\GUIButtonParamaterized.h">
       <Filter>Header Files\gui</Filter>
     </ClInclude>
     <ClInclude Include="..\SpybotShared\utils\NameGenerator.h">
       <Filter>Header Files\shared\util</Filter>
+    </ClInclude>
+    <ClInclude Include="include\overlays\main\UserDisplay.h">
+      <Filter>Header Files\overlays\main</Filter>
+    </ClInclude>
+    <ClInclude Include="include\overlays\main\AchievementButton.h">
+      <Filter>Header Files\overlays\main</Filter>
+    </ClInclude>
+    <ClInclude Include="include\overlays\notify\PopupNotification.h">
+      <Filter>Header Files\overlays\notify</Filter>
+    </ClInclude>
+    <ClInclude Include="include\overlays\notify\PopupAchievement.h">
+      <Filter>Header Files\overlays\notify</Filter>
+    </ClInclude>
+    <ClInclude Include="include\gui\GUIEffects\GUIEffect.h">
+      <Filter>Header Files\gui\GUIEffects</Filter>
+    </ClInclude>
+    <ClInclude Include="include\gui\GUIEffects\GUIEffectFade.h">
+      <Filter>Header Files\gui\GUIEffects</Filter>
+    </ClInclude>
+    <ClInclude Include="include\gui\GUIEffects\GUIEffectTranslate.h">
+      <Filter>Header Files\gui\GUIEffects</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -452,9 +461,6 @@
     <ClCompile Include="src\overlays\main\PromptBox.cpp">
       <Filter>Source Files\overlays\main</Filter>
     </ClCompile>
-    <ClCompile Include="src\overlays\notify\Notification.cpp">
-      <Filter>Source Files\overlays\notify</Filter>
-    </ClCompile>
     <ClCompile Include="src\overlays\main\MainOverlay.cpp">
       <Filter>Source Files\overlays\main</Filter>
     </ClCompile>
@@ -479,14 +485,29 @@
     <ClCompile Include="src\overlays\background\GlowSpeck.cpp">
       <Filter>Source Files\overlays\background</Filter>
     </ClCompile>
-    <ClCompile Include="src\overlays\locallogin\LocalLoginOverlay.cpp">
-      <Filter>Source Files\overlays\locallogin</Filter>
-    </ClCompile>
-    <ClCompile Include="src\overlays\locallogin\UserDisplay.cpp">
-      <Filter>Source Files\overlays\locallogin</Filter>
-    </ClCompile>
     <ClCompile Include="..\SpybotShared\utils\NameGenerator.cpp">
       <Filter>Source Files\shared\utils</Filter>
+    </ClCompile>
+    <ClCompile Include="src\overlays\main\UserDisplay.cpp">
+      <Filter>Source Files\overlays\main</Filter>
+    </ClCompile>
+    <ClCompile Include="src\overlays\main\AchievementButton.cpp">
+      <Filter>Source Files\overlays\main</Filter>
+    </ClCompile>
+    <ClCompile Include="src\overlays\notify\PopupNotification.cpp">
+      <Filter>Source Files\overlays\notify</Filter>
+    </ClCompile>
+    <ClCompile Include="src\overlays\notify\PopupAchievement.cpp">
+      <Filter>Source Files\overlays\notify</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gui\GUIEffects\GUIEffect.cpp">
+      <Filter>Source Files\gui\GUIEffects</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gui\GUIEffects\GUIEffectFade.cpp">
+      <Filter>Source Files\gui\GUIEffects</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gui\GUIEffects\GUIEffectTranslate.cpp">
+      <Filter>Source Files\gui\GUIEffects</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

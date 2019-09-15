@@ -18,6 +18,6 @@ public:
 	void resetBounds();
 protected:
 private:
-	SDL_Texture* icon;
-	PROGRAM progType;
+	SDL_Texture* icon_;
+	PROGRAM progType_;
 };

@@ -6,27 +6,41 @@
 #include "Data.h"
 #include "MainOverlay.h"
 #include "BackgroundOverlay.h"
+#include "GUIEffectFade.h"
 
 TitleOverlay::TitleOverlay()
-	: GUIContainer(NULL, ANCHOR_NORTHWEST, { 0, 0 }, { _SCREEN_WIDTH, _SCREEN_HEIGHT }, NULL) {
+	: GUIContainer(NULL, ANCHOR_NORTHWEST, { 0, 0 }, { _screenWidth, _screenHeight }, _color_clear) {
 	int w;
 	int h;
+
 	SDL_QueryTexture(_title_company, NULL, NULL, &w, &h);
-	addObject(new GUITexture(this, ANCHOR_CENTER, { 0, 0 }, { w, h }, _title_company));
+	GUITexture* companyTexture = new GUITexture(this, ANCHOR_CENTER, { 0, 0 }, { w, h }, _title_company);
+	companyTexture->setTransparency(0);
+	this->addObject(companyTexture);
+	companyTexture->addEffect(new GUIEffectFade(500, 2500, 0, 255));
+	companyTexture->addEffect(new GUIEffectFade(3000, 2500, 255, 0));
+
 	SDL_QueryTexture(_title_title, NULL, NULL, &w, &h);
-	addObject(new GUITexture(this, ANCHOR_CENTER, { 0, -h / 2 }, { w, h }, _title_title));
+	GUITexture* titleTexture = new GUITexture(this, ANCHOR_CENTER, { 0, -h / 2 }, { w, h }, _title_title);
+	titleTexture->setTransparency(0);
+	this->addObject(titleTexture);
+	titleTexture->addEffect(new GUIEffectFade(5500, 2500, 0, 255));
+	titleTexture->addEffect(new GUIEffectFade(8000, 2500, 255, 0));
+
 	SDL_QueryTexture(_title_subtitle, NULL, NULL, &w, &h);
-	addObject(new GUITexture(this, ANCHOR_CENTER, { 0, h / 2 + 10 }, { w, h }, _title_subtitle));
+	GUITexture* subtitleTexture = new GUITexture(this, ANCHOR_CENTER, { 0, h / 2 + 10 }, { w, h }, _title_subtitle);
+	subtitleTexture->setTransparency(0);
+	this->addObject(subtitleTexture);
+	subtitleTexture->addEffect(new GUIEffectFade(6500, 2500, 0, 255));
+	subtitleTexture->addEffect(new GUIEffectFade(9000, 2500, 255, 0));
 
-	//sprites = new LinkedList<GUITexture*>();
+	tickCount_ = 0;
 
-	tickCount = 0;
+	timingCompany_ = 3000;
+	timingTitle_ = 8000;
+	timingSubtitle_ = 9000;
 
-	timingCompany = 3000;
-	timingTitle = 8000;
-	timingSubtitle = 9000;
-
-	spanTiming = 2500;
+	spanTiming_ = 2500;
 }
 
 TitleOverlay::~TitleOverlay() {
@@ -44,44 +58,11 @@ void TitleOverlay::tick(int ms) {
 	// tick all GUIObjects
 	GUIContainer::tick(ms);
 
-	if (tickCount <= timingCompany - spanTiming) {
-		SDL_SetTextureAlphaMod(_title_company, 0);
-	} else if (tickCount > timingCompany - spanTiming && tickCount <= timingCompany) {
-		SDL_SetTextureAlphaMod(_title_company, (int)(((double)(tickCount - timingCompany + spanTiming) / spanTiming)*255.0));
-	} else if (tickCount > timingCompany && tickCount <= timingCompany + spanTiming) {
-		SDL_SetTextureAlphaMod(_title_company, (int)(((double)(timingCompany - tickCount + spanTiming) / spanTiming)*255.0));
-	} else if (tickCount > timingCompany + spanTiming) {
-		SDL_SetTextureAlphaMod(_title_company, 0);
-	}
-
-	if (tickCount <= timingTitle - spanTiming) {
-		SDL_SetTextureAlphaMod(_title_title, 0);
-	} else if (tickCount > timingTitle - spanTiming && tickCount <= timingTitle) {
-		SDL_SetTextureAlphaMod(_title_title, (int)(((double)(tickCount - timingTitle + spanTiming) / spanTiming)*255.0));
-	} else if (tickCount > timingTitle && tickCount <= timingTitle + spanTiming) {
-		SDL_SetTextureAlphaMod(_title_title, (int)(((double)(timingTitle - tickCount + spanTiming) / spanTiming)*255.0));
-	} else if (tickCount > timingTitle + spanTiming) {
-		SDL_SetTextureAlphaMod(_title_title, 0);
-	}
-
-	if (tickCount <= timingSubtitle - spanTiming) // before fade in
-	{
-		SDL_SetTextureAlphaMod(_title_subtitle, 0);
-	} else if (tickCount > timingSubtitle - spanTiming && tickCount <= timingSubtitle) // fading in
-	{
-		SDL_SetTextureAlphaMod(_title_subtitle, (int)(((double)(tickCount - timingSubtitle + spanTiming) / spanTiming)*255.0));
-	} else if (tickCount > timingSubtitle && tickCount <= timingSubtitle + spanTiming) // fading out
-	{
-		SDL_SetTextureAlphaMod(_title_subtitle, (int)(((double)(timingSubtitle - tickCount + spanTiming) / spanTiming)*255.0));
-	} else if (tickCount > timingSubtitle + spanTiming) {
-		SDL_SetTextureAlphaMod(_title_subtitle, 0);
-	}
-
-	if (tickCount > timingSubtitle + spanTiming + 500) {
+	if (tickCount_ > timingSubtitle_ + spanTiming_ + 500) {
 		endTitles();
 	}
 
-	tickCount += ms;
+	tickCount_ += ms;
 }
 
 bool TitleOverlay::mouseDown() {
@@ -90,9 +71,12 @@ bool TitleOverlay::mouseDown() {
 }
 
 void TitleOverlay::advance() {
-	if (tickCount < timingCompany) tickCount = timingCompany;
-	else if (tickCount < timingTitle) tickCount = timingTitle;
-	else endTitles();
+	if (tickCount_ < timingCompany_)
+		tickCount_ = timingCompany_;
+	else if (tickCount_ < timingTitle_)
+		tickCount_ = timingTitle_;
+	else
+		endTitles();
 }
 
 void TitleOverlay::endTitles() {

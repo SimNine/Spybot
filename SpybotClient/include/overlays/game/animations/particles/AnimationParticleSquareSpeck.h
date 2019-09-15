@@ -1,14 +1,12 @@
-#ifndef ANIMATIONATTACKSQUARESPECK_H
-#define ANIMATIONATTACKSQUARESPECK_H
+#pragma once
 
 #include "Standard.h"
 #include "AnimationParticle.h"
 
-class AnimationParticleSquareSpeck : public AnimationParticle
-{
+class AnimationParticleSquareSpeck : public AnimationParticle {
 public:
 	AnimationParticleSquareSpeck(int time, Coord disp, Coord vel);
-    virtual ~AnimationParticleSquareSpeck();
+	virtual ~AnimationParticleSquareSpeck();
 
 	void draw(Coord pos);
 	void tick(int ms);
@@ -18,5 +16,3 @@ private:
 	Coord disp_;
 	Coord vel_;
 };
-
-#endif // GAMESCREEN_H

@@ -1,5 +1,4 @@
-#ifndef GUISLIDER_H
-#define GUISLIDER_H
+#pragma once
 
 #include "Standard.h"
 #include "GUIObject.h"
@@ -19,9 +18,7 @@ public:
 	void resetBounds();
 protected:
 private:
-	SDL_Rect sliderBounds;
-	int sliderVal;
+	SDL_Rect sliderBounds_;
+	int sliderVal_;
 	void(*func) (float);
 };
-
-#endif // GUISLIDER_H

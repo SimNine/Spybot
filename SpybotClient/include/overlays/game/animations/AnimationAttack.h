@@ -5,8 +5,7 @@
 
 class AnimationParticle;
 
-class AnimationAttack : public Animation
-{
+class AnimationAttack : public Animation {
 public:
 	AnimationAttack(Coord pos, int damage);
 	~AnimationAttack();

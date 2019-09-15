@@ -1,5 +1,4 @@
-#ifndef DATA_H
-#define DATA_H
+#pragma once
 
 #include "Standard.h"
 
@@ -116,6 +115,10 @@ extern std::string _game_disp_compturn;
 extern SDL_Texture* _main_bkgdata;
 extern SDL_Texture* _main_bkgsplotch;
 extern SDL_Texture* _main_bkgsplotch2;
+extern std::string _main_campaign_classic;
+extern std::string _main_campaign_nightfall;
+extern std::string _main_campaign_procedural;
+extern std::string _main_campaign_bkg;
 
 // SDL_Mixer music
 extern Mix_Music* _music_title;
@@ -139,6 +142,7 @@ extern Mix_Chunk* _sound_pickup_files;
 
 // colors
 extern SDL_Color _color_bkg_standard;
+extern SDL_Color _color_clear;
 extern SDL_Color _color_black;
 extern SDL_Color _color_white;
 extern SDL_Color _color_action_medic;
@@ -153,4 +157,10 @@ extern SDL_Color _color_action_tiledestroy;
 extern SDL_Texture* _particle_basic;
 extern SDL_Texture* _particle_selectring;
 
-#endif // DATA_H
+// achievements
+extern SDL_Texture* _achievement_badge;
+extern SDL_Texture* _achievement_badge_large;
+extern SDL_Texture* _achievement_texture[ACHIEVEMENT_NUM_ACHIEVEMENTS];
+extern SDL_Texture* _achievement_locked;
+extern std::string _achievement_name[ACHIEVEMENT_NUM_ACHIEVEMENTS];
+extern std::string _achievement_description[ACHIEVEMENT_NUM_ACHIEVEMENTS];

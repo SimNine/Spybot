@@ -13,14 +13,12 @@ public:
 	bool mouseDown();
 protected:
 private:
-	//LinkedList<GUITexture*>* sprites;
+	int tickCount_;
 
-	int tickCount;
-
-	int timingCompany;
-	int timingTitle;
-	int timingSubtitle;
-	int spanTiming;
+	int timingCompany_;
+	int timingTitle_;
+	int timingSubtitle_;
+	int spanTiming_;
 
 	void advance();
 	void endTitles();

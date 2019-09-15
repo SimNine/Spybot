@@ -81,7 +81,7 @@ bool AIBasic::actStep() {
 				owner_->getSelectedProgram()->setActionsLeft(0);
 			} else {
 				if (_debug >= DEBUG_NORMAL)
-					printf("picked %s\n", progAct->name.c_str());
+					printf("picked %s\n", progAct->name_.c_str());
 				owner_->setSelectedAction(progAct);
 			}
 		} else {

@@ -1,5 +1,4 @@
-#ifndef MESSAGE_H_INCLUDED
-#define MESSAGE_H_INCLUDED
+#pragma once
 
 #define DEFAULT_MSG_TEXTSIZE 50
 #define DEFAULT_MSGSIZE (47 + DEFAULT_MSG_TEXTSIZE)
@@ -132,6 +131,3 @@ void serializeMessage(char* buffer, Message m);
 Message deserializeMessage(char* in);
 
 void _printMessage(Message m);
-
-
-#endif // MESSAGE_H_INCLUDED

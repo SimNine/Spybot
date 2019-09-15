@@ -16,7 +16,6 @@
 #include "Server.h"
 #include "LinkedList.h"
 #include "BackgroundOverlay.h"
-#include "LocalLoginOverlay.h"
 #include "Message.h"
 
 void savePrefs();
@@ -110,7 +109,6 @@ void resetBounds() {
 	_lobbyOverlay->resetBounds();
 	_notifyOverlay->resetBounds();
 	_backgroundOverlay->resetBounds();
-	_localLoginOverlay->resetBounds();
 }
 
 // initializes the GUIs and switches the screen to titleScreen
@@ -123,7 +121,6 @@ void initGUIs() {
 	_lobbyOverlay = new LobbyOverlay();
 	_notifyOverlay = new NotifyOverlay();
 	_backgroundOverlay = new BackgroundOverlay();
-	_localLoginOverlay = new LocalLoginOverlay();
 
 	_overlayStack->push(_titleOverlay);
 }
@@ -148,12 +145,12 @@ bool initSDL() {
 
 	//Create window
 	int flags = SDL_WINDOW_RESIZABLE | SDL_WINDOW_HIDDEN;
-	_window = SDL_CreateWindow("Spybot: The Nightfall Incident", 50, 50, _SCREEN_WIDTH, _SCREEN_HEIGHT, flags);
+	_window = SDL_CreateWindow("Spybot: The Nightfall Incident", 50, 50, _screenWidth, _screenHeight, flags);
 	if (_window == NULL) {
 		printf("Window could not be created! SDL Error: %s\n", SDL_GetError());
 		return false;
 	}
-	SDL_SetWindowMinimumSize(_window, _SCREEN_WIDTH, _SCREEN_HEIGHT);
+	SDL_SetWindowMinimumSize(_window, _screenWidth, _screenHeight);
 	SDL_ShowCursor(SDL_DISABLE);
 
 	//Create renderer for window
@@ -191,8 +188,6 @@ bool initSDL() {
 
 // initialize winsock
 bool initWinsock() {
-
-	// Initialize Winsock
 	WSADATA wsaData;
 	int iResult = WSAStartup(MAKEWORD(2, 2), &wsaData);
 	if (iResult != 0) {
@@ -213,21 +208,124 @@ void toggleFullscreen() {
 	resetBounds();
 }
 
+// save the user's progress
+void saveProgress() {
+	std::ofstream prog;
+	prog.open("progress.dat", std::ios::out | std::ios::binary | std::ios::trunc);
+	if (!prog.is_open()) {
+		if (_debug >= DEBUG_MINIMAL)
+			printf("err saving progress\n");
+	} else {
+		if (_debug >= DEBUG_MINIMAL)
+			printf("saving progress...\n");
+
+		// write the size of various data types
+		int8_t sizeOfInt = sizeof(int);
+		int8_t sizeOfChar = sizeof(char);
+		int8_t sizeOfDouble = sizeof(double);
+		int8_t sizeOfBool = sizeof(bool);
+		int8_t sizeOfLong = sizeof(long);
+		if (_debug >= DEBUG_NORMAL)
+			printf("saving constants... int:%i, char:%i, double:%i, bool:%i, long:%i\n", sizeOfInt, sizeOfChar, sizeOfDouble, sizeOfBool, sizeOfLong);
+		prog.write((char*)&sizeOfInt, 1);
+		prog.write((char*)&sizeOfChar, 1);
+		prog.write((char*)&sizeOfDouble, 1);
+		prog.write((char*)&sizeOfBool, 1);
+		prog.write((char*)&sizeOfLong, 1);
+
+		// save progress
+		prog.write((char*)&_progressNightfall, sizeOfBool);
+		prog.write((char*)&_progressFreeform, sizeOfBool);
+		for (int i = 0; i < ACHIEVEMENT_NUM_ACHIEVEMENTS; i++) {
+			prog.write((char*)&_progressAchievements[i], sizeOfBool);
+		}
+		prog.write((char*)&_progressGamesPlayed, sizeOfInt);
+		prog.write((char*)&_progressGamesWon, sizeOfInt);
+		prog.write((char*)&_progressGamesLost, sizeOfInt);
+		prog.write((char*)&_progressProgramsKilled, sizeOfInt);
+		prog.write((char*)&_progressCreditsCollected, sizeOfInt);
+		prog.write((char*)&_progressFreeformGamesWon, sizeOfInt);
+		prog.write((char*)&_progressTotalSecondsPlayed, sizeOfLong);
+
+		// flush and close
+		if (_debug >= DEBUG_MINIMAL)
+			printf("flushing and closing prefs file... ");
+		prog.flush();
+		prog.close();
+		if (_debug >= DEBUG_MINIMAL)
+			printf("done\n");
+	}
+}
+
+// load the user's progress
+void loadProgress() {
+	std::ifstream prog;
+	prog.open("progress.dat", std::ios::in | std::ios::binary);
+
+	if (!prog.is_open()) {
+		if (_debug >= DEBUG_MINIMAL)
+			printf("err reading progress\n");
+	} else {
+		if (_debug >= DEBUG_MINIMAL)
+			printf("reading progress...\n");
+
+		// read the sizes of various data types
+		if (_debug >= DEBUG_NORMAL)
+			printf("loading constants...\n");
+		int8_t sizeOfInt;
+		prog.read((char*)&sizeOfInt, 1);
+		int8_t sizeOfChar;
+		prog.read((char*)&sizeOfChar, 1);
+		int8_t sizeOfDouble;
+		prog.read((char*)&sizeOfDouble, 1);
+		int8_t sizeOfBool;
+		prog.read((char*)&sizeOfBool, 1);
+		int8_t sizeOfLong;
+		prog.read((char*)&sizeOfLong, 1);
+		if (_debug >= DEBUG_NORMAL)
+			printf("loaded constants: int:%i, char:%i, double:%i, bool:%i, long:%i\n", sizeOfInt, sizeOfChar, sizeOfDouble, sizeOfBool, sizeOfLong);
+
+		// read prefs
+		if (_debug >= DEBUG_NORMAL)
+			printf("loading progress...\n");
+		prog.read((char*)&_progressNightfall, sizeOfBool);
+		prog.read((char*)&_progressFreeform, sizeOfBool);
+		for (int i = 0; i < ACHIEVEMENT_NUM_ACHIEVEMENTS; i++) {
+			prog.read((char*)&_progressAchievements[i], sizeOfBool);
+		}
+		prog.read((char*)&_progressGamesPlayed, sizeOfInt);
+		prog.read((char*)&_progressGamesWon, sizeOfInt);
+		prog.read((char*)&_progressGamesLost, sizeOfInt);
+		prog.read((char*)&_progressProgramsKilled, sizeOfInt);
+		prog.read((char*)&_progressCreditsCollected, sizeOfInt);
+		prog.read((char*)&_progressFreeformGamesWon, sizeOfInt);
+		prog.read((char*)&_progressTotalSecondsPlayed, sizeOfLong);
+
+		// close the file
+		prog.close();
+		if (_debug >= DEBUG_MINIMAL)
+			printf("done\n");
+	}
+}
+
 // save the user's preferences
 void savePrefs() {
 	std::ofstream prefs;
-	prefs.open("default.prefs", std::ios::out | std::ios::binary | std::ios::trunc);
+	prefs.open("prefs.dat", std::ios::out | std::ios::binary | std::ios::trunc);
 	if (!prefs.is_open()) {
-		if (_debug >= DEBUG_MINIMAL) printf("err saving prefs\n");
+		if (_debug >= DEBUG_MINIMAL)
+			printf("err saving prefs\n");
 	} else {
-		if (_debug >= DEBUG_MINIMAL) printf("saving prefs...\n");
+		if (_debug >= DEBUG_MINIMAL)
+			printf("saving prefs...\n");
 
 		// begin by writing the sizes of various data types
 		int8_t sizeOfInt = sizeof(int);
 		int8_t sizeOfChar = sizeof(char);
 		int8_t sizeOfDouble = sizeof(double);
 		int8_t sizeOfBool = sizeof(bool);
-		if (_debug >= DEBUG_NORMAL) printf("saving constants... int:%i, char:%i, double:%i, bool:%i\n", sizeOfInt, sizeOfChar, sizeOfDouble, sizeOfBool);
+		if (_debug >= DEBUG_NORMAL)
+			printf("saving constants... int:%i, char:%i, double:%i, bool:%i\n", sizeOfInt, sizeOfChar, sizeOfDouble, sizeOfBool);
 		prefs.write((char*)&sizeOfInt, 1);
 		prefs.write((char*)&sizeOfChar, 1);
 		prefs.write((char*)&sizeOfDouble, 1);
@@ -237,26 +335,28 @@ void savePrefs() {
 		int soundVol = Mix_Volume(-1, 0);
 		int musicVol = Mix_VolumeMusic(0);
 		Uint32 windowFlags = SDL_GetWindowFlags(_window);
-		if (_debug >= DEBUG_NORMAL) printf("saving preferences... soundVol:%i, musicVol:%i, SCRWIDTH:%i, SCRHEIGHT:%i\n",
-			soundVol, musicVol, _SCREEN_WIDTH, _SCREEN_HEIGHT);
+		if (_debug >= DEBUG_NORMAL)
+			printf("saving preferences... soundVol:%i, musicVol:%i, SCRWIDTH:%i, SCRHEIGHT:%i\n", soundVol, musicVol, _screenWidth, _screenHeight);
 		prefs.write((char*)&soundVol, sizeOfInt);
 		prefs.write((char*)&musicVol, sizeOfInt);
 		prefs.write((char*)&windowFlags, sizeof(Uint32));
-		prefs.write((char*)&_SCREEN_WIDTH, sizeOfInt);
-		prefs.write((char*)&_SCREEN_HEIGHT, sizeOfInt);
+		prefs.write((char*)&_screenWidth, sizeOfInt);
+		prefs.write((char*)&_screenHeight, sizeOfInt);
 
 		// flush and close
-		if (_debug >= DEBUG_MINIMAL) printf("flushing and closing prefs file... ");
+		if (_debug >= DEBUG_MINIMAL)
+			printf("flushing and closing prefs file... ");
 		prefs.flush();
 		prefs.close();
-		if (_debug >= DEBUG_MINIMAL) printf("done\n");
+		if (_debug >= DEBUG_MINIMAL)
+			printf("done\n");
 	}
 }
 
 // load the user's preferences
 void loadPrefs() {
 	std::ifstream prefs;
-	prefs.open("default.prefs", std::ios::in | std::ios::binary);
+	prefs.open("prefs.dat", std::ios::in | std::ios::binary);
 
 	if (!prefs.is_open()) {
 		if (_debug >= DEBUG_MINIMAL) printf("err reading prefs\n");
@@ -286,11 +386,11 @@ void loadPrefs() {
 		int windowFlags;
 		prefs.read((char*)&windowFlags, sizeof(Uint32));
 		if (windowFlags & SDL_WINDOW_FULLSCREEN) SDL_SetWindowFullscreen(_window, SDL_WINDOW_FULLSCREEN_DESKTOP);
-		prefs.read((char*)&_SCREEN_WIDTH, sizeOfInt);
-		prefs.read((char*)&_SCREEN_HEIGHT, sizeOfInt);
-		SDL_SetWindowSize(_window, _SCREEN_WIDTH, _SCREEN_HEIGHT);
+		prefs.read((char*)&_screenWidth, sizeOfInt);
+		prefs.read((char*)&_screenHeight, sizeOfInt);
+		SDL_SetWindowSize(_window, _screenWidth, _screenHeight);
 		if (_debug >= DEBUG_NORMAL) printf("loaded prefs: soundVol:%i, musicVol:%i, fullscreen:%i, SCRWIDTH:%i, SCRHEIGHT:%i\n",
-			soundVol, musicVol, windowFlags, _SCREEN_WIDTH, _SCREEN_HEIGHT);
+			soundVol, musicVol, windowFlags, _screenWidth, _screenHeight);
 
 		// close the file
 		prefs.close();
@@ -312,8 +412,8 @@ void handleEvents() {
 		} else if (e.type == SDL_WINDOWEVENT) // window resize
 		{
 			if (e.window.event == SDL_WINDOWEVENT_RESIZED) {
-				_SCREEN_WIDTH = e.window.data1;
-				_SCREEN_HEIGHT = e.window.data2;
+				_screenWidth = e.window.data1;
+				_screenHeight = e.window.data2;
 				resetBounds();
 			}
 		} else if (e.type == SDL_KEYDOWN) // keypress
@@ -347,7 +447,7 @@ void handleEvents() {
 				if (e.key.keysym.sym == SDLK_s) {
 					_gameOverlay->saveGame();
 				} else if (e.key.keysym.sym == SDLK_ESCAPE) {
-					_gameOverlay->togglePauseMenu();
+					_gameOverlay->pauseMenuShow();
 				} else if (e.key.keysym.sym == SDLK_F3) {
 					_gameOverlay->toggleEditorMode();
 				}
@@ -365,7 +465,7 @@ void handleEvents() {
 				if (e.key.keysym.sym == SDLK_l) {
 					_mapOverlay->unlockAllLevels();
 				} else if (e.key.keysym.sym == SDLK_ESCAPE) {
-					_mapOverlay->togglePauseMenu();
+					_mapOverlay->pauseMenuShow();
 				} else if (e.key.keysym.sym == SDLK_p) {
 					Message m;
 					m.type = MSGTYPE_PROGINVENTORY;
@@ -406,12 +506,60 @@ void draw() {
 	SDL_RenderPresent(_renderer); // update the screen
 }
 
-// tick the current screen
+// tick the current screen and check for time-related achievements
 void tick(int ms) {
 	for (int i = _overlayStack->getLength() - 1; i >= 0; i--) {
 		_overlayStack->getObjectAt(i)->tick(ms);
 	}
 	_notifyOverlay->tick(ms);
+
+	_progressMSPlayed += ms;
+	if (_progressMSPlayed > 1000) {
+		int numSeconds = _progressMSPlayed / 1000;
+		_progressMSPlayed -= numSeconds * 1000;
+		_progressTotalSecondsPlayed += numSeconds;
+		_progressTotalSecondsPlayedThisSession += numSeconds;
+
+		if (!_progressAchievements[ACHIEVEMENT_PARTICIPATION]) {
+			unlockAchievement(ACHIEVEMENT_PARTICIPATION);
+		} else if (!_progressAchievements[ACHIEVEMENT_ONEMINUTE] && _progressTotalSecondsPlayed >= 60) {
+			unlockAchievement(ACHIEVEMENT_ONEMINUTE);
+		} else if (!_progressAchievements[ACHIEVEMENT_FIVEMINUTES] && _progressTotalSecondsPlayed >= 60 * 5) {
+			unlockAchievement(ACHIEVEMENT_FIVEMINUTES);
+		} else if (!_progressAchievements[ACHIEVEMENT_ONEHOUR] && _progressTotalSecondsPlayed >= 60 * 60) {
+			unlockAchievement(ACHIEVEMENT_ONEHOUR);
+		} else if (!_progressAchievements[ACHIEVEMENT_FIVEHOURS] && _progressTotalSecondsPlayed >= 60 * 60 * 5) {
+			unlockAchievement(ACHIEVEMENT_FIVEHOURS);
+		} else if (!_progressAchievements[ACHIEVEMENT_TENHOURS] && _progressTotalSecondsPlayed >= 60 * 60 * 10) {
+			unlockAchievement(ACHIEVEMENT_TENHOURS);
+		} else if (!_progressAchievements[ACHIEVEMENT_FIFTYHOURS] && _progressTotalSecondsPlayed >= 60 * 60 * 50) {
+			unlockAchievement(ACHIEVEMENT_FIFTYHOURS);
+		} else if (!_progressAchievements[ACHIEVEMENT_CENTENNIAL] && _progressTotalSecondsPlayed >= 60 * 60 * 100) {
+			unlockAchievement(ACHIEVEMENT_CENTENNIAL);
+		}
+
+		if (!_progressAchievements[ACHIEVEMENT_CASUALGAMER] && _progressTotalSecondsPlayedThisSession >= 60 * 5) {
+			unlockAchievement(ACHIEVEMENT_CASUALGAMER);
+		} else if (!_progressAchievements[ACHIEVEMENT_SERIOUSCASUALGAMER] && _progressTotalSecondsPlayedThisSession >= 60 * 30) {
+			unlockAchievement(ACHIEVEMENT_SERIOUSCASUALGAMER);
+		} else if (!_progressAchievements[ACHIEVEMENT_GAMER] && _progressTotalSecondsPlayedThisSession >= 60 * 60) {
+			unlockAchievement(ACHIEVEMENT_GAMER);
+		} else if (!_progressAchievements[ACHIEVEMENT_DEDICATEDGAMER] && _progressTotalSecondsPlayedThisSession >= 60 * 60 * 3) {
+			unlockAchievement(ACHIEVEMENT_DEDICATEDGAMER);
+		} else if (!_progressAchievements[ACHIEVEMENT_TAKEABREAK] && _progressTotalSecondsPlayedThisSession >= 60 * 60 * 5) {
+			unlockAchievement(ACHIEVEMENT_TAKEABREAK);
+		} else if (!_progressAchievements[ACHIEVEMENT_TIMETOSTOP] && _progressTotalSecondsPlayedThisSession >= 60 * 60 * 7) {
+			unlockAchievement(ACHIEVEMENT_TIMETOSTOP);
+		} else if (!_progressAchievements[ACHIEVEMENT_WHY] && _progressTotalSecondsPlayedThisSession >= 60 * 60 * 10) {
+			unlockAchievement(ACHIEVEMENT_WHY);
+		}
+	}
+}
+
+// convenience method to do everything necessary when unlocking an achievement
+void unlockAchievement(ACHIEVEMENT a) {
+	_progressAchievements[a] = true;
+	_notifyOverlay->addAchievement(a);
 }
 
 // main function
@@ -431,6 +579,7 @@ int main(int argc, char* args[]) {
 	_client = new Client();
 	_connectionManager = new ConnectionManager();
 
+	loadProgress(); // load progress
 	loadPrefs(); // load GUI preferences
 	initData(); // initialize resource data
 	initGUIs(); // initialize GUIContainers
@@ -510,7 +659,8 @@ int main(int argc, char* args[]) {
 		}
 	}
 
-	//Free resources, pointers, and close SDL
+	// save preferences and close SDL
+	saveProgress();
 	savePrefs();
 	closeSDL();
 

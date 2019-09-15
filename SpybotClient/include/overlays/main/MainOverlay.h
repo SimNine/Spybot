@@ -8,6 +8,8 @@ class GlowSpeck;
 class PromptBox;
 class GUIButton;
 class GUITextbox;
+class GUITexture;
+class UserDisplay;
 
 class MainOverlay : public GUIContainer {
 public:
@@ -17,28 +19,45 @@ public:
 	void draw();
 	void tick(int);
 
-	void toggleOptions();
+	void showCampaigns(int fadeDuration);
+	void hideCampaigns(int fadeDuration);
 
-	void showIPEntry();
-	void hideIPEntry();
+	void showOptions(int fadeDuration);
+	void hideOptions(int fadeDuration);
+
+	void showIPEntry(int fadeDuration);
+	void hideIPEntry(int fadeDuration);
 	void submitIPEntry();
 
-	void loginShow();
-	void loginHide();
+	void loginShow(int fadeDuration);
+	void loginHide(int fadeDuration);
 	void loginCreate();
 	void loginSubmit();
 	void loginClear();
 
-	void hideMainContainer();
-	void showMainContainer();
+	void hideMainContainer(int fadeDuration);
+	void showMainContainer(int fadeDuration);
+
+	void hideLocalLoginContainer(int fadeDuration);
+	void showLocalLoginContainer(int fadeDuration);
+
+	void showAchievementsContainer(int fadeDuration);
+	void hideAchievementsContainer(int fadeDuration);
+	void setSelectedAchievement(ACHIEVEMENT a);
+
+	void hideAll(int fadeDuration);
 
 	void keyPress(char c);
+
+	void refreshUsers();
 protected:
 private:
-	GUIContainer* optionsContainer_;
 	GUIContainer* mainContainer_;
 
-	GUIContainer* IPEntryContainer_;
+	GUIContainer* optionsContainer_;
+
+	GUIContainer* campaignContainer_;
+
 	PromptBox* IPEntryBox_;
 
 	GUIContainer* loginEntryContainer_;
@@ -47,4 +66,17 @@ private:
 	GUIButton* loginSubmitButton_;
 	GUITextbox* loginUsername_;
 	GUITextbox* loginPassword_;
+
+	GUIContainer* localLoginContainer_;
+	GUIContainer* saveContainer_;
+	UserDisplay* user1Container_;
+	UserDisplay* user2Container_;
+	UserDisplay* user3Container_;
+	GUIButton* localLoginBackButton_;
+
+	GUIContainer* achievementsContainer_;
+	GUIContainer* achievementsDisplayContainer_;
+	GUITexture* achievementTitle_;
+	GUITexture* achievementDescription_;
+	GUITexture* achievementIcon_;
 };

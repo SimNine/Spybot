@@ -70,22 +70,22 @@ void ProgramDisplayContainer::draw() {
 	SDL_Rect bds;
 
 	ClientMirror* cMirr = _connectionManager->getClientMirrorByPlayerID(currProg_->getOwner()->getPlayerID());
-	bds = *ownerText_->getBounds();
+	bds = ownerText_->getBounds();
 	bds.x += bds.w + 5;
 	if (cMirr != NULL)
 		drawString(cMirr->name_, FONT_NORMAL, 30, _color_white, bds);
 	else
 		drawString("AI", FONT_NORMAL, 30, _color_white, bds);
 
-	bds = *healthText_->getBounds();
+	bds = healthText_->getBounds();
 	bds.x += bds.w + 5;
 	drawString(to_string(currProg_->getHealth()) + "/" + to_string(currProg_->getMaxHealth()), FONT_NORMAL, 30, _color_white, bds);
 
-	bds = *movesText_->getBounds();
+	bds = movesText_->getBounds();
 	bds.x += bds.w + 5;
 	drawString(to_string(currProg_->getMoves()) + "/" + to_string(currProg_->getMaxMoves()), FONT_NORMAL, 30, _color_white, bds);
 
-	bds = *actionsText_->getBounds();
+	bds = actionsText_->getBounds();
 	bds.x += bds.w + 5;
 	drawString(to_string(currProg_->getActionsLeft()) + "/" + to_string(1), FONT_NORMAL, 30, _color_white, bds);
 }
@@ -133,7 +133,7 @@ void ProgramDisplayContainer::setCurrProg(Program* p) {
 			ProgramAction* curr = it.next();
 			ProgramDisplayActionButton* actionButton = new ProgramDisplayActionButton(ANCHOR_NORTHEAST,
 			{ -10, 200 + yDisp },
-			{ bounds.w - 20, buttonHeight },
+			{ bounds_.w - 20, buttonHeight },
 				this, curr, index);
 			actionButtons_->addFirst(actionButton);
 			this->addObject(actionButton);
@@ -144,7 +144,7 @@ void ProgramDisplayContainer::setCurrProg(Program* p) {
 		SDL_Color c = p->getOwner()->getColor();
 		SDL_SetTextureColorMod(_program_core_100px, c.r, c.g, c.b);
 
-		this->setBounds(displacement, { bounds.w, 200 + yDisp });
+		this->setDimensions({ bounds_.w, 200 + yDisp });
 	}
 
 	currProg_ = p;

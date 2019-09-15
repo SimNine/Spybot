@@ -17,36 +17,36 @@
 
 
 Player::Player(Game* g, int t) {
-	game = g;
-	team = t;
-	doneTurn = false;
-	selectedTile = { -1, -1 };
-	selectedProgram = NULL;
-	progsOwned = new LinkedList<Program*>();
+	game_ = g;
+	team_ = t;
+	doneTurn_ = false;
+	selectedTile_ = { -1, -1 };
+	selectedProgram_ = NULL;
+	progsOwned_ = new LinkedList<Program*>();
 	color_ = { (Uint8)rand(), (Uint8)rand(), (Uint8)rand(), (Uint8)rand() };
 	brain_ = NULL;
 }
 
 Player::~Player() {
-	while (progsOwned->getLength() > 0) {
-		Program* p = progsOwned->poll();
+	while (progsOwned_->getLength() > 0) {
+		Program* p = progsOwned_->poll();
 		delete p;
 	}
-	delete progsOwned;
+	delete progsOwned_;
 }
 
 void Player::setSelectedProgram(Program* p) {
 	if (p == NULL)
 		calculateProgramDist(NULL);
 	else if
-		(p->getTeam() != team) calculateProgramDist(NULL);
+		(p->getTeam() != team_) calculateProgramDist(NULL);
 	else
 		calculateProgramDist(p);
 
 	setSelectedAction(NULL);
-	selectedProgram = p;
+	selectedProgram_ = p;
 
-	if (game->isServerSide()) {
+	if (game_->isServerSide()) {
 		Message m;
 		m.type = MSGTYPE_SELECT;
 		m.selectType = MSGSELECTTYPE_PROGRAM;
@@ -62,31 +62,31 @@ void Player::setSelectedProgram(Program* p) {
 
 void Player::moveSelectedProgram(Coord pos) {
 	// check for validity
-	if (!game->isTiled(pos)) return;
+	if (!game_->isTiled(pos)) return;
 
 	// if the given space is adjacent to the selected program,
 	// and the selected program has moves left
-	if (selectedProgDist[pos.x][pos.y] == 1 && selectedProgram->getMoves() > 0) {
+	if (selectedProgDist_[pos.x][pos.y] == 1 && selectedProgram_->getMoves() > 0) {
 		// delete the tail of this program if it's at max health
-		if (selectedProgram->getHealth() == selectedProgram->getMaxHealth() &&
-			game->getProgramAt(pos) != selectedProgram) {
-			Coord temp = selectedProgram->getTail();
-			game->setProgramAt(temp, NULL);
+		if (selectedProgram_->getHealth() == selectedProgram_->getMaxHealth() &&
+			game_->getProgramAt(pos) != selectedProgram_) {
+			Coord temp = selectedProgram_->getTail();
+			game_->setProgramAt(temp, NULL);
 		}
 
 		// move the program
-		game->setProgramAt(pos, selectedProgram);
-		selectedProgram->moveTo(pos);
-		selectedTile = selectedProgram->getHead();
-		calculateProgramDist(selectedProgram);
+		game_->setProgramAt(pos, selectedProgram_);
+		selectedProgram_->moveTo(pos);
+		selectedTile_ = selectedProgram_->getHead();
+		calculateProgramDist(selectedProgram_);
 
 		Message msg;
-		if (game->isServerSide()) {
+		if (game_->isServerSide()) {
 			// move the program for the client
 			msg.type = MSGTYPE_MOVE;
 			msg.clientID = 0;
 			msg.playerID = playerID_;
-			msg.programID = selectedProgram->getProgramID();
+			msg.programID = selectedProgram_->getProgramID();
 			msg.pos = pos;
 			_server->sendMessageToAllClients(msg);
 
@@ -98,10 +98,10 @@ void Player::moveSelectedProgram(Coord pos) {
 		}
 
 		// if there is a credit here, pick it up
-		if (game->getItemAt(pos) == ITEM_CREDIT && team == 0) {
-			game->setItemAt(pos, ITEM_NONE);
+		if (game_->getItemAt(pos) == ITEM_CREDIT && team_ == 0) {
+			game_->setItemAt(pos, ITEM_NONE);
 
-			if (!game->isServerSide()) {
+			if (!game_->isServerSide()) {
 				msg.soundType = MSGSOUNDNAME_PICKUPCREDIT;
 				_server->sendMessageToAllClients(msg);
 			}
@@ -110,21 +110,21 @@ void Player::moveSelectedProgram(Coord pos) {
 }
 
 void Player::moveSelectedProgramBy(Coord disp) {
-	Coord n = selectedProgram->getCore() + disp;
+	Coord n = selectedProgram_->getCore() + disp;
 	moveSelectedProgram(n);
 }
 
 bool Player::canSelectedProgramMoveTo(Coord pos) {
 	// in case something breaks
-	if (selectedProgram == NULL)
+	if (selectedProgram_ == NULL)
 		return false;
 
 	// in case this isn't your program
-	if (selectedProgram->getOwner() != this)
+	if (selectedProgram_->getOwner() != this)
 		return false;
 
 	//otherwise...
-	if (selectedProgDist[pos.x][pos.y] == 1)
+	if (selectedProgDist_[pos.x][pos.y] == 1)
 		return true;
 	else
 		return false;
@@ -132,33 +132,33 @@ bool Player::canSelectedProgramMoveTo(Coord pos) {
 
 bool Player::canSelectedProgramMoveBy(Coord disp) {
 	// in case something breaks
-	if (selectedProgram == NULL)
+	if (selectedProgram_ == NULL)
 		return false;
 
 	//otherwise...
-	if (selectedProgDist[selectedProgram->getCore().x + disp.x][selectedProgram->getCore().y + disp.y] >= 1)
+	if (selectedProgDist_[selectedProgram_->getCore().x + disp.x][selectedProgram_->getCore().y + disp.y] >= 1)
 		return true;
 	else
 		return false;
 }
 
 Program* Player::getSelectedProgram() {
-	return selectedProgram;
+	return selectedProgram_;
 }
 
 int Player::getSelectedProgramDist(Coord pos) {
-	return selectedProgDist[pos.x][pos.y];
+	return selectedProgDist_[pos.x][pos.y];
 }
 
 int Player::getSelectedProgramDistAll(Coord pos) {
-	return selectedProgDistAll[pos.x][pos.y];
+	return selectedProgDistAll_[pos.x][pos.y];
 }
 
 Coord Player::getFarthestTile(Program* p) {
 	LinkedList<Coord*> ll = LinkedList<Coord*>();
-	for (int x = game->getLeftBound(); x < game->getRightBound(); x++)
-		for (int y = game->getLeftBound(); y < game->getRightBound(); y++)
-			if (game->getProgramAt({ x, y }) == p)
+	for (int x = game_->getLeftBound(); x < game_->getRightBound(); x++)
+		for (int y = game_->getLeftBound(); y < game_->getRightBound(); y++)
+			if (game_->getProgramAt({ x, y }) == p)
 				ll.addFirst(new Coord{ x, y });
 
 	Coord h = p->getCore();
@@ -180,16 +180,16 @@ Coord Player::getFarthestTile(Program* p) {
 
 void Player::calculateProgramDist(Program* p) {
 	for (int x = 0; x < 200; x++) for (int y = 0; y < 200; y++) {
-		selectedProgDist[x][y] = -1;
-		selectedProgDistAll[x][y] = -1;
+		selectedProgDist_[x][y] = -1;
+		selectedProgDistAll_[x][y] = -1;
 	}
 
 	if (p == NULL)
 		return;
 
 	Coord h = p->getCore();
-	selectedProgDist[h.x][h.y] = 0;
-	selectedProgDistAll[h.x][h.y] = 0;
+	selectedProgDist_[h.x][h.y] = 0;
+	selectedProgDistAll_[h.x][h.y] = 0;
 
 	LinkedList<Coord*> ll = LinkedList<Coord*>();
 	ll.addFirst(new Coord(h));
@@ -200,59 +200,59 @@ void Player::calculateProgramDist(Program* p) {
 		Coord curr = *currP;
 		delete currP;
 
-		int dCurr = selectedProgDistAll[curr.x][curr.y];
+		int dCurr = selectedProgDistAll_[curr.x][curr.y];
 
 		// check tile to the right
 		if (curr.x + 1 < 200 &&
-			game->getTileAt({ curr.x + 1, curr.y }) != TILE_NONE &&
-			(game->getProgramAt({ curr.x + 1, curr.y }) == NULL || game->getProgramAt({ curr.x + 1, curr.y }) == p) &&
-			selectedProgDistAll[curr.x + 1][curr.y] == -1) {
+			game_->getTileAt({ curr.x + 1, curr.y }) != TILE_NONE &&
+			(game_->getProgramAt({ curr.x + 1, curr.y }) == NULL || game_->getProgramAt({ curr.x + 1, curr.y }) == p) &&
+			selectedProgDistAll_[curr.x + 1][curr.y] == -1) {
 			if (dCurr < p->getMoves())
-				selectedProgDist[curr.x + 1][curr.y] = dCurr + 1;
-			selectedProgDistAll[curr.x + 1][curr.y] = dCurr + 1;
+				selectedProgDist_[curr.x + 1][curr.y] = dCurr + 1;
+			selectedProgDistAll_[curr.x + 1][curr.y] = dCurr + 1;
 			ll.addLast(new Coord{ curr.x + 1, curr.y });
 		}
 
 		// check tile to the left
 		if (curr.x - 1 >= 0 &&
-			game->getTileAt({ curr.x - 1, curr.y }) != TILE_NONE &&
-			(game->getProgramAt({ curr.x - 1, curr.y }) == NULL || game->getProgramAt({ curr.x - 1, curr.y }) == p) &&
-			selectedProgDistAll[curr.x - 1][curr.y] == -1) {
+			game_->getTileAt({ curr.x - 1, curr.y }) != TILE_NONE &&
+			(game_->getProgramAt({ curr.x - 1, curr.y }) == NULL || game_->getProgramAt({ curr.x - 1, curr.y }) == p) &&
+			selectedProgDistAll_[curr.x - 1][curr.y] == -1) {
 			if (dCurr < p->getMoves())
-				selectedProgDist[curr.x - 1][curr.y] = dCurr + 1;
-			selectedProgDistAll[curr.x - 1][curr.y] = dCurr + 1;
+				selectedProgDist_[curr.x - 1][curr.y] = dCurr + 1;
+			selectedProgDistAll_[curr.x - 1][curr.y] = dCurr + 1;
 			ll.addLast(new Coord{ curr.x - 1, curr.y });
 		}
 
 		// check tile below
 		if (curr.y + 1 < 200 &&
-			game->getTileAt({ curr.x, curr.y + 1 }) != TILE_NONE &&
-			(game->getProgramAt({ curr.x, curr.y + 1 }) == NULL || game->getProgramAt({ curr.x, curr.y + 1 }) == p) &&
-			selectedProgDistAll[curr.x][curr.y + 1] == -1) {
+			game_->getTileAt({ curr.x, curr.y + 1 }) != TILE_NONE &&
+			(game_->getProgramAt({ curr.x, curr.y + 1 }) == NULL || game_->getProgramAt({ curr.x, curr.y + 1 }) == p) &&
+			selectedProgDistAll_[curr.x][curr.y + 1] == -1) {
 			if (dCurr < p->getMoves())
-				selectedProgDist[curr.x][curr.y + 1] = dCurr + 1;
-			selectedProgDistAll[curr.x][curr.y + 1] = dCurr + 1;
+				selectedProgDist_[curr.x][curr.y + 1] = dCurr + 1;
+			selectedProgDistAll_[curr.x][curr.y + 1] = dCurr + 1;
 			ll.addLast(new Coord{ curr.x, curr.y + 1 });
 		}
 
 		// check tile above
 		if (curr.y - 1 >= 0 &&
-			game->getTileAt({ curr.x, curr.y - 1 }) != TILE_NONE &&
-			(game->getProgramAt({ curr.x, curr.y - 1 }) == NULL || game->getProgramAt({ curr.x, curr.y - 1 }) == p) &&
-			selectedProgDistAll[curr.x][curr.y - 1] == -1) {
+			game_->getTileAt({ curr.x, curr.y - 1 }) != TILE_NONE &&
+			(game_->getProgramAt({ curr.x, curr.y - 1 }) == NULL || game_->getProgramAt({ curr.x, curr.y - 1 }) == p) &&
+			selectedProgDistAll_[curr.x][curr.y - 1] == -1) {
 			if (dCurr < p->getMoves())
-				selectedProgDist[curr.x][curr.y - 1] = dCurr + 1;
-			selectedProgDistAll[curr.x][curr.y - 1] = dCurr + 1;
+				selectedProgDist_[curr.x][curr.y - 1] = dCurr + 1;
+			selectedProgDistAll_[curr.x][curr.y - 1] = dCurr + 1;
 			ll.addLast(new Coord{ curr.x, curr.y - 1 });
 		}
 	}
 }
 
 void Player::addProgram(Program* p) {
-	if (progsOwned->contains(p))
+	if (progsOwned_->contains(p))
 		return;
 
-	progsOwned->addLast(p);
+	progsOwned_->addLast(p);
 	p->setOwner(this);
 }
 
@@ -263,39 +263,39 @@ void Player::setSelectedTile(Coord pos) {
 	m.clientID = 0;
 	m.playerID = playerID_;
 
-	if (game->isOOB(pos)) {
+	if (game_->isOOB(pos)) {
 		setSelectedProgram(NULL);
-		selectedTile = { -1, -1 };
+		selectedTile_ = { -1, -1 };
 
 		m.pos = pos;
-		if (game->isServerSide())
+		if (game_->isServerSide())
 			_server->sendMessageToAllClients(m);
 		return;
 	}
 
-	setSelectedProgram(game->getProgramAt(pos));
+	setSelectedProgram(game_->getProgramAt(pos));
 
-	if (selectedProgram == NULL) {
-		selectedTile = pos;
+	if (selectedProgram_ == NULL) {
+		selectedTile_ = pos;
 		m.pos = pos;
-		if (game->isServerSide())
+		if (game_->isServerSide())
 			_server->sendMessageToAllClients(m);
 	} else {
-		selectedTile = selectedProgram->getHead();
-		m.pos = selectedProgram->getHead();
-		if (game->isServerSide())
+		selectedTile_ = selectedProgram_->getHead();
+		m.pos = selectedProgram_->getHead();
+		if (game_->isServerSide())
 			_server->sendMessageToAllClients(m);
 	}
 }
 
 Coord Player::getSelectedTile() {
-	return selectedTile;
+	return selectedTile_;
 }
 
 void Player::endTurn() {
-	doneTurn = false;
+	doneTurn_ = false;
 
-	Iterator<Program*> it = progsOwned->getIterator();
+	Iterator<Program*> it = progsOwned_->getIterator();
 	while (it.hasNext())
 		it.next()->endTurn();
 
@@ -303,83 +303,85 @@ void Player::endTurn() {
 }
 
 bool Player::getDoneTurn() {
-	return doneTurn;
+	return doneTurn_;
 }
 
 LinkedList<Program*>* Player::getProgList() {
-	return progsOwned;
+	return progsOwned_;
 }
 
 int Player::getTeam() {
-	return team;
+	return team_;
 }
 
 void Player::setSelectedAction(ProgramAction* pa) {
 	for (int x = 0; x < 200; x++)
 		for (int y = 0; y < 200; y++)
-			selectedActionDist[x][y] = -1;
+			selectedActionDist_[x][y] = -1;
 
-	if (selectedProgram == NULL || pa == NULL) {
-		selectedAction = NULL;
+	if (selectedProgram_ == NULL || pa == NULL) {
+		selectedAction_ = NULL;
 		return;
 	}
 
-	Coord center = selectedProgram->getCore();
-	for (int x = -pa->range; x <= pa->range; x++) {
-		int rngLeft = pa->range - abs(x);
+	Coord center = selectedProgram_->getCore();
+	for (int x = -pa->range_; x <= pa->range_; x++) {
+		int rngLeft = pa->range_ - abs(x);
 		for (int y = -rngLeft; y <= rngLeft; y++)
-			if (game->isTiled(center + Coord{ x, y }))
-				selectedActionDist[center.x + x][center.y + y] = dist(center, center + Coord{ x, y });
+			if (game_->isTiled(center + Coord{ x, y }))
+				selectedActionDist_[center.x + x][center.y + y] = dist(center, center + Coord{ x, y });
 	}
-	selectedActionDist[center.x][center.y] = 0;
+	selectedActionDist_[center.x][center.y] = 0;
 
-	selectedAction = pa;
+	selectedAction_ = pa;
 
-	if (game->isServerSide()) {
+	if (game_->isServerSide()) {
 		Message m;
 		m.type = MSGTYPE_SELECT;
 		m.selectType = MSGSELECTTYPE_ACTION;
 		m.clientID = 0;
 		m.playerID = playerID_;
-		m.programID = selectedProgram->getProgramID();
-		m.actionID = selectedProgram->getActions()->getIndexOf(pa);
+		m.programID = selectedProgram_->getProgramID();
+		m.actionID = selectedProgram_->getActions()->getIndexOf(pa);
 		_server->sendMessageToAllClients(m);
 	}
 }
 
 ProgramAction* Player::getSelectedAction() {
-	return selectedAction;
+	return selectedAction_;
 }
 
 int Player::getSelectedActionDist(Coord pos) {
-	return selectedActionDist[pos.x][pos.y];
+	return selectedActionDist_[pos.x][pos.y];
 }
 
 void Player::useSelectedActionAt(Coord pos) {
-	if (selectedAction == NULL || game->isOOB(pos) || selectedProgram->getActionsLeft() <= 0)
+	if (selectedAction_ == NULL || game_->isOOB(pos) || selectedProgram_->getActionsLeft() <= 0)
 		return;
 
-	Program* tgtProg = game->getProgramAt(pos);
+	Program* tgtProg = game_->getProgramAt(pos);
 
-	switch (selectedAction->type) {
+	switch (selectedAction_->type_) {
 	case ACTIONTYPE_DAMAGE:
 		if (tgtProg == NULL)
 			return;
 
-		if (tgtProg->getTeam() != team) {
-#ifdef CLIENTSIDE // if this is compiled on the client side, add an animation to the game overlays
-			_gameOverlay->addAnimation(new AnimationAttack(tgtProg->getHead(), selectedAction->power));
+		if (tgtProg->getTeam() != team_) {
+#ifdef CLIENTSIDE // if this is compiled on the client side and is slave, add an animation to the game overlays
+			if (!game_->isServerSide())
+				_gameOverlay->addAnimation(new AnimationAttack(tgtProg->getHead(), selectedAction_->power_));
 #endif // CLIENTSIDE
-			for (int i = 0; i < selectedAction->power; i++) {
+			for (int i = 0; i < selectedAction_->power_; i++) {
 				Coord* curr = tgtProg->popTail();
 				if (curr == NULL)
 					break;
 				else {
 					SDL_Color c = tgtProg->getOwner()->getColor();
-#ifdef CLIENTSIDE // if this is compiled on the client side, add an animation to the game overlay
-					_gameOverlay->addAnimation(new AnimationTileFade(*curr, i * 255 + 255, c.r, c.g, c.b));
+#ifdef CLIENTSIDE // if this is compiled on the client side and is slave, add an animation to the game overlay
+					if (!game_->isServerSide())
+						_gameOverlay->addAnimation(new AnimationTileFade(*curr, i * 255 + 255, c.r, c.g, c.b));
 #endif // CLIENTSIDE
-					game->setProgramAt(*curr, NULL);
+					game_->setProgramAt(*curr, NULL);
 				}
 			}
 		}
@@ -393,39 +395,39 @@ void Player::useSelectedActionAt(Coord pos) {
 		if (tgtProg == NULL)
 			return;
 
-		if (tgtProg->getMaxMoves() < selectedAction->power)
+		if (tgtProg->getMaxMoves() < selectedAction_->power_)
 			tgtProg->setMaxMoves(0);
 		else
-			tgtProg->setMaxMoves(tgtProg->getMaxMoves() - selectedAction->power);
+			tgtProg->setMaxMoves(tgtProg->getMaxMoves() - selectedAction_->power_);
 		break;
 	case ACTIONTYPE_SPEEDUP:
 		if (tgtProg == NULL)
 			return;
 
-		tgtProg->setMaxMoves(tgtProg->getMaxMoves() + selectedAction->power);
+		tgtProg->setMaxMoves(tgtProg->getMaxMoves() + selectedAction_->power_);
 		break;
 	case ACTIONTYPE_TILEDELETE:
-		if (game->isTiled(pos) && game->getProgramAt(pos) == NULL)
-			game->setTileAt(pos, TILE_NONE);
+		if (game_->isTiled(pos) && game_->getProgramAt(pos) == NULL)
+			game_->setTileAt(pos, TILE_NONE);
 		break;
 	case ACTIONTYPE_TILEPLACE:
-		if (!game->isTiled(pos))
-			game->setTileAt(pos, TILE_PLAIN);
+		if (!game_->isTiled(pos))
+			game_->setTileAt(pos, TILE_PLAIN);
 		break;
 	case ACTIONTYPE_MAXHEALTHDOWN:
 		if (tgtProg == NULL)
 			return;
 
-		if (tgtProg->getMaxHealth() < selectedAction->power - 1)
+		if (tgtProg->getMaxHealth() < selectedAction_->power_ - 1)
 			tgtProg->setMaxHealth(0);
 		else
-			tgtProg->setMaxHealth(tgtProg->getMaxHealth() - selectedAction->power);
+			tgtProg->setMaxHealth(tgtProg->getMaxHealth() - selectedAction_->power_);
 		break;
 	case ACTIONTYPE_MAXHEALTHUP:
 		if (tgtProg == NULL)
 			return;
 
-		tgtProg->setMaxHealth(tgtProg->getMaxHealth() + selectedAction->power);
+		tgtProg->setMaxHealth(tgtProg->getMaxHealth() + selectedAction_->power_);
 		break;
 	case ACTIONTYPE_HEAL:
 		printf("CLIENT ERR: action type HEAL not implemented yet\n");
@@ -433,10 +435,10 @@ void Player::useSelectedActionAt(Coord pos) {
 		break;
 	}
 
-	selectedProgram->setActionsLeft(selectedProgram->getActionsLeft() - 1);
+	selectedProgram_->setActionsLeft(selectedProgram_->getActionsLeft() - 1);
 	setSelectedAction(NULL);
 
-	if (game->isServerSide()) {
+	if (game_->isServerSide()) {
 		Message m;
 		m.type = MSGTYPE_ACTION;
 		m.clientID = 0;
@@ -444,7 +446,7 @@ void Player::useSelectedActionAt(Coord pos) {
 		m.pos = pos;
 		_server->sendMessageToAllClients(m);
 
-		game->checkForWinCondition();
+		game_->checkForWinCondition();
 	}
 }
 
@@ -461,7 +463,7 @@ SDL_Color Player::getColor() {
 }
 
 Program* Player::getProgramByID(int progID) {
-	Iterator<Program*> it = progsOwned->getIterator();
+	Iterator<Program*> it = progsOwned_->getIterator();
 	while (it.hasNext()) {
 		Program* curr = it.next();
 		if (curr->getProgramID() == progID)
@@ -472,11 +474,11 @@ Program* Player::getProgramByID(int progID) {
 }
 
 void Player::setDoneTurn(bool b) {
-	doneTurn = b;
+	doneTurn_ = b;
 }
 
 Game* Player::getGame() {
-	return game;
+	return game_;
 }
 
 AICore* Player::getMind() {
