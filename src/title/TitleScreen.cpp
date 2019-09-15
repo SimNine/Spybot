@@ -34,8 +34,6 @@ void TitleScreen::draw()
     SDL_RenderClear(gRenderer);
 
     drawContents();
-
-    if (debug) drawBounds();
 }
 
 void TitleScreen::tick(int ms)

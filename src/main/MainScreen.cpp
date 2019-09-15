@@ -3,6 +3,7 @@
 #include "GUIButton.h"
 #include "GUITexture.h"
 #include "GUISlider.h"
+#include "Main.h"
 
 MainScreen::MainScreen()
     : GUIContainer(ANCHOR_NORTHWEST, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, NULL, NULL)
@@ -15,19 +16,26 @@ MainScreen::MainScreen()
     addObject(main_subtitle);
 
     // options container
-    optionsContainer = new GUIContainer(ANCHOR_SOUTHEAST, -350, -300, 240, 200, this, NULL);
-    GUISlider* sound_slider = new GUISlider(ANCHOR_NORTHWEST, 20, 20, 200, 50, optionsContainer,
+    optionsContainer = new GUIContainer(ANCHOR_SOUTHWEST, 0, -500, 1000, 500, this, NULL);
+    GUIButton* options_backbutton = new GUIButton(ANCHOR_SOUTHWEST, 20, -70, "BACK", optionsContainer, [](){mainScreen->toggleOptions();});
+    optionsContainer->addObject(options_backbutton);
+    GUISlider* options_slider_sound = new GUISlider(ANCHOR_SOUTHWEST, 270, -140, 200, 50, optionsContainer,
                                           []( float d ){ Mix_Volume(-1, d*128); });
-    optionsContainer->addObject(sound_slider);
-    GUISlider* music_slider = new GUISlider(ANCHOR_NORTHWEST, 20, 90, 200, 50, optionsContainer,
+    optionsContainer->addObject(options_slider_sound);
+    GUITexture* options_label_soundslider = new GUITexture(ANCHOR_SOUTHWEST, 20, -150, "Sound Volume:", optionsContainer);
+    optionsContainer->addObject(options_label_soundslider);
+    GUISlider* options_slider_music = new GUISlider(ANCHOR_SOUTHWEST, 270, -210, 200, 50, optionsContainer,
                                           []( float d ){ Mix_VolumeMusic(d*128); });
-    optionsContainer->addObject(music_slider);
-    GUIButton* backbutton = new GUIButton(ANCHOR_SOUTH, -100, -50, "BACK", optionsContainer, [](){mainScreen->toggleOptions();});
-    optionsContainer->addObject(backbutton);
+    optionsContainer->addObject(options_slider_music);
+    GUITexture* options_label_musicslider = new GUITexture(ANCHOR_SOUTHWEST, 20, -220, "Music Volume:", optionsContainer);
+    optionsContainer->addObject(options_label_musicslider);
+    GUIButton* options_fullscreenbutton = new GUIButton(ANCHOR_SOUTHWEST, 20, -280, "Toggle Fullscreen", optionsContainer,
+                                                        [](){toggleFullscreen();});
+    optionsContainer->addObject(options_fullscreenbutton);
     addObject(optionsContainer);
 
     // main container
-    mainContainer = new GUIContainer(ANCHOR_SOUTHWEST, 0, -300, 400, 300, this, NULL);
+    mainContainer = new GUIContainer(ANCHOR_SOUTHWEST, 0, -500, 1000, 500, this, NULL);
     int ln = 1;
     GUIButton* button_quit = new GUIButton(ANCHOR_SOUTHWEST, 20, -(41 + 20)*ln++, 73, 41, this,
                                            []()
@@ -90,6 +98,8 @@ MainScreen::MainScreen()
 
     addObject(mainContainer);
     optionsContainer->setTransparency(0);
+
+    textBkgDisplacement = 0;
 }
 
 MainScreen::~MainScreen()
@@ -111,7 +121,7 @@ void MainScreen::draw()
     SDL_QueryTexture(dataContainer->main_bkgdata, NULL, NULL, &destRect.w, &destRect.h);
     for (int x = 0; x < SCREEN_WIDTH; x += destRect.w)
     {
-        for (int y = 0; y < SCREEN_HEIGHT; y += destRect.h)
+        for (int y = -textBkgDisplacement; y < SCREEN_HEIGHT + textBkgDisplacement; y += destRect.h)
         {
             destRect.x = x;
             destRect.y = y;
@@ -127,6 +137,12 @@ void MainScreen::tick(int ms)
 {
     // tick all GUIObjects
     GUIContainer::tick(ms);
+
+    // change the text vertical displacement
+    textBkgDisplacement++;
+    int txtHeight;
+    SDL_QueryTexture(dataContainer->main_bkgdata, NULL, NULL, NULL, &txtHeight);
+    if (textBkgDisplacement > txtHeight) textBkgDisplacement -= txtHeight;
 
     // tick all particulates
     Iterator<MainScreenGlow*> it = glowList->getIterator();

@@ -77,6 +77,60 @@ public:
             currNode = currNode->prev;
         }
     };
+    T getFirst()
+    {
+        if (firstNode == NULL) return NULL;
+        else return firstNode->contents;
+    }
+    T getLast()
+    {
+        if (lastNode == NULL) return NULL;
+        else return lastNode->contents;
+    }
+    T removeFirst()
+    {
+        if (length == 0) return NULL;
+
+        ListNode<T>* tempNode = firstNode;
+        if (firstNode->next == NULL)
+        {
+            firstNode = NULL;
+            lastNode = NULL;
+        }
+        else
+        {
+            firstNode = firstNode->next;
+            firstNode->prev = NULL;
+        }
+
+        length--;
+        T temp = tempNode->contents;
+        delete tempNode;
+        return temp;
+    }
+    T removeLast()
+    {
+        if (length == 0) return NULL;
+
+        ListNode<T>* tempNode = lastNode;
+        if (lastNode->prev == NULL)
+        {
+            firstNode = NULL;
+            lastNode = NULL;
+        }
+        else
+        {
+            lastNode = lastNode->prev;
+            lastNode->next = NULL;
+        }
+
+        length--;
+        T temp = tempNode->contents;
+        delete tempNode;
+        return temp;
+    }
+
+    // checks if an object is contained in this list
     bool contains(T obj)
     {
         if (getIndexOf(obj) == -1) return false;
@@ -128,24 +182,7 @@ public:
     /* removes the first item from the list */
     T poll()
     {
-        if (length == 0) return NULL;
-
-        ListNode<T>* tempNode = firstNode;
-        if (firstNode->next == NULL)
-        {
-            firstNode = NULL;
-            lastNode = NULL;
-        }
-        else
-        {
-            firstNode = firstNode->next;
-            firstNode->prev = NULL;
-        }
-
-        length--;
-        T temp = tempNode->contents;
-        delete tempNode;
-        return temp;
+        return removeFirst();
     }
 
     /* returns true and removes the passed object if it is in the list,
@@ -189,6 +226,26 @@ public:
         }
         return false;
     }
+
+    // removes the item at a specific index
+    T removeObjectAt(int i)
+    {
+        if (i < 0 || i >= length) return NULL;
+
+        T temp = getObjectAt(i);
+        remove(temp);
+        return temp;
+    }
+
+    // removes every item from the list
+    void removeAll()
+    {
+        while (length > 0)
+        {
+            poll();
+        }
+    }
+
     void forEach(void (*func)(T))
     {
         ListNode<T>* currNode = firstNode;

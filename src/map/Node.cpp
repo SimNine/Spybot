@@ -105,7 +105,7 @@ void Node::draw(int mapRootX, int mapRootY)
     SDL_RenderCopy(gRenderer, img, NULL, &destRect);
 
     // if debugging, draw bounding box
-    if (debug)
+    if (debug >= DEBUG_NORMAL)
     {
         SDL_SetRenderDrawColor(gRenderer, 0, 0, 0, 0);
         SDL_RenderDrawRect(gRenderer, &destRect);

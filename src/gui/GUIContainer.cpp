@@ -33,28 +33,26 @@ LinkedList<GUIObject*>* GUIContainer::getContents()
     return contents;
 }
 
-// looks for and attempts to click an objct within this container
+// looks for and attempts to click an object within this container
 bool GUIContainer::mouseDown()
 {
-    bool ret = false;
     Iterator<GUIObject*> it = contents->getIterator();
     while (it.hasNext())
     {
         GUIObject* curr = it.next();
         if (curr->isVisible() && curr->isMouseOver())
         {
-            ret = true;
-            curr->mouseDown();
+            return curr->mouseDown();
         }
     }
-    return ret;
+    return false;
 }
 
 bool GUIContainer::mouseUp()
 {
     bool ret = false;
     Iterator<GUIObject*> it = contents->getIterator();
-    while (it.hasNext())
+    while (it.hasNext() && !ret)
     {
         GUIObject* curr = it.next();
         if (curr->isVisible() && curr->isMouseOver())
@@ -62,8 +60,10 @@ bool GUIContainer::mouseUp()
             ret = true;
             curr->mouseUp();
         }
-        curr->setPressed(false);
     }
+
+    setPressed(false);
+
     return ret;
 }
 
@@ -125,10 +125,7 @@ void GUIContainer::draw()
     drawBkg();
     drawContents();
 
-    if (debug)
-    {
-        drawBounds();
-    }
+    if (debug >= DEBUG_NORMAL) drawBounds();
 }
 
 void GUIContainer::setTransparency(int a)

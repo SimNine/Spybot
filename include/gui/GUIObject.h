@@ -18,7 +18,6 @@ class GUIObject
         int getYAnchor();
         bool isMouseOver();
         bool isVisible();
-        void setVisible(bool);
         void setPressed(bool);
         void fade(int, int);
         void fadeStep(int);

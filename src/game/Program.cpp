@@ -6,8 +6,7 @@
 
 Program::Program(PROGRAM type, int team, int xHead, int yHead)
 {
-    this->xHead = xHead;
-    this->yHead = yHead;
+    tiles.addFirst(new Pair<int>(xHead, yHead));
     this->team = team;
     this->type = type;
     icon = dataContainer->program_icons[type];
@@ -501,11 +500,16 @@ Program::Program(PROGRAM type, int team, int xHead, int yHead)
     }
 
     moves = maxMoves;
-
 }
 
 Program::~Program()
 {
+    while (tiles.getLength() > 0)
+    {
+        Pair<int>* p = tiles.poll();
+        delete p;
+    }
+
     while (actionList->getLength() > 0)
     {
         ProgramAction* m = actionList->poll();
@@ -513,7 +517,7 @@ Program::~Program()
     }
     delete actionList;
 
-    if (debug)
+    if (debug >= DEBUG_NORMAL)
     {
         printf("Program '%s' deleted\n", name.c_str());
     }
@@ -526,12 +530,12 @@ SDL_Texture* Program::getIcon()
 
 int Program::getCoreX()
 {
-    return xHead;
+    return tiles.getFirst()->a;
 }
 
 int Program::getCoreY()
 {
-    return yHead;
+    return tiles.getFirst()->b;
 }
 
 int Program::getColor(int n)
@@ -558,7 +562,7 @@ int Program::getTeam()
 
 int Program::getHealth()
 {
-    return health;
+    return tiles.getLength();
 }
 
 int Program::getMaxHealth()
@@ -581,24 +585,9 @@ int Program::getMaxMoves()
     return maxMoves;
 }
 
-void Program::setCoreX(int i)
-{
-    xHead = i;
-}
-
-void Program::setCoreY(int i)
-{
-    yHead = i;
-}
-
 void Program::setType(PROGRAM i)
 {
     type = i;
-}
-
-void Program::setHealth(int i)
-{
-    health = i;
 }
 
 void Program::setMaxHealth(int i)
@@ -649,4 +638,53 @@ void Program::endTurn()
 LinkedList<ProgramAction*>* Program::getActions()
 {
     return actionList;
+}
+
+Pair<int>* Program::getHead()
+{
+    return tiles.getFirst();
+}
+
+Pair<int>* Program::getTail()
+{
+    return tiles.getLast();
+}
+
+void Program::moveTo(int x, int y)
+{
+    // decrement number of moves left
+    moves--;
+
+    // check if the tile to move to is already occupied by this program
+    for (int i = 0; i < tiles.getLength(); i++)
+    {
+        Pair<int>* curr = tiles.getObjectAt(i);
+        if (curr->a == x && curr->b == y)
+        {
+            tiles.removeObjectAt(i);
+            tiles.addFirst(curr);
+            return;
+        }
+    }
+
+    // if this program is at max health
+    if (tiles.getLength() == maxHealth) delete tiles.removeLast();
+
+    // add a new head
+    tiles.addFirst(new Pair<int>(x, y));
+}
+
+void Program::setCoreX(int i)
+{
+    moveTo(i, getCoreY());
+}
+
+void Program::setCoreY(int i)
+{
+    moveTo(getCoreX(), i);
+}
+
+void Program::addTail(int x, int y)
+{
+    if (tiles.getLength() < maxHealth) tiles.addLast(new Pair<int>(x, y));
 }

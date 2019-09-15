@@ -33,4 +33,15 @@ bool acceptingInput = true;
 bool quit = false;
 
 // debug flag
-bool debug = false;
+DEBUG debug = DEBUG_MINIMAL;
+
+// owned programs per campaign
+int classicPrograms[PROGRAM_NUM_PROGTYPES];
+int nightfallPrograms[PROGRAM_NUM_PROGTYPES];
+int customPrograms[PROGRAM_NUM_PROGTYPES];
+
+// programs currently in play
+int usedPrograms[PROGRAM_NUM_PROGTYPES];
+
+// program ID currently selected (to be placed)
+PROGRAM currProgram = PROGRAM_NONE;

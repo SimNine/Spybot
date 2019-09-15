@@ -3,6 +3,8 @@
 #include "Node.h"
 #include "GUIButton.h"
 #include "ResourceLoader.h"
+#include "MiscUtil.h"
+#include "ProgramInventoryDisplay.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -155,9 +157,9 @@ MapScreen::MapScreen()
     bkgY = 0;
     shiftSpeed = 0.25;
 
+    // create level confirm / cancel dialog box
     levelConfirm = new GUIContainer(ANCHOR_NORTHWEST, 20, 20, 252, 194, this, dataContainer->level_confirm_window);
     levelConfirm->setTransparency(0);
-
     GUIButton* battleButton = new GUIButton(ANCHOR_NORTHWEST, 130, 169, 115, 14, levelConfirm,
                                             []()
     {
@@ -183,6 +185,18 @@ MapScreen::MapScreen()
     levelConfirm->addObject(cancelButton);
 
     addObject(levelConfirm);
+
+    // add program display object
+    invToggleButton = new GUIButton(ANCHOR_SOUTH, -200, -70, "SHOW/HIDE INVENTORY", this,
+                                    [](){mapScreen->toggleInvDisplay();});
+    addObject(invToggleButton);
+    invDisplay = new ProgramInventoryDisplay(ANCHOR_NORTHEAST, -320, 20, 300, 500, this, classicPrograms);
+    addObject(invDisplay);
+
+    // add back-to-main button
+    GUIButton* mainMenuButton = new GUIButton(ANCHOR_SOUTHWEST, 20, -60, "BACK TO MAIN MENU", this,
+                                              [](){mapScreen->clearSelectedNode(); currScreen = mainScreen;});
+    addObject(mainMenuButton);
 
     // shift and win the base node
     shiftTo(baseNode);
@@ -323,6 +337,8 @@ Node* MapScreen::getSelectedNode()
 
 void MapScreen::clearSelectedNode()
 {
+    if (selectedNode == NULL) return;
+
     if (selectedNode->getNodeStatus() == NODESTATUS_UNOWNED_SELECTED)
     {
         selectedNode->setNodeStatus(NODESTATUS_UNOWNED);
@@ -342,7 +358,7 @@ void MapScreen::tick(int ms)
     double shiftAmt = shiftSpeed*ms;
 
     // if the mapscreen is currently animated, don't take shift input
-    if (isAnimOccurring)
+    if (isAnimOccurring || selectedNode != NULL)
     {
         // get the width and height of the background
         int bkgWidth;
@@ -395,7 +411,7 @@ void MapScreen::tick(int ms)
         if (xShift && yShift)
         {
             isAnimOccurring = false;
-            levelConfirm->setTransparency(0);
+            levelConfirm->setTransparency(255);
         }
         return;
     }
@@ -440,4 +456,15 @@ void MapScreen::tick(int ms)
             shiftBkg(0, shiftAmt);
         }
     }
+}
+
+void MapScreen::resetProgramInvDisplay()
+{
+    invDisplay->updateContents();
+}
+
+void MapScreen::toggleInvDisplay()
+{
+    if (invDisplay->isVisible()) invDisplay->setTransparency(0);
+    else invDisplay->setTransparency(255);
 }

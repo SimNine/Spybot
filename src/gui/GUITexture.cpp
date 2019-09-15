@@ -1,15 +1,34 @@
 #include "GUITexture.h"
 #include "Global.h"
+#include "ResourceLoader.h"
 
 GUITexture::GUITexture(ANCHOR a, int xDisp, int yDisp, SDL_Texture* tex, int w, int h, GUIContainer* par)
     : GUIObject(a, xDisp, yDisp, w, h, par)
 {
     texture = tex;
+    willDestroyTexture = false;
+}
+
+GUITexture::GUITexture(ANCHOR a, int xDisp, int yDisp, SDL_Texture* tex, int w, int h, bool destroyTex, GUIContainer* par)
+    : GUIObject(a, xDisp, yDisp, w, h, par)
+{
+    texture = tex;
+    willDestroyTexture = destroyTex;
+}
+
+GUITexture::GUITexture(ANCHOR a, int xDisp, int yDisp, std::string str, GUIContainer* parent)
+    : GUIObject(a, xDisp, yDisp, 0, 0, parent)
+{
+    texture = loadString(str, FONT_NORMAL, 50, {255, 255, 255, 255});
+    int w, h;
+    SDL_QueryTexture(texture, NULL, NULL, &w, &h);
+    setBounds(xDisp, yDisp, w, h);
+    willDestroyTexture = true;
 }
 
 GUITexture::~GUITexture()
 {
-    //dtor
+    if (willDestroyTexture) SDL_DestroyTexture(texture);
 }
 
 bool GUITexture::mouseDown()
@@ -21,7 +40,7 @@ void GUITexture::draw()
 {
     SDL_RenderCopy(gRenderer, texture, NULL, &bounds);
 
-    if (debug) drawBounds();
+    if (debug >= DEBUG_NORMAL) drawBounds();
 }
 
 void GUITexture::setTransparency(int a)

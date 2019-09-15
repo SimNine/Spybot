@@ -3,8 +3,10 @@
 
 #include <string>
 
+#include "GUIButton.h"
 #include "GUIContainer.h"
 #include "ProgramDisplayContainer.h"
+#include "ProgramInventoryDisplay.h"
 #include "DataContainer.h"
 #include "Program.h"
 #include "Enums.h"
@@ -30,8 +32,11 @@ public:
     Program* getSelectedProgram();
     void setSelectedProgram(Program*);
     void endTurn();
+    void tryPlacingProgram(PROGRAM);
+    void setGameStatus(GAMESTATUS);
 
     // Game editing methods
+    void toggleEditorMode();
     void setBrushMode(BRUSH);
     void setBrushTileType(TILE);
     void setBrushItem(ITEM);
@@ -57,6 +62,8 @@ private:
     int selectedTileX, selectedTileY;
 
     void buildGUI();
+
+    bool editorMode;
     ProgramDisplayContainer* progDisp;
     GUIContainer* gridSelectBrushPanel;
     BRUSH brushMode;
@@ -69,6 +76,17 @@ private:
     GUIContainer* gridBkgPanel;
     int brushProgramTeam;
     bool programViewTeams;
+
+    GUIButton* endTurnButton;
+    GUIButton* abandonGameButton;
+    GUIButton* winGameButton;
+    GUIButton* resetGameButton;
+    GUIButton* startGameButton;
+    GUIButton* backToMapButton;
+
+    ProgramInventoryDisplay* progInv;
+
+    GAMESTATUS gameStatus;
 
     Game* game;
 };

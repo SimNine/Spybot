@@ -17,6 +17,7 @@ GameScreen::GameScreen()
 {
     buildGUI();
 
+    editorMode = false;
     brushMode = BRUSH_NONE;
     brushTileType = TILE_NONE;
     brushProgramType = PROGRAM_BALLISTA;
@@ -31,6 +32,7 @@ GameScreen::GameScreen()
     shiftSpeed = 0.1;
     canShiftScreen = true;
 
+    gameStatus = GAMESTATUS_NO_GAME;
     game = new Game();
 }
 
@@ -837,26 +839,48 @@ void GameScreen::buildGUI()
     dataContainer->level_bkg_buttons[BKG_CELL]);
     gridBkgPanel->addObject(bkgCellButton);
 
+    // program display window
     progDisp = new ProgramDisplayContainer(ANCHOR_SOUTHEAST, -220, -120, 200, 100, this);
+    progDisp->setTransparency(0);
     addObject(progDisp);
 
-    GUIButton* endTurnButton = new GUIButton(ANCHOR_SOUTH, -100, -100, 200, 50, this,
-                                             [](){gameScreen->endTurn();},
-                                             dataContainer->gameButtonEndTurn);
+    // end turn button
+    endTurnButton = new GUIButton(ANCHOR_SOUTH, -100, -100, 200, 50, this,
+                                  [](){gameScreen->endTurn();},
+                                  dataContainer->gameButtonEndTurn);
+    endTurnButton->setTransparency(0);
     addObject(endTurnButton);
 
-    GUIButton* abandonGameButton = new GUIButton(ANCHOR_NORTHEAST, -250, 25, 200, 50, this,
-                                                 [](){currScreen = mapScreen; mapScreen->clearSelectedNode();},
-                                                 dataContainer->gameButtonAbandonGame);
+    // reset/win/exit game buttons
+    abandonGameButton = new GUIButton(ANCHOR_NORTHEAST, -250, 25, 200, 50, this,
+                                      [](){gameScreen->setGameStatus(GAMESTATUS_LOST);},
+                                      dataContainer->gameButtonAbandonGame);
+    abandonGameButton->setTransparency(0);
     addObject(abandonGameButton);
-    GUIButton* winGameButton = new GUIButton(ANCHOR_NORTHEAST, -250, 100, 200, 50, this,
-                                             [](){mapScreen->getSelectedNode()->winNode(); mapScreen->clearSelectedNode(); currScreen = mapScreen;},
-                                             dataContainer->gameButtonWinGame);
+    winGameButton = new GUIButton(ANCHOR_NORTHEAST, -250, 100, 200, 50, this,
+                                  [](){gameScreen->setGameStatus(GAMESTATUS_WON);},
+                                  dataContainer->gameButtonWinGame);
+    winGameButton->setTransparency(0);
     addObject(winGameButton);
-    GUIButton* resetGameButton = new GUIButton(ANCHOR_NORTHEAST, -250, 175, 200, 50, this,
-                                               [](){gameScreen->loadLevel(mapScreen->getSelectedNode()->getLevelStr());},
-                                               dataContainer->gameButtonResetGame);
+    resetGameButton = new GUIButton(ANCHOR_NORTHEAST, -250, 175, 200, 50, this,
+                                    [](){gameScreen->loadLevel(mapScreen->getSelectedNode()->getLevelStr());},
+                                    dataContainer->gameButtonResetGame);
+    resetGameButton->setTransparency(0);
     addObject(resetGameButton);
+
+    // start game button and back-to-map button
+    startGameButton = new GUIButton(ANCHOR_SOUTHWEST, 20, -100, 137, 40, this,
+                                    [](){gameScreen->setGameStatus(GAMESTATUS_PLAYING);},
+                                    dataContainer->gameButtonStartGame);
+    addObject(startGameButton);
+    backToMapButton = new GUIButton(ANCHOR_SOUTHWEST, 20 ,-150, 141, 34, this,
+                                    [](){gameScreen->setGameStatus(GAMESTATUS_LOST);},
+                                    dataContainer->gameButtonBackToMap);
+    addObject(backToMapButton);
+
+    // add the program inventory display
+    progInv = new ProgramInventoryDisplay(ANCHOR_NORTHEAST, 0, 0, 0, 0, this, classicPrograms);
+    addObject(progInv);
 }
 
 void GameScreen::resetBounds()
@@ -868,9 +892,9 @@ void GameScreen::resetBounds()
 
 bool GameScreen::mouseDown()
 {
-    GUIContainer::mouseDown();
+    if (GUIContainer::mouseDown()) return true;
 
-    if (debug)
+    if (editorMode)
     {
         if (gridEditPanel->isMouseOver()) // click the tile pallette
         {
@@ -921,22 +945,30 @@ bool GameScreen::mouseDown()
             return true;
         }
     }
-    else // if not in debug mode
+    else // if not in editor mode
     {
         int x = (bkgX + mousePosX)/32;
         int y = (bkgY + mousePosY)/32;
 
-        game->moveSelectedProgram(x, y);
-        game->setSelectedProgram(x, y);
-        if (game->getSelectedProgram() == NULL)
+        if (gameStatus == GAMESTATUS_PLACING_PROGRAMS)
         {
             selectedTileX = x;
             selectedTileY = y;
         }
-        else
+        else if (gameStatus == GAMESTATUS_PLAYING)
         {
-            selectedTileX = game->getSelectedProgram()->getCoreX();
-            selectedTileY = game->getSelectedProgram()->getCoreY();
+            game->moveSelectedProgram(x, y);
+            game->setSelectedProgram(x, y);
+            if (game->getSelectedProgram() == NULL)
+            {
+                selectedTileX = x;
+                selectedTileY = y;
+            }
+            else
+            {
+                selectedTileX = game->getSelectedProgram()->getCoreX();
+                selectedTileY = game->getSelectedProgram()->getCoreY();
+            }
         }
 
         return false;
@@ -949,7 +981,7 @@ bool GameScreen::mouseUp()
 
     bool r = false;
 
-    if (debug)
+    if (editorMode)
     {
         if (gridEditPanel->isMouseOver()) // click the tile pallette
         {
@@ -1024,7 +1056,7 @@ void GameScreen::drawGrid()
     {
         for (int y = topLeftTileY; y < bottomRightTileY; y++)
         {
-            if (game->getTileAt(x, y) == TILE_NONE && !debug)
+            if (game->getTileAt(x, y) == TILE_NONE && !editorMode)
             {
                 continue;
             }
@@ -1066,20 +1098,19 @@ void GameScreen::drawGrid()
                 }
 
                 // if this is the farthest chunk of this program
-                if (prog == game->getSelectedProgram() && prog->getHealth() == prog->getMaxHealth())
+                if (prog == game->getSelectedProgram() && prog->getHealth() == prog->getMaxHealth() && prog->getMoves() > 0)
                 {
-                    Pair<int>* currTail = game->getFarthestContiguousBlock(prog);
-                    if (x == currTail->a && y == currTail->b)
+                    Pair<int>* currTail = prog->getTail();
+                    if (currTail != NULL && x == currTail->a && y == currTail->b)
                     {
                         if (tickCount % 100 < 50) SDL_RenderCopy(gRenderer, dataContainer->program_core, NULL, &tileRect);
                     }
                     else SDL_RenderCopy(gRenderer, dataContainer->program_core, NULL, &tileRect);
-                    delete currTail;
                 }
                 else SDL_RenderCopy(gRenderer, dataContainer->program_core, NULL, &tileRect);
 
                 // if this is part of the selected program, indicate it
-                if (prog == game->getSelectedProgram() && debug)
+                if (prog == game->getSelectedProgram() && debug >= DEBUG_NORMAL)
                 {
                     SDL_SetRenderDrawColor(gRenderer, 255, 0, 0, 0);
                     SDL_RenderDrawLine(gRenderer, tileRect.x, tileRect.y, tileRect.x + tileRect.w, tileRect.y + tileRect.h);
@@ -1159,7 +1190,7 @@ void GameScreen::drawGrid()
             else // if there is no program on this tile
             {
                 SDL_Texture* tileImg = dataContainer->tile_images[game->getTileAt(x, y)];
-                if (game->getTileAt(x, y) == TILE_NONE && !debug)
+                if (game->getTileAt(x, y) == TILE_NONE && !editorMode)
                 {
                     continue;
                 }
@@ -1184,6 +1215,7 @@ void GameScreen::drawGrid()
                 SDL_RenderCopy(gRenderer, dataContainer->tile_over, NULL, &tileRect);
             }
 
+            // if there is an item on this tile
             if (game->getItemAt(x, y) != ITEM_NONE)
             {
                 SDL_QueryTexture(dataContainer->item_icons[game->getItemAt(x, y)], NULL, NULL, &tileRect.w, &tileRect.h);
@@ -1192,6 +1224,7 @@ void GameScreen::drawGrid()
                 SDL_RenderCopy(gRenderer, dataContainer->item_icons[game->getItemAt(x, y)], NULL, &tileRect);
             }
 
+            // if this is the selected tile
             if (x == selectedTileX && y == selectedTileY)
             {
                 tileRect.x = xDefault - 2;
@@ -1202,7 +1235,8 @@ void GameScreen::drawGrid()
                 SDL_RenderCopy(gRenderer, dataContainer->tile_selected, NULL, &tileRect);
             }
 
-            if (game->getSelectedProgramDist(x, y) != -1)
+            // if this tile is movable-to
+            if (game->getSelectedProgramDist(x, y) != -1 && gameStatus == GAMESTATUS_PLAYING)
             {
                 tileRect.x = xDefault;
                 tileRect.y = yDefault;
@@ -1238,7 +1272,7 @@ void GameScreen::drawGrid()
     }
 
     // draw board bounding rectangle
-    if (debug)
+    if (debug >= DEBUG_NORMAL)
     {
         tileRect.x = -bkgX + 4;
         tileRect.y = -bkgY + 4;
@@ -1264,7 +1298,7 @@ void GameScreen::draw()
     drawGrid();
     GUIContainer::drawContents();
 
-    if (debug)
+    if (editorMode)
     {
         gridEditPanel->draw();
         gridProgramEditPanel->draw();
@@ -1437,6 +1471,8 @@ void GameScreen::loadLevel(std::string s)
 {
     delete game;
     game = new Game(s);
+    setBackground(game->getBackground());
+    setGameStatus(GAMESTATUS_PLACING_PROGRAMS);
     checkShiftable();
     centerScreen();
 }
@@ -1445,6 +1481,7 @@ void GameScreen::clearLevel()
 {
     delete game;
     game = new Game();
+    setGameStatus(GAMESTATUS_NO_GAME);
     canShiftScreen = false;
     centerScreen();
 }
@@ -1453,4 +1490,108 @@ void GameScreen::centerScreen()
 {
     bkgX = (game->getRightBound() + game->getLeftBound())*32/2 - SCREEN_WIDTH/2;
     bkgY = (game->getBottomBound() + game->getTopBound())*32/2 - SCREEN_HEIGHT/2;
+}
+
+void GameScreen::setGameStatus(GAMESTATUS g)
+{
+    switch (g)
+    {
+    case GAMESTATUS_NO_GAME:
+        break;
+    case GAMESTATUS_PLACING_PROGRAMS:
+        for (int i = 0; i < PROGRAM_NUM_PROGTYPES; i++)
+        {
+            usedPrograms[i] = 0;
+        }
+
+        endTurnButton->setTransparency(0);
+        abandonGameButton->setTransparency(0);
+        winGameButton->setTransparency(0);
+        resetGameButton->setTransparency(0);
+        progDisp->setTransparency(0);
+
+        startGameButton->setTransparency(255);
+        backToMapButton->setTransparency(255);
+        progInv->setTransparency(255);
+        progInv->updateContents();
+        break;
+    case GAMESTATUS_PLAYING:
+        endTurnButton->setTransparency(255);
+        abandonGameButton->setTransparency(255);
+        winGameButton->setTransparency(255);
+        resetGameButton->setTransparency(255);
+        progDisp->setTransparency(255);
+
+        startGameButton->setTransparency(0);
+        backToMapButton->setTransparency(0);
+        progInv->setTransparency(0);
+
+        for (int x = 0; x < 200; x++) for (int y = 0; y < 200; y++)
+        {
+            if (game->getTileAt(x, y) == TILE_SPAWN || game->getTileAt(x, y) == TILE_SPAWN2)
+            {
+                game->setTileAt(x, y, TILE_PLAIN);
+            }
+        }
+
+        break;
+    case GAMESTATUS_WON:
+        for (int i = 0; i < PROGRAM_NUM_PROGTYPES; i++)
+        {
+            classicPrograms[i] += usedPrograms[i];
+        }
+
+        mapScreen->getSelectedNode()->winNode();
+        mapScreen->clearSelectedNode();
+        currScreen = mapScreen;
+        break;
+    case GAMESTATUS_LOST:
+        for (int i = 0; i < PROGRAM_NUM_PROGTYPES; i++)
+        {
+            classicPrograms[i] += usedPrograms[i];
+        }
+
+        mapScreen->clearSelectedNode();
+        currScreen = mapScreen;
+        break;
+    }
+
+    gameStatus = g;
+}
+
+void GameScreen::tryPlacingProgram(PROGRAM p)
+{
+    // check for the correct game state
+    if (gameStatus != GAMESTATUS_PLACING_PROGRAMS) return;
+
+    // check for existence of a game
+    if (game == NULL) return;
+
+    // check for a valid value of p
+    if (p == PROGRAM_NONE || p == PROGRAM_CUSTOM || p == PROGRAM_NUM_PROGTYPES) return;
+
+    // check for a valid spawn tile in this location
+    if (game->getTileAt(selectedTileX, selectedTileY) != TILE_SPAWN &&
+        game->getTileAt(selectedTileX, selectedTileY) != TILE_SPAWN2) return;
+
+    // remove any program that already exists here
+    Program* prog = game->getProgramAt(selectedTileX, selectedTileY);
+    if (prog != NULL)
+    {
+        usedPrograms[prog->getType()]--;
+        classicPrograms[prog->getType()]++;
+        game->setProgramAt(selectedTileX, selectedTileY, NULL);
+    }
+
+    // place the new program
+    game->setProgramAt(selectedTileX, selectedTileY, new Program(p, 0, selectedTileX, selectedTileY));
+
+    usedPrograms[p]++;
+    classicPrograms[p]--;
+    progInv->updateContents();
+}
+
+void GameScreen::toggleEditorMode()
+{
+    editorMode = !editorMode;
 }

@@ -3,6 +3,9 @@
 
 #include "GUIContainer.h"
 #include "Node.h"
+#include "Enums.h"
+#include "ProgramInventoryDisplay.h"
+#include "GUIButton.h"
 
 class MapScreen : public GUIContainer
 {
@@ -17,6 +20,8 @@ class MapScreen : public GUIContainer
         void shiftTo(Node*);
         Node* getSelectedNode();
         void clearSelectedNode();
+        void resetProgramInvDisplay();
+        void toggleInvDisplay();
     protected:
     private:
         double bkgX;
@@ -28,6 +33,8 @@ class MapScreen : public GUIContainer
         void drawBkg();
         void drawNodes();
         GUIContainer* levelConfirm;
+        GUIButton* invToggleButton;
+        ProgramInventoryDisplay* invDisplay;
 };
 
 #endif // MAPSCREEN_H

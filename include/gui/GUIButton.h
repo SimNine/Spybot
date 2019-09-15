@@ -10,11 +10,11 @@ class GUIButton : public GUIObject
         GUIButton(ANCHOR, int, int, std::string, GUIContainer*,
                   void (*func) (void));
         GUIButton(ANCHOR, int, int, int, int, GUIContainer*,
-                  void (*func) (void), SDL_Texture*, SDL_Texture*, SDL_Texture*);
+                  void (*func) (void), SDL_Texture*);
         GUIButton(ANCHOR, int, int, int, int, GUIContainer*,
                   void (*func) (void), SDL_Texture*, SDL_Texture*);
         GUIButton(ANCHOR, int, int, int, int, GUIContainer*,
-                  void (*func) (void), SDL_Texture*);
+                  void (*func) (void), SDL_Texture*, SDL_Texture*, SDL_Texture*);
         GUIButton(ANCHOR, int, int, int, int, GUIContainer*,
                   void (*func) (void));
         virtual ~GUIButton();

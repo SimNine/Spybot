@@ -8,13 +8,12 @@ GUIButton::GUIButton(ANCHOR a, int xDisp, int yDisp, std::string str, GUIContain
     : GUIObject(a, xDisp, yDisp, 0, 0, parent)
 {
     this->func = func;
-    SDL_Texture* tex = loadString(str);
-    this->bkgNormal = tex;
-    this->bkgOver = tex;
-    this->bkgPressed = tex;
+    this->bkgNormal = loadString(str, FONT_NORMAL, 50, {255, 255, 255, 255});
+    this->bkgOver = loadString(str, FONT_NORMAL, 50, {150, 150, 150, 255});
+    this->bkgPressed = loadString(str, FONT_NORMAL, 50, {150, 150, 150, 150});;
 
     int w, h;
-    SDL_QueryTexture(tex, NULL, NULL, &w, &h);
+    SDL_QueryTexture(bkgNormal, NULL, NULL, &w, &h);
     setBounds(xDisp, yDisp, w, h);
 }
 
@@ -78,7 +77,7 @@ void GUIButton::draw()
         SDL_RenderCopy(gRenderer, bkgNormal, NULL, &bounds);
     }
 
-    if (debug) drawBounds();
+    if (debug >= DEBUG_NORMAL) drawBounds();
 }
 
 bool GUIButton::mouseDown()

@@ -40,7 +40,8 @@ class Game
         void moveSelectedProgram(int, int);
         Program* getSelectedProgram();
         int getSelectedProgramDist(int, int);
-        Pair<int>* getFarthestContiguousBlock(Program*);
+        Pair<int>* getFarthestTile(Program*);
+        Pair<int>* getFarthestContiguousTile(Program*);
     protected:
     private:
         // farthest placed tiles
@@ -62,6 +63,7 @@ class Game
         // working information
         Program* selectedProgram;
         int gridProgramDist[200][200];
+        bool gridCheckedTile[200][200];
 
         // helper methods
         void loadLevel(std::string);
@@ -71,6 +73,7 @@ class Game
         void fillOvalInBoard(TILE, int, int, int, int);
         bool isDrawValid(int, int, int, int);
         bool isOOB(int, int);
+        bool isTiled(int, int);
 };
 
 #endif // GAME_H

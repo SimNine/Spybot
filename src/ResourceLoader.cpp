@@ -53,11 +53,17 @@ Mix_Chunk* loadSound(std::string path)
     return gChunk;
 }
 
-SDL_Texture* loadString(std::string str)
+SDL_Texture* loadString(std::string str, FONT ft, int fsize, SDL_Color col)
 {
-    SDL_Surface* s = TTF_RenderText_Solid(dataContainer->font_agencyFB_24, str.c_str(), {255, 255, 255, 255});
+    TTF_Font* f;
+    if (ft == FONT_NORMAL) f = TTF_OpenFont("resources/AGENCYR.ttf", fsize);
+    else if (ft == FONT_BOLD) f = TTF_OpenFont("resources/AGENCYB.ttf", fsize);
+    if (!f) printf("TTF_OpenFont: %s\n", TTF_GetError());
+
+    SDL_Surface* s = TTF_RenderText_Blended(f, str.c_str(), col);
     SDL_Texture* t = SDL_CreateTextureFromSurface(gRenderer, s);
 
+    TTF_CloseFont(f);
     SDL_FreeSurface(s);
     return t;
 }

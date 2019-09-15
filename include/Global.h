@@ -38,5 +38,16 @@ extern bool acceptingInput;
 // quit flag
 extern bool quit;
 
-// debug flag
-extern bool debug;
+// debug level flag
+extern DEBUG debug;
+
+// programs owned in each campaign
+extern int classicPrograms[PROGRAM_NUM_PROGTYPES];
+extern int nightfallPrograms[PROGRAM_NUM_PROGTYPES];
+extern int customPrograms[PROGRAM_NUM_PROGTYPES];
+
+// programs currently in play
+extern int usedPrograms[PROGRAM_NUM_PROGTYPES];
+
+// program ID currently selected (to be placed)
+extern PROGRAM currProgram;

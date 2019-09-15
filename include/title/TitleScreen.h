@@ -8,6 +8,7 @@ class TitleScreen : public GUIContainer
     public:
         TitleScreen();
         virtual ~TitleScreen();
+
         void tick(int);
         void draw();
         bool mouseDown();

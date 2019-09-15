@@ -26,6 +26,8 @@ GUIObject::~GUIObject()
 
 void GUIObject::setBounds(int xRel, int yRel, int width, int height)
 {
+    xDisplacement = xRel;
+    yDisplacement = yRel;
     bounds.x = getXAnchor() + xRel;
     bounds.y = getYAnchor() + yRel;
     bounds.w = width;
@@ -122,7 +124,7 @@ void GUIObject::setPressed(bool b)
 
 void GUIObject::drawBounds()
 {
-    if (debug)
+    if (debug >= DEBUG_NORMAL)
     {
         if (isMouseOver())
         {

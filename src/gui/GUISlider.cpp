@@ -46,7 +46,7 @@ void GUISlider::draw()
                        bounds.y + bounds.h/2);
     SDL_RenderDrawRect(gRenderer, &sliderBounds);
 
-    if (debug) drawBounds();
+    if (debug >= DEBUG_NORMAL) drawBounds();
 }
 
 void GUISlider::tick(int ms)

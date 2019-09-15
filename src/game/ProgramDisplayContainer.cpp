@@ -22,7 +22,7 @@ void ProgramDisplayContainer::draw()
     SDL_RenderFillRect(gRenderer, &bounds);
 
     // draw bounds
-    if (debug) drawBounds();
+    if (debug >= DEBUG_NORMAL) drawBounds();
 
     // draw the program icon
     Program* currProgram = gameScreen->getSelectedProgram();
@@ -39,21 +39,21 @@ void ProgramDisplayContainer::draw()
     progBound.h = progBound.h*(9.0/10.0);
     SDL_RenderCopy(gRenderer, dataContainer->program_icons[currProgram->getType()], NULL, &progBound);
 
-    SDL_Texture* name = loadString(currProgram->getName());
+    SDL_Texture* name = loadString(currProgram->getName(), FONT_BOLD, 24, {255, 255, 255, 255});
     progBound.x = bounds.x + 100;
     SDL_QueryTexture(name, NULL, NULL, &progBound.w, &progBound.h);
     SDL_RenderCopy(gRenderer, name, NULL, &progBound);
     SDL_DestroyTexture(name);
 
     std::string healthStr = "Health: " + to_string(currProgram->getHealth()) + "/" + to_string(currProgram->getMaxHealth());
-    SDL_Texture* health = loadString(healthStr);
+    SDL_Texture* health = loadString(healthStr, FONT_BOLD, 24, {255, 255, 255, 255});
     progBound.y += progBound.h;
     SDL_QueryTexture(health, NULL, NULL, &progBound.w, &progBound.h);
     SDL_RenderCopy(gRenderer, health, NULL, &progBound);
     SDL_DestroyTexture(health);
 
     std::string moveStr = "Moves: " + to_string(currProgram->getMoves()) + "/" + to_string(currProgram->getMaxMoves());
-    SDL_Texture* moves = loadString(moveStr);
+    SDL_Texture* moves = loadString(moveStr, FONT_BOLD, 24, {255, 255, 255, 255});
     progBound.y += progBound.h;
     SDL_QueryTexture(moves, NULL, NULL, &progBound.w, &progBound.h);
     SDL_RenderCopy(gRenderer, moves, NULL, &progBound);
@@ -63,7 +63,7 @@ void ProgramDisplayContainer::draw()
     int row = 0;
     while (it.hasNext())
     {
-        SDL_Texture* newTex = loadString(it.next()->name);
+        SDL_Texture* newTex = loadString(it.next()->name, FONT_NORMAL, 24, {255, 255, 255, 255});
         SDL_QueryTexture(newTex, NULL, NULL, &progBound.w, &progBound.h);
         progBound.x = 100;
         progBound.y = 5+row;

@@ -79,6 +79,8 @@ public:
     SDL_Texture* gameButtonAbandonGame;
     SDL_Texture* gameButtonWinGame;
     SDL_Texture* gameButtonResetGame;
+    SDL_Texture* gameButtonStartGame;
+    SDL_Texture* gameButtonBackToMap;
 
     // mainScreen resources
     SDL_Texture* main_bkgdata;
@@ -99,9 +101,6 @@ public:
     // SDL_Color presets
     SDL_Color* color_black;
     SDL_Color* color_white;
-
-    // Font presets
-    TTF_Font* font_agencyFB_24;
 
     // SDL_Mixer sounds
     Mix_Music* music_title;

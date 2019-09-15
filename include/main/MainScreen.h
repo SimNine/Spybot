@@ -16,6 +16,8 @@ class MainScreen : public GUIContainer
         void toggleOptions();
     protected:
     private:
+        int textBkgDisplacement;
+
         LinkedList<MainScreenGlow*>* glowList;
 
         GUIContainer* optionsContainer;

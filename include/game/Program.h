@@ -6,6 +6,7 @@
 #include "LinkedList.h"
 #include "Enums.h"
 #include "ProgramAction.h"
+#include "Pair.h"
 
 class Program
 {
@@ -24,7 +25,6 @@ class Program
         PROGRAM getType();
         void setType(PROGRAM);
         int getHealth();
-        void setHealth(int);
         int getMaxHealth();
         void setMaxHealth(int);
         int getMoves();
@@ -40,15 +40,22 @@ class Program
         int getCost();
         void setCost(int);
 
+        void moveTo(int, int);
+        void addTail(int, int);
+        Pair<int>* getHead();
+        Pair<int>* getTail();
+
         void endTurn();
 
         void addAction(ProgramAction*);
         LinkedList<ProgramAction*>* getActions();
     protected:
     private:
-        int xHead, yHead;
+        LinkedList<Pair<int>*> tiles;
+
         PROGRAM type;
-        int health, maxHealth, moves, maxMoves;
+        int maxHealth;
+        int moves, maxMoves;
         int color[3];
         int team;
         LinkedList<ProgramAction*>* actionList;

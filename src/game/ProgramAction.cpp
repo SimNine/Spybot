@@ -13,7 +13,7 @@ ProgramAction::ProgramAction(MOVE t, std::string name, std::string description, 
 
 ProgramAction::~ProgramAction()
 {
-    if (debug)
+    if (debug >= DEBUG_NORMAL)
     {
         printf("Move '%s' deleted\n", name.c_str());
     }

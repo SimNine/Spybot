@@ -49,3 +49,28 @@
 --GUIObject now includes five more fields related to fading: startAlpha, currAlpha, endAlpha, fadeInitDuration, and fadeCurrDuration
 --GUIObject new method: "fade(int alpha, int durationMS)" which initiates a fade to a given alpha value in a given number of ms
 --GUIObject new method: "fadeStep(int ms)" which checks if a fade is in progress and updates it by a given number of ticks
+
+0.4.0 - 8/2/17
+-----
+-Added preferences saving mechanism
+--Preferences are now saved upon correct exit of the game
+--Preferences include sound and music volume, fullscreen, screen size
+-Added scrolling background text on main menu
+-Added options menu
+--Added volume sliders for sound and music
+--Added text labels for each
+--Added fullscreen toggle
+-Added an integer array corresponding to the number owned of each type of program in each campaign
+-Added a subclass ProgramInventoryDisplay of GUIContainer that displays the number of programs owned in a campaign
+-Added a subclass ProgramInventoryButton in order to allow switching between "selected" programs for the purpose of placing them on the grid
+-Added a button to toggle viewing of the program inventory on the map
+-Added a display of the program inventory in the game
+--This is primarily to select which program to place on the board
+-Added a mechanism to place a program on a spawn tile on the board
+-Programs now contain a LinkedList of coordinates which represent their occupied tiles
+-Fixed a serious bug in GUIContainer mouseDown() and mouseUp():
+--Previously, it was possible to click on multiple GUIObjects if they overlapped in the same GUIContainer
+--Because of this, clicking any GUIObject that changed the objects in its own GUIContainer parent would cause its contents iterator to err due to concurrent modification
+--This was noted because of the modification of ProgramInventoryDisplay
+-Added a new enum DEBUG representing various levels of debug
+-Added a new enum GAMESTATUS representing various degrees of debugging output

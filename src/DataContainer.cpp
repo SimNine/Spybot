@@ -213,6 +213,8 @@ void initData()
     dataContainer->gameButtonAbandonGame = loadTexture("resources/board/button_abandon_game.png");
     dataContainer->gameButtonWinGame = loadTexture("resources/board/button_win_game.png");
     dataContainer->gameButtonResetGame = loadTexture("resources/board/button_reset_game.png");
+    dataContainer->gameButtonStartGame = loadTexture("resources/board/button_begin_game.png");
+    dataContainer->gameButtonBackToMap = loadTexture("resources/board/button_back_to_map.png");
 
     // mainScreen resources
     dataContainer->main_bkgdata = loadTexture("resources/main/menu_bkgdata.png");
@@ -241,12 +243,6 @@ void initData()
     dataContainer->color_white->g = 0;
     dataContainer->color_white->b = 0;
     dataContainer->color_white->a = 0;
-
-    // Font presets
-    dataContainer->font_agencyFB_24 = TTF_OpenFont("resources/AGENCYB.ttf", 24);
-    if (!dataContainer->font_agencyFB_24) {
-        printf("TTF_OpenFont: %s\n", TTF_GetError());
-    }
 
     // SDL_Mixer sounds
     dataContainer->music_title = loadMusic("resources/sounds/title_music.flac");
