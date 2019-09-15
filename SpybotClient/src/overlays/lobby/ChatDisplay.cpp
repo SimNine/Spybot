@@ -7,7 +7,7 @@
 #include "Client.h"
 #include "ConnectionManager.h"
 
-ChatDisplay::ChatDisplay(ANCHOR anchor, Coord disp, Coord dims, GUIContainer* parent, int logSize)
+ChatDisplay::ChatDisplay(GUIContainer* parent, ANCHOR anchor, Coord disp, Coord dims, int logSize)
 	: GUIContainer(parent, anchor, disp, dims, { 0, 0, 0, 100 }) {
 	active_ = false;
 	logSize_ = logSize;

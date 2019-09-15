@@ -30,19 +30,10 @@ public:
 
 	// gameplay methods
 	void setPlayerTurnDisplay(std::string name);
-	void tryPlacingProgram(PROGRAM);
 
-	// editor methods
-	void toggleEditorMode();
-	void setBrushMode(BRUSH);
-	void setBrushTileType(TILE);
-	void setBrushItem(ITEM);
-	void setBrushProgramType(PROGRAM);
-	void setBrushProgramTeam(int);
 	void setBackgroundImg(BACKGROUND);
 
-	// Game loading/saving methods
-	void saveGame();
+	// game loading/saving methods
 	void resetScreen();
 	void changeGameStatus(GAMESTATUS gs);
 
@@ -53,50 +44,55 @@ public:
 	ChatDisplay* getChatDisplay();
 	void addAnimation(Animation* a);
 	void updateProgramInventoryDisplay();
-	void showWin(int teamID);
+
+	// win container
+	void showWinContainer(int teamID);
+	void hideWinContainer();
+
+	// credit displays
+	void showCreditPickup(int numCredits);
+	void refreshCreditCounter();
 protected:
 private:
 	SDL_Texture* bkgImg_;
 	Coord bkgPos_;
 	int textureTickCount_;
-	int turnTickCount_;
 	bool canShiftScreen_;
 	double shiftSpeed_;
 	void drawBkg();
 	void drawGrid();
 	void checkShiftable();
 
-	void buildEditorGUI();
 	void buildGUI();
 
-	// for use of the level editor
-	bool editorMode_;
-	GUIContainer* gridSelectBrushPanel_;
-	BRUSH brushMode_;
-	GUIContainer* gridEditPanel_;
-	TILE brushTileType_;
-	GUIContainer* gridProgramEditPanel_;
-	PROGRAM brushProgramType_;
-	GUIContainer* gridItemEditPanel_;
-	ITEM brushItemType_;
-	GUIContainer* gridBkgPanel_;
-	int brushProgramTeam_;
 	bool programViewTeams_;
 	bool programViewPlayers_;
 
 	// containers
-	GUIContainer* preGameOptions_;
 	GUIContainer* debugOptions_;
 	GUIContainer* pauseMenu_;
+	GUIButton* startGameButton_;
 	GUIButton* turnButton_;
 
 	// displays
 	GUITexture* currTurn_;
-	GUITexture* winningTeam_;
 	ProgramInventoryDisplay* progInv_;
 	ProgramDisplayContainer* progDisp_;
 	PlayerDisplayContainer* playerDisp_;
 	ChatDisplay* chatDisplay_;
+
+	// endgame container
+	GUIContainer* winMenu_;
+	GUITexture* winningTeam_;
+
+	// credit pickup container
+	GUIContainer* creditPickupContainer_;
+	GUITexture* creditPickupTexture_;
+
+	// credit counter container
+	GUIContainer* creditCounterContainer_;
+	GUITexture* creditCounterIcon_;
+	GUITexture* creditCounterText_;
 
 	// effects queue
 	LinkedList<Animation*>* animList_;

@@ -4,10 +4,10 @@
 #include "Global.h"
 #include "Data.h"
 
-Node::Node(Coord p, int type, int nodeZone, int lvlId) {
-	pos_ = p;
+Node::Node(Coord pos, int type, int zone, int lvlId) {
+	pos_ = pos;
 	nodeType_ = type;
-	zone_ = nodeZone;
+	zone_ = zone;
 	id_ = lvlId;
 	nodeStatus_ = NODESTATUS_HIDDEN;
 	neighbors_ = new LinkedList<Node*>();

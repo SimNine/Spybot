@@ -9,12 +9,15 @@ class ProgramDisplayActionButton;
 
 class ProgramDisplayContainer : public GUIContainer {
 public:
-	ProgramDisplayContainer(ANCHOR anchor, Coord disp, Coord dims, GUIContainer* parent);
+	ProgramDisplayContainer(GUIContainer* parent, ANCHOR anchor, Coord disp, Coord dims);
 	virtual ~ProgramDisplayContainer();
 
 	void draw();
+	void tick(int ms);
+	bool mouseDown();
 
 	void setCurrProg(Program* p);
+	Program* getCurrProg();
 protected:
 private:
 	Program* currProg_;
@@ -28,5 +31,6 @@ private:
 	GUITexture* actionsText_;
 	GUITexture* descText_;
 
-	LinkedList<ProgramDisplayActionButton*>* actionButtons_;
+	GUIContainer* programInfoContainer_;
+	GUIContainer* actionButtonContainer_;
 };

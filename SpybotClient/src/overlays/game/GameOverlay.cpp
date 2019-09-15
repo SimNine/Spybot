@@ -16,7 +16,6 @@
 #include "Program.h"
 #include "ProgramAction.h"
 #include "MapOverlay.h"
-#include "Node.h"
 #include "ChatDisplay.h"
 #include "ClientMirror.h"
 #include "Animation.h"
@@ -29,16 +28,9 @@ GameOverlay::GameOverlay()
 	buildGUI();
 
 	bkgImg_ = _game_backgrounds[0];
-	editorMode_ = false;
-	brushMode_ = BRUSH_NONE;
-	brushTileType_ = TILE_NONE;
-	brushProgramType_ = PROGRAM_BALLISTA;
-	brushProgramTeam_ = 0;
-	brushItemType_ = ITEM_NONE;
 	programViewTeams_ = false;
 	programViewPlayers_ = true;
 	textureTickCount_ = 0;
-	turnTickCount_ = 0;
 	bkgPos_ = { 0, 0 };
 	shiftSpeed_ = 0.1;
 	canShiftScreen_ = true;
@@ -50,696 +42,67 @@ GameOverlay::~GameOverlay() {
 	//dtor
 }
 
-void GameOverlay::buildEditorGUI() {
-	/*int ln = 0;
-	int col = 0;
-	gridEditPanel_ = new GUIContainer(ANCHOR_NORTHWEST, { 20, 20 }, { 8 + 32 * 12, 36 }, this, NULL);
-	GUIButton* emptyButton = new GUIButton(ANCHOR_NORTHWEST, { 4 + 32 * col++, 4 }, { 28, 28 }, gridEditPanel_,
-		[] () {
-		_gameOverlay->setBrushTileType(TILE_NONE);
-	},
-		_tile_images[TILE_NONE]);
-	GUIButton* plainButton = new GUIButton(ANCHOR_NORTHWEST, { 4 + 32 * col++, 4 }, { 28, 28 }, gridEditPanel_,
-		[] () {
-		_gameOverlay->setBrushTileType(TILE_PLAIN);
-	},
-		_tile_images[TILE_PLAIN]);
-	GUIButton* plain2Button = new GUIButton(ANCHOR_NORTHWEST, { 4 + 32 * col++, 4 }, { 28, 28 }, gridEditPanel_,
-		[] () {
-		_gameOverlay->setBrushTileType(TILE_PLAIN2);
-	},
-		_tile_images[TILE_PLAIN2]);
-	GUIButton* plain3Button = new GUIButton(ANCHOR_NORTHWEST, { 4 + 32 * col++, 4 }, { 28, 28 }, gridEditPanel_,
-		[] () {
-		_gameOverlay->setBrushTileType(TILE_PLAIN3);
-	},
-		_tile_images[TILE_PLAIN3]);
-	GUIButton* plain4Button = new GUIButton(ANCHOR_NORTHWEST, { 4 + 32 * col++, 4 }, { 28, 28 }, gridEditPanel_,
-		[] () {
-		_gameOverlay->setBrushTileType(TILE_PLAIN4);
-	},
-		_tile_images[TILE_PLAIN4]);
-	GUIButton* plain5Button = new GUIButton(ANCHOR_NORTHWEST, { 4 + 32 * col++, 4 }, { 28, 28 }, gridEditPanel_,
-		[] () {
-		_gameOverlay->setBrushTileType(TILE_PLAIN5);
-	},
-		_tile_images[TILE_PLAIN5]);
-	GUIButton* plain6Button = new GUIButton(ANCHOR_NORTHWEST, { 4 + 32 * col++, 4 }, { 28, 28 }, gridEditPanel_,
-		[] () {
-		_gameOverlay->setBrushTileType(TILE_PLAIN6);
-	},
-		_tile_images[TILE_PLAIN6]);
-	GUIButton* plain7Button = new GUIButton(ANCHOR_NORTHWEST, { 4 + 32 * col++, 4 }, { 28, 28 }, gridEditPanel_,
-		[] () {
-		_gameOverlay->setBrushTileType(TILE_PLAIN7);
-	},
-		_tile_images[TILE_PLAIN7]);
-	GUIButton* plain8Button = new GUIButton(ANCHOR_NORTHWEST, { 4 + 32 * col++, 4 }, { 28, 28 }, gridEditPanel_,
-		[] () {
-		_gameOverlay->setBrushTileType(TILE_PLAIN8);
-	},
-		_tile_images[TILE_PLAIN9]);
-	GUIButton* plain9Button = new GUIButton(ANCHOR_NORTHWEST, { 4 + 32 * col++, 4 }, { 28, 28 }, gridEditPanel_,
-		[] () {
-		_gameOverlay->setBrushTileType(TILE_PLAIN9);
-	},
-		_tile_images[TILE_PLAIN9]);
-	GUIButton* spawnButton = new GUIButton(ANCHOR_NORTHWEST, { 4 + 32 * col++, 4 }, { 28, 28 }, gridEditPanel_,
-		[] () {
-		_gameOverlay->setBrushTileType(TILE_SPAWN);
-	},
-		_tile_images[TILE_SPAWN]);
-	GUIButton* spawn2Button = new GUIButton(ANCHOR_NORTHWEST, { 4 + 32 * col++, 4 }, { 28, 28 }, gridEditPanel_,
-		[] () {
-		_gameOverlay->setBrushTileType(TILE_SPAWN2);
-	},
-		_tile_images[TILE_SPAWN2]);
-
-	gridEditPanel_->addObject(emptyButton);
-	gridEditPanel_->addObject(plainButton);
-	gridEditPanel_->addObject(plain2Button);
-	gridEditPanel_->addObject(plain3Button);
-	gridEditPanel_->addObject(plain4Button);
-	gridEditPanel_->addObject(plain5Button);
-	gridEditPanel_->addObject(plain6Button);
-	gridEditPanel_->addObject(plain7Button);
-	gridEditPanel_->addObject(plain8Button);
-	gridEditPanel_->addObject(plain9Button);
-	gridEditPanel_->addObject(spawnButton);
-	gridEditPanel_->addObject(spawn2Button);
-
-	ln = 0;
-	col = 0;
-	gridProgramEditPanel_ = new GUIContainer(ANCHOR_NORTHWEST, { 20, 60 }, { 32 * 15 + 8, 136 }, this, NULL);
-	GUIButton* ballistaButton = new GUIButton(ANCHOR_NORTHWEST, { 4 + 32 * col++, 4 + 32 * ln }, { 28, 28 }, gridProgramEditPanel_,
-		[] () {
-		_gameOverlay->setBrushProgramType(PROGRAM_BALLISTA);
-	},
-		_program_icons[PROGRAM_BALLISTA],
-		_program_icons[PROGRAM_BALLISTA],
-		_program_icons[PROGRAM_BALLISTA]);
-	gridProgramEditPanel_->addObject(ballistaButton);
-	GUIButton* bitmanButton = new GUIButton(ANCHOR_NORTHWEST, { 4 + 32 * col++, 4 + 32 * ln }, { 28, 28 }, gridProgramEditPanel_,
-		[] () {
-		_gameOverlay->setBrushProgramType(PROGRAM_BITMAN);
-	},
-		_program_icons[PROGRAM_BITMAN],
-		_program_icons[PROGRAM_BITMAN],
-		_program_icons[PROGRAM_BITMAN]);
-	gridProgramEditPanel_->addObject(bitmanButton);
-	GUIButton* bitman2Button = new GUIButton(ANCHOR_NORTHWEST, { 4 + 32 * col++, 4 + 32 * ln }, { 28, 28 }, gridProgramEditPanel_,
-		[] () {
-		_gameOverlay->setBrushProgramType(PROGRAM_BITMAN2);
-	},
-		_program_icons[PROGRAM_BITMAN2],
-		_program_icons[PROGRAM_BITMAN2],
-		_program_icons[PROGRAM_BITMAN2]);
-	gridProgramEditPanel_->addObject(bitman2Button);
-	GUIButton* blackwidowButton = new GUIButton(ANCHOR_NORTHWEST, { 4 + 32 * col++, 4 + 32 * ln }, { 28, 28 }, gridProgramEditPanel_,
-		[] () {
-		_gameOverlay->setBrushProgramType(PROGRAM_BLACKWIDOW);
-	},
-		_program_icons[PROGRAM_BLACKWIDOW],
-		_program_icons[PROGRAM_BLACKWIDOW],
-		_program_icons[PROGRAM_BLACKWIDOW]);
-	gridProgramEditPanel_->addObject(blackwidowButton);
-	GUIButton* bossButton = new GUIButton(ANCHOR_NORTHWEST, { 4 + 32 * col++, 4 + 32 * ln }, { 28, 28 }, gridProgramEditPanel_,
-		[] () {
-		_gameOverlay->setBrushProgramType(PROGRAM_BOSS);
-	},
-		_program_icons[PROGRAM_BOSS],
-		_program_icons[PROGRAM_BOSS],
-		_program_icons[PROGRAM_BOSS]);
-	gridProgramEditPanel_->addObject(bossButton);
-	GUIButton* bugButton = new GUIButton(ANCHOR_NORTHWEST, { 4 + 32 * col++, 4 + 32 * ln }, { 28, 28 }, gridProgramEditPanel_,
-		[] () {
-		_gameOverlay->setBrushProgramType(PROGRAM_BUG);
-	},
-		_program_icons[PROGRAM_BUG],
-		_program_icons[PROGRAM_BUG],
-		_program_icons[PROGRAM_BUG]);
-	gridProgramEditPanel_->addObject(bugButton);
-	GUIButton* bug2Button = new GUIButton(ANCHOR_NORTHWEST, { 4 + 32 * col++, 4 + 32 * ln }, { 28, 28 }, gridProgramEditPanel_,
-		[] () {
-		_gameOverlay->setBrushProgramType(PROGRAM_BUG2);
-	},
-		_program_icons[PROGRAM_BUG2],
-		_program_icons[PROGRAM_BUG2],
-		_program_icons[PROGRAM_BUG2]);
-	gridProgramEditPanel_->addObject(bug2Button);
-	GUIButton* bug3Button = new GUIButton(ANCHOR_NORTHWEST, { 4 + 32 * col++, 4 + 32 * ln }, { 28, 28 }, gridProgramEditPanel_,
-		[] () {
-		_gameOverlay->setBrushProgramType(PROGRAM_BUG3);
-	},
-		_program_icons[PROGRAM_BUG3],
-		_program_icons[PROGRAM_BUG3],
-		_program_icons[PROGRAM_BUG3]);
-	gridProgramEditPanel_->addObject(bug3Button);
-	GUIButton* catapultButton = new GUIButton(ANCHOR_NORTHWEST, { 4 + 32 * col++, 4 + 32 * ln }, { 28, 28 }, gridProgramEditPanel_,
-		[] () {
-		_gameOverlay->setBrushProgramType(PROGRAM_CATAPULT);
-	},
-		_program_icons[PROGRAM_CATAPULT],
-		_program_icons[PROGRAM_CATAPULT],
-		_program_icons[PROGRAM_CATAPULT]);
-	gridProgramEditPanel_->addObject(catapultButton);
-	GUIButton* clogButton = new GUIButton(ANCHOR_NORTHWEST, { 4 + 32 * col++, 4 + 32 * ln }, { 28, 28 }, gridProgramEditPanel_,
-		[] () {
-		_gameOverlay->setBrushProgramType(PROGRAM_CLOG);
-	},
-		_program_icons[PROGRAM_CLOG],
-		_program_icons[PROGRAM_CLOG],
-		_program_icons[PROGRAM_CLOG]);
-	gridProgramEditPanel_->addObject(clogButton);
-	GUIButton* clog2Button = new GUIButton(ANCHOR_NORTHWEST, { 4 + 32 * col++, 4 + 32 * ln }, { 28, 28 }, gridProgramEditPanel_,
-		[] () {
-		_gameOverlay->setBrushProgramType(PROGRAM_CLOG2);
-	},
-		_program_icons[PROGRAM_CLOG2],
-		_program_icons[PROGRAM_CLOG2],
-		_program_icons[PROGRAM_CLOG2]);
-	gridProgramEditPanel_->addObject(clog2Button);
-	GUIButton* clog3Button = new GUIButton(ANCHOR_NORTHWEST, { 4 + 32 * col++, 4 + 32 * ln }, { 28, 28 }, gridProgramEditPanel_,
-		[] () {
-		_gameOverlay->setBrushProgramType(PROGRAM_CLOG3);
-	},
-		_program_icons[PROGRAM_CLOG3],
-		_program_icons[PROGRAM_CLOG3],
-		_program_icons[PROGRAM_CLOG3]);
-	gridProgramEditPanel_->addObject(clog3Button);
-	GUIButton* databombButton = new GUIButton(ANCHOR_NORTHWEST, { 4 + 32 * col++, 4 + 32 * ln }, { 28, 28 }, gridProgramEditPanel_,
-		[] () {
-		_gameOverlay->setBrushProgramType(PROGRAM_DATABOMB);
-	},
-		_program_icons[PROGRAM_DATABOMB],
-		_program_icons[PROGRAM_DATABOMB],
-		_program_icons[PROGRAM_DATABOMB]);
-	gridProgramEditPanel_->addObject(databombButton);
-	GUIButton* datadoctorButton = new GUIButton(ANCHOR_NORTHWEST, { 4 + 32 * col++, 4 + 32 * ln }, { 28, 28 }, gridProgramEditPanel_,
-		[] () {
-		_gameOverlay->setBrushProgramType(PROGRAM_DATADOCTOR);
-	},
-		_program_icons[PROGRAM_DATADOCTOR],
-		_program_icons[PROGRAM_DATADOCTOR],
-		_program_icons[PROGRAM_DATADOCTOR]);
-	gridProgramEditPanel_->addObject(datadoctorButton);
-	ln++;
-	col = 0;
-	GUIButton* datadoctor2Button = new GUIButton(ANCHOR_NORTHWEST, { 4 + 32 * col++, 4 + 32 * ln }, { 28, 28 }, gridProgramEditPanel_,
-		[] () {
-		_gameOverlay->setBrushProgramType(PROGRAM_DATADOCTOR2);
-	},
-		_program_icons[PROGRAM_DATADOCTOR2],
-		_program_icons[PROGRAM_DATADOCTOR2],
-		_program_icons[PROGRAM_DATADOCTOR2]);
-	gridProgramEditPanel_->addObject(datadoctor2Button);
-	GUIButton* dogButton = new GUIButton(ANCHOR_NORTHWEST, { 4 + 32 * col++, 4 + 32 * ln }, { 28, 28 }, gridProgramEditPanel_,
-		[] () {
-		_gameOverlay->setBrushProgramType(PROGRAM_DOG);
-	},
-		_program_icons[PROGRAM_DOG],
-		_program_icons[PROGRAM_DOG],
-		_program_icons[PROGRAM_DOG]);
-	gridProgramEditPanel_->addObject(dogButton);
-	GUIButton* dog2Button = new GUIButton(ANCHOR_NORTHWEST, { 4 + 32 * col++, 4 + 32 * ln }, { 28, 28 }, gridProgramEditPanel_,
-		[] () {
-		_gameOverlay->setBrushProgramType(PROGRAM_DOG2);
-	},
-		_program_icons[PROGRAM_DOG2],
-		_program_icons[PROGRAM_DOG2],
-		_program_icons[PROGRAM_DOG2]);
-	gridProgramEditPanel_->addObject(dog2Button);
-	GUIButton* dog3Button = new GUIButton(ANCHOR_NORTHWEST, { 4 + 32 * col++, 4 + 32 * ln }, { 28, 28 }, gridProgramEditPanel_,
-		[] () {
-		_gameOverlay->setBrushProgramType(PROGRAM_DOG3);
-	},
-		_program_icons[PROGRAM_DOG3],
-		_program_icons[PROGRAM_DOG3],
-		_program_icons[PROGRAM_DOG3]);
-	gridProgramEditPanel_->addObject(dog3Button);
-	GUIButton* fiddleButton = new GUIButton(ANCHOR_NORTHWEST, { 4 + 32 * col++, 4 + 32 * ln }, { 28, 28 }, gridProgramEditPanel_,
-		[] () {
-		_gameOverlay->setBrushProgramType(PROGRAM_FIDDLE);
-	},
-		_program_icons[PROGRAM_FIDDLE],
-		_program_icons[PROGRAM_FIDDLE],
-		_program_icons[PROGRAM_FIDDLE]);
-	gridProgramEditPanel_->addObject(fiddleButton);
-	GUIButton* firewallButton = new GUIButton(ANCHOR_NORTHWEST, { 4 + 32 * col++, 4 + 32 * ln }, { 28, 28 }, gridProgramEditPanel_,
-		[] () {
-		_gameOverlay->setBrushProgramType(PROGRAM_FIREWALL);
-	},
-		_program_icons[PROGRAM_FIREWALL],
-		_program_icons[PROGRAM_FIREWALL],
-		_program_icons[PROGRAM_FIREWALL]);
-	gridProgramEditPanel_->addObject(firewallButton);
-	GUIButton* golemButton = new GUIButton(ANCHOR_NORTHWEST, { 4 + 32 * col++, 4 + 32 * ln }, { 28, 28 }, gridProgramEditPanel_,
-		[] () {
-		_gameOverlay->setBrushProgramType(PROGRAM_GOLEM);
-	},
-		_program_icons[PROGRAM_GOLEM],
-		_program_icons[PROGRAM_GOLEM],
-		_program_icons[PROGRAM_GOLEM]);
-	gridProgramEditPanel_->addObject(golemButton);
-	GUIButton* golem2Button = new GUIButton(ANCHOR_NORTHWEST, { 4 + 32 * col++, 4 + 32 * ln }, { 28, 28 }, gridProgramEditPanel_,
-		[] () {
-		_gameOverlay->setBrushProgramType(PROGRAM_GOLEM2);
-	},
-		_program_icons[PROGRAM_GOLEM2],
-		_program_icons[PROGRAM_GOLEM2],
-		_program_icons[PROGRAM_GOLEM2]);
-	gridProgramEditPanel_->addObject(golem2Button);
-	GUIButton* golem3Button = new GUIButton(ANCHOR_NORTHWEST, { 4 + 32 * col++, 4 + 32 * ln }, { 28, 28 }, gridProgramEditPanel_,
-		[] () {
-		_gameOverlay->setBrushProgramType(PROGRAM_GOLEM3);
-	},
-		_program_icons[PROGRAM_GOLEM3],
-		_program_icons[PROGRAM_GOLEM3],
-		_program_icons[PROGRAM_GOLEM3]);
-	gridProgramEditPanel_->addObject(golem3Button);
-	GUIButton* hackButton = new GUIButton(ANCHOR_NORTHWEST, { 4 + 32 * col++, 4 + 32 * ln }, { 28, 28 }, gridProgramEditPanel_,
-		[] () {
-		_gameOverlay->setBrushProgramType(PROGRAM_HACK);
-	},
-		_program_icons[PROGRAM_HACK],
-		_program_icons[PROGRAM_HACK],
-		_program_icons[PROGRAM_HACK]);
-	gridProgramEditPanel_->addObject(hackButton);
-	GUIButton* hack2Button = new GUIButton(ANCHOR_NORTHWEST, { 4 + 32 * col++, 4 + 32 * ln }, { 28, 28 }, gridProgramEditPanel_,
-		[] () {
-		_gameOverlay->setBrushProgramType(PROGRAM_HACK2);
-	},
-		_program_icons[PROGRAM_HACK2],
-		_program_icons[PROGRAM_HACK2],
-		_program_icons[PROGRAM_HACK2]);
-	gridProgramEditPanel_->addObject(hack2Button);
-	GUIButton* hack3Button = new GUIButton(ANCHOR_NORTHWEST, { 4 + 32 * col++, 4 + 32 * ln }, { 28, 28 }, gridProgramEditPanel_,
-		[] () {
-		_gameOverlay->setBrushProgramType(PROGRAM_HACK3);
-	},
-		_program_icons[PROGRAM_HACK3],
-		_program_icons[PROGRAM_HACK3],
-		_program_icons[PROGRAM_HACK3]);
-	gridProgramEditPanel_->addObject(hack3Button);
-	GUIButton* kamikazeeButton = new GUIButton(ANCHOR_NORTHWEST, { 4 + 32 * col++, 4 + 32 * ln }, { 28, 28 }, gridProgramEditPanel_,
-		[] () {
-		_gameOverlay->setBrushProgramType(PROGRAM_KAMIKAZEE);
-	},
-		_program_icons[PROGRAM_KAMIKAZEE],
-		_program_icons[PROGRAM_KAMIKAZEE],
-		_program_icons[PROGRAM_KAMIKAZEE]);
-	gridProgramEditPanel_->addObject(kamikazeeButton);
-	GUIButton* medicButton = new GUIButton(ANCHOR_NORTHWEST, { 4 + 32 * col++, 4 + 32 * ln }, { 28, 28 }, gridProgramEditPanel_,
-		[] () {
-		_gameOverlay->setBrushProgramType(PROGRAM_MEDIC);
-	},
-		_program_icons[PROGRAM_MEDIC],
-		_program_icons[PROGRAM_MEDIC],
-		_program_icons[PROGRAM_MEDIC]);
-	gridProgramEditPanel_->addObject(medicButton);
-	GUIButton* memhogButton = new GUIButton(ANCHOR_NORTHWEST, { 4 + 32 * col++, 4 + 32 * ln }, { 28, 28 }, gridProgramEditPanel_,
-		[] () {
-		_gameOverlay->setBrushProgramType(PROGRAM_MEMHOG);
-	},
-		_program_icons[PROGRAM_MEMHOG],
-		_program_icons[PROGRAM_MEMHOG],
-		_program_icons[PROGRAM_MEMHOG]);
-	gridProgramEditPanel_->addObject(memhogButton);
-	col = 0;
-	ln++;
-	GUIButton* mobiletowerButton = new GUIButton(ANCHOR_NORTHWEST, { 4 + 32 * col++, 4 + 32 * ln }, { 28, 28 }, gridProgramEditPanel_,
-		[] () {
-		_gameOverlay->setBrushProgramType(PROGRAM_MOBILETOWER);
-	},
-		_program_icons[PROGRAM_MOBILETOWER],
-		_program_icons[PROGRAM_MOBILETOWER],
-		_program_icons[PROGRAM_MOBILETOWER]);
-	gridProgramEditPanel_->addObject(mobiletowerButton);
-	GUIButton* satelliteButton = new GUIButton(ANCHOR_NORTHWEST, { 4 + 32 * col++, 4 + 32 * ln }, { 28, 28 }, gridProgramEditPanel_,
-		[] () {
-		_gameOverlay->setBrushProgramType(PROGRAM_SATELLITE);
-	},
-		_program_icons[PROGRAM_SATELLITE],
-		_program_icons[PROGRAM_SATELLITE],
-		_program_icons[PROGRAM_SATELLITE]);
-	gridProgramEditPanel_->addObject(satelliteButton);
-	GUIButton* satellite2Button = new GUIButton(ANCHOR_NORTHWEST, { 4 + 32 * col++, 4 + 32 * ln }, { 28, 28 }, gridProgramEditPanel_,
-		[] () {
-		_gameOverlay->setBrushProgramType(PROGRAM_SATELLITE2);
-	},
-		_program_icons[PROGRAM_SATELLITE2],
-		_program_icons[PROGRAM_SATELLITE2],
-		_program_icons[PROGRAM_SATELLITE2]);
-	gridProgramEditPanel_->addObject(satellite2Button);
-	GUIButton* seekerButton = new GUIButton(ANCHOR_NORTHWEST, { 4 + 32 * col++, 4 + 32 * ln }, { 28, 28 }, gridProgramEditPanel_,
-		[] () {
-		_gameOverlay->setBrushProgramType(PROGRAM_SEEKER);
-	},
-		_program_icons[PROGRAM_SEEKER],
-		_program_icons[PROGRAM_SEEKER],
-		_program_icons[PROGRAM_SEEKER]);
-	gridProgramEditPanel_->addObject(seekerButton);
-	GUIButton* seeker2Button = new GUIButton(ANCHOR_NORTHWEST, { 4 + 32 * col++, 4 + 32 * ln }, { 28, 28 }, gridProgramEditPanel_,
-		[] () {
-		_gameOverlay->setBrushProgramType(PROGRAM_SEEKER2);
-	},
-		_program_icons[PROGRAM_SEEKER2],
-		_program_icons[PROGRAM_SEEKER2],
-		_program_icons[PROGRAM_SEEKER2]);
-	gridProgramEditPanel_->addObject(seeker2Button);
-	GUIButton* seeker3Button = new GUIButton(ANCHOR_NORTHWEST, { 4 + 32 * col++, 4 + 32 * ln }, { 28, 28 }, gridProgramEditPanel_,
-		[] () {
-		_gameOverlay->setBrushProgramType(PROGRAM_SEEKER3);
-	},
-		_program_icons[PROGRAM_SEEKER3],
-		_program_icons[PROGRAM_SEEKER3],
-		_program_icons[PROGRAM_SEEKER3]);
-	gridProgramEditPanel_->addObject(seeker3Button);
-	GUIButton* slingshotButton = new GUIButton(ANCHOR_NORTHWEST, { 4 + 32 * col++, 4 + 32 * ln }, { 28, 28 }, gridProgramEditPanel_,
-		[] () {
-		_gameOverlay->setBrushProgramType(PROGRAM_SLINGSHOT);
-	},
-		_program_icons[PROGRAM_SLINGSHOT],
-		_program_icons[PROGRAM_SLINGSHOT],
-		_program_icons[PROGRAM_SLINGSHOT]);
-	gridProgramEditPanel_->addObject(slingshotButton);
-	GUIButton* sonarButton = new GUIButton(ANCHOR_NORTHWEST, { 4 + 32 * col++, 4 + 32 * ln }, { 28, 28 }, gridProgramEditPanel_,
-		[] () {
-		_gameOverlay->setBrushProgramType(PROGRAM_SONAR);
-	},
-		_program_icons[PROGRAM_SONAR],
-		_program_icons[PROGRAM_SONAR],
-		_program_icons[PROGRAM_SONAR]);
-	gridProgramEditPanel_->addObject(sonarButton);
-	GUIButton* sonar2Button = new GUIButton(ANCHOR_NORTHWEST, { 4 + 32 * col++, 4 + 32 * ln }, { 28, 28 }, gridProgramEditPanel_,
-		[] () {
-		_gameOverlay->setBrushProgramType(PROGRAM_SONAR2);
-	},
-		_program_icons[PROGRAM_SONAR2],
-		_program_icons[PROGRAM_SONAR2],
-		_program_icons[PROGRAM_SONAR2]);
-	gridProgramEditPanel_->addObject(sonar2Button);
-	GUIButton* sonar3Button = new GUIButton(ANCHOR_NORTHWEST, { 4 + 32 * col++, 4 + 32 * ln }, { 28, 28 }, gridProgramEditPanel_,
-		[] () {
-		_gameOverlay->setBrushProgramType(PROGRAM_SONAR3);
-	},
-		_program_icons[PROGRAM_SONAR3],
-		_program_icons[PROGRAM_SONAR3],
-		_program_icons[PROGRAM_SONAR3]);
-	gridProgramEditPanel_->addObject(sonar3Button);
-	GUIButton* specsButton = new GUIButton(ANCHOR_NORTHWEST, { 4 + 32 * col++, 4 + 32 * ln }, { 28, 28 }, gridProgramEditPanel_,
-		[] () {
-		_gameOverlay->setBrushProgramType(PROGRAM_SPECS);
-	},
-		_program_icons[PROGRAM_SPECS],
-		_program_icons[PROGRAM_SPECS],
-		_program_icons[PROGRAM_SPECS]);
-	gridProgramEditPanel_->addObject(specsButton);
-	GUIButton* sumoButton = new GUIButton(ANCHOR_NORTHWEST, { 4 + 32 * col++, 4 + 32 * ln }, { 28, 28 }, gridProgramEditPanel_,
-		[] () {
-		_gameOverlay->setBrushProgramType(PROGRAM_SUMO);
-	},
-		_program_icons[PROGRAM_SUMO],
-		_program_icons[PROGRAM_SUMO],
-		_program_icons[PROGRAM_SUMO]);
-	gridProgramEditPanel_->addObject(sumoButton);
-	GUIButton* tarantulaButton = new GUIButton(ANCHOR_NORTHWEST, { 4 + 32 * col++, 4 + 32 * ln }, { 28, 28 }, gridProgramEditPanel_,
-		[] () {
-		_gameOverlay->setBrushProgramType(PROGRAM_TARANTULA);
-	},
-		_program_icons[PROGRAM_TARANTULA],
-		_program_icons[PROGRAM_TARANTULA],
-		_program_icons[PROGRAM_TARANTULA]);
-	gridProgramEditPanel_->addObject(tarantulaButton);
-	GUIButton* towerButton = new GUIButton(ANCHOR_NORTHWEST, { 4 + 32 * col++, 4 + 32 * ln }, { 28, 28 }, gridProgramEditPanel_,
-		[] () {
-		_gameOverlay->setBrushProgramType(PROGRAM_TOWER);
-	},
-		_program_icons[PROGRAM_TOWER],
-		_program_icons[PROGRAM_TOWER],
-		_program_icons[PROGRAM_TOWER]);
-	gridProgramEditPanel_->addObject(towerButton);
-	GUIButton* turboButton = new GUIButton(ANCHOR_NORTHWEST, { 4 + 32 * col++, 4 + 32 * ln }, { 28, 28 }, gridProgramEditPanel_,
-		[] () {
-		_gameOverlay->setBrushProgramType(PROGRAM_TURBO);
-	},
-		_program_icons[PROGRAM_TURBO],
-		_program_icons[PROGRAM_TURBO],
-		_program_icons[PROGRAM_TURBO]);
-	gridProgramEditPanel_->addObject(turboButton);
-	col = 0;
-	ln++;
-	GUIButton* turbo2Button = new GUIButton(ANCHOR_NORTHWEST, { 4 + 32 * col++, 4 + 32 * ln }, { 28, 28 }, gridProgramEditPanel_,
-		[] () {
-		_gameOverlay->setBrushProgramType(PROGRAM_TURBO2);
-	},
-		_program_icons[PROGRAM_TURBO2],
-		_program_icons[PROGRAM_TURBO2],
-		_program_icons[PROGRAM_TURBO2]);
-	gridProgramEditPanel_->addObject(turbo2Button);
-	GUIButton* turbo3Button = new GUIButton(ANCHOR_NORTHWEST, { 4 + 32 * col++, 4 + 32 * ln }, { 28, 28 }, gridProgramEditPanel_,
-		[] () {
-		_gameOverlay->setBrushProgramType(PROGRAM_TURBO3);
-	},
-		_program_icons[PROGRAM_TURBO3],
-		_program_icons[PROGRAM_TURBO3],
-		_program_icons[PROGRAM_TURBO3]);
-	gridProgramEditPanel_->addObject(turbo3Button);
-	GUIButton* walkerButton = new GUIButton(ANCHOR_NORTHWEST, { 4 + 32 * col++, 4 + 32 * ln }, { 28, 28 }, gridProgramEditPanel_,
-		[] () {
-		_gameOverlay->setBrushProgramType(PROGRAM_WALKER);
-	},
-		_program_icons[PROGRAM_WALKER],
-		_program_icons[PROGRAM_WALKER],
-		_program_icons[PROGRAM_WALKER]);
-	gridProgramEditPanel_->addObject(walkerButton);
-	GUIButton* walker2Button = new GUIButton(ANCHOR_NORTHWEST, { 4 + 32 * col++, 4 + 32 * ln }, { 28, 28 }, gridProgramEditPanel_,
-		[] () {
-		_gameOverlay->setBrushProgramType(PROGRAM_WALKER2);
-	},
-		_program_icons[PROGRAM_WALKER2],
-		_program_icons[PROGRAM_WALKER2],
-		_program_icons[PROGRAM_WALKER2]);
-	gridProgramEditPanel_->addObject(walker2Button);
-	GUIButton* walker3Button = new GUIButton(ANCHOR_NORTHWEST, { 4 + 32 * col++, 4 + 32 * ln }, { 28, 28 }, gridProgramEditPanel_,
-		[] () {
-		_gameOverlay->setBrushProgramType(PROGRAM_WALKER3);
-	},
-		_program_icons[PROGRAM_WALKER3],
-		_program_icons[PROGRAM_WALKER3],
-		_program_icons[PROGRAM_WALKER3]);
-	gridProgramEditPanel_->addObject(walker3Button);
-	GUIButton* wardenButton = new GUIButton(ANCHOR_NORTHWEST, { 4 + 32 * col++, 4 + 32 * ln }, { 28, 28 }, gridProgramEditPanel_,
-		[] () {
-		_gameOverlay->setBrushProgramType(PROGRAM_WARDEN);
-	},
-		_program_icons[PROGRAM_WARDEN],
-		_program_icons[PROGRAM_WARDEN],
-		_program_icons[PROGRAM_WARDEN]);
-	gridProgramEditPanel_->addObject(wardenButton);
-	GUIButton* warden2Button = new GUIButton(ANCHOR_NORTHWEST, { 4 + 32 * col++, 4 + 32 * ln }, { 28, 28 }, gridProgramEditPanel_,
-		[] () {
-		_gameOverlay->setBrushProgramType(PROGRAM_WARDEN2);
-	},
-		_program_icons[PROGRAM_WARDEN2],
-		_program_icons[PROGRAM_WARDEN2],
-		_program_icons[PROGRAM_WARDEN2]);
-	gridProgramEditPanel_->addObject(warden2Button);
-	GUIButton* warden3Button = new GUIButton(ANCHOR_NORTHWEST, { 4 + 32 * col++, 4 + 32 * ln }, { 28, 28 }, gridProgramEditPanel_,
-		[] () {
-		_gameOverlay->setBrushProgramType(PROGRAM_WARDEN3);
-	},
-		_program_icons[PROGRAM_WARDEN3],
-		_program_icons[PROGRAM_WARDEN3],
-		_program_icons[PROGRAM_WARDEN3]);
-	gridProgramEditPanel_->addObject(warden3Button);
-	GUIButton* watchmanButton = new GUIButton(ANCHOR_NORTHWEST, { 4 + 32 * col++, 4 + 32 * ln }, { 28, 28 }, gridProgramEditPanel_,
-		[] () {
-		_gameOverlay->setBrushProgramType(PROGRAM_WATCHMAN);
-	},
-		_program_icons[PROGRAM_WATCHMAN],
-		_program_icons[PROGRAM_WATCHMAN],
-		_program_icons[PROGRAM_WATCHMAN]);
-	gridProgramEditPanel_->addObject(watchmanButton);
-	GUIButton* watchman2Button = new GUIButton(ANCHOR_NORTHWEST, { 4 + 32 * col++, 4 + 32 * ln }, { 28, 28 }, gridProgramEditPanel_,
-		[] () {
-		_gameOverlay->setBrushProgramType(PROGRAM_WATCHMAN2);
-	},
-		_program_icons[PROGRAM_WATCHMAN2],
-		_program_icons[PROGRAM_WATCHMAN2],
-		_program_icons[PROGRAM_WATCHMAN2]);
-	gridProgramEditPanel_->addObject(watchman2Button);
-	GUIButton* watchman3Button = new GUIButton(ANCHOR_NORTHWEST, { 4 + 32 * col++, 4 + 32 * ln }, { 28, 28 }, gridProgramEditPanel_,
-		[] () {
-		_gameOverlay->setBrushProgramType(PROGRAM_WATCHMAN3);
-	},
-		_program_icons[PROGRAM_WATCHMAN3],
-		_program_icons[PROGRAM_WATCHMAN3],
-		_program_icons[PROGRAM_WATCHMAN3]);
-	gridProgramEditPanel_->addObject(watchman3Button);
-	GUIButton* wizardButton = new GUIButton(ANCHOR_NORTHWEST, { 4 + 32 * col++, 4 + 32 * ln }, { 28, 28 }, gridProgramEditPanel_,
-		[] () {
-		_gameOverlay->setBrushProgramType(PROGRAM_WIZARD);
-	},
-		_program_icons[PROGRAM_WIZARD],
-		_program_icons[PROGRAM_WIZARD],
-		_program_icons[PROGRAM_WIZARD]);
-	gridProgramEditPanel_->addObject(wizardButton);
-	GUIButton* wolfspiderButton = new GUIButton(ANCHOR_NORTHWEST, { 4 + 32 * col++, 4 + 32 * ln }, { 28, 28 }, gridProgramEditPanel_,
-		[] () {
-		_gameOverlay->setBrushProgramType(PROGRAM_WOLFSPIDER);
-	},
-		_program_icons[PROGRAM_WOLFSPIDER],
-		_program_icons[PROGRAM_WOLFSPIDER],
-		_program_icons[PROGRAM_WOLFSPIDER]);
-	gridProgramEditPanel_->addObject(wolfspiderButton);
-
-	ln = 0;
-	col = 0;
-	gridItemEditPanel_ = new GUIContainer(ANCHOR_NORTHWEST, { 20, 200 }, { 4 + 36 * 4, 36 }, this, NULL);
-	GUIButton* creditButton = new GUIButton(ANCHOR_NORTHWEST, { 4 + 32 * col++, 4 }, { 28, 28 }, gridItemEditPanel_,
-		[] () {
-		_gameOverlay->setBrushItem(ITEM_CREDIT);
-	},
-		_item_icons[ITEM_CREDIT],
-		_item_icons[ITEM_CREDIT],
-		_item_icons[ITEM_CREDIT]);
-	GUIButton* bigCreditButton = new GUIButton(ANCHOR_NORTHWEST, { 4 + 32 * col++, 4 }, { 28, 28 }, gridItemEditPanel_,
-		[] () {
-		_gameOverlay->setBrushItem(ITEM_BIGCREDIT);
-	},
-		_item_icons[ITEM_BIGCREDIT],
-		_item_icons[ITEM_BIGCREDIT],
-		_item_icons[ITEM_BIGCREDIT]);
-	GUIButton* filesButton = new GUIButton(ANCHOR_NORTHWEST, { 4 + 32 * col++, 4 }, { 28, 28 }, gridItemEditPanel_,
-		[] () {
-		_gameOverlay->setBrushItem(ITEM_FILES);
-	},
-		_item_icons[ITEM_FILES],
-		_item_icons[ITEM_FILES],
-		_item_icons[ITEM_FILES]);
-
-	gridItemEditPanel_->addObject(creditButton);
-	gridItemEditPanel_->addObject(bigCreditButton);
-	gridItemEditPanel_->addObject(filesButton);
-
-	col = 0;
-	gridSelectBrushPanel_ = new GUIContainer(ANCHOR_NORTHWEST, { 20, 240 }, { 100, 200 }, this, NULL);
-	GUIButton* brushNoneButton = new GUIButton(ANCHOR_NORTHWEST, { 4, 4 + 16 * col++ }, { 45, 12 }, gridSelectBrushPanel_,
-		[] () {
-		_gameOverlay->setBrushMode(BRUSH_NONE);
-	},
-		_game_editor_brush_none);
-	GUIButton* brushTileButton = new GUIButton(ANCHOR_NORTHWEST, { 4, 4 + 16 * col++ }, { 45, 12 }, gridSelectBrushPanel_,
-		[] () {
-		_gameOverlay->setBrushMode(BRUSH_TILES);
-	},
-		_game_editor_brush_tiles);
-	GUIButton* brushProgramButton = new GUIButton(ANCHOR_NORTHWEST, { 4, 4 + 16 * col++ }, { 73, 12 }, gridSelectBrushPanel_,
-		[] () {
-		_gameOverlay->setBrushMode(BRUSH_PROGRAMS);
-	},
-		_game_editor_brush_programs);
-	GUIButton* brushClearProgramButton = new GUIButton(ANCHOR_NORTHWEST, { 4, 4 + 16 * col++ }, { 73, 12 }, gridSelectBrushPanel_,
-		[] () {
-		_gameOverlay->setBrushMode(BRUSH_DELETEPROGRAMS);
-	},
-		_game_editor_brush_deletePrograms);
-	GUIButton* brushItemButton = new GUIButton(ANCHOR_NORTHWEST, { 4, 4 + 16 * col++ }, { 73, 12 }, gridSelectBrushPanel_,
-		[] () {
-		_gameOverlay->setBrushMode(BRUSH_ITEMS);
-	},
-		_game_editor_brush_items);
-	col++;
-	GUIButton* brushTeamPlayerButton = new GUIButton(ANCHOR_NORTHWEST, { 4, 4 + 16 * col++ }, { 73, 12 }, gridSelectBrushPanel_,
-		[] () {
-		_gameOverlay->setBrushProgramTeam(0);
-	},
-		_game_editor_toggle_teamPlayer);
-	GUIButton* brushTeamComputerButton = new GUIButton(ANCHOR_NORTHWEST, { 4, 4 + 16 * col++ }, { 73, 12 }, gridSelectBrushPanel_,
-		[] () {
-		_gameOverlay->setBrushProgramTeam(1);
-	},
-		_game_editor_toggle_teamComputer);
-	GUIButton* brushTeamViewButton = new GUIButton(ANCHOR_NORTHWEST, { 4, 4 + 16 * col++ }, { 73, 12 }, gridSelectBrushPanel_,
-		[] () {
-		_gameOverlay->toggleViewTeams();
-	},
-		_game_editor_toggle_teamView);
-	GUIButton* brushClearGridButton = new GUIButton(ANCHOR_NORTHWEST, { 4, 4 + 16 * col++ }, { 44, 12 }, gridSelectBrushPanel_,
-		[] () {
-		_gameOverlay->resetScreen();
-	},
-		_game_editor_button_clearGrid);
-
-	gridSelectBrushPanel_->addObject(brushNoneButton);
-	gridSelectBrushPanel_->addObject(brushTileButton);
-	gridSelectBrushPanel_->addObject(brushProgramButton);
-	gridSelectBrushPanel_->addObject(brushClearProgramButton);
-	gridSelectBrushPanel_->addObject(brushItemButton);
-	gridSelectBrushPanel_->addObject(brushTeamPlayerButton);
-	gridSelectBrushPanel_->addObject(brushTeamComputerButton);
-	gridSelectBrushPanel_->addObject(brushTeamViewButton);
-	gridSelectBrushPanel_->addObject(brushClearGridButton);
-
-	col = 0;
-	gridBkgPanel_ = new GUIContainer(ANCHOR_NORTHWEST, { 124, 240 }, { 100, 200 }, this, NULL);
-	GUIButton* bkgDonutButton = new GUIButton(ANCHOR_NORTHWEST, { 4, 4 + 16 * col++ }, { 60, 12 }, gridBkgPanel_,
-		[] () {
-		_gameOverlay->setBackgroundImg(BKG_DONUT);
-	},
-		_game_editor_button_bkg[BKG_DONUT],
-		_game_editor_button_bkg[BKG_DONUT],
-		_game_editor_button_bkg[BKG_DONUT]);
-	gridBkgPanel_->addObject(bkgDonutButton);
-	GUIButton* bkgPharmButton = new GUIButton(ANCHOR_NORTHWEST, { 4, 4 + 16 * col++ }, { 60, 12 }, gridBkgPanel_,
-		[] () {
-		_gameOverlay->setBackgroundImg(BKG_PHARM);
-	},
-		_game_editor_button_bkg[BKG_PHARM],
-		_game_editor_button_bkg[BKG_PHARM],
-		_game_editor_button_bkg[BKG_PHARM]);
-	gridBkgPanel_->addObject(bkgPharmButton);
-	GUIButton* bkgPedButton = new GUIButton(ANCHOR_NORTHWEST, { 4, 4 + 16 * col++ }, { 60, 12 }, gridBkgPanel_,
-		[] () {
-		_gameOverlay->setBackgroundImg(BKG_PED);
-	},
-		_game_editor_button_bkg[BKG_PED],
-		_game_editor_button_bkg[BKG_PED],
-		_game_editor_button_bkg[BKG_PED]);
-	gridBkgPanel_->addObject(bkgPedButton);
-	GUIButton* bkgMonkeyButton = new GUIButton(ANCHOR_NORTHWEST, { 4, 4 + 16 * col++ }, { 60, 12 }, gridBkgPanel_,
-		[] () {
-		_gameOverlay->setBackgroundImg(BKG_MONKEY);
-	},
-		_game_editor_button_bkg[BKG_MONKEY],
-		_game_editor_button_bkg[BKG_MONKEY],
-		_game_editor_button_bkg[BKG_MONKEY]);
-	gridBkgPanel_->addObject(bkgMonkeyButton);
-	GUIButton* bkgCellButton = new GUIButton(ANCHOR_NORTHWEST, { 4, 4 + 16 * col++ }, { 60, 12 }, gridBkgPanel_,
-		[] () {
-		_gameOverlay->setBackgroundImg(BKG_CELL);
-	},
-		_game_editor_button_bkg[BKG_CELL],
-		_game_editor_button_bkg[BKG_CELL],
-		_game_editor_button_bkg[BKG_CELL]);
-	gridBkgPanel_->addObject(bkgCellButton);
-	*/
-}
-
 void GameOverlay::buildGUI() {
-	// win display
-	winningTeam_ = new GUITexture(this, ANCHOR_NORTH, { 0, 50 }, { 400, 100 }, _game_button_aiStep);
-	winningTeam_->setTransparency(0);
-	addObject(winningTeam_);
 
-	// current turn display
+	/*
+	WIN/ENDGAME CONTAINER
+	*/
+
+	winMenu_ = new GUIContainer(NULL, ANCHOR_CENTER, { 0, 0 }, { _screenWidth, _screenHeight }, _color_bkg_standard);
+	winMenu_->setTransparency(0);
+	this->addObject(winMenu_);
+
+	winningTeam_ = new GUITexture(this, ANCHOR_NORTH, { 0, 50 }, { 400, 100 }, _game_button_aiStep);
+	winMenu_->addObject(winningTeam_);
+
+	GUIContainer* winMenuOptions_ = new GUIContainer(winMenu_, ANCHOR_CENTER, { 0, 0 }, { 200, 200 }, _color_bkg_standard);
+	winMenu_->addObject(winMenuOptions_);
+	GUIButton* winMenuOptionReturn = new GUIButton(winMenuOptions_, ANCHOR_CENTER, { 0, 0 }, "RETURN TO MAP", 30,
+		[] () {
+		_gameOverlay->hideWinContainer();
+		_overlayStack->removeAll();
+		_overlayStack->push(_mapOverlay);
+	});
+	winMenuOptions_->addObject(winMenuOptionReturn);
+
+	/*
+	CURRENT TURN DISPLAY
+	*/
+
 	currTurn_ = new GUITexture(this, ANCHOR_NORTH, { 0, 50 }, { 400, 100 }, _game_button_aiStep);
 	currTurn_->setTransparency(0);
 	addObject(currTurn_);
 
-	// debug options
+	/*
+	CREDIT PICKUP CONTAINER
+	*/
+
+	creditPickupContainer_ = new GUIContainer(this, ANCHOR_SOUTH, { 0, -100 }, { 200, 50 }, _color_bkg_standard);
+	creditPickupContainer_->setTransparency(0);
+	this->addObject(creditPickupContainer_);
+
+	creditPickupTexture_ = NULL;
+
+	/*
+	CREDIT COUNTER CONTAINER
+	*/
+
+	creditCounterContainer_ = new GUIContainer(this, ANCHOR_NORTH, { 0, 10 }, { 500, 50 }, _color_bkg_standard);
+	this->addObject(creditCounterContainer_);
+
+	creditCounterIcon_ = new GUITexture(creditCounterContainer_, ANCHOR_WEST, { 10, 0 }, { 30, 30 }, _item_icons[ITEM_CREDIT]);
+	creditCounterContainer_->addObject(creditCounterIcon_);
+
+	creditCounterText_ = NULL;
+
+	/*
+	DEBUG OPTIONS CONTAINER
+	*/
+
 	debugOptions_ = new GUIContainer(this, ANCHOR_NORTHWEST, { 10, 10 }, { 220, 190 }, _color_bkg_standard);
+	debugOptions_->setTransparency(0);
+	this->addObject(debugOptions_);
+
 	GUIButton* teamViewButton = new GUIButton(debugOptions_, ANCHOR_NORTHWEST, { 10, 10 }, { 200, 50 },
 		[] () {_gameOverlay->toggleViewTeams(); },
 		_game_button_viewTeams);
@@ -752,12 +115,14 @@ void GameOverlay::buildGUI() {
 		[] () {Message msg; msg.type = MSGTYPE_AISTEP;	_connectionManager->sendMessage(msg); },
 		_game_button_aiStep);
 	debugOptions_->addObject(stepButton);
-	debugOptions_->setTransparency(0);
-	addObject(debugOptions_);
 
 	// end turn button
 	turnButton_ = new GUIButton(this, ANCHOR_SOUTHEAST, { -10, -10 }, { 200, 50 },
-		[] () {Message msg; msg.type = MSGTYPE_NEXTTURN; msg.playerID = _client->getPlayer()->getPlayerID(); _connectionManager->sendMessage(msg); },
+		[] () {
+		Message msg;
+		msg.type = MSGTYPE_NEXTTURN;
+		msg.playerID = _client->getPlayer()->getPlayerID();
+		_connectionManager->sendMessage(msg); },
 		_game_button_endTurn);
 	turnButton_->setTransparency(0);
 	this->addObject(turnButton_);
@@ -768,32 +133,36 @@ void GameOverlay::buildGUI() {
 	this->addObject(playerDisp_);
 
 	// program display window
-	progDisp_ = new ProgramDisplayContainer(ANCHOR_NORTHEAST, { -10, 10 }, { 300, 400 }, this);
-	progDisp_->setMovable(false);
+	progDisp_ = new ProgramDisplayContainer(this, ANCHOR_NORTHEAST, { -10, 10 }, { 300, 400 });
 	progDisp_->setTransparency(0);
+	progDisp_->setMovable(true);
 	this->addObject(progDisp_);
 
-	// pre-game options
-	preGameOptions_ = new GUIContainer(this, ANCHOR_NORTHWEST, { 220, 10 }, { 220, 130 }, _color_bkg_standard);
-	GUIButton* startGameButton = new GUIButton(preGameOptions_, ANCHOR_NORTHWEST, { 10, 10 }, { 200, 50 },
-		[] () {Message m; m.type = MSGTYPE_INFO; m.infoType = MSGINFOTYPE_GAMESTATUS;
-	m.statusType = GAMESTATUS_PLAYING; _connectionManager->sendMessage(m); },
-		_game_button_start);
-	preGameOptions_->addObject(startGameButton);
-	GUIButton* backToMapButton = new GUIButton(preGameOptions_, ANCHOR_NORTHWEST, { 10, 70 }, { 200, 50 },
-		[] () {Message m; m.type = MSGTYPE_LEAVE; _connectionManager->sendMessage(m); },
-		_game_button_quitToMap);
-	preGameOptions_->addObject(backToMapButton);
-	this->addObject(preGameOptions_);
+	/*
+	START GAME BUTTON
+	*/
+
+	startGameButton_ = new GUIButton(this, ANCHOR_SOUTHWEST, { 10, 10 }, "START GAME", 50,
+		[] () {
+		Message m;
+		m.type = MSGTYPE_INFO;
+		m.infoType = MSGINFOTYPE_GAMESTATUS;
+		m.statusType = GAMESTATUS_PLAYING;
+		_connectionManager->sendMessage(m);
+	});
+	this->addObject(startGameButton_);
 
 	// add the program inventory display
 	progInv_ = new ProgramInventoryDisplay(ANCHOR_NORTHEAST, { 0, 0 }, { 0, 0 }, this);
 	this->addObject(progInv_);
 
 	// create but DON'T ADD the chat display
-	chatDisplay_ = new ChatDisplay(ANCHOR_SOUTHWEST, { 0, 0 }, { 800, 500 }, this, 19);
+	chatDisplay_ = new ChatDisplay(this, ANCHOR_SOUTHWEST, { 0, 0 }, { 800, 500 }, 19);
 
-	// pause menu
+	/*
+	PAUSE MENU CONTAINER
+	*/
+
 	pauseMenu_ = new GUIContainer(NULL, ANCHOR_CENTER, { 0, 0 }, { _screenWidth, _screenHeight }, _color_bkg_standard);
 	pauseMenu_->setTransparency(0);
 	this->addObject(pauseMenu_);
@@ -810,12 +179,14 @@ void GameOverlay::buildGUI() {
 	pauseMenuOptions_->addObject(resumeGameButton);
 	GUIButton* exitToMapButton = new GUIButton(pauseMenuOptions_, ANCHOR_NORTHWEST, { 10, 70 }, { 200, 50 },
 		[] () {
+		_gameOverlay->pauseMenuHide();
 		_overlayStack->removeAll();
 		_overlayStack->push(_mapOverlay);
 	}, _game_button_quitToMap);
 	pauseMenuOptions_->addObject(exitToMapButton);
 	GUIButton* exitToMainButton = new GUIButton(pauseMenuOptions_, ANCHOR_NORTHWEST, { 10, 130 }, { 200, 50 },
 		[] () {
+		_gameOverlay->pauseMenuHide();
 		_overlayStack->removeAll();
 		_overlayStack->push(_mapOverlay);
 	}, _game_button_quitToMain);
@@ -830,6 +201,8 @@ void GameOverlay::buildGUI() {
 void GameOverlay::resetBounds() {
 	GUIContainer::resetBounds();
 	chatDisplay_->resetBounds();
+
+	// TODO: refactor. have client set display
 	checkShiftable();
 	if (!canShiftScreen_)
 		centerScreen();
@@ -839,111 +212,51 @@ bool GameOverlay::mouseDown() {
 	if (GUIContainer::mouseDown())
 		return true;
 
-	if (editorMode_) {
-		if (gridEditPanel_->isMouseOver()) // click the tile pallette
-		{
-			return gridEditPanel_->mouseDown();
-		} else if (gridProgramEditPanel_->isMouseOver()) // click the program pallette
-		{
-			return gridProgramEditPanel_->mouseDown();
-		} else if (gridSelectBrushPanel_->isMouseOver()) {
-			return gridSelectBrushPanel_->mouseDown();
-		} else if (gridItemEditPanel_->isMouseOver()) {
-			return gridItemEditPanel_->mouseDown();
-		} else if (gridBkgPanel_->isMouseOver()) {
-			return gridBkgPanel_->mouseDown();
-		} else // click the grid
-		{
-			// find the clicked tile
-			Coord click;
-			click.x = (bkgPos_.x + _mousePos.x) / _tileWidth;
-			click.y = (bkgPos_.y + _mousePos.y) / _tileWidth;
+	Coord click = { (bkgPos_.x + _mousePos.x) / _tileWidth, (bkgPos_.y + _mousePos.y) / _tileWidth };
 
-			if (brushMode_ == BRUSH_PROGRAMS) {
-				// TODO
-			} else if (brushMode_ == BRUSH_TILES) {
-				//client->getGame()->setTileAt(click, brushTileType_);
-			} else if (brushMode_ == BRUSH_DELETEPROGRAMS) {
-				//client->getGame()->setProgramAt(click, NULL);
-			} else if (brushMode_ == BRUSH_ITEMS) {
-				//client->getGame()->setItemAt(click, brushItemType_);
-			} else {
-				return false;
-			}
-			return true;
-		}
-	} else { // if not in editor mode
-		Coord click = { (bkgPos_.x + _mousePos.x) / _tileWidth, (bkgPos_.y + _mousePos.y) / _tileWidth };
-
-		if (_client->getGame()->getStatus() == GAMESTATUS_PREGAME) {
+	if (_client->getGame()->getStatus() == GAMESTATUS_PREGAME) {
+		Message msg;
+		msg.type = MSGTYPE_SELECT;
+		msg.pos = click;
+		msg.selectType = MSGSELECTTYPE_TILE;
+		_connectionManager->sendMessage(msg);
+	} else if (_client->getGame()->getStatus() == GAMESTATUS_PLAYING) {
+		if ((_client->getPlayer()->getSelectedProgram() == NULL || !_client->getPlayer()->canSelectedProgramMoveTo(click)) &&
+			(_client->getPlayer()->getSelectedAction() == NULL || !(_client->getPlayer()->getSelectedActionDist(click) > 0))) {
 			Message msg;
 			msg.type = MSGTYPE_SELECT;
 			msg.pos = click;
 			msg.selectType = MSGSELECTTYPE_TILE;
 			_connectionManager->sendMessage(msg);
-		} else if (_client->getGame()->getStatus() == GAMESTATUS_PLAYING) {
-			if ((_client->getPlayer()->getSelectedProgram() == NULL || !_client->getPlayer()->canSelectedProgramMoveTo(click)) &&
-				(_client->getPlayer()->getSelectedAction() == NULL || !(_client->getPlayer()->getSelectedActionDist(click) > 0))) {
+		} else { // if (game->getPlayer()->canSelectedProgramMoveTo(x, y))
+			if (_client->getPlayer()->getSelectedAction() == NULL) {
 				Message msg;
-				msg.type = MSGTYPE_SELECT;
+				msg.type = MSGTYPE_MOVE;
 				msg.pos = click;
-				msg.selectType = MSGSELECTTYPE_TILE;
+				msg.playerID = _client->getPlayer()->getPlayerID();
+				msg.programID = _client->getPlayer()->getSelectedProgram()->getProgramID();
 				_connectionManager->sendMessage(msg);
-			} else //if (game->getPlayer()->canSelectedProgramMoveTo(x, y))
-			{
-				if (_client->getPlayer()->getSelectedAction() == NULL) {
-					Message msg;
-					msg.type = MSGTYPE_MOVE;
-					msg.pos = click;
-					msg.playerID = _client->getPlayer()->getPlayerID();
-					msg.programID = _client->getPlayer()->getSelectedProgram()->getProgramID();
-					_connectionManager->sendMessage(msg);
-				} else if (_client->getPlayer()->getSelectedActionDist(click) > 0) {
-					if (_debug >= DEBUG_NORMAL)
-						printf("player using move\n");
+			} else if (_client->getPlayer()->getSelectedActionDist(click) > 0) {
+				if (_debug >= DEBUG_NORMAL)
+					printf("player using move\n");
 
-					Message msg;
-					msg.type = MSGTYPE_ACTION;
-					msg.pos = click;
-					msg.playerID = _client->getPlayer()->getPlayerID();
-					msg.programID = _client->getPlayer()->getSelectedProgram()->getProgramID();
-					_connectionManager->sendMessage(msg);
-				}
+				Message msg;
+				msg.type = MSGTYPE_ACTION;
+				msg.pos = click;
+				msg.playerID = _client->getPlayer()->getPlayerID();
+				msg.programID = _client->getPlayer()->getSelectedProgram()->getProgramID();
+				_connectionManager->sendMessage(msg);
 			}
 		}
 
 		return false;
 	}
+	
+	return true;
 }
 
 bool GameOverlay::mouseUp() {
-	GUIContainer::mouseUp();
-
-	bool r = false;
-
-	if (editorMode_) {
-		if (gridEditPanel_->isMouseOver()) // click the tile pallette
-		{
-			r = gridEditPanel_->mouseUp();
-		} else if (gridProgramEditPanel_->isMouseOver()) // click the program pallette
-		{
-			r = gridProgramEditPanel_->mouseUp();
-		} else if (gridSelectBrushPanel_->isMouseOver()) {
-			r = gridSelectBrushPanel_->mouseUp();
-		} else if (gridItemEditPanel_->isMouseOver()) {
-			r = gridItemEditPanel_->mouseUp();
-		} else if (gridBkgPanel_->isMouseOver()) {
-			r = gridBkgPanel_->mouseUp();
-		}
-
-		gridEditPanel_->setPressed(false);
-		gridProgramEditPanel_->setPressed(false);
-		gridSelectBrushPanel_->setPressed(false);
-		gridItemEditPanel_->setPressed(false);
-		gridBkgPanel_->setPressed(false);
-	}
-
-	return r;
+	return GUIContainer::mouseUp();
 }
 
 void GameOverlay::drawBkg() {
@@ -952,6 +265,11 @@ void GameOverlay::drawBkg() {
 }
 
 void GameOverlay::drawGrid() {
+	if (_client->getGame() == NULL) {
+		printf("CLIENT ERR: doing GameOverlay::drawGrid() without a game in session\n");
+		return;
+	}
+
 	SDL_Rect tileRect;
 
 	// set temp variables
@@ -976,7 +294,7 @@ void GameOverlay::drawGrid() {
 			Coord curr = { x, y };
 
 			// if there's no tile to be drawn here
-			if (_client->getGame()->getTileAt(curr) == TILE_NONE && !editorMode_)
+			if (_client->getGame()->getTileAt(curr) == TILE_NONE)
 				continue;
 
 			// default position of a tile,
@@ -1016,10 +334,6 @@ void GameOverlay::drawGrid() {
 						SDL_SetTextureColorMod(_program_core, 0, prog->getColor(1), prog->getColor(2));
 				} else
 					SDL_SetTextureColorMod(_program_core, prog->getColor(0), prog->getColor(1), prog->getColor(2));
-
-				// if for some reason this client's player hasn't been initialized yet
-				//if (client->getGame()->getCurrTurnPlayer() == NULL)
-					//continue;
 
 				// if this is the farthest chunk of this program
 				if (_client->getGame()->getCurrTurnPlayer() != NULL &&
@@ -1097,6 +411,7 @@ void GameOverlay::drawGrid() {
 					tileRect.y = yDefault - 1;
 					tileRect.w = 27;
 					tileRect.h = 27;
+					SDL_SetTextureAlphaMod(_program_icons[prog->getType()], 255);
 					SDL_RenderCopy(_renderer, _program_icons[prog->getType()], NULL, &tileRect);
 
 					// draw the highlight rectangle if this program is selected
@@ -1122,10 +437,9 @@ void GameOverlay::drawGrid() {
 						SDL_RenderCopy(_renderer, _game_icon_checkmark, NULL, &tileRect);
 					}
 				}
-			} else // if there is no program on this tile
-			{
+			} else { // if there is no program on this tile
 				SDL_Texture* tileImg = _tile_images[_client->getGame()->getTileAt(curr)];
-				if (_client->getGame()->getTileAt(curr) == TILE_NONE && !editorMode_)
+				if (_client->getGame()->getTileAt(curr) == TILE_NONE)
 					continue;
 
 				SDL_QueryTexture(tileImg, NULL, NULL, &tileRect.w, &tileRect.h);
@@ -1231,15 +545,16 @@ void GameOverlay::drawGrid() {
 					break;
 				}
 			}
-
-			// if this tile is the center of an animation
-			Iterator<Animation*> it = animList_->getIterator();
-			while (it.hasNext()) {
-				Animation* currAnim = it.next();
-				if (currAnim->getPos() == curr)
-					currAnim->draw({ xDefault + _tileWidth / 2, yDefault + _tileWidth / 2 });
-			}
 		}
+	}
+
+	// draw all animation effects
+	Iterator<Animation*> it = animList_->getIterator();
+	while (it.hasNext()) {
+		Animation* currAnim = it.next();
+		int xPos = 4 + _tileWidth*currAnim->getPos().x - bkgPos_.x;
+		int yPos = 4 + _tileWidth*currAnim->getPos().y - bkgPos_.y;
+		currAnim->draw({ xPos + _tileWidth / 2, yPos + _tileWidth / 2 });
 	}
 
 	// draw board bounding rectangle
@@ -1267,14 +582,6 @@ void GameOverlay::draw() {
 	drawGrid();
 	GUIContainer::drawContents();
 	chatDisplay_->draw();
-
-	if (editorMode_) {
-		gridEditPanel_->draw();
-		gridProgramEditPanel_->draw();
-		gridSelectBrushPanel_->draw();
-		gridItemEditPanel_->draw();
-		gridBkgPanel_->draw();
-	}
 }
 
 void GameOverlay::shiftBkg(Coord disp) {
@@ -1295,35 +602,12 @@ void GameOverlay::shiftBkg(Coord disp) {
 		bkgPos_.y += disp.y;
 }
 
-void GameOverlay::setBrushTileType(TILE t) {
-	brushTileType_ = t;
-}
-
-void GameOverlay::setBrushProgramType(PROGRAM p) {
-	brushProgramType_ = p;
-	//gameMirror->getHumanPlayer(clientID)->setSelectedProgram(NULL);
-}
-
-void GameOverlay::setBrushMode(BRUSH b) {
-	brushMode_ = b;
-}
-
-void GameOverlay::setBrushProgramTeam(int t) {
-	//gameMirror->getHumanPlayer(clientID)->setSelectedProgram(NULL);
-	brushProgramTeam_ = t;
-}
-
 void GameOverlay::toggleViewTeams() {
 	programViewTeams_ = !programViewTeams_;
 }
 
-void GameOverlay::setBrushItem(ITEM i) {
-	brushItemType_ = i;
-}
-
 void GameOverlay::setBackgroundImg(BACKGROUND b) {
 	bkgImg_ = _game_backgrounds[b];
-	//client->getGame()->setBackground(b);
 }
 
 void GameOverlay::checkShiftable() {
@@ -1341,6 +625,12 @@ void GameOverlay::tick(int ms) {
 	GUIContainer::tick(ms);
 	chatDisplay_->tick(ms);
 
+	// check for updated selected program
+	// TODO: refactor this to have its own method
+	if (_client->getPlayer()->getSelectedProgram() != progDisp_->getCurrProg()) {
+		progDisp_->setCurrProg(_client->getPlayer()->getSelectedProgram());
+	}
+
 	// don't do anything if pause is visible
 	if (pauseMenu_->isVisible())
 		return;
@@ -1353,7 +643,8 @@ void GameOverlay::tick(int ms) {
 
 	// adjust time-dependent textures
 	textureTickCount_ += ms;
-	if (textureTickCount_ >= 1000) textureTickCount_ = 0;
+	if (textureTickCount_ >= 1000)
+		textureTickCount_ = 0;
 
 	// fade out the playerTurn display if it is visible
 	if (currTurn_->isVisible() && currTurn_->getTransparency() == 255)
@@ -1422,10 +713,6 @@ void GameOverlay::tick(int ms) {
 		shiftBkg({ 0, shiftAmt });
 }
 
-void GameOverlay::saveGame() {
-	//gameMirror->saveLevel();
-}
-
 void GameOverlay::resetScreen() {
 	canShiftScreen_ = false;
 	centerScreen();
@@ -1441,63 +728,6 @@ void GameOverlay::centerScreen() {
 	}
 }
 
-void GameOverlay::tryPlacingProgram(PROGRAM p) {
-	// get position
-	Coord selectedTile = _client->getPlayer()->getSelectedTile();
-
-	// check for correct game state
-	if (_client->getGame()->getStatus() != GAMESTATUS_PREGAME)
-		return;
-
-	// check for valid value of p
-	if (p == PROGRAM_NONE || p == PROGRAM_CUSTOM || p == PROGRAM_NUM_PROGTYPES)
-		return;
-
-	// check for a valid spawn tile in this location
-	if (_client->getGame()->getTileAt(selectedTile) != TILE_SPAWN && _client->getGame()->getTileAt(selectedTile) != TILE_SPAWN2)
-		return;
-
-	// send place message
-	Message m;
-	m.type = MSGTYPE_PLACEPROG;
-	m.progType = p;
-	m.pos = selectedTile;
-	m.playerID = _client->getPlayer()->getPlayerID();
-	_connectionManager->sendMessage(m);
-
-	// remove any program that already exists here
-	/*Program* prog = _client->getGame()->getProgramAt(selectedTile);
-	if (prog != NULL)
-	{
-		_usedPrograms[prog->getType()]--;
-		_progListCurrent[prog->getType()]++;
-		Message m;
-		m.type = MSGTYPE_INFO;
-		m.infoType = MSGINFOTYPE_PROGRAM;
-		m.progType = PROGRAM_NONE;
-		m.pos = selectedTile;
-		m.playerID = _client->getPlayer()->getPlayerID();
-		_client->sendMessage(m);
-	}
-
-	// place the new program
-	Message m;
-	m.type = MSGTYPE_INFO;
-	m.infoType = MSGINFOTYPE_PROGRAM;
-	m.progType = p;
-	m.pos = selectedTile;
-	m.playerID = _client->getPlayer()->getPlayerID();
-	_client->sendMessage(m);
-
-	_usedPrograms[p]++;
-	_progListCurrent[p]--;
-	progInv_->updateContents();*/
-}
-
-void GameOverlay::toggleEditorMode() {
-	editorMode_ = !editorMode_;
-}
-
 void GameOverlay::pauseMenuShow() {
 	pauseMenu_->setTransparency(255);
 }
@@ -1507,31 +737,21 @@ void GameOverlay::pauseMenuHide() {
 }
 
 void GameOverlay::changeGameStatus(GAMESTATUS g) {
-	// refactor this whole system
-
+	// TODO: refactor this
 	switch (g) {
 	case GAMESTATUS_PREGAME:
-		for (int i = 0; i < PROGRAM_NUM_PROGTYPES; i++)
-			_client->getMyClientMirror()->inPlayProgs_[i] = 0;
-
-		preGameOptions_->setTransparency(255);
-		progDisp_->setTransparency(0);
+		this->refreshCreditCounter();
+		startGameButton_->setTransparency(255);
 		turnButton_->setTransparency(0);
 		progInv_->setTransparency(255);
 		progInv_->updateContents();
 		break;
 	case GAMESTATUS_PLAYING:
-		preGameOptions_->setTransparency(0);
-		progDisp_->setTransparency(255);
+		startGameButton_->setTransparency(0);
 		turnButton_->setTransparency(255);
 		progInv_->setTransparency(0);
 		break;
 	case GAMESTATUS_END:
-		// TODO: refactor this
-		for (int i = 0; i < PROGRAM_NUM_PROGTYPES; i++)
-			_client->getMyClientMirror()->ownedProgs_[i] += _client->getMyClientMirror()->inPlayProgs_[i];
-		_mapOverlay->getSelectedNode()->winNode();
-		_mapOverlay->clearSelectedNode();
 		break;
 	}
 }
@@ -1565,12 +785,44 @@ void GameOverlay::updateProgramInventoryDisplay() {
 	progInv_->updateContents();
 }
 
-void GameOverlay::showWin(int teamID) {
-	SDL_Texture* winTex = loadString(("Team " + to_string(teamID) + " wins!"), FONT_NORMAL, 100, { 255, 255, 255, 255 });
-	SDL_DestroyTexture(winningTeam_->swapTexture(winTex));
-	int wid = 0;
-	int hei = 0;
-	SDL_QueryTexture(winTex, NULL, NULL, &wid, &hei);
-	winningTeam_->setDimensions({ wid, hei });
-	winningTeam_->addEffect(new GUIEffectFade(0, 500, winningTeam_->getTransparency(), 255));
+void GameOverlay::showWinContainer(int teamID) {
+	winMenu_->removeObject(winningTeam_);
+	delete winningTeam_;
+	winningTeam_ = new GUITexture(winMenu_, ANCHOR_NORTH, { 0, 100 }, "TEAM " + to_string(teamID) + " WINS!", 100);
+	winMenu_->addObject(winningTeam_);
+
+	winMenu_->addEffect(new GUIEffectFade(0, 1000, 0, 255));
+	turnButton_->addEffect(new GUIEffectFade(0, 1000, 255, 0));
+	playerDisp_->addEffect(new GUIEffectFade(0, 1000, 255, 0));
+	progDisp_->addEffect(new GUIEffectFade(0, 1000, 255, 0));
+	creditCounterContainer_->addEffect(new GUIEffectFade(0, 1000, 255, 0));
+}
+
+void GameOverlay::hideWinContainer() {
+	winMenu_->setTransparency(0);
+}
+
+void GameOverlay::showCreditPickup(int numCredits) {
+	if (creditPickupTexture_ != NULL) {
+		creditPickupContainer_->removeObject(creditPickupTexture_);
+		delete creditPickupTexture_;
+	}
+
+	creditPickupTexture_ = new GUITexture(creditPickupContainer_, ANCHOR_CENTER, { 0, 0 }, to_string(numCredits) + " CREDITS ACQUIRED", 30);
+	creditPickupContainer_->addObject(creditPickupTexture_);
+
+	creditPickupContainer_->addEffect(new GUIEffectFade(0, 250, 0, 255));
+	creditPickupContainer_->addEffect(new GUIEffectFade(2000, 250, 255, 0));
+}
+
+void GameOverlay::refreshCreditCounter() {
+	if (creditCounterText_ != NULL) {
+		creditCounterContainer_->removeObject(creditCounterText_);
+		delete creditCounterText_;
+	}
+	creditCounterText_ = new GUITexture(creditCounterContainer_, ANCHOR_EAST, { -10, 0 }, to_string(_client->getMyClientMirror()->credits_), 30);
+	creditCounterContainer_->addObject(creditCounterText_);
+
+	creditCounterContainer_->setDimensions({ 60 + creditCounterText_->getDimensions().x, 50 });
+	creditCounterContainer_->resetBounds();
 }

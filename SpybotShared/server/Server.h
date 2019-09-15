@@ -34,11 +34,18 @@ public:
 	User* getUserByName(std::string name);
 	Pipe* getOwner();
 	bool isLocal();
+
+	int getCurrentLevel();
+	std::string getSavePath();
+
+	void loadUsers();
+	void saveUsers();
 protected:
 
 private:
 	// level and userdata path
 	std::string savePath_;
+	int currentLevel_;
 
 	// locality modifier
 	bool isLocal_;
@@ -54,8 +61,6 @@ private:
 
 	// users
 	LinkedList<User*>* users_;
-	void loadUsers();
-	void saveUsers();
 
 	// message processing core
 	void processMessage(Message* msg);

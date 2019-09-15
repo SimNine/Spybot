@@ -201,6 +201,9 @@ void _printMessage(Message m) {
 		case MSGINFOTYPE_PROGINVENTORY:
 			printf("MSGINFOTYPE_PROGINVENTORY\n");
 			break;
+		case MSGINFOTYPE_CREDITS:
+			printf("MSGINFOTYPE_CREDITS\n");
+			break;
 		}
 		break;
 	case MSGTYPE_INQUIRY:
@@ -270,6 +273,12 @@ void _printMessage(Message m) {
 		break;
 	case MSGTYPE_PROGINVENTORY:
 		printf("MSGTYPE_PROGINVENTORY - %i,%i\n", m.progType, m.programID);
+		break;
+	case MSGTYPE_CREDITPICKUP:
+		printf("MSGTYPE_CREDITPICKUP - %i\n", m.actionID);
+		break;
+	case MSGTYPE_LEVELUNLOCK:
+		printf("MSGTYPE_LEVELUNLOCK - %i\n", m.levelNum);
 		break;
 	}
 }

@@ -22,6 +22,7 @@ Server::Server(bool isLocal, std::string savePath) {
 	isLocal_ = isLocal;
 
 	savePath_ = savePath;
+	currentLevel_ = 0;
 
 	clients_ = new LinkedList<Pipe*>();
 	msgQueue_ = new LinkedList<Message*>();
@@ -222,12 +223,38 @@ void Server::login(Pipe* client, User* user) {
 		client->sendData(m);
 	}
 
+	// send the issuing client its credits
+	m.type = MSGTYPE_INFO;
+	m.infoType = MSGINFOTYPE_CREDITS;
+	m.actionID = getUserByName(client->getUser())->numCredits_;
+	client->sendData(m);
+
 	// send the issuing client its program inventory contents
 	for (int i = 0; i < PROGRAM_NUM_PROGTYPES; i++) {
 		m.type = MSGTYPE_PROGINVENTORY;
 		m.progType = (PROGRAM)i;
-		m.programID = getUserByName(client->getUser())->progs_[i];
+		m.programID = getUserByName(client->getUser())->progsOwned_[i];
 		client->sendData(m);
+	}
+
+	// send the issuing client its progress
+	if (savePath_ == "levels/classic") {
+		for (int i = 0; i < NUM_LEVELS_CLASSIC; i++) {
+			if (user->campaignClassic_[i]) {
+				m.type = MSGTYPE_LEVELUNLOCK;
+				m.levelNum = i;
+				client->sendData(m);
+				printf("SERVER: BINGBINGBINGBINGBING\n");
+			}
+		}
+	} else if (savePath_ == "levels/nightfall") {
+		for (int i = 0; i < NUM_LEVELS_NIGHTFALL; i++) {
+			if (user->campaignNightfall_[i]) {
+				m.type = MSGTYPE_LEVELUNLOCK;
+				m.levelNum = i;
+				client->sendData(m);
+			}
+		}
 	}
 
 	// send the issuing client the current gamemode
@@ -291,7 +318,7 @@ void Server::processMessage(Message* msg) {
 			ownerClient_ = getClientByID(msg->clientID);
 
 		// set this client's name
-		//getClientByID(msg->clientID)->setName(msg->text);
+		// getClientByID(msg->clientID)->setName(msg->text);
 
 		// send a connect message for the new client to all *other* clients
 		sendMessageToAllClientsExcept(*msg, msg->clientID);
@@ -320,6 +347,7 @@ void Server::processMessage(Message* msg) {
 			if (game_ != NULL)
 				delete game_;
 
+			currentLevel_ = msg->levelNum;
 			game_ = new Game(true, savePath_ + "/" + to_string(msg->levelNum) + ".urf");
 			sendMessageToAllClients(*msg);
 
@@ -443,11 +471,19 @@ void Server::processMessage(Message* msg) {
 		break;
 	case MSGTYPE_PLACEPROG:
 	{
+		// check for existence of game
+		if (game_ == NULL) {
+			Message err;
+			err.type = MSGTYPE_ERROR;
+			strncpy_s(err.text, DEFAULT_MSG_TEXTSIZE, "ERR: you may only place a program while a game is in session", DEFAULT_MSG_TEXTSIZE);
+		}
+
 		// check for correct game status
 		if (game_->getStatus() != GAMESTATUS_PREGAME) {
 			Message err;
 			err.type = MSGTYPE_ERROR;
-			strncpy_s(err.text, DEFAULT_MSG_TEXTSIZE, "ERR: what did you do? the gamestatus does not indicate placing programs", DEFAULT_MSG_TEXTSIZE);
+			strncpy_s(err.text, DEFAULT_MSG_TEXTSIZE, "ERR: you may only place a program during the pregame", DEFAULT_MSG_TEXTSIZE);
+			issuingClient->sendData(err);
 			return;
 		}
 
@@ -455,7 +491,8 @@ void Server::processMessage(Message* msg) {
 		if (game_->getTileAt(msg->pos) != TILE_SPAWN && game_->getTileAt(msg->pos) != TILE_SPAWN2) {
 			Message err;
 			err.type = MSGTYPE_ERROR;
-			strncpy_s(err.text, DEFAULT_MSG_TEXTSIZE, "ERR: you can only place a program on a spawn tile", DEFAULT_MSG_TEXTSIZE);
+			strncpy_s(err.text, DEFAULT_MSG_TEXTSIZE, "ERR: you may only place a program on a spawn tile", DEFAULT_MSG_TEXTSIZE);
+			issuingClient->sendData(err);
 			return;
 		}
 
@@ -473,7 +510,7 @@ void Server::processMessage(Message* msg) {
 			if (u == NULL)
 				printf("SERVER ERR: replaced program had no related user?\n");
 
-			u->progs_[currProg->getType()]++;
+			u->progsOwned_[currProg->getType()]++;
 			currProg->getOwner()->getProgList()->remove(currProg);
 			game_->setProgramAt(msg->pos, NULL);
 			delete currProg;
@@ -485,7 +522,9 @@ void Server::processMessage(Message* msg) {
 		response.team = 0;
 		if (msg->progType != PROGRAM_NONE) {
 			Program* p = new Program(msg->progType, 0, msg->pos);
-			getUserByName(issuingClient->getUser())->progs_[msg->progType]--;
+			User* u = getUserByName(issuingClient->getUser());
+			u->progsOwned_[msg->progType]--;
+			u->progsInPlay_[msg->progType]++;
 			p->setProgramID(randInt());
 			game_->getPlayerByID(msg->playerID)->addProgram(p);
 			game_->setProgramAt(msg->pos, p);
@@ -501,14 +540,14 @@ void Server::processMessage(Message* msg) {
 	}
 	break;
 	case MSGTYPE_PROGINVENTORY:
-		getUserByName(issuingClient->getUser())->progs_[msg->progType] += msg->programID;
+		getUserByName(issuingClient->getUser())->progsOwned_[msg->progType] += msg->programID;
 		saveUsers();
 
 		Message m;
 		m.type = MSGTYPE_PROGINVENTORY;
 		m.clientID = 0;
 		m.progType = msg->progType;
-		m.programID = getUserByName(issuingClient->getUser())->progs_[msg->progType];
+		m.programID = getUserByName(issuingClient->getUser())->progsOwned_[msg->progType];
 		sendMessageToClient(m, msg->clientID);
 		break;
 	}
@@ -697,8 +736,10 @@ void Server::loadUsers() {
 			userStream.read(passwordRaw, sizeOfChar*DEFAULT_MSG_TEXTSIZE);
 			currUser->password_ = std::string(passwordRaw);
 
-			userStream.read((char*)currUser->progs_, sizeOfInt*PROGRAM_NUM_PROGTYPES);
-
+			userStream.read((char*)&currUser->numCredits_, sizeOfInt);
+			userStream.read((char*)currUser->progsOwned_, sizeOfInt*PROGRAM_NUM_PROGTYPES);
+			userStream.read((char*)currUser->campaignClassic_, sizeOfBool*NUM_LEVELS_CLASSIC);
+			userStream.read((char*)currUser->campaignNightfall_, sizeOfBool*NUM_LEVELS_NIGHTFALL);
 			userStream.read((char*)&currUser->numWins_, sizeOfInt);
 			userStream.read((char*)&currUser->numLosses_, sizeOfInt);
 			userStream.read((char*)&currUser->numDraws_, sizeOfInt);
@@ -744,8 +785,10 @@ void Server::saveUsers() {
 			userStream.write(currUser->username_.c_str(), sizeOfChar*DEFAULT_MSG_TEXTSIZE);
 			userStream.write(currUser->password_.c_str(), sizeOfChar*DEFAULT_MSG_TEXTSIZE);
 
-			userStream.write((char*)currUser->progs_, sizeOfInt*PROGRAM_NUM_PROGTYPES);
-
+			userStream.write((char*)&currUser->numCredits_, sizeOfInt);
+			userStream.write((char*)currUser->progsOwned_, sizeOfInt*PROGRAM_NUM_PROGTYPES);
+			userStream.write((char*)currUser->campaignClassic_, sizeOfBool*NUM_LEVELS_CLASSIC);
+			userStream.write((char*)currUser->campaignNightfall_, sizeOfBool*NUM_LEVELS_NIGHTFALL);
 			userStream.write((char*)&currUser->numWins_, sizeOfInt);
 			userStream.write((char*)&currUser->numLosses_, sizeOfInt);
 			userStream.write((char*)&currUser->numDraws_, sizeOfInt);
@@ -784,4 +827,12 @@ Pipe* Server::getOwner() {
 
 bool Server::isLocal() {
 	return isLocal_;
+}
+
+int Server::getCurrentLevel() {
+	return currentLevel_;
+}
+
+std::string Server::getSavePath() {
+	return savePath_;
 }

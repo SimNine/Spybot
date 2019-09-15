@@ -444,12 +444,8 @@ void handleEvents() {
 		// screen-specific input
 		if (_overlayStack->getFirst() == _gameOverlay) {
 			if (e.type == SDL_KEYDOWN) {
-				if (e.key.keysym.sym == SDLK_s) {
-					_gameOverlay->saveGame();
-				} else if (e.key.keysym.sym == SDLK_ESCAPE) {
+				if (e.key.keysym.sym == SDLK_ESCAPE) {
 					_gameOverlay->pauseMenuShow();
-				} else if (e.key.keysym.sym == SDLK_F3) {
-					_gameOverlay->toggleEditorMode();
 				}
 
 				// handle chat display
@@ -560,6 +556,7 @@ void tick(int ms) {
 void unlockAchievement(ACHIEVEMENT a) {
 	_progressAchievements[a] = true;
 	_notifyOverlay->addAchievement(a);
+	saveProgress();
 }
 
 // main function

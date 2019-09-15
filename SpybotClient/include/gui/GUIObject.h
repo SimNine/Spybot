@@ -19,6 +19,7 @@ public:
 
 	bool isMouseOver();
 	bool isVisible();
+	bool isClickable();
 	void setPressed(bool pressed);
 	int getTransparency();
 

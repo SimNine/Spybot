@@ -270,9 +270,6 @@
     <ClInclude Include="include\overlays\map\Node.h">
       <Filter>Header Files\overlays\map</Filter>
     </ClInclude>
-    <ClInclude Include="include\overlays\map\ProgramInventoryButton.h">
-      <Filter>Header Files\overlays\map</Filter>
-    </ClInclude>
     <ClInclude Include="include\overlays\map\ProgramInventoryDisplay.h">
       <Filter>Header Files\overlays\map</Filter>
     </ClInclude>
@@ -450,9 +447,6 @@
       <Filter>Source Files\overlays\lobby</Filter>
     </ClCompile>
     <ClCompile Include="src\overlays\map\Node.cpp">
-      <Filter>Source Files\overlays\map</Filter>
-    </ClCompile>
-    <ClCompile Include="src\overlays\map\ProgramInventoryButton.cpp">
       <Filter>Source Files\overlays\map</Filter>
     </ClCompile>
     <ClCompile Include="src\overlays\map\ProgramInventoryDisplay.cpp">

@@ -13,6 +13,13 @@ public:
 		func_ = func;
 		obj_ = obj;
 	}
+	
+	// construct with texture
+	GUIButtonParamaterized(GUIContainer* parent, ANCHOR anchor, Coord disp, Coord dims, std::string imgPath, void(*func) (T), T obj)
+		: GUIButton(parent, anchor, disp, dims, [] () {}, imgPath) {
+		func_ = func;
+		obj_ = obj;
+	}
 
 	bool mouseDown() {
 		pressed_ = true;

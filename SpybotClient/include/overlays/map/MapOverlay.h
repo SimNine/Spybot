@@ -12,17 +12,19 @@ class MapOverlay : public GUIContainer {
 public:
 	MapOverlay();
 	virtual ~MapOverlay();
+
 	void shiftBkg(double, double);
 	void draw();
 	void tick(int);
 	bool mouseDown();
-	bool isBusy();
 	void shiftTo(Node*);
 	Node* getSelectedNode();
 	void clearSelectedNode();
 	void updateProgramInvDisplay();
 	void toggleInvDisplay();
+
 	void unlockAllLevels();
+	void winNode(int nodeID);
 
 	void saveMap(std::string);
 	void loadMap(std::string);
@@ -35,12 +37,14 @@ private:
 	SDL_Texture* bkgImg_;
 	double bkgX_, bkgY_;
 	double shiftSpeed_;
+
 	LinkedList<Node*>* nodeList_;
 	bool isAnimOccurring_;
 	Node* selectedNode_;
 	GUIContainer* levelConfirm_;
-	GUIButton* invToggleButton_;
+
 	ProgramInventoryDisplay* invDisplay_;
+
 	GUIContainer* pauseMenu_;
 
 	void drawBkg();

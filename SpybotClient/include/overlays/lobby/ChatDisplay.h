@@ -5,7 +5,7 @@
 
 class ChatDisplay : public GUIContainer {
 public:
-	ChatDisplay(ANCHOR anchor, Coord disp, Coord dims, GUIContainer* parent, int historySize);
+	ChatDisplay(GUIContainer* parent, ANCHOR anchor, Coord disp, Coord dims, int historySize);
 	~ChatDisplay();
 
 	void draw();

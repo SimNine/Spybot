@@ -4,14 +4,14 @@
 #include "Global.h"
 #include "GUIContainer.h"
 
-GUISlider::GUISlider(GUIContainer* p, ANCHOR a, Coord disp, Coord dims, void(*func) (float))
+GUISlider::GUISlider(GUIContainer* p, ANCHOR a, Coord disp, Coord dims, void(*func) (float), float initValue)
 	: GUIObject(p, a, disp, dims) {
 	sliderBounds_.x = bounds_.x;
 	sliderBounds_.y = bounds_.y;
 	sliderBounds_.w = 20;
 	sliderBounds_.h = bounds_.h;
 	this->func = func;
-	sliderVal_ = sliderBounds_.x - bounds_.x;
+	sliderVal_ = (int)((double)bounds_.w * initValue);
 }
 
 GUISlider::~GUISlider() {

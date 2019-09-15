@@ -31,7 +31,7 @@ bool GUIContainer::mouseDown() {
 	Iterator<GUIObject*> it = contents_->getIterator();
 	while (it.hasNext()) {
 		GUIObject* curr = it.next();
-		if (curr->isVisible() && curr->isMouseOver()) {
+		if (curr->isClickable() && curr->isMouseOver()) {
 			return curr->mouseDown();
 		}
 	}
@@ -51,7 +51,7 @@ bool GUIContainer::mouseUp() {
 	Iterator<GUIObject*> it = contents_->getIterator();
 	while (it.hasNext() && !ret) {
 		GUIObject* curr = it.next();
-		if (curr->isVisible() && curr->isMouseOver()) {
+		if (curr->isClickable() && curr->isMouseOver()) {
 			ret = true;
 			curr->mouseUp();
 		}

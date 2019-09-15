@@ -13,6 +13,7 @@
 #include "Player.h"
 #include "Team.h"
 #include "Game.h"
+#include "Program.h"
 
 void processCommandResponse(std::string message, int clientID) {
 	if (clientID == 0) {
@@ -106,6 +107,10 @@ void processCommand(std::string cmd, int clientID) {
 		processCommandResponse("deluser (username)", clientID);
 		processCommandResponse("listusers", clientID);
 		processCommandResponse("getowner", clientID);
+		processCommandResponse("userinfo (username)", clientID);
+		processCommandResponse("printgrid", clientID);
+		processCommandResponse("settile (x) (y) (tiletype)", clientID);
+		processCommandResponse("savelevel (filename)", clientID);
 	} else if (strcmp(tokens[0], "say") == 0) {
 		std::string ret = "";
 		for (int i = 1; i < numTokens; i++)
@@ -115,7 +120,11 @@ void processCommand(std::string cmd, int clientID) {
 		m.type = MSGTYPE_CHAT;
 		m.clientID = 0;
 		strncpy_s(m.text, DEFAULT_CHATSIZE, ret.c_str(), DEFAULT_CHATSIZE);
-		_server->recieveMessage(m);
+
+		Iterator<Pipe*> clientIt = _server->getClientList()->getIterator();
+		while (clientIt.hasNext()) {
+			clientIt.next()->sendData(m);
+		}
 	} else if (strcmp(tokens[0], "listplayers") == 0) {
 		if (_server->getGame() == NULL) {
 			processCommandResponse("cannot list players - no game currently in session", clientID);
@@ -182,7 +191,7 @@ void processCommand(std::string cmd, int clientID) {
 			printf(">> successfully deleted user %s\n", tokens[1]);
 		}
 	}*/ else if (strcmp(tokens[0], "listusers") == 0) {
-		// TODO: refactor this to use messages
+	// TODO: refactor this to use messages
 		processCommandResponse("Users:", clientID);
 		Iterator<User*> it = _server->getUsers()->getIterator();
 		while (it.hasNext()) {
@@ -190,6 +199,91 @@ void processCommand(std::string cmd, int clientID) {
 			std::string str = u->username_ + " : " + u->password_;
 			processCommandResponse(str, clientID);
 		}
+	} else if (strcmp(tokens[0], "userinfo") == 0) {
+		if (numTokens != 2) {
+			processCommandResponse("wrong number of arguments: userinfo (username)", clientID);
+			destroyTokens(tokens);
+			return;
+		}
+
+		User* u = _server->getUserByName(std::string(tokens[1]));
+		if (u == NULL) {
+			std::string str = "User \"" + std::string(tokens[1]) + "\" not found";
+			processCommandResponse(str, clientID);
+		} else {
+			std::string str = "User \"" + std::string(tokens[1]) + " stats:";
+			processCommandResponse(str, clientID);
+			str = (u->loggedIn_) ? "Logged in: TRUE" : "Logged in: FALSE";
+			processCommandResponse(str, clientID);
+			str = "Credits: " + to_string(u->numCredits_);
+			processCommandResponse(str, clientID);
+		}
+	} else if (strcmp(tokens[0], "printgrid") == 0) {
+		Game* g = _server->getGame();
+		if (g == NULL) {
+			processCommandResponse("there is currently no game", clientID);
+			destroyTokens(tokens);
+			return;
+		}
+
+		Coord topLeft = { g->getLeftBound(), g->getTopBound() };
+		Coord bottomRight = { g->getRightBound(), g->getBottomBound() };
+		for (int y = topLeft.y; y < bottomRight.y; y++) {
+			std::string row = "";
+			for (int x = topLeft.x; x < bottomRight.x; x++) {
+				if (g->getTileAt({ x, y }) == TILE_NONE)
+					row += " ";
+				else {
+					if (g->getProgramAt({ x, y }) == NULL)
+						row += "-";
+					else
+						row += to_string(g->getProgramAt({ x, y })->getProgramID());
+				}
+			}
+			processCommandResponse(row, clientID);
+		}
+	} else if (strcmp(tokens[0], "settile") == 0) {
+		if (numTokens != 4) {
+			processCommandResponse("wrong number of arguments: settile (x) (y) (tiletype)", clientID);
+			destroyTokens(tokens);
+			return;
+		}
+
+		Game* g = _server->getGame();
+		if (g == NULL) {
+			processCommandResponse("there is currently no game", clientID);
+			destroyTokens(tokens);
+			return;
+		}
+
+		// TODO: check for invalid values
+
+		int xPos = atoi(tokens[1]);
+		int yPos = atoi(tokens[2]);
+		TILE tileType = (TILE)atoi(tokens[3]);
+		g->setTileAt({ xPos, yPos }, tileType);
+
+		Message m;
+		m.type = MSGTYPE_INFO;
+		m.infoType = MSGINFOTYPE_TILE;
+		m.pos = Coord{ xPos, yPos };
+		m.tileType = tileType;
+		_server->sendMessageToAllClients(m);
+	} else if (strcmp(tokens[0], "savelevel") == 0) {
+		if (numTokens != 2) {
+			processCommandResponse("wrong number of arguments: savelevel (levelname)", clientID);
+			destroyTokens(tokens);
+			return;
+		}
+
+		Game* g = _server->getGame();
+		if (g == NULL) {
+			processCommandResponse("there is currently no game", clientID);
+			destroyTokens(tokens);
+			return;
+		}
+
+		g->saveLevel(std::string(tokens[1]));
 	} else {
 		std::string str = "\"" + cmd + "\" is not a valid command";
 		processCommandResponse(str, clientID);

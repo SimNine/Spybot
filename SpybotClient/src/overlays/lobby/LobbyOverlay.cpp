@@ -58,7 +58,7 @@ void LobbyOverlay::buildGUI() {
 	gameConfigContainer_->setMovable(false);
 	this->addObject(gameConfigContainer_);
 
-	chatDisplay_ = new ChatDisplay(ANCHOR_SOUTHWEST, { 0, 0 }, { 800, 500 }, this, 19);
+	chatDisplay_ = new ChatDisplay(this, ANCHOR_SOUTHWEST, { 0, 0 }, { 800, 500 }, 19);
 	//this->addObject(chatDisplay_);
 }
 

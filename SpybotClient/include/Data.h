@@ -61,6 +61,7 @@ extern SDL_Texture* _program_core_vertical;
 extern SDL_Texture* _program_core_horizontal;
 
 extern SDL_Texture* _program_icons[PROGRAM_NUM_PROGTYPES];
+extern std::string _program_icons_paths[PROGRAM_NUM_PROGTYPES];
 extern int _program_colorDefault[PROGRAM_NUM_PROGTYPES][3];
 extern int _program_maxHealthDefault[PROGRAM_NUM_PROGTYPES];
 extern int _program_speedDefault[PROGRAM_NUM_PROGTYPES];

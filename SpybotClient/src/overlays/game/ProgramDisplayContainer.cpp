@@ -16,137 +16,150 @@
 #include "ClientMirror.h"
 #include "ProgramDisplayActionButton.h"
 #include "ConnectionManager.h"
+#include "GUIEffectFade.h"
 
-ProgramDisplayContainer::ProgramDisplayContainer(ANCHOR a, Coord disp, Coord dims, GUIContainer* par)
-	: GUIContainer(par, a, disp, dims, _color_bkg_standard) {
+ProgramDisplayContainer::ProgramDisplayContainer(GUIContainer* parent, ANCHOR a, Coord disp, Coord dims)
+	: GUIContainer(parent, a, disp, dims, _color_clear) {
 	currProg_ = NULL;
 
-	iconBacking_ = new GUITexture(this, ANCHOR_NORTHEAST, { -5, 5 }, { 150, 150 }, _program_core_100px);
-	this->addObject(iconBacking_);
+	programInfoContainer_ = new GUIContainer(this, ANCHOR_NORTHEAST, { 0, 0 }, { this->bounds_.w, 200 }, _color_bkg_standard);
+	this->addObject(programInfoContainer_);
+
+	iconBacking_ = new GUITexture(programInfoContainer_, ANCHOR_NORTHEAST, { -5, 5 }, { 150, 150 }, _program_core_100px);
+	programInfoContainer_->addObject(iconBacking_);
 
 	icon_ = NULL;
-
 	nameText_ = NULL;
+	ownerText_ = NULL;
+	healthText_ = NULL;
+	movesText_ = NULL;
+	actionsText_ = NULL;
 
-	ownerText_ = new GUITexture(this, ANCHOR_NORTHWEST, { 5, 5 }, "Owner:", 30);
-	this->addObject(ownerText_);
-
-	healthText_ = new GUITexture(this, ANCHOR_NORTHWEST, { 5, 40 }, "Health:", 30);
-	this->addObject(healthText_);
-
-	movesText_ = new GUITexture(this, ANCHOR_NORTHWEST, { 5, 75 }, "Moves:", 30);
-	this->addObject(movesText_);
-
-	actionsText_ = new GUITexture(this, ANCHOR_NORTHWEST, { 5, 110 }, "Actions:", 30);
-	this->addObject(actionsText_);
-
-	descText_ = NULL;
-
-	actionButtons_ = new LinkedList<ProgramDisplayActionButton*>();
+	actionButtonContainer_ = new GUIContainer(this, ANCHOR_NORTHEAST, { 0, 210 }, { this->bounds_.w, 400 }, _color_bkg_standard);
+	this->addObject(actionButtonContainer_);
 }
 
 ProgramDisplayContainer::~ProgramDisplayContainer() {
 	//dtor
 }
 
-void ProgramDisplayContainer::draw() {
-	// check for updated selected program
-	if (_client->getPlayer()->getSelectedProgram() != currProg_)
-		setCurrProg(_client->getPlayer()->getSelectedProgram());
+void ProgramDisplayContainer::tick(int ms) {
+	GUIContainer::tick(ms);
 
+	// check for a current program
+	if (currProg_ == NULL)
+		return;
+
+	// refresh the owner text
+	if (ownerText_ != NULL) {
+		programInfoContainer_->removeObject(ownerText_);
+		delete ownerText_;
+	}
+
+	ClientMirror* cMirr = _connectionManager->getClientMirrorByPlayerID(currProg_->getOwner()->getPlayerID());
+	std::string ownerText = (cMirr == NULL) ? "AI" : cMirr->name_;
+	ownerText_ = new GUITexture(programInfoContainer_, ANCHOR_NORTHWEST, { 5, 5 }, "Owner: " + ownerText, 30);
+	programInfoContainer_->addObject(ownerText_);
+
+	// refresh the health text
+	if (healthText_ != NULL) {
+		programInfoContainer_->removeObject(healthText_);
+		delete healthText_;
+	}
+	std::string healthText = to_string(currProg_->getHealth()) + "/" + to_string(currProg_->getMaxHealth());
+	healthText_ = new GUITexture(programInfoContainer_, ANCHOR_NORTHWEST, { 5, 40 }, "Health: " + healthText, 30);
+	programInfoContainer_->addObject(healthText_);
+
+	// refresh the moves text
+	if (movesText_ != NULL) {
+		programInfoContainer_->removeObject(movesText_);
+		delete movesText_;
+	}
+	std::string movesText = to_string(currProg_->getMoves()) + "/" + to_string(currProg_->getMaxMoves());
+	movesText_ = new GUITexture(programInfoContainer_, ANCHOR_NORTHWEST, { 5, 75 }, "Moves: " + movesText, 30);
+	programInfoContainer_->addObject(movesText_);
+
+	// refresh the actions text
+	if (actionsText_ != NULL) {
+		programInfoContainer_->removeObject(actionsText_);
+		delete actionsText_;
+	}
+	std::string actionsText = to_string(currProg_->getActionsLeft()) + "/" + to_string(1);
+	actionsText_ = new GUITexture(programInfoContainer_, ANCHOR_NORTHWEST, { 5, 110 }, "Actions: " + actionsText, 30);
+	programInfoContainer_->addObject(actionsText_);
+}
+
+void ProgramDisplayContainer::draw() {
 	// draw bounds
 	if (_debug >= DEBUG_NORMAL)
 		drawBounds();
 
-	// get the current program
-	if (currProg_ == NULL)
-		return;
-
 	// draw all the permanent stuff
 	GUIContainer::drawBkg();
 	GUIContainer::drawContents();
+}
 
-	// draw dynamic stuff
-	SDL_Rect bds;
-
-	ClientMirror* cMirr = _connectionManager->getClientMirrorByPlayerID(currProg_->getOwner()->getPlayerID());
-	bds = ownerText_->getBounds();
-	bds.x += bds.w + 5;
-	if (cMirr != NULL)
-		drawString(cMirr->name_, FONT_NORMAL, 30, _color_white, bds);
-	else
-		drawString("AI", FONT_NORMAL, 30, _color_white, bds);
-
-	bds = healthText_->getBounds();
-	bds.x += bds.w + 5;
-	drawString(to_string(currProg_->getHealth()) + "/" + to_string(currProg_->getMaxHealth()), FONT_NORMAL, 30, _color_white, bds);
-
-	bds = movesText_->getBounds();
-	bds.x += bds.w + 5;
-	drawString(to_string(currProg_->getMoves()) + "/" + to_string(currProg_->getMaxMoves()), FONT_NORMAL, 30, _color_white, bds);
-
-	bds = actionsText_->getBounds();
-	bds.x += bds.w + 5;
-	drawString(to_string(currProg_->getActionsLeft()) + "/" + to_string(1), FONT_NORMAL, 30, _color_white, bds);
+bool ProgramDisplayContainer::mouseDown() {
+	GUIContainer::mouseDown();
+	return true;
 }
 
 void ProgramDisplayContainer::setCurrProg(Program* p) {
+	// fade in / out
+	if (p == NULL) {
+		this->addEffect(new GUIEffectFade(0, 500, 255, 0));
+	} else if (p != NULL && currProg_ == NULL) {
+		this->addEffect(new GUIEffectFade(0, 500, 0, 255));
+	}
+
+	currProg_ = p;
+	if (p == NULL)
+		return;
+
+	// replace icon
 	if (icon_ != NULL) {
 		this->removeObject(icon_);
-		icon_ = NULL;
 		delete icon_;
 	}
+	icon_ = new GUITexture(this, ANCHOR_NORTHEAST, { -20, 5 }, { 135, 135 }, _program_icons[p->getType()], false);
+	this->addObject(icon_);
 
+	// replace name
 	if (nameText_ != NULL) {
 		this->removeObject(nameText_);
-		nameText_ = NULL;
 		delete nameText_;
 	}
+	nameText_ = new GUITexture(this, ANCHOR_NORTHEAST, { -5, 155 }, p->getName(), 38);
+	this->addObject(nameText_);
 
-	while (actionButtons_->getLength() > 0) {
-		ProgramDisplayActionButton* curr = actionButtons_->poll();
+	// remove actionbuttons
+	while (actionButtonContainer_->getContents()->getLength() > 0) {
+		GUIObject* curr = actionButtonContainer_->getContents()->poll();
 		this->removeObject(curr);
 		delete curr;
 	}
 
-	//if (descText_ != NULL)
-	//{
-	//this->removeObject(descText_);
-	//delete descText_;
-	//}
-
-	if (p != NULL) {
-		icon_ = new GUITexture(this, ANCHOR_NORTHEAST, { -20, 5 }, { 135, 135 }, _program_icons[p->getType()], false);
-		this->addObject(icon_);
-
-		nameText_ = new GUITexture(this, ANCHOR_NORTHEAST, { -5, 155 }, p->getName(), 38);
-		this->addObject(nameText_);
-
-		//descText_ = new GUITexture(ANCHOR_NORTHWEST, { 5, 105 }, p->getDescription(), 20, this);
-		//this->addObject(descText_);
-
-		int yDisp = 0;
-		int index = 0;
-		int buttonHeight = 70;
-		Iterator<ProgramAction*> it = p->getActions()->getIterator();
-		while (it.hasNext()) {
-			ProgramAction* curr = it.next();
-			ProgramDisplayActionButton* actionButton = new ProgramDisplayActionButton(ANCHOR_NORTHEAST,
-			{ -10, 200 + yDisp },
-			{ bounds_.w - 20, buttonHeight },
-				this, curr, index);
-			actionButtons_->addFirst(actionButton);
-			this->addObject(actionButton);
-			yDisp += buttonHeight + 10;
-			index++;
-		}
-
-		SDL_Color c = p->getOwner()->getColor();
-		SDL_SetTextureColorMod(_program_core_100px, c.r, c.g, c.b);
-
-		this->setDimensions({ bounds_.w, 200 + yDisp });
+	// replace actionbuttons
+	int yDisp = 10;
+	int index = 0;
+	int buttonHeight = 70;
+	Iterator<ProgramAction*> it = p->getActions()->getIterator();
+	while (it.hasNext()) {
+		ProgramAction* curr = it.next();
+		ProgramDisplayActionButton* actionButton = new ProgramDisplayActionButton(actionButtonContainer_, ANCHOR_NORTHWEST, { 10, yDisp }, { actionButtonContainer_->getBounds().w - 20, buttonHeight }, *curr, index);
+		actionButtonContainer_->addObject(actionButton);
+		yDisp += buttonHeight + 10;
+		index++;
 	}
 
-	currProg_ = p;
+	SDL_Color c = p->getOwner()->getColor();
+	SDL_SetTextureColorMod(_program_core_100px, c.r, c.g, c.b);
+
+	actionButtonContainer_->setDimensions({ bounds_.w, yDisp });
+	this->setDimensions({ bounds_.w, programInfoContainer_->getBounds().h + 10 + actionButtonContainer_->getBounds().h });
 	resetBounds();
+}
+
+Program* ProgramDisplayContainer::getCurrProg() {
+	return currProg_;
 }

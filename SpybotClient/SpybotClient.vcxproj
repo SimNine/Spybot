@@ -1,6 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug Client Only|Win32">
+      <Configuration>Debug Client Only</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug Client Only|x64">
+      <Configuration>Debug Client Only</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
     <ProjectConfiguration Include="Debug|Win32">
       <Configuration>Debug</Configuration>
       <Platform>Win32</Platform>
@@ -52,6 +60,12 @@
     <PlatformToolset>v141</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Label="Configuration" Condition="'$(Configuration)|$(Platform)'=='Debug Client Only|Win32'">
+    <PlatformToolset>v141</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Label="Configuration" Condition="'$(Configuration)|$(Platform)'=='Debug Client Only|x64'">
+    <PlatformToolset>v141</PlatformToolset>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
@@ -215,7 +229,6 @@
     <ClInclude Include="include\overlays\main\UserDisplay.h" />
     <ClInclude Include="include\overlays\map\MapOverlay.h" />
     <ClInclude Include="include\overlays\map\Node.h" />
-    <ClInclude Include="include\overlays\map\ProgramInventoryButton.h" />
     <ClInclude Include="include\overlays\map\ProgramInventoryDisplay.h" />
     <ClInclude Include="include\overlays\notify\PopupAchievement.h" />
     <ClInclude Include="include\overlays\notify\PopupNotification.h" />
@@ -278,7 +291,6 @@
     <ClCompile Include="src\overlays\main\UserDisplay.cpp" />
     <ClCompile Include="src\overlays\map\MapOverlay.cpp" />
     <ClCompile Include="src\overlays\map\Node.cpp" />
-    <ClCompile Include="src\overlays\map\ProgramInventoryButton.cpp" />
     <ClCompile Include="src\overlays\map\ProgramInventoryDisplay.cpp" />
     <ClCompile Include="src\overlays\notify\PopupAchievement.cpp" />
     <ClCompile Include="src\overlays\notify\PopupNotification.cpp" />

@@ -54,9 +54,6 @@ bool _quit = false;
 // debug flag
 DEBUG _debug = DEBUG_NONE;
 
-// program ID currently selected (to be placed)
-PROGRAM _currProgram = PROGRAM_NONE;
-
 // GUIContainer currently held by the mouse, if any
 GUIContainer* _heldContainer = NULL;
 

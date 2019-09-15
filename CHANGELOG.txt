@@ -252,3 +252,20 @@ GUI effects, achievements, stats saving
 -Refactored pause menus on the mapOverlay and gameOverlay
 -Removed GUIObject's fade() and fadeStep(int) methods
 -Added GUIEffect system; GUI effects such as Fade and Transform are now encapsulated in objects, which are queued up per GUIObject
+
+2.3.0 - 6/15/18
+Serverside credits, level progress, stats, misc bugfixes, added commands
+-----
+-Added endgame display to gameOverlay
+-Added triggering of endgame achievements (first cybercrime [committed / successful]) and accumulation of games played/won/lost progress
+-Added credit pickup, saving of credits count serverside, MSGTYPE_CREDIT, credit-based achievements, and popup on credit pickup
+-Refactored ProgramDisplayContainer to be more efficient, fade in and out on program selection
+-Added CommandProcessor command "userinfo (username)" which prints info about a given user (credits, progress) to the output
+-Each local save slot's progress is now saved serverside and sent via LEVELUNLOCK messages
+-Added progress text to save slot display
+-Eliminated ProgramInventoryButton class, replaced with GUIButtonParamaterized instances
+-Added CommandProcessor command "printgrid" which prints the current level to the console
+-Added CommandProcessor commands "savelevel (filename)" and "settile (x) (y) (tiletype)"
+-Fixed "say" command
+-Campaign levels now include the correct enemy programs
+-Sound sliders are now set to their appropriate values when prefs are loaded

@@ -114,6 +114,10 @@ bool GUIObject::isVisible() {
 	return (currAlpha_ > 0);
 }
 
+bool GUIObject::isClickable() {
+	return (currAlpha_ == 255);
+}
+
 void GUIObject::setPressed(bool b) {
 	pressed_ = b;
 }

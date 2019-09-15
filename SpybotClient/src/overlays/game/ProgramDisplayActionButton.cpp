@@ -14,7 +14,7 @@
 #include "MiscUtil.h"
 #include "ConnectionManager.h"
 
-ProgramDisplayActionButton::ProgramDisplayActionButton(ANCHOR a, Coord disp, Coord dims, GUIContainer* p, ProgramAction* action, int actionNum)
+ProgramDisplayActionButton::ProgramDisplayActionButton(GUIContainer* p, ANCHOR a, Coord disp, Coord dims, ProgramAction action, int actionNum)
 	: GUIObject(p, a, disp, dims) {
 	action_ = action;
 	actionNum_ = actionNum;
@@ -29,8 +29,6 @@ void ProgramDisplayActionButton::setTransparency(int a) {
 }
 
 bool ProgramDisplayActionButton::mouseDown() {
-	_client->getPlayer()->setSelectedAction(action_);
-
 	Message m;
 	m.type = MSGTYPE_SELECT;
 	m.selectType = MSGSELECTTYPE_ACTION;
@@ -52,12 +50,15 @@ void ProgramDisplayActionButton::draw() {
 		GUIObject::drawBounds();
 
 	// draw background
-	bool mouseIsOver = isMouseOver();
-	if (mouseIsOver)
-		SDL_SetRenderDrawColor(_renderer, 255, 0, 0, 140);
+	if (isMouseOver())
+		SDL_SetRenderDrawColor(_renderer, 255, 0, 0, (int)(140 * (currAlpha_ / 255.0)));
 	else
-		SDL_SetRenderDrawColor(_renderer, 120, 120, 120, 140);
+		SDL_SetRenderDrawColor(_renderer, 120, 120, 120, (int)(140 * (currAlpha_ / 255.0)));
 	SDL_RenderFillRect(_renderer, &bounds_);
+
+	// create transparent white color
+	SDL_Color whiteMod = _color_white;
+	whiteMod.a = currAlpha_;
 
 	// create clip rect
 	SDL_Rect clipRect = bounds_;
@@ -69,53 +70,54 @@ void ProgramDisplayActionButton::draw() {
 	// draw action icon
 	SDL_Color col = { 0, 0, 0, 0 };
 	SDL_Texture* tex = NULL;
-	if (action_->type_ == ACTIONTYPE_DAMAGE) {
+	if (action_.type_ == ACTIONTYPE_DAMAGE) {
 		tex = _game_icon_action_attack;
 		col = _color_action_attack;
-	} else if (action_->type_ == ACTIONTYPE_HEAL || action_->type_ == ACTIONTYPE_MAXHEALTHUP) {
+	} else if (action_.type_ == ACTIONTYPE_HEAL || action_.type_ == ACTIONTYPE_MAXHEALTHUP) {
 		tex = _game_icon_action_medic;
 		col = _color_action_medic;
-	} else if (action_->type_ == ACTIONTYPE_MAXHEALTHDOWN) {
+	} else if (action_.type_ == ACTIONTYPE_MAXHEALTHDOWN) {
 		tex = _game_icon_action_unmedic;
 		col = _color_action_unmedic;
-	} else if (action_->type_ == ACTIONTYPE_SPEEDDOWN) {
+	} else if (action_.type_ == ACTIONTYPE_SPEEDDOWN) {
 		tex = _game_icon_action_slow;
 		col = _color_action_slow;
-	} else if (action_->type_ == ACTIONTYPE_SPEEDUP) {
+	} else if (action_.type_ == ACTIONTYPE_SPEEDUP) {
 		tex = _game_icon_action_speedup;
 		col = _color_action_speedup;
-	} else if (action_->type_ == ACTIONTYPE_TILEPLACE) {
+	} else if (action_.type_ == ACTIONTYPE_TILEPLACE) {
 		tex = _game_icon_action_tilecreate;
 		col = _color_action_tilecreate;
-	} else if (action_->type_ == ACTIONTYPE_TILEDELETE) {
+	} else if (action_.type_ == ACTIONTYPE_TILEDELETE) {
 		tex = _game_icon_action_tiledestroy;
 		col = _color_action_tiledestroy;
 	} else
 		printf("CLIENT ERR: a nonexistent action type was found\n");
 	SDL_SetTextureColorMod(_program_core_50px, col.r, col.g, col.b);
+	SDL_SetTextureAlphaMod(_program_core_50px, currAlpha_);
 	SDL_RenderCopy(_renderer, _program_core_50px, NULL, &clipRect);
 	clipRect.h = 45;
 	clipRect.w = 45;
+	SDL_SetTextureAlphaMod(tex, currAlpha_);
 	SDL_RenderCopy(_renderer, tex, NULL, &clipRect);
 
 	// draw action name
-	SDL_SetRenderDrawColor(_renderer, 255, 255, 255, 255);
 	clipRect.x = bounds_.x + 60;
 	clipRect.y = bounds_.y + 10;
-	drawString(action_->name_, FONT_NORMAL, 30, _color_white, clipRect);
+	drawString(action_.name_, FONT_NORMAL, 30, whiteMod, clipRect);
 
 	// draw action specs
 	clipRect.x = bounds_.x + bounds_.w - 80;
 	clipRect.y = bounds_.y;
-	drawString("Range: " + to_string(action_->range_), FONT_NORMAL, 20, _color_white, clipRect);
+	drawString("Range: " + to_string(action_.range_), FONT_NORMAL, 20, whiteMod, clipRect);
 	clipRect.y += 20;
-	drawString("Power: " + to_string(action_->power_), FONT_NORMAL, 20, _color_white, clipRect);
+	drawString("Power: " + to_string(action_.power_), FONT_NORMAL, 20, whiteMod, clipRect);
 	clipRect.y += 20;
-	drawString("Min Size: " + to_string(action_->requiredSize_), FONT_NORMAL, 20, _color_white, clipRect);
+	drawString("Min Size: " + to_string(action_.requiredSize_), FONT_NORMAL, 20, whiteMod, clipRect);
 
 	// draw tooltip
-	if (mouseIsOver) {
-		SDL_Texture* descText = loadString(this->action_->description_, FONT_NORMAL, 20, _color_white);
+	if (isMouseOver()) {
+		SDL_Texture* descText = loadString(action_.description_, FONT_NORMAL, 20, whiteMod);
 		SDL_QueryTexture(descText, NULL, NULL, &clipRect.w, &clipRect.h);
 		clipRect.x = _mousePos.x - clipRect.w;
 		clipRect.y = _mousePos.y;
@@ -124,7 +126,7 @@ void ProgramDisplayActionButton::draw() {
 		clipRect.y -= 5;
 		clipRect.w += 10;
 		clipRect.h += 10;
-		SDL_SetRenderDrawColor(_renderer, _color_bkg_standard.r, _color_bkg_standard.g, _color_bkg_standard.b, _color_bkg_standard.a);
+		SDL_SetRenderDrawColor(_renderer, _color_bkg_standard.r, _color_bkg_standard.g, _color_bkg_standard.b, (int)((double)_color_bkg_standard.a * (currAlpha_ / 255.0)));
 		SDL_RenderFillRect(_renderer, &clipRect);
 
 		clipRect.x += 5;

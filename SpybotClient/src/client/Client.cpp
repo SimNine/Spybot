@@ -21,6 +21,7 @@
 #include "BackgroundOverlay.h"
 #include "MapOverlay.h"
 #include "Server.h"
+#include "Main.h"
 
 Client::Client() {
 	game_ = NULL;
@@ -64,6 +65,7 @@ void Client::processMessage(Message* msg) {
 		}
 		break;
 	case MSGTYPE_LOAD:
+	{
 		if (msg->clientID != myClientID_)
 			_notifyOverlay->addNotification("Client " + to_string(msg->clientID) + " has loaded level " + to_string(msg->levelNum));
 
@@ -73,11 +75,20 @@ void Client::processMessage(Message* msg) {
 		game_ = new Game(false);
 		_gameOverlay->resetScreen();
 
+		Iterator<ClientMirror*> clientIt = _connectionManager->getClientList()->getIterator();
+		while (clientIt.hasNext()) {
+			clientIt.next()->player_ = NULL;
+		}
+
 		Message m;
 		m.type = MSGTYPE_JOIN;
 		m.clientID = myClientID_;
 		_connectionManager->sendMessage(m);
-		break;
+
+		if (_server != NULL && !_progressAchievements[ACHIEVEMENT_FIRSTATTEMPTEDCYBERCRIME])
+			unlockAchievement(ACHIEVEMENT_FIRSTATTEMPTEDCYBERCRIME);
+	}
+	break;
 	case MSGTYPE_SOUND:
 		switch (msg->soundType) {
 		case MSGSOUNDNAME_MOVE:
@@ -149,8 +160,28 @@ void Client::processMessage(Message* msg) {
 			_gameOverlay->updateProgramInventoryDisplay();
 
 			if (msg->statusType == GAMESTATUS_END) {
-				_gameOverlay->showWin(msg->team);
+				_gameOverlay->showWinContainer(msg->team);
+
+				// increment progress
+				_progressGamesPlayed++;
+				if (msg->team == player_->getTeam())
+					_progressGamesWon++;
+				else
+					_progressGamesLost++;
+				saveProgress();
+
+				// if this is a local game, check for achievement unlocks
+				if (_server != NULL) {
+					if (!_progressAchievements[ACHIEVEMENT_FIRSTCOMMITTEDCYBERCRIME])
+						unlockAchievement(ACHIEVEMENT_FIRSTCOMMITTEDCYBERCRIME);
+
+					if (msg->team == player_->getTeam() && !_progressAchievements[ACHIEVEMENT_FIRSTSUCCESSFULCYBERCRIME]) {
+						unlockAchievement(ACHIEVEMENT_FIRSTSUCCESSFULCYBERCRIME);
+					}
+				}
 			}
+		} else if (msg->infoType == MSGINFOTYPE_CREDITS) {
+			_client->getMyClientMirror()->credits_ = msg->actionID;
 		}
 		_gameOverlay->centerScreen();
 		break;
@@ -163,8 +194,9 @@ void Client::processMessage(Message* msg) {
 			Player* p = game_->getPlayerByID(msg->playerID);
 			p->setSelectedProgram(p->getProgramByID(msg->programID));
 		} else if (msg->selectType == MSGSELECTTYPE_ACTION) {
-			Program* p = game_->getPlayerByID(msg->playerID)->getProgramByID(msg->programID);
-			game_->getPlayerByID(msg->playerID)->setSelectedAction(p->getActions()->getObjectAt(msg->actionID));
+			Player* pl = game_->getPlayerByID(msg->playerID);
+			Program* p = pl->getProgramByID(msg->programID);
+			pl->setSelectedAction(p->getActions()->getObjectAt(msg->actionID));
 		}
 		break;
 	case MSGTYPE_JOIN:
@@ -206,8 +238,8 @@ void Client::processMessage(Message* msg) {
 		myClientID_ = msg->clientID;
 		_notifyOverlay->addNotification("Connection to server confirmed");
 		_notifyOverlay->addNotification("Assigned client ID " + to_string(msg->clientID));
-		
-		if (!_server->isLocal()) {
+
+		if (_server == NULL) {
 			_mainOverlay->hideIPEntry(1000);
 			_mainOverlay->loginShow(1000);
 		}
@@ -300,6 +332,8 @@ void Client::processMessage(Message* msg) {
 			_overlayStack->push(_backgroundOverlay);
 			_overlayStack->push(_lobbyOverlay);
 		} else { // otherwise, go to the map screen
+			_mainOverlay->hideLocalLoginContainer(0);
+			_mainOverlay->showMainContainer(0);
 			_overlayStack->removeAll();
 			_overlayStack->push(_mapOverlay);
 		}
@@ -327,6 +361,7 @@ void Client::processMessage(Message* msg) {
 		if (currProg != NULL && currProg->getOwner() == player_) {
 			_client->getMyClientMirror()->ownedProgs_[currProg->getType()]++;
 			player_->getProgList()->remove(currProg);
+			player_->setSelectedProgram(NULL);
 			game_->setProgramAt(msg->pos, NULL);
 			delete currProg;
 		}
@@ -360,6 +395,42 @@ void Client::processMessage(Message* msg) {
 	case MSGTYPE_PROGINVENTORY:
 		_client->getMyClientMirror()->ownedProgs_[msg->progType] = msg->programID;
 		_mapOverlay->updateProgramInvDisplay();
+		_gameOverlay->updateProgramInventoryDisplay();
+		break;
+	case MSGTYPE_CREDITPICKUP:
+		// increment credit counters
+		_progressCreditsCollected += msg->actionID;
+		myClientMirror_->credits_ += msg->actionID;
+		saveProgress();
+
+		// check for credit-related achievements
+		if (!_progressAchievements[ACHIEVEMENT_BITCOIN] && _progressCreditsCollected >= 1)
+			unlockAchievement(ACHIEVEMENT_BITCOIN);
+		else if (!_progressAchievements[ACHIEVEMENT_BITCOINCASH] && _progressCreditsCollected >= 1000)
+			unlockAchievement(ACHIEVEMENT_BITCOINCASH);
+		else if (!_progressAchievements[ACHIEVEMENT_RIPPLE] && _progressCreditsCollected >= 2000)
+			unlockAchievement(ACHIEVEMENT_RIPPLE);
+		else if (!_progressAchievements[ACHIEVEMENT_ETHEREUM] && _progressCreditsCollected >= 5000)
+			unlockAchievement(ACHIEVEMENT_ETHEREUM);
+		else if (!_progressAchievements[ACHIEVEMENT_LITECOIN] && _progressCreditsCollected >= 10000)
+			unlockAchievement(ACHIEVEMENT_LITECOIN);
+		else if (!_progressAchievements[ACHIEVEMENT_RAIBLOCKS] && _progressCreditsCollected >= 50000)
+			unlockAchievement(ACHIEVEMENT_RAIBLOCKS);
+		else if (!_progressAchievements[ACHIEVEMENT_DOGECOIN] && _progressCreditsCollected >= 100000)
+			unlockAchievement(ACHIEVEMENT_DOGECOIN);
+		else if (!_progressAchievements[ACHIEVEMENT_GARLICOIN] && _progressCreditsCollected >= 500000)
+			unlockAchievement(ACHIEVEMENT_GARLICOIN);
+
+		// show credits earned display
+		_gameOverlay->showCreditPickup(msg->actionID);
+		_gameOverlay->refreshCreditCounter();
+
+		// remove item from local grid
+		game_->setItemAt(msg->pos, ITEM_NONE);
+
+		break;
+	case MSGTYPE_LEVELUNLOCK:
+		_mapOverlay->winNode(msg->levelNum);
 		break;
 	}
 }

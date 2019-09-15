@@ -44,14 +44,14 @@ MainOverlay::MainOverlay()
 	GUISlider* options_slider_sound = new GUISlider(optionsContainer_, ANCHOR_SOUTHWEST, { 270, -150 }, { 200, 50 },
 		[] (float d) {
 		Mix_Volume(-1, (int)(d * 128));
-	});
+	}, (float)((double)Mix_Volume(-1, -1)/128.0));
 	optionsContainer_->addObject(options_slider_sound);
 	GUITexture* options_label_soundslider = new GUITexture(optionsContainer_, ANCHOR_SOUTHWEST, { 20, -150 }, "SOUND VOLUME:", 50);
 	optionsContainer_->addObject(options_label_soundslider);
 	GUISlider* options_slider_music = new GUISlider(optionsContainer_, ANCHOR_SOUTHWEST, { 270, -210 }, { 200, 50 },
 		[] (float d) {
 		Mix_VolumeMusic((int)(d * 128));
-	});
+	}, (float)((double)Mix_VolumeMusic(-1)/128.0));
 	optionsContainer_->addObject(options_slider_music);
 	GUITexture* options_label_musicslider = new GUITexture(optionsContainer_, ANCHOR_SOUTHWEST, { 20, -220 }, "MUSIC VOLUME:", 50);
 	optionsContainer_->addObject(options_label_musicslider);
@@ -70,8 +70,8 @@ MainOverlay::MainOverlay()
 	*/
 
 	campaignContainer_ = new GUIContainer(this, ANCHOR_CENTER, { 0, 0 }, { 700, 470 }, _color_clear);
-	this->addObject(campaignContainer_);
 	campaignContainer_->setTransparency(0);
+	this->addObject(campaignContainer_);
 
 	GUIContainer* campaignSelectContainer_ = new GUIContainer(this, ANCHOR_CENTER, { 0, 0 }, { 700, 370 }, _color_bkg_standard);
 	campaignContainer_->addObject(campaignSelectContainer_);
@@ -194,8 +194,9 @@ MainOverlay::MainOverlay()
 	*/
 
 	loginEntryContainer_ = new GUIContainer(this, ANCHOR_CENTER, { 0, 0 }, { 800, 400 }, _color_bkg_standard);
-	this->addObject(loginEntryContainer_);
 	loginEntryContainer_->setTransparency(0);
+	this->addObject(loginEntryContainer_);
+
 	GUITexture* usernamePrompt = new GUITexture(loginEntryContainer_, ANCHOR_NORTHWEST, { 20, 20 }, "USERNAME:", 50);
 	loginEntryContainer_->addObject(usernamePrompt);
 	loginUsername_ = new GUITextbox(loginEntryContainer_, ANCHOR_NORTHWEST, { 20, 80 }, { 760, 40 }, DEFAULT_MSG_TEXTSIZE / 2 - 5, false);
@@ -226,8 +227,8 @@ MainOverlay::MainOverlay()
 	*/
 
 	localLoginContainer_ = new GUIContainer(this, ANCHOR_CENTER, { 0, 0 }, { 640, 450 }, _color_clear);
-	this->addObject(localLoginContainer_);
 	localLoginContainer_->setTransparency(0);
+	this->addObject(localLoginContainer_);
 
 	GUITexture* saveContainerTitle_ = new GUITexture(localLoginContainer_, ANCHOR_CENTER, { 0, -210 }, "SELECT A SAVEFILE", 80);
 	localLoginContainer_->addObject(saveContainerTitle_);
@@ -251,8 +252,8 @@ MainOverlay::MainOverlay()
 	*/
 
 	achievementsContainer_ = new GUIContainer(this, ANCHOR_CENTER, { 0, 0 }, { 800, 600 }, _color_clear);
-	this->addObject(achievementsContainer_);
 	achievementsContainer_->setTransparency(0);
+	this->addObject(achievementsContainer_);
 
 	GUIContainer* achievementCollectionContainer_ = new GUIContainer(achievementsContainer_, ANCHOR_NORTH, { 0, 0 }, { 800, 520 }, _color_bkg_standard);
 	achievementsContainer_->addObject(achievementCollectionContainer_);

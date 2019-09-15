@@ -56,9 +56,6 @@ extern bool _quit;
 // debug level flag
 extern DEBUG _debug;
 
-// program ID currently selected (to be placed)
-extern PROGRAM _currProgram;
-
 // GUIContainer currently held by the mouse
 extern GUIContainer* _heldContainer;
 

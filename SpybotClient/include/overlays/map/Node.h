@@ -5,7 +5,7 @@
 
 class Node {
 public:
-	Node(Coord, int, int, int);
+	Node(Coord pos, int type, int zone, int id);
 	virtual ~Node();
 	void draw(Coord);
 	Coord getPos();

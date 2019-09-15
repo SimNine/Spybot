@@ -35,12 +35,12 @@ MapOverlay::MapOverlay()
 	GUIButton* battleButton = new GUIButton(levelConfirm_, ANCHOR_NORTHWEST, { 130, 169 }, { 115, 14 },
 		[] () {
 		if (_mapOverlay->getSelectedNode()->getNodeType() != 7) {
-			unlockAchievement(ACHIEVEMENT_FIRSTATTEMPTEDCYBERCRIME);
 			Message msg;
 			msg.type = MSGTYPE_LOAD;
 			msg.levelNum = _mapOverlay->getSelectedNode()->getLevelId();
 			_connectionManager->sendMessage(msg);
 		}
+		_mapOverlay->clearSelectedNode();
 	},
 		_map_button_beginDatabattle_normal,
 		_map_button_beginDatabattle_over);
@@ -53,11 +53,11 @@ MapOverlay::MapOverlay()
 		_map_button_cancel_over);
 	levelConfirm_->addObject(cancelButton);
 
-	addObject(levelConfirm_);
+	this->addObject(levelConfirm_);
 
-	// add program display object
+	// add inventory display object
 	invDisplay_ = new ProgramInventoryDisplay(ANCHOR_NORTHEAST, { -20, 20 }, { 300, 500 }, this);
-	addObject(invDisplay_);
+	this->addObject(invDisplay_);
 
 	// add pause menu
 	pauseMenu_ = new GUIContainer(NULL, ANCHOR_CENTER, { 0, 0 }, { _screenWidth, _screenHeight }, _color_bkg_standard);
@@ -66,21 +66,21 @@ MapOverlay::MapOverlay()
 
 	GUITexture* pauseText = new GUITexture(pauseMenu_, ANCHOR_CENTER, { -200, -200 }, "PAUSED", 150);
 	pauseMenu_->addObject(pauseText);
-	
+
 	GUIContainer* pauseMenuOptions = new GUIContainer(pauseMenu_, ANCHOR_CENTER, { 0, 0 }, { 220, 3 * 60 + 10 }, _color_bkg_standard);
 	pauseMenu_->addObject(pauseMenuOptions);
 	GUIButton* resumeButton = new GUIButton(pauseMenuOptions, ANCHOR_NORTHWEST, { 10, 10 }, { 200, 50 },
 		[] () {
 		_mapOverlay->pauseMenuHide();
-		}, _game_button_resume);
+	}, _game_button_resume);
 	pauseMenuOptions->addObject(resumeButton);
 	GUIButton* exitToMainButton = new GUIButton(pauseMenuOptions, ANCHOR_NORTHWEST, { 10, 70 }, { 200, 50 },
 		[] () {_overlayStack->removeAll();
-		_overlayStack->push(_backgroundOverlay);
-		_overlayStack->push(_mainOverlay);
-		_mainOverlay->loginHide(0);
-		_mapOverlay->pauseMenuHide();
-		}, _game_button_quitToMain);
+	_overlayStack->push(_backgroundOverlay);
+	_overlayStack->push(_mainOverlay);
+	_mainOverlay->loginHide(0);
+	_mapOverlay->pauseMenuHide();
+	}, _game_button_quitToMain);
 	pauseMenuOptions->addObject(exitToMainButton);
 	GUIButton* exitToDesktopButton = new GUIButton(pauseMenuOptions, ANCHOR_NORTHWEST, { 10, 130 }, { 200, 50 },
 		[] () {_quit = true; },
@@ -93,8 +93,6 @@ MapOverlay::~MapOverlay() {
 }
 
 void MapOverlay::shiftBkg(double x, double y) {
-	//printf("%04f,%04f\n", x, y);
-
 	int bkgWidth;
 	int bkgHeight;
 	SDL_QueryTexture(bkgImg_, NULL, NULL, &bkgWidth, &bkgHeight);
@@ -149,7 +147,8 @@ bool MapOverlay::mouseDown() {
 		return true;
 
 	// spits out the location (on the map bkg) of this click
-	if (_debug >= DEBUG_NORMAL) printf("%i,%i\n", (int)bkgX_ + _mousePos.x, (int)bkgY_ + _mousePos.y);
+	if (_debug >= DEBUG_NORMAL)
+		printf("%i,%i\n", (int)bkgX_ + _mousePos.x, (int)bkgY_ + _mousePos.y);
 
 	// if mapscreen animation is occurring, don't take input
 	if (selectedNode_ != NULL)
@@ -172,16 +171,12 @@ bool MapOverlay::mouseDown() {
 
 void MapOverlay::shiftTo(Node* n) {
 	// if mapscreen is already animating, don't do this shit
-	if (isBusy()) {
+	if (selectedNode_ != NULL) {
 		return;
 	} else {
 		isAnimOccurring_ = true;
 		selectedNode_ = n;
 	}
-}
-
-bool MapOverlay::isBusy() {
-	return (selectedNode_ != NULL);
 }
 
 Node* MapOverlay::getSelectedNode() {
@@ -291,8 +286,10 @@ void MapOverlay::updateProgramInvDisplay() {
 }
 
 void MapOverlay::toggleInvDisplay() {
-	if (invDisplay_->isVisible()) invDisplay_->setTransparency(0);
-	else invDisplay_->setTransparency(255);
+	if (invDisplay_->isVisible()) 
+		invDisplay_->setTransparency(0);
+	else 
+		invDisplay_->setTransparency(255);
 }
 
 void MapOverlay::unlockAllLevels() {
@@ -450,16 +447,19 @@ void MapOverlay::saveMap(std::string url) {
 	std::ofstream m;
 	m.open(url, std::ios::out | std::ios::binary | std::ios::trunc);
 	if (!m.is_open()) {
-		if (_debug >= DEBUG_MINIMAL) printf("err opening file for saving map\n");
+		if (_debug >= DEBUG_MINIMAL) 
+			printf("err opening file for saving map\n");
 	} else {
-		if (_debug >= DEBUG_MINIMAL) printf("saving map %s...\n", url.c_str());
+		if (_debug >= DEBUG_MINIMAL) 
+			printf("saving map %s...\n", url.c_str());
 
 		// begin by writing the sizes of various data types
 		int8_t sizeOfInt = sizeof(int);
 		int8_t sizeOfChar = sizeof(char);
 		int8_t sizeOfDouble = sizeof(double);
 		int8_t sizeOfBool = sizeof(bool);
-		if (_debug >= DEBUG_NORMAL) printf("saving constants... int:%i, char:%i, double:%i, bool:%i\n", sizeOfInt, sizeOfChar, sizeOfDouble, sizeOfBool);
+		if (_debug >= DEBUG_NORMAL) 
+			printf("saving constants... int:%i, char:%i, double:%i, bool:%i\n", sizeOfInt, sizeOfChar, sizeOfDouble, sizeOfBool);
 		m.write((char*)&sizeOfInt, 1);
 		m.write((char*)&sizeOfChar, 1);
 		m.write((char*)&sizeOfDouble, 1);
@@ -468,7 +468,8 @@ void MapOverlay::saveMap(std::string url) {
 		// begin writing the map to file
 		int numNodes = nodeList_->getLength();
 		m.write((char*)&numNodes, sizeOfInt);
-		if (_debug >= DEBUG_NORMAL) printf("saving %i nodes...\n", numNodes);
+		if (_debug >= DEBUG_NORMAL) 
+			printf("saving %i nodes...\n", numNodes);
 
 		// save each node's data
 		for (int i = 0; i < numNodes; i++) {
@@ -486,7 +487,8 @@ void MapOverlay::saveMap(std::string url) {
 		}
 
 		// save each node's children
-		if (_debug >= DEBUG_NORMAL) printf("saving nodes' children...\n");
+		if (_debug >= DEBUG_NORMAL) 
+			printf("saving nodes' children...\n");
 		for (int i = 0; i < numNodes; i++) {
 			Node* curr = nodeList_->getObjectAt(i);
 			int numChildren = curr->getNeighbors()->getLength();
@@ -499,10 +501,12 @@ void MapOverlay::saveMap(std::string url) {
 		}
 
 		// flush and close the file
-		if (_debug >= DEBUG_MINIMAL) printf("flushing and closing map file... ");
+		if (_debug >= DEBUG_MINIMAL)
+			printf("flushing and closing map file... ");
 		m.flush();
 		m.close();
-		if (_debug >= DEBUG_MINIMAL) printf("done\n");
+		if (_debug >= DEBUG_MINIMAL)
+			printf("done\n");
 	}
 }
 
@@ -595,4 +599,15 @@ void MapOverlay::pauseMenuShow() {
 
 void MapOverlay::pauseMenuHide() {
 	pauseMenu_->setTransparency(0);
+}
+
+void MapOverlay::winNode(int nodeID) {
+	Iterator<Node*> it = nodeList_->getIterator();
+	while (it.hasNext()) {
+		Node* curr = it.next();
+		if (curr->getLevelId() == nodeID) {
+			curr->winNode();
+			return;
+		}
+	}
 }
