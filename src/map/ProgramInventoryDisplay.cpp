@@ -5,11 +5,9 @@
 #include "MiscUtil.h"
 #include "Global.h"
 
-ProgramInventoryDisplay::ProgramInventoryDisplay(ANCHOR a, Coord disp, Coord dims, GUIContainer* parent, int* progList)
-    : GUIContainer(a, {0, 0}, {0, 0}, parent, NULL)
+ProgramInventoryDisplay::ProgramInventoryDisplay(ANCHOR a, Coord disp, Coord dims, GUIContainer* parent)
+    : GUIContainer(a, {0, 0}, {0, 0}, parent, {120, 120, 120, 140})
 {
-    this->progList = progList;
-
     updateContents();
 }
 
@@ -40,17 +38,16 @@ void ProgramInventoryDisplay::updateContents()
     {
         if (i == PROGRAM_NONE || i == PROGRAM_CUSTOM) continue;
 
-        if (progList[i] != 0)
+        if (progListCurrent[i] != 0)
         {
             // create the counter
-            std::string str = "x" + to_string(progList[i]);
+            std::string str = "x" + to_string(progListCurrent[i]);
             SDL_Texture* tex = loadString(str, FONT_BOLD, 24, {255, 255, 255, 255});
             SDL_QueryTexture(tex, NULL, NULL, &w, &h);
             GUITexture* progTex = new GUITexture(ANCHOR_NORTHEAST, {(-100)*col + 40, 100 + row*h}, tex, {w, h}, true, this);
             addObject(progTex);
 
-            ProgramInventoryButton* progButton = new ProgramInventoryButton(ANCHOR_NORTHEAST, {(-100)*col, 100 + row*h},
-                                                                            progList, (PROGRAM)i, this);
+            ProgramInventoryButton* progButton = new ProgramInventoryButton(ANCHOR_NORTHEAST, {(-100)*col, 100 + row*h}, (PROGRAM)i, this);
             addObject(progButton);
 
             row++;
@@ -62,19 +59,11 @@ void ProgramInventoryDisplay::updateContents()
         }
     }
 
-    setBounds({-40 - 100*col, 20}, {100*col + 20, SCREEN_HEIGHT - 40});
+    setBounds({-60 - 100*col, 20}, {100*col + 40, SCREEN_HEIGHT - 40});
 }
 
 void ProgramInventoryDisplay::resetBounds()
 {
     updateContents();
     GUIContainer::resetBounds();
-}
-
-void ProgramInventoryDisplay::draw()
-{
-    SDL_SetRenderDrawColor(gRenderer, 0, 0, 0, currAlpha);
-    SDL_RenderFillRect(gRenderer, &bounds);
-
-    GUIContainer::draw();
 }

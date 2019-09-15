@@ -43,12 +43,16 @@ public:
     void setBrushItem(ITEM);
     void setBrushProgramType(PROGRAM);
     void setBrushProgramTeam(int);
-    void setBackground(BACKGROUND);
+    void setBackgroundImg(BACKGROUND);
 
     // Game loading/saving methods
     void saveGame();
-    void loadGame(std::string);
+    void loadGame(int);
     void clearGame();
+
+    // misc
+    void togglePauseMenu();
+    void triggerDamageAt(Coord);
 protected:
 private:
     Coord bkgPos;
@@ -79,15 +83,15 @@ private:
     int brushProgramTeam;
     bool programViewTeams;
 
-    // buttons and interactables
-    GUIButton* endTurnButton;
-    GUIButton* stepButton;
-    GUIButton* abandonGameButton;
-    GUIButton* winGameButton;
-    GUIButton* resetGameButton;
-    GUIButton* startGameButton;
-    GUIButton* backToMapButton;
-    GUIButton* teamViewButton;
+    // containers
+    GUIContainer* preGameOptions;
+    GUIContainer* debugOptions;
+    GUIContainer* pauseMenu;
+    GUIButton* turnButton;
+
+    // turn displays
+    GUITexture* playerTurn;
+    GUITexture* aiTurn;
 
     ProgramInventoryDisplay* progInv;
 

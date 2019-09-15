@@ -97,3 +97,22 @@
 -Added the ability of programs to use their moves
 -The human player cannot select moves yet - instead, the selected program's first move is picked when it is done moving
 -Added functionality of damage, speedup, tileadd and tileremove actions
+
+0.6.0 - 9/3/17
+-----
+-Renamed/re-ripped some of the sound resources (NOT DONE)
+-Added a map saving/loading system
+-Nodes now keep a list of neighbors rather than children in order to allow unlocking levels in any order
+-The player's programs are now separated by campaign
+-GUI rework:
+--GUIContainers are now click-and-draggable by default
+--Moving a GUIContainer puts it on top of its parent's GUIObject stack
+--Added support in GUIContainers for a color as a background
+--Programs that are done for a turn now show a check mark next to their icon
+--Consolidated lots of GUIButtons into GUIContainers (especially on the game screen)
+--The default GUIContainer background color is now grey {120, 120, 120, 140}
+--Added a GUIContainer "pause menu" to map and game screens
+--Added display to GameScreen showing the beginning of the player's and the ai's turn
+-The player can now pick up credits, and a sound is played
+-Some GUIButtons no longer share common resources; dataContainer now contains strings
+	containing URLs to the textures it represents

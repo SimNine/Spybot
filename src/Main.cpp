@@ -259,9 +259,9 @@ void saveProgs()
         // save programs
         for (int i = 0; i < PROGRAM_NUM_PROGTYPES; i++)
         {
-            progs.write((char*) &classicPrograms[i], sizeOfInt);
-            progs.write((char*) &nightfallPrograms[i], sizeOfInt);
-            progs.write((char*) &customPrograms[i], sizeOfInt);
+            progs.write((char*) &progListClassic[i], sizeOfInt);
+            progs.write((char*) &progListNightfall[i], sizeOfInt);
+            progs.write((char*) &progListCustom[i], sizeOfInt);
         }
 
         // flush and close
@@ -292,9 +292,9 @@ void loadProgs()
         // load programs
         for (int i = 0; i < PROGRAM_NUM_PROGTYPES; i++)
         {
-            progs.read((char*) &classicPrograms[i], sizeOfInt);
-            progs.read((char*) &nightfallPrograms[i], sizeOfInt);
-            progs.read((char*) &customPrograms[i], sizeOfInt);
+            progs.read((char*) &progListClassic[i], sizeOfInt);
+            progs.read((char*) &progListNightfall[i], sizeOfInt);
+            progs.read((char*) &progListCustom[i], sizeOfInt);
             usedPrograms[i] = 0;
         }
 
@@ -332,39 +332,26 @@ void handleEvents()
             {
                 toggleFullscreen();
             }
-            else if (e.key.keysym.sym == SDLK_q)
-            {
-                currScreen = mainScreen;
-            }
-            else if (e.key.keysym.sym == SDLK_w)
-            {
-                currScreen = mapScreen;
-            }
-            else if (e.key.keysym.sym == SDLK_e)
-            {
-                currScreen = gameScreen;
-            }
-            else if (e.key.keysym.sym == SDLK_r)
-            {
-                currScreen = titleScreen;
-            }
             else if (e.key.keysym.sym == SDLK_F2)
             {
                 if (debug == DEBUG_EXTRA) debug = DEBUG_NONE;
                 else debug = (DEBUG)(debug + 1);
             }
-            else if (e.key.keysym.sym == SDLK_F3 && currScreen == gameScreen)
-            {
-                gameScreen->toggleEditorMode();
-            }
             else if (e.key.keysym.sym == SDLK_p)
             {
-                classicPrograms[rand()%PROGRAM_NUM_PROGTYPES]++;
+                progListCurrent[rand()%PROGRAM_NUM_PROGTYPES]++;
                 mapScreen->resetProgramInvDisplay();
             }
         }
         else if (e.type == SDL_MOUSEMOTION)
         {
+            if (heldContainer != NULL)
+            {
+                Coord delta = {e.motion.x - mousePos.x, e.motion.y - mousePos.y};
+                if (debug >= DEBUG_EXTRA) printf("%i,%i\n", delta.x, delta.y);
+                heldContainer->incDisplacement(delta);
+            }
+
             mousePos.x = e.motion.x;
             mousePos.y = e.motion.y;
         }
@@ -382,20 +369,34 @@ void handleEvents()
         // screen-specific input
         if (currScreen == gameScreen)
         {
-            if (e.type == SDL_KEYDOWN && e.key.keysym.sym == SDLK_s)
+            if (e.type == SDL_KEYDOWN)
             {
-                gameScreen->saveGame();
-            }
-            else if (e.type == SDL_KEYDOWN && e.key.keysym.sym == SDLK_l)
-            {
-                gameScreen->loadGame("");
+                if (e.key.keysym.sym == SDLK_s)
+                {
+                    gameScreen->saveGame();
+                }
+                else if (e.key.keysym.sym == SDLK_ESCAPE)
+                {
+                    gameScreen->togglePauseMenu();
+                }
+                else if (e.key.keysym.sym == SDLK_F3)
+                {
+                    gameScreen->toggleEditorMode();
+                }
             }
         }
         else if (currScreen == mapScreen)
         {
-            if (e.type == SDL_KEYDOWN && e.key.keysym.sym == SDLK_l)
+            if (e.type == SDL_KEYDOWN)
             {
-                mapScreen->unlockAllLevels();
+                if (e.key.keysym.sym == SDLK_l)
+                {
+                    mapScreen->unlockAllLevels();
+                }
+                else if (e.key.keysym.sym == SDLK_ESCAPE)
+                {
+                    mapScreen->togglePauseMenu();
+                }
             }
         }
     }

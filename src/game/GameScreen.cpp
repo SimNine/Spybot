@@ -7,6 +7,7 @@
 #include "ResourceLoader.h"
 #include "Pair.h"
 #include "GUITexture.h"
+#include "MiscUtil.h"
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -68,72 +69,54 @@ void GameScreen::buildGUI()
     {
         gameScreen->setBrushTileType(TILE_PLAIN3);
     },
-    dataContainer->tile_images[TILE_PLAIN3],
-    dataContainer->tile_images[TILE_PLAIN3],
     dataContainer->tile_images[TILE_PLAIN3]);
     GUIButton* plain4Button = new GUIButton(ANCHOR_NORTHWEST, {4 + 32*col++, 4}, {28, 28}, gridEditPanel,
                                             []()
     {
         gameScreen->setBrushTileType(TILE_PLAIN4);
     },
-    dataContainer->tile_images[TILE_PLAIN4],
-    dataContainer->tile_images[TILE_PLAIN4],
     dataContainer->tile_images[TILE_PLAIN4]);
     GUIButton* plain5Button = new GUIButton(ANCHOR_NORTHWEST, {4 + 32*col++, 4}, {28, 28}, gridEditPanel,
                                             []()
     {
         gameScreen->setBrushTileType(TILE_PLAIN5);
     },
-    dataContainer->tile_images[TILE_PLAIN5],
-    dataContainer->tile_images[TILE_PLAIN5],
     dataContainer->tile_images[TILE_PLAIN5]);
     GUIButton* plain6Button = new GUIButton(ANCHOR_NORTHWEST, {4 + 32*col++, 4}, {28, 28}, gridEditPanel,
                                             []()
     {
         gameScreen->setBrushTileType(TILE_PLAIN6);
     },
-    dataContainer->tile_images[TILE_PLAIN6],
-    dataContainer->tile_images[TILE_PLAIN6],
     dataContainer->tile_images[TILE_PLAIN6]);
     GUIButton* plain7Button = new GUIButton(ANCHOR_NORTHWEST, {4 + 32*col++, 4}, {28, 28}, gridEditPanel,
                                             []()
     {
         gameScreen->setBrushTileType(TILE_PLAIN7);
     },
-    dataContainer->tile_images[TILE_PLAIN7],
-    dataContainer->tile_images[TILE_PLAIN7],
     dataContainer->tile_images[TILE_PLAIN7]);
     GUIButton* plain8Button = new GUIButton(ANCHOR_NORTHWEST, {4 + 32*col++, 4}, {28, 28}, gridEditPanel,
                                             []()
     {
         gameScreen->setBrushTileType(TILE_PLAIN8);
     },
-    dataContainer->tile_images[TILE_PLAIN9],
-    dataContainer->tile_images[TILE_PLAIN9],
     dataContainer->tile_images[TILE_PLAIN9]);
     GUIButton* plain9Button = new GUIButton(ANCHOR_NORTHWEST, {4 + 32*col++, 4}, {28, 28}, gridEditPanel,
                                             []()
     {
         gameScreen->setBrushTileType(TILE_PLAIN9);
     },
-    dataContainer->tile_images[TILE_PLAIN9],
-    dataContainer->tile_images[TILE_PLAIN9],
     dataContainer->tile_images[TILE_PLAIN9]);
     GUIButton* spawnButton = new GUIButton(ANCHOR_NORTHWEST, {4 + 32*col++, 4}, {28, 28}, gridEditPanel,
                                            []()
     {
         gameScreen->setBrushTileType(TILE_SPAWN);
     },
-    dataContainer->tile_images[TILE_SPAWN],
-    dataContainer->tile_images[TILE_SPAWN],
     dataContainer->tile_images[TILE_SPAWN]);
     GUIButton* spawn2Button = new GUIButton(ANCHOR_NORTHWEST, {4 + 32*col++, 4}, {28, 28}, gridEditPanel,
                                             []()
     {
         gameScreen->setBrushTileType(TILE_SPAWN2);
     },
-    dataContainer->tile_images[TILE_SPAWN2],
-    dataContainer->tile_images[TILE_SPAWN2],
     dataContainer->tile_images[TILE_SPAWN2]);
 
     gridEditPanel->addObject(emptyButton);
@@ -777,7 +760,7 @@ void GameScreen::buildGUI()
     GUIButton* bkgDonutButton = new GUIButton(ANCHOR_NORTHWEST, {4, 4 + 16*col++}, {60, 12}, gridBkgPanel,
             []()
     {
-        gameScreen->setBackground(BKG_DONUT);
+        gameScreen->setBackgroundImg(BKG_DONUT);
     },
     dataContainer->game_editor_button_bkg[BKG_DONUT],
     dataContainer->game_editor_button_bkg[BKG_DONUT],
@@ -786,7 +769,7 @@ void GameScreen::buildGUI()
     GUIButton* bkgPharmButton = new GUIButton(ANCHOR_NORTHWEST, {4, 4 + 16*col++}, {60, 12}, gridBkgPanel,
             []()
     {
-        gameScreen->setBackground(BKG_PHARM);
+        gameScreen->setBackgroundImg(BKG_PHARM);
     },
     dataContainer->game_editor_button_bkg[BKG_PHARM],
     dataContainer->game_editor_button_bkg[BKG_PHARM],
@@ -795,7 +778,7 @@ void GameScreen::buildGUI()
     GUIButton* bkgPedButton = new GUIButton(ANCHOR_NORTHWEST, {4, 4 + 16*col++}, {60, 12}, gridBkgPanel,
                                             []()
     {
-        gameScreen->setBackground(BKG_PED);
+        gameScreen->setBackgroundImg(BKG_PED);
     },
     dataContainer->game_editor_button_bkg[BKG_PED],
     dataContainer->game_editor_button_bkg[BKG_PED],
@@ -804,7 +787,7 @@ void GameScreen::buildGUI()
     GUIButton* bkgMonkeyButton = new GUIButton(ANCHOR_NORTHWEST, {4, 4 + 16*col++}, {60, 12}, gridBkgPanel,
             []()
     {
-        gameScreen->setBackground(BKG_MONKEY);
+        gameScreen->setBackgroundImg(BKG_MONKEY);
     },
     dataContainer->game_editor_button_bkg[BKG_MONKEY],
     dataContainer->game_editor_button_bkg[BKG_MONKEY],
@@ -813,65 +796,96 @@ void GameScreen::buildGUI()
     GUIButton* bkgCellButton = new GUIButton(ANCHOR_NORTHWEST, {4, 4 + 16*col++}, {60, 12}, gridBkgPanel,
             []()
     {
-        gameScreen->setBackground(BKG_CELL);
+        gameScreen->setBackgroundImg(BKG_CELL);
     },
     dataContainer->game_editor_button_bkg[BKG_CELL],
     dataContainer->game_editor_button_bkg[BKG_CELL],
     dataContainer->game_editor_button_bkg[BKG_CELL]);
     gridBkgPanel->addObject(bkgCellButton);
 
+    // turn display items
+    playerTurn = new GUITexture(ANCHOR_NORTH, {-200, 50},
+                                dataContainer->game_disp_playerturn,
+                                {400, 100}, this);
+    playerTurn->setTransparency(0);
+    addObject(playerTurn);
+    aiTurn = new GUITexture(ANCHOR_NORTH, {-200, 50},
+                            dataContainer->game_disp_compturn,
+                            {400, 100}, this);
+    aiTurn->setTransparency(0);
+    addObject(aiTurn);
+
+    // debug options
+    debugOptions = new GUIContainer(ANCHOR_NORTHWEST, {10, 10}, {220, 190}, this, {120, 120, 120, 140});
+    GUIButton* teamViewButton = new GUIButton(ANCHOR_NORTHWEST, {10, 10}, {200, 50}, debugOptions,
+                                   [](){gameScreen->toggleViewTeams();},
+                                   dataContainer->game_button_viewTeams);
+    debugOptions->addObject(teamViewButton);
+    GUIButton* winGameButton = new GUIButton(ANCHOR_NORTHWEST, {10, 70}, {200, 50}, debugOptions,
+                                  [](){gameScreen->setGameStatus(GAMESTATUS_WON);},
+                                  dataContainer->game_button_win);
+    debugOptions->addObject(winGameButton);
+    GUIButton* stepButton = new GUIButton(ANCHOR_NORTHWEST, {10, 130}, {200, 50}, debugOptions,
+                               [](){gameScreen->stepAI();},
+                               dataContainer->game_button_aiStep);
+    debugOptions->addObject(stepButton);
+    debugOptions->setTransparency(0);
+    addObject(debugOptions);
+
+    // pre-game options
+    preGameOptions = new GUIContainer(ANCHOR_SOUTHWEST, {10, -150}, {220, 130}, this, {120, 120, 120, 140});
+    GUIButton* startGameButton = new GUIButton(ANCHOR_NORTHWEST, {10, 10}, {200, 50}, preGameOptions,
+                                    [](){gameScreen->setGameStatus(GAMESTATUS_PLAYING);},
+                                    dataContainer->game_button_start);
+    preGameOptions->addObject(startGameButton);
+    GUIButton* backToMapButton = new GUIButton(ANCHOR_NORTHWEST, {10, 70}, {200, 50}, preGameOptions,
+                                    [](){gameScreen->setGameStatus(GAMESTATUS_LOST);},
+                                    dataContainer->game_button_quitToMap);
+    preGameOptions->addObject(backToMapButton);
+    addObject(preGameOptions);
+
+    // pause menu
+    pauseMenu = new GUIContainer(ANCHOR_CENTER, {-110, -200}, {220, 5*60 + 10}, this, {120, 120, 120, 140});
+    GUIButton* resumeGameButton = new GUIButton(ANCHOR_NORTHWEST, {10, 10}, {200, 50}, pauseMenu,
+                                                [](){gameScreen->togglePauseMenu();},
+                                                dataContainer->game_button_resume);
+    pauseMenu->addObject(resumeGameButton);
+    GUIButton* resetGameButton = new GUIButton(ANCHOR_NORTHWEST, {10, 70}, {200, 50}, pauseMenu,
+                                    [](){gameScreen->loadGame(mapScreen->getSelectedNode()->getLevelId());},
+                                    dataContainer->game_button_reset);
+    pauseMenu->addObject(resetGameButton);
+    GUIButton* exitToMapButton = new GUIButton(ANCHOR_NORTHWEST, {10, 130}, {200, 50}, pauseMenu,
+                                      [](){gameScreen->setGameStatus(GAMESTATUS_LOST);},
+                                      dataContainer->game_button_quitToMap);
+    pauseMenu->addObject(exitToMapButton);
+    GUIButton* exitToMainButton = new GUIButton(ANCHOR_NORTHWEST, {10, 190}, {200, 50}, pauseMenu,
+                                                [](){gameScreen->setGameStatus(GAMESTATUS_LOST);
+                                                     currScreen = mainScreen;},
+                                                dataContainer->game_button_quitToMain);
+    pauseMenu->addObject(exitToMainButton);
+    GUIButton* exitToDesktopButton = new GUIButton(ANCHOR_NORTHWEST, {10, 250}, {200, 50}, pauseMenu,
+                                                   [](){quit = true;},
+                                                   dataContainer->game_button_quitToDesktop);
+    pauseMenu->addObject(exitToDesktopButton);
+    pauseMenu->setTransparency(0);
+    pauseMenu->setMovable(false);
+    addObject(pauseMenu);
+
+    // end turn button
+    turnButton = new GUIButton(ANCHOR_SOUTHEAST, {-220, -60}, {200, 50}, this,
+                               [](){gameScreen->endTurn();},
+                               dataContainer->game_button_endTurn);
+    turnButton->setTransparency(0);
+    addObject(turnButton);
+
     // program display window
-    progDisp = new ProgramDisplayContainer(ANCHOR_SOUTHEAST, {-220, -120}, {200, 100}, this);
+    progDisp = new ProgramDisplayContainer(ANCHOR_SOUTHWEST, {10, -210}, {200, 200}, this);
     progDisp->setTransparency(0);
     addObject(progDisp);
 
-    // end turn button and turnstep button
-    endTurnButton = new GUIButton(ANCHOR_SOUTH, {-150, -100}, {200, 50}, this,
-                                  [](){gameScreen->endTurn();},
-                                  dataContainer->game_button_endTurn);
-    endTurnButton->setTransparency(0);
-    addObject(endTurnButton);
-    stepButton = new GUIButton(ANCHOR_SOUTH, {100, -100}, {100, 50}, this,
-                               [](){gameScreen->stepAI();},
-                               dataContainer->game_button_aiStep);
-    stepButton->setTransparency(0);
-    addObject(stepButton);
-
-    // reset/win/exit game buttons
-    abandonGameButton = new GUIButton(ANCHOR_NORTHEAST, {-250, 25}, {200, 50}, this,
-                                      [](){gameScreen->setGameStatus(GAMESTATUS_LOST);},
-                                      dataContainer->game_button_abandon);
-    abandonGameButton->setTransparency(0);
-    addObject(abandonGameButton);
-    winGameButton = new GUIButton(ANCHOR_NORTHEAST, {-250, 100}, {200, 50}, this,
-                                  [](){gameScreen->setGameStatus(GAMESTATUS_WON);},
-                                  dataContainer->game_button_win);
-    winGameButton->setTransparency(0);
-    addObject(winGameButton);
-    resetGameButton = new GUIButton(ANCHOR_NORTHEAST, {-250, 175}, {200, 50}, this,
-                                    [](){gameScreen->loadGame(mapScreen->getSelectedNode()->getLevelStr());},
-                                    dataContainer->game_button_reset);
-    resetGameButton->setTransparency(0);
-    addObject(resetGameButton);
-
-    // start game button and back-to-map button
-    startGameButton = new GUIButton(ANCHOR_SOUTHWEST, {20, -100}, {137, 40}, this,
-                                    [](){gameScreen->setGameStatus(GAMESTATUS_PLAYING);},
-                                    dataContainer->game_button_start);
-    addObject(startGameButton);
-    backToMapButton = new GUIButton(ANCHOR_SOUTHWEST, {20 ,-150}, {141, 34}, this,
-                                    [](){gameScreen->setGameStatus(GAMESTATUS_LOST);},
-                                    dataContainer->game_button_returnToMap);
-    addObject(backToMapButton);
-
     // add the program inventory display
-    progInv = new ProgramInventoryDisplay(ANCHOR_NORTHEAST, {0, 0}, {0, 0}, this, classicPrograms);
+    progInv = new ProgramInventoryDisplay(ANCHOR_NORTHEAST, {0, 0}, {0, 0}, this);
     addObject(progInv);
-
-    // add the team toggle button
-    teamViewButton = new GUIButton(ANCHOR_NORTHWEST, {20, 20}, "VIEW TEAMS", this,
-                                   [](){gameScreen->toggleViewTeams();});
-    addObject(teamViewButton);
 }
 
 void GameScreen::resetBounds()
@@ -883,6 +897,9 @@ void GameScreen::resetBounds()
 
 bool GameScreen::mouseDown()
 {
+    if (pauseMenu->isVisible())
+        return pauseMenu->mouseDown();
+
     if (GUIContainer::mouseDown()) return true;
 
     if (editorMode)
@@ -962,7 +979,7 @@ bool GameScreen::mouseDown()
                 }
                 else if (game->getHumanPlayer()->getSelectedActionDist(click) > 0)
                 {
-                    printf("player using move\n");
+                    if (debug >= DEBUG_NORMAL) printf("player using move\n");
                     game->getHumanPlayer()->useSelectedActionAt(click);
                     game->getHumanPlayer()->setSelectedProgram(NULL);
                 }
@@ -975,6 +992,9 @@ bool GameScreen::mouseDown()
 
 bool GameScreen::mouseUp()
 {
+    if (pauseMenu->isVisible())
+        return pauseMenu->mouseUp();
+
     GUIContainer::mouseUp();
 
     bool r = false;
@@ -1015,6 +1035,7 @@ bool GameScreen::mouseUp()
 void GameScreen::endTurn()
 {
     game->getHumanPlayer()->endTurn();
+    aiTurn->fade(255, 500);
     tickingAI = true;
 }
 
@@ -1204,6 +1225,16 @@ void GameScreen::drawGrid()
                         SDL_SetTextureAlphaMod(dataContainer->tile_selected, ((double)-textureTickCount/1000.0)*255 + 255);
                         SDL_RenderCopy(gRenderer, dataContainer->tile_selected, NULL, &tileRect);
                     }
+
+                    // draw the checkmark if this program is done for the turn
+                    if (prog->isDone())
+                    {
+                        tileRect.x = xDefault + 17;
+                        tileRect.y = yDefault;
+                        tileRect.w = 10;
+                        tileRect.h = 10;
+                        SDL_RenderCopy(gRenderer, dataContainer->game_icon_checkmark, NULL, &tileRect);
+                    }
                 }
             }
             else // if there is no program on this tile
@@ -1222,7 +1253,8 @@ void GameScreen::drawGrid()
             if (mousePos.x - tileRect.x > 0 &&
                 mousePos.x - (tileRect.x + tileRect.w) < 0 &&
                 mousePos.y - tileRect.y > 0 &&
-                mousePos.y - (tileRect.y + tileRect.h) < 0)
+                mousePos.y - (tileRect.y + tileRect.h) < 0 &&
+                !pauseMenu->isVisible())
             {
                 tileRect.x = xDefault;
                 tileRect.y = yDefault;
@@ -1348,6 +1380,20 @@ void GameScreen::draw()
         gridItemEditPanel->draw();
         gridBkgPanel->draw();
     }
+
+    if (pauseMenu->isVisible())
+    {
+        SDL_SetRenderDrawColor(gRenderer, 0, 0, 0, 140);
+        SDL_RenderFillRect(gRenderer, &bounds);
+
+        SDL_Texture* pause = loadString("PAUSED", FONT_NORMAL, 200, {255, 255, 255, 0});
+        SDL_Rect pauseRect = {50, 50, 0, 0};
+        SDL_QueryTexture(pause, NULL, NULL, &pauseRect.w, &pauseRect.h);
+        SDL_RenderCopy(gRenderer, pause, NULL, &pauseRect);
+        SDL_DestroyTexture(pause);
+
+        pauseMenu->draw();
+    }
 }
 
 void GameScreen::shiftBkg(Coord disp)
@@ -1401,7 +1447,7 @@ void GameScreen::setBrushItem(ITEM i)
     brushItemType = i;
 }
 
-void GameScreen::setBackground(BACKGROUND b)
+void GameScreen::setBackgroundImg(BACKGROUND b)
 {
     bkgImg = dataContainer->game_backgrounds[b];
     game->setBackground(b);
@@ -1422,15 +1468,42 @@ Program* GameScreen::getSelectedProgram()
 
 void GameScreen::tick(int ms)
 {
+    // tick gui objects
+    GUIContainer::tick(ms);
+
+    // don't do anything if pause is visible
+    if (pauseMenu->isVisible())
+        return;
+
+    // test to activate/deactivate the debug options
+    if (debug >= DEBUG_MINIMAL)
+        debugOptions->setTransparency(255);
+    else
+        debugOptions->setTransparency(0);
+
     // adjust time-dependent textures
     textureTickCount += ms;
     if (textureTickCount >= 1000) textureTickCount = 0;
+
+    // fade out the playerTurn display if it is visible
+    if (playerTurn->isVisible() && playerTurn->getTransparency() == 255)
+    {
+        playerTurn->fade(0, 500);
+    }
 
     // if currently doing the AI's moves
     if (tickingAI && gameStatus == GAMESTATUS_PLAYING)
     {
         turnTickCount += ms;
-        if (turnTickCount >= 200)
+        if (aiTurn->isVisible() && aiTurn->getTransparency() != 255)
+        {
+            // do nothing
+        }
+        else if (aiTurn->isVisible() && aiTurn->getTransparency() == 255)
+        {
+            aiTurn->fade(0, 500);
+        }
+        else if (turnTickCount >= 200)
         {
             turnTickCount = 0;
 
@@ -1451,6 +1524,7 @@ void GameScreen::tick(int ms)
             {
                 game->getAIPlayers()->forEach([](AICore* a){a->endTurn();});
                 tickingAI = false;
+                playerTurn->fade(255, 500);
                 currPlayer = game->getHumanPlayer();
             }
         }
@@ -1508,12 +1582,12 @@ void GameScreen::saveGame()
     game->saveLevel();
 }
 
-void GameScreen::loadGame(std::string s)
+void GameScreen::loadGame(int id)
 {
     delete game;
-    game = new Game(s);
+    game = new Game("levels/classic/" + to_string(id) + ".urf");
     currPlayer = game->getHumanPlayer();
-    setBackground(game->getBackground());
+    setBackgroundImg(game->getBackground());
     setGameStatus(GAMESTATUS_PLACING_PROGRAMS);
     checkShiftable();
     centerScreen();
@@ -1545,28 +1619,18 @@ void GameScreen::setGameStatus(GAMESTATUS g)
         for (int i = 0; i < PROGRAM_NUM_PROGTYPES; i++)
             usedPrograms[i] = 0;
 
-        endTurnButton->setTransparency(0);
-        stepButton->setTransparency(0);
-        abandonGameButton->setTransparency(0);
-        winGameButton->setTransparency(0);
-        resetGameButton->setTransparency(0);
+        preGameOptions->setTransparency(255);
         progDisp->setTransparency(0);
+        turnButton->setTransparency(0);
 
-        startGameButton->setTransparency(255);
-        backToMapButton->setTransparency(255);
         progInv->setTransparency(255);
         progInv->updateContents();
         break;
     case GAMESTATUS_PLAYING:
-        endTurnButton->setTransparency(255);
-        stepButton->setTransparency(255);
-        abandonGameButton->setTransparency(255);
-        winGameButton->setTransparency(255);
-        resetGameButton->setTransparency(255);
+        preGameOptions->setTransparency(0);
         progDisp->setTransparency(255);
+        turnButton->setTransparency(255);
 
-        startGameButton->setTransparency(0);
-        backToMapButton->setTransparency(0);
         progInv->setTransparency(0);
 
         for (int x = 0; x < 200; x++) for (int y = 0; y < 200; y++)
@@ -1574,10 +1638,11 @@ void GameScreen::setGameStatus(GAMESTATUS g)
                 game->setTileAt({x, y}, TILE_PLAIN);
 
         game->getHumanPlayer()->setSelectedTile({-1, -1});
+        playerTurn->fade(255, 500);
         break;
     case GAMESTATUS_WON:
         for (int i = 0; i < PROGRAM_NUM_PROGTYPES; i++)
-            classicPrograms[i] += usedPrograms[i];
+            progListCurrent[i] += usedPrograms[i];
 
         mapScreen->getSelectedNode()->winNode();
         mapScreen->clearSelectedNode();
@@ -1585,8 +1650,9 @@ void GameScreen::setGameStatus(GAMESTATUS g)
         break;
     case GAMESTATUS_LOST:
         for (int i = 0; i < PROGRAM_NUM_PROGTYPES; i++)
-            classicPrograms[i] += usedPrograms[i];
+            progListCurrent[i] += usedPrograms[i];
 
+        pauseMenu->setTransparency(0);
         mapScreen->clearSelectedNode();
         currScreen = mapScreen;
         break;
@@ -1620,7 +1686,7 @@ void GameScreen::tryPlacingProgram(PROGRAM p)
     if (prog != NULL)
     {
         usedPrograms[prog->getType()]--;
-        classicPrograms[prog->getType()]++;
+        progListCurrent[prog->getType()]++;
         game->setProgramAt(selectedTile, NULL);
     }
 
@@ -1631,11 +1697,22 @@ void GameScreen::tryPlacingProgram(PROGRAM p)
     printf("program placed\n");
 
     usedPrograms[p]++;
-    classicPrograms[p]--;
+    progListCurrent[p]--;
     progInv->updateContents();
 }
 
 void GameScreen::toggleEditorMode()
 {
     editorMode = !editorMode;
+}
+
+void GameScreen::togglePauseMenu()
+{
+    if (pauseMenu->isVisible()) pauseMenu->setTransparency(0);
+    else pauseMenu->setTransparency(255);
+}
+
+void GameScreen::triggerDamageAt(Coord c)
+{
+    // TODO
 }

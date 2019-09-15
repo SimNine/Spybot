@@ -44,14 +44,24 @@ extern bool quit;
 extern DEBUG debug;
 
 // programs owned in each campaign
-extern int classicPrograms[PROGRAM_NUM_PROGTYPES];
-extern int nightfallPrograms[PROGRAM_NUM_PROGTYPES];
-extern int customPrograms[PROGRAM_NUM_PROGTYPES];
+extern int progListClassic[PROGRAM_NUM_PROGTYPES];
+extern int progListNightfall[PROGRAM_NUM_PROGTYPES];
+extern int progListCustom[PROGRAM_NUM_PROGTYPES];
+extern int* progListCurrent;
 
 // programs currently in play
 extern int usedPrograms[PROGRAM_NUM_PROGTYPES];
 
 // program ID currently selected (to be placed)
 extern PROGRAM currProgram;
+
+// GUIContainer currently held by the mouse
+extern GUIContainer* heldContainer;
+
+// credit counter
+extern int numCredits;
+
+// current profile
+extern std::string profile;
 
 #endif

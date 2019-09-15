@@ -23,6 +23,12 @@ class MapScreen : public GUIContainer
         void resetProgramInvDisplay();
         void toggleInvDisplay();
         void unlockAllLevels();
+
+        void saveMap(std::string);
+        void loadMap(std::string);
+        void switchMap(MAPPRESET);
+
+        void togglePauseMenu();
     protected:
     private:
         double bkgX;
@@ -36,6 +42,9 @@ class MapScreen : public GUIContainer
         GUIContainer* levelConfirm;
         GUIButton* invToggleButton;
         ProgramInventoryDisplay* invDisplay;
+        GUIContainer* pauseMenu;
+
+        void generateDefaultMaps();
 };
 
 #endif // MAPSCREEN_H

@@ -6,7 +6,7 @@
 class ProgramInventoryButton : public GUIObject
 {
     public:
-        ProgramInventoryButton(ANCHOR, Coord, int*, PROGRAM, GUIContainer*);
+        ProgramInventoryButton(ANCHOR, Coord, PROGRAM, GUIContainer*);
         virtual ~ProgramInventoryButton();
 
         void setTransparency(int);
@@ -18,7 +18,6 @@ class ProgramInventoryButton : public GUIObject
     protected:
     private:
         SDL_Texture* icon;
-        int* progList;
         PROGRAM progType;
 };
 

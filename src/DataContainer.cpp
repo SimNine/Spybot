@@ -213,52 +213,56 @@ void initData()
     dataContainer->item_icons[ITEM_BIGCREDIT] = loadTexture("resources/board/items/item_coin.png");
     dataContainer->item_icons[ITEM_FILES] = loadTexture("resources/board/items/item_files.png");
 
-    dataContainer->game_button_endTurn = loadTexture("resources/board/button_end_turn.png");
-    dataContainer->game_button_aiStep = loadTexture("resources/board/button_step.png");
-    dataContainer->game_button_abandon = loadTexture("resources/board/button_abandon_game.png");
-    dataContainer->game_button_win = loadTexture("resources/board/button_win_game.png");
-    dataContainer->game_button_reset = loadTexture("resources/board/button_reset_game.png");
-    dataContainer->game_button_start = loadTexture("resources/board/button_begin_game.png");
-    dataContainer->game_button_returnToMap = loadTexture("resources/board/button_back_to_map.png");
+    dataContainer->game_button_endTurn = "resources/board/button_end_turn.png";
+    dataContainer->game_button_aiStep = "resources/board/button_step.png";
+    dataContainer->game_button_win = "resources/board/button_win_game.png";
+    dataContainer->game_button_start = "resources/board/button_begin_game.png";
 
-    dataContainer->game_disp_compturn = loadTexture("resources/board/disp_turn_ai.png");
-    dataContainer->game_disp_playerturn = loadTexture("resources/board/disp_turn_player.png");
+    dataContainer->game_button_resume = "resources/board/button_resume_game.png";
+    dataContainer->game_button_reset = "resources/board/button_reset_game.png";
+    dataContainer->game_button_viewTeams = "resources/board/button_view_teams.png";
+    dataContainer->game_button_quitToMap = "resources/board/button_back_to_map.png";
+    dataContainer->game_button_quitToMain = "resources/board/button_quit_to_menu.png";
+    dataContainer->game_button_quitToDesktop = "resources/board/button_quit_to_desktop.png";
+
+    dataContainer->game_icon_checkmark = loadTexture("resources/board/checkmark2.png");
+
+    dataContainer->game_disp_compturn = "resources/board/disp_turn_ai.png";
+    dataContainer->game_disp_playerturn = "resources/board/disp_turn_player.png";
 
     // mainScreen resources
     dataContainer->main_bkgdata = loadTexture("resources/main/menu_bkgdata.png");
     dataContainer->main_bkgsplotch = loadTexture("resources/main/menu_bkgsplotch.png");
-    dataContainer->main_button_classic = loadTexture("resources/main/menu_button_classic.png");
-    dataContainer->main_button_classic_over = loadTexture("resources/main/menu_button_classic_over.png");
-    dataContainer->main_button_nightfall = loadTexture("resources/main/menu_button_nightfall.png");
-    dataContainer->main_button_nightfall_over = loadTexture("resources/main/menu_button_nightfall_over.png");
-    dataContainer->main_button_freeform = loadTexture("resources/main/menu_button_freeform.png");
-    dataContainer->main_button_freeform_over = loadTexture("resources/main/menu_button_freeform_over.png");
-    dataContainer->main_button_options = loadTexture("resources/main/menu_button_options.png");
-    dataContainer->main_button_options_over = loadTexture("resources/main/menu_button_options_over.png");
-    dataContainer->main_button_achievements = loadTexture("resources/main/menu_button_achievements.png");
-    dataContainer->main_button_achievements_over = loadTexture("resources/main/menu_button_achievements_over.png");
-    dataContainer->main_button_quit = loadTexture("resources/main/menu_button_quit.png");
-    dataContainer->main_button_quit_over = loadTexture("resources/main/menu_button_quit_over.png");
 
-    // SDL_color presets
-    dataContainer->color_black = new SDL_Color;
-    dataContainer->color_black->r = 255;
-    dataContainer->color_black->g = 255;
-    dataContainer->color_black->b = 255;
-    dataContainer->color_black->a = 0;
-    dataContainer->color_white = new SDL_Color;
-    dataContainer->color_white->r = 0;
-    dataContainer->color_white->g = 0;
-    dataContainer->color_white->b = 0;
-    dataContainer->color_white->a = 0;
+    dataContainer->main_button_classic = "resources/main/menu_button_classic.png";
+    dataContainer->main_button_classic_over = "resources/main/menu_button_classic_over.png";
+    dataContainer->main_button_nightfall = "resources/main/menu_button_nightfall.png";
+    dataContainer->main_button_nightfall_over = "resources/main/menu_button_nightfall_over.png";
+    dataContainer->main_button_freeform = "resources/main/menu_button_freeform.png";
+    dataContainer->main_button_freeform_over = "resources/main/menu_button_freeform_over.png";
+    dataContainer->main_button_options = "resources/main/menu_button_options.png";
+    dataContainer->main_button_options_over = "resources/main/menu_button_options_over.png";
+    dataContainer->main_button_achievements = "resources/main/menu_button_achievements.png";
+    dataContainer->main_button_achievements_over = "resources/main/menu_button_achievements_over.png";
+    dataContainer->main_button_quit = "resources/main/menu_button_quit.png";
+    dataContainer->main_button_quit_over = "resources/main/menu_button_quit_over.png";
 
-    // SDL_Mixer sounds
+    // SDL_Mixer music
     dataContainer->music_title = loadMusic("resources/sounds/title_music.flac");
     dataContainer->music_map_ambient = loadMusic("resources/sounds/map_ambient.flac");
     dataContainer->music_game1 = loadMusic("resources/sounds/e1.flac");
     dataContainer->music_game2 = loadMusic("resources/sounds/e3.flac");
     dataContainer->music_game3 = loadMusic("resources/sounds/e5.flac");
     dataContainer->music_game4 = loadMusic("resources/sounds/e8.flac");
+
+    // SDL_Mixer sounds
     dataContainer->sound_move_player = loadSound("resources/sounds/move_player.flac");
     dataContainer->sound_move_computer = loadSound("resources/sounds/move_computer.flac");
+    dataContainer->sound_action_attack = loadSound("resources/sounds/action_attack.flac");
+    dataContainer->sound_action_grid_damage = loadSound("resources/sounds/action_damage_grid.flac");
+    dataContainer->sound_action_grid_fix = loadSound("resources/sounds/action_fix_grid.flac");
+    dataContainer->sound_action_heal = loadSound("resources/sounds/action_size.flac");
+    dataContainer->sound_action_speed = loadSound("resources/sounds/action_speed.flac");
+    dataContainer->sound_pickup_credit = loadSound("resources/sounds/game_credit.flac");
+    dataContainer->sound_pickup_files = loadSound("resources/sounds/win_flag.flac");
 }

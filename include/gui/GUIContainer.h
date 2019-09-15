@@ -9,11 +9,16 @@
 class GUIContainer : public GUIObject
 {
     public:
-        GUIContainer(ANCHOR, Coord, Coord, GUIContainer*, SDL_Texture*);
+        GUIContainer(ANCHOR anch, Coord disp, Coord dims, GUIContainer* parent, SDL_Texture* bkg);
+        GUIContainer(ANCHOR anch, Coord disp, GUIContainer* parent, SDL_Texture* bkg);
+        GUIContainer(ANCHOR anch, Coord disp, Coord dims, GUIContainer* parent, SDL_Color col);
         virtual ~GUIContainer();
-        SDL_Texture* getBackground();
-        void setBackground(SDL_Texture*);
+        SDL_Texture* getBackgroundImg();
+        SDL_Color getBackgroundCol();
+        void setBackgroundImg(SDL_Texture*);
+        void setBackgroundCol(SDL_Color);
         void addObject(GUIObject*);
+        void removeObject(GUIObject*);
         void addAllObjects(LinkedList<GUIObject*>*);
         LinkedList<GUIObject*>* getContents();
         void setPressed(bool);
@@ -24,12 +29,22 @@ class GUIContainer : public GUIObject
         bool mouseUp();
         void tick(int);
         void setTransparency(int);
+
+        void incDisplacement(Coord);
+
+        bool isMovable();
+        void setMovable(bool);
+
     protected:
+        SDL_Color* bkgCol;
         SDL_Texture* bkgImg;
         void drawBkg();
         void drawContents();
 
+        bool movable;
+
         LinkedList<GUIObject*>* contents;
+
     private:
 };
 

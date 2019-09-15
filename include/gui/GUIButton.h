@@ -10,6 +10,12 @@ class GUIButton : public GUIObject
         GUIButton(ANCHOR, Coord, std::string, GUIContainer*,
                   void (*func) (void));
         GUIButton(ANCHOR, Coord, Coord, GUIContainer*,
+                  void (*func) (void), std::string, std::string, std::string);
+        GUIButton(ANCHOR, Coord, Coord, GUIContainer*,
+                  void (*func) (void), std::string, std::string);
+        GUIButton(ANCHOR, Coord, Coord, GUIContainer*,
+                  void (*func) (void), std::string);
+        GUIButton(ANCHOR, Coord, Coord, GUIContainer*,
                   void (*func) (void), SDL_Texture*);
         GUIButton(ANCHOR, Coord, Coord, GUIContainer*,
                   void (*func) (void), SDL_Texture*, SDL_Texture*);
@@ -31,6 +37,7 @@ class GUIButton : public GUIObject
         SDL_Texture* bkgOver;
         SDL_Texture* bkgPressed;
         void (*func) (void);
+        bool willDestroyTextures;
 };
 
 #endif // GUIBUTTON_H

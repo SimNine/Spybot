@@ -255,6 +255,16 @@ public:
         }
     }
 
+    void forEachBackwards(void (*func)(T))
+    {
+        ListNode<T>* currNode = lastNode;
+        while (currNode != NULL)
+        {
+            func(currNode->contents);
+            currNode = currNode->prev;
+        }
+    }
+
     /* returns an iterator over this list */
     Iterator<T> getIterator()
     {

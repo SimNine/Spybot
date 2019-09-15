@@ -3,16 +3,11 @@
 
 #include <SDL.h>
 
-ProgramInventoryButton::ProgramInventoryButton(ANCHOR a, Coord disp, int* progList, PROGRAM t, GUIContainer* p)
+ProgramInventoryButton::ProgramInventoryButton(ANCHOR a, Coord disp, PROGRAM t, GUIContainer* p)
     : GUIObject(a, disp, {30, 30}, p)
 {
     icon = dataContainer->program_icons[t];
-    this->progList = progList;
     progType = t;
-
-    //int w, h;
-    //SDL_QueryTexture(icon, NULL, NULL, &w, &h);
-    //setBounds(xD, yD, w, h);
 }
 
 ProgramInventoryButton::~ProgramInventoryButton()

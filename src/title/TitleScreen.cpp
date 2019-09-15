@@ -14,6 +14,8 @@ TitleScreen::TitleScreen()
     SDL_QueryTexture(dataContainer->title_subtitle, NULL, NULL, &w, &h);
     addObject(new GUITexture(ANCHOR_CENTER, {-w/2, 20}, dataContainer->title_subtitle, {w, h}, this));
 
+    //sprites = new LinkedList<GUITexture*>();
+
     tickCount = 0;
 
     timingCompany = 3000;

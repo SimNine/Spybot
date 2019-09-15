@@ -33,11 +33,12 @@ MainScreen::MainScreen()
                                                         [](){toggleFullscreen();});
     optionsContainer->addObject(options_fullscreenbutton);
     addObject(optionsContainer);
+    optionsContainer->setMovable(false);
 
     // main container
     mainContainer = new GUIContainer(ANCHOR_SOUTHWEST, {0, -500}, {1000, 500}, this, NULL);
     int ln = 1;
-    GUIButton* button_quit = new GUIButton(ANCHOR_SOUTHWEST, {20, -(41 + 20)*ln++}, {73, 41}, this,
+    GUIButton* button_quit = new GUIButton(ANCHOR_SOUTHWEST, {20, -(41 + 20)*ln++}, {73, 41}, mainContainer,
                                            []()
     {
         Mix_PlayChannel(-1, dataContainer->sound_move_player, 0);
@@ -46,17 +47,16 @@ MainScreen::MainScreen()
     dataContainer->main_button_quit,
     dataContainer->main_button_quit_over);
     mainContainer->addObject(button_quit);
-    GUIButton* button_options = new GUIButton(ANCHOR_SOUTHWEST, {20, -(41 + 20)*ln++}, {138, 41}, this,
+    GUIButton* button_options = new GUIButton(ANCHOR_SOUTHWEST, {20, -(41 + 20)*ln++}, {138, 41}, mainContainer,
             []()
     {
-        printf("placeholder: goto options");
         mainScreen->toggleOptions();
         Mix_PlayChannel(-1, dataContainer->sound_move_player, 0);
     },
     dataContainer->main_button_options,
     dataContainer->main_button_options_over);
     mainContainer->addObject(button_options);
-    GUIButton* button_achievements = new GUIButton(ANCHOR_SOUTHWEST, {20, -(41 + 20)*ln++}, {242, 41}, this,
+    GUIButton* button_achievements = new GUIButton(ANCHOR_SOUTHWEST, {20, -(41 + 20)*ln++}, {242, 41}, mainContainer,
             []()
     {
         printf("placeholder: goto achievs");
@@ -65,7 +65,7 @@ MainScreen::MainScreen()
     dataContainer->main_button_achievements,
     dataContainer->main_button_achievements_over);
     mainContainer->addObject(button_achievements);
-    GUIButton* button_freeform = new GUIButton(ANCHOR_SOUTHWEST, {20, -(41 + 20)*ln++}, {320, 41}, this,
+    GUIButton* button_freeform = new GUIButton(ANCHOR_SOUTHWEST, {20, -(41 + 20)*ln++}, {320, 41}, mainContainer,
             []()
     {
         printf("placeholder: goto freeform map");
@@ -75,19 +75,23 @@ MainScreen::MainScreen()
     dataContainer->main_button_freeform_over);
     mainContainer->addObject(button_freeform);
 
-    GUIButton* button_nightfall = new GUIButton(ANCHOR_SOUTHWEST, {20, -(41 + 20)*ln++}, {349, 41}, this,
+    GUIButton* button_nightfall = new GUIButton(ANCHOR_SOUTHWEST, {20, -(41 + 20)*ln++}, {349, 41}, mainContainer,
             []()
     {
         printf("placeholder: goto nightfall campaign map");
+        mapScreen->switchMap(MAPPRESET_NIGHTFALL);
+        currScreen = mapScreen;
+        Mix_PlayMusic(dataContainer->music_map_ambient, -1);
         Mix_PlayChannel(-1, dataContainer->sound_move_player, 0);
     },
     dataContainer->main_button_nightfall,
     dataContainer->main_button_nightfall_over);
     mainContainer->addObject(button_nightfall);
 
-    GUIButton* button_classic = new GUIButton(ANCHOR_SOUTHWEST, {20, -(41 + 20)*ln++}, {315, 41}, this,
+    GUIButton* button_classic = new GUIButton(ANCHOR_SOUTHWEST, {20, -(41 + 20)*ln++}, {315, 41}, mainContainer,
             []()
     {
+        mapScreen->switchMap(MAPPRESET_CLASSIC);
         currScreen = mapScreen;
         Mix_PlayMusic(dataContainer->music_map_ambient, -1);
         Mix_PlayChannel(-1, dataContainer->sound_move_player, 0);
@@ -97,6 +101,7 @@ MainScreen::MainScreen()
     mainContainer->addObject(button_classic);
 
     addObject(mainContainer);
+    mainContainer->setMovable(false);
     optionsContainer->setTransparency(0);
 
     textBkgDisplacement = 0;

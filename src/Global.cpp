@@ -32,15 +32,25 @@ bool acceptingInput = true;
 bool quit = false;
 
 // debug flag
-DEBUG debug = DEBUG_NORMAL;
+DEBUG debug = DEBUG_NONE;
 
 // owned programs per campaign
-int classicPrograms[PROGRAM_NUM_PROGTYPES];
-int nightfallPrograms[PROGRAM_NUM_PROGTYPES];
-int customPrograms[PROGRAM_NUM_PROGTYPES];
+int progListClassic[PROGRAM_NUM_PROGTYPES];
+int progListNightfall[PROGRAM_NUM_PROGTYPES];
+int progListCustom[PROGRAM_NUM_PROGTYPES];
+int* progListCurrent = progListClassic;
 
 // programs currently in play
 int usedPrograms[PROGRAM_NUM_PROGTYPES];
 
 // program ID currently selected (to be placed)
 PROGRAM currProgram = PROGRAM_NONE;
+
+// GUIContainer currently held by the mouse
+GUIContainer* heldContainer = NULL;
+
+// credit counter
+int numCredits = 0;
+
+// current profile
+std::string profile = "chris";

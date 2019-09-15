@@ -54,35 +54,20 @@ void Player::moveSelectedProgram(Coord pos)
         selectedTile = selectedProgram->getHead();
         calculateProgramDist(selectedProgram);
         Mix_PlayChannel(-1, dataContainer->sound_move_player, 0);
+
+        // if there is a credit here, pick it up
+        if (game->getItemAt(pos) == ITEM_CREDIT && team == 0)
+        {
+            game->setItemAt(pos, ITEM_NONE);
+            Mix_PlayChannel(-1, dataContainer->sound_action_speed, 0);
+        }
     }
 }
 
 void Player::moveSelectedProgramBy(Coord disp)
 {
-    // establish temp variables
     Coord n = selectedProgram->getCore() + disp;
-
-    // check for validity
-    if (!game->isTiled(n)) return;
-
-    // if the given space is adjacent to the selected program,
-    // and the selected program has moves left
-    if (selectedProgDist[n.x][n.y] == 1 && selectedProgram->getMoves() > 0)
-    {
-        // delete the tail of this program if it's at max health
-        if (selectedProgram->getHealth() == selectedProgram->getMaxHealth() &&
-            game->getProgramAt(n) != selectedProgram)
-        {
-            Coord temp = selectedProgram->getTail();
-            game->setProgramAt(temp, NULL);
-        }
-
-        game->setProgramAt(n, selectedProgram);
-        selectedProgram->moveTo(n);
-        selectedTile = selectedProgram->getHead();
-        calculateProgramDist(selectedProgram);
-        Mix_PlayChannel(-1, dataContainer->sound_move_player, 0);
-    }
+    moveSelectedProgram(n);
 }
 
 bool Player::canSelectedProgramMoveTo(Coord pos)
@@ -327,6 +312,8 @@ int Player::getSelectedActionDist(Coord pos)
 
 void Player::useSelectedActionAt(Coord pos)
 {
+    selectedProgram->setActionsLeft(0);
+
     if (selectedAction == NULL || game->isOOB(pos))
         return;
 

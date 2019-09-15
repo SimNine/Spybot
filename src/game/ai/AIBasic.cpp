@@ -108,6 +108,7 @@ bool AIBasic::actStep()
                 if (debug >= DEBUG_NORMAL) printf("at %i,%i\n", c.x, c.y);
                 useSelectedActionAt(c);
             }
+
             selectedProgram->setActionsLeft(0);
         }
         return true;

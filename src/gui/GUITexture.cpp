@@ -16,24 +16,37 @@ GUITexture::GUITexture(ANCHOR a, Coord disp, SDL_Texture* tex, Coord dims, bool 
     willDestroyTexture = destroyTex;
 }
 
+GUITexture::GUITexture(ANCHOR a, Coord disp, std::string tex, Coord dims, GUIContainer* par)
+    : GUIObject(a, disp, dims, par)
+{
+    texture = loadTexture(tex);
+    willDestroyTexture = true;
+}
+
 GUITexture::GUITexture(ANCHOR a, Coord disp, std::string str, GUIContainer* parent)
     : GUIObject(a, disp, {0, 0}, parent)
 {
     texture = loadString(str, FONT_NORMAL, 50, {255, 255, 255, 255});
     int w, h;
     SDL_QueryTexture(texture, NULL, NULL, &w, &h);
-    setBounds(disp, {0, 0});
+    setBounds(disp, {w, h});
     willDestroyTexture = true;
 }
 
 GUITexture::~GUITexture()
 {
-    if (willDestroyTexture) SDL_DestroyTexture(texture);
+    if (willDestroyTexture)
+        SDL_DestroyTexture(texture);
 }
 
 bool GUITexture::mouseDown()
 {
     return false;
+}
+
+bool GUITexture::mouseUp()
+{
+    return true;
 }
 
 void GUITexture::draw()
@@ -50,11 +63,6 @@ void GUITexture::setTransparency(int a)
     else currAlpha = a;
 
     SDL_SetTextureAlphaMod(texture, currAlpha);
-}
-
-bool GUITexture::mouseUp()
-{
-    return true;
 }
 
 void GUITexture::tick(int ms)

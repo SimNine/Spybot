@@ -15,6 +15,40 @@ GUIButton::GUIButton(ANCHOR a, Coord disp, std::string str, GUIContainer* parent
     int w, h;
     SDL_QueryTexture(bkgNormal, NULL, NULL, &w, &h);
     setBounds(disp, {w, h});
+    willDestroyTextures = true;
+}
+
+GUIButton::GUIButton(ANCHOR a, Coord disp, Coord dims, GUIContainer* parent,
+                     void (*func) (void), std::string bkgN, std::string bkgO, std::string bkgP)
+    : GUIObject(a, disp, dims, parent)
+{
+    this->func = func;
+    this->bkgNormal = loadTexture(bkgN);
+    this->bkgOver = loadTexture(bkgO);
+    this->bkgPressed = loadTexture(bkgP);
+    willDestroyTextures = true;
+}
+
+GUIButton::GUIButton(ANCHOR a, Coord disp, Coord dims, GUIContainer* parent,
+                     void (*func) (void), std::string bkgN, std::string bkgO)
+    : GUIObject(a, disp, dims, parent)
+{
+    this->func = func;
+    this->bkgNormal = loadTexture(bkgN);
+    this->bkgOver = loadTexture(bkgO);
+    this->bkgPressed = loadTexture(bkgO);
+    willDestroyTextures = true;
+}
+
+GUIButton::GUIButton(ANCHOR a, Coord disp, Coord dims, GUIContainer* parent,
+                     void (*func) (void), std::string bkgN)
+    : GUIObject(a, disp, dims, parent)
+{
+    this->func = func;
+    this->bkgNormal = loadTexture(bkgN);
+    this->bkgOver = loadTexture(bkgN);
+    this->bkgPressed = loadTexture(bkgN);
+    willDestroyTextures = true;
 }
 
 GUIButton::GUIButton(ANCHOR a, Coord disp, Coord dims, GUIContainer* parent,
@@ -25,6 +59,7 @@ GUIButton::GUIButton(ANCHOR a, Coord disp, Coord dims, GUIContainer* parent,
     this->bkgNormal = bkgN;
     this->bkgOver = bkgO;
     this->bkgPressed = bkgP;
+    willDestroyTextures = false;
 }
 
 GUIButton::GUIButton(ANCHOR a, Coord disp, Coord dims, GUIContainer* parent,
@@ -35,6 +70,7 @@ GUIButton::GUIButton(ANCHOR a, Coord disp, Coord dims, GUIContainer* parent,
     this->bkgNormal = bkgN;
     this->bkgOver = bkgO;
     this->bkgPressed = bkgO;
+    willDestroyTextures = false;
 }
 
 GUIButton::GUIButton(ANCHOR a, Coord disp, Coord dims, GUIContainer* parent,
@@ -45,6 +81,7 @@ GUIButton::GUIButton(ANCHOR a, Coord disp, Coord dims, GUIContainer* parent,
     this->bkgNormal = bkgN;
     this->bkgOver = bkgN;
     this->bkgPressed = bkgN;
+    willDestroyTextures = false;
 }
 
 GUIButton::GUIButton(ANCHOR a, Coord disp, Coord dims, GUIContainer* parent,
@@ -55,11 +92,17 @@ GUIButton::GUIButton(ANCHOR a, Coord disp, Coord dims, GUIContainer* parent,
     this->bkgNormal = NULL;
     this->bkgOver = NULL;
     this->bkgPressed = NULL;
+    willDestroyTextures = false;
 }
 
 GUIButton::~GUIButton()
 {
-    //dtor
+    if (willDestroyTextures)
+    {
+        if (bkgNormal != NULL) SDL_DestroyTexture(bkgNormal);
+        if (bkgOver != NULL) SDL_DestroyTexture(bkgOver);
+        if (bkgPressed != NULL) SDL_DestroyTexture(bkgPressed);
+    }
 }
 
 void GUIButton::draw()

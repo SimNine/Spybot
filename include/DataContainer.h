@@ -79,36 +79,39 @@ public:
     SDL_Texture* game_editor_button_clearGrid;
     SDL_Texture* game_editor_button_bkg[BKG_NUM_BKGS];
 
-    SDL_Texture* game_button_endTurn;
-    SDL_Texture* game_button_aiStep;
-    SDL_Texture* game_button_abandon;
-    SDL_Texture* game_button_win;
-    SDL_Texture* game_button_reset;
-    SDL_Texture* game_button_start;
-    SDL_Texture* game_button_returnToMap;
+    std::string game_button_endTurn;
+    std::string game_button_aiStep;
+    std::string game_button_win;
+    std::string game_button_start;
 
-    SDL_Texture* game_disp_playerturn;
-    SDL_Texture* game_disp_compturn;
+    std::string game_button_resume;
+    std::string game_button_reset;
+    std::string game_button_viewTeams;
+    std::string game_button_quitToMap;
+    std::string game_button_quitToMain;
+    std::string game_button_quitToDesktop;
+
+    SDL_Texture* game_icon_checkmark;
+
+    std::string game_disp_playerturn;
+    std::string game_disp_compturn;
 
     // mainScreen resources
     SDL_Texture* main_bkgdata;
     SDL_Texture* main_bkgsplotch;
-    SDL_Texture* main_button_classic;
-    SDL_Texture* main_button_classic_over;
-    SDL_Texture* main_button_nightfall;
-    SDL_Texture* main_button_nightfall_over;
-    SDL_Texture* main_button_freeform;
-    SDL_Texture* main_button_freeform_over;
-    SDL_Texture* main_button_options;
-    SDL_Texture* main_button_options_over;
-    SDL_Texture* main_button_achievements;
-    SDL_Texture* main_button_achievements_over;
-    SDL_Texture* main_button_quit;
-    SDL_Texture* main_button_quit_over;
 
-    // SDL_Color presets
-    SDL_Color* color_black;
-    SDL_Color* color_white;
+    std::string main_button_classic;
+    std::string main_button_classic_over;
+    std::string main_button_nightfall;
+    std::string main_button_nightfall_over;
+    std::string main_button_freeform;
+    std::string main_button_freeform_over;
+    std::string main_button_options;
+    std::string main_button_options_over;
+    std::string main_button_achievements;
+    std::string main_button_achievements_over;
+    std::string main_button_quit;
+    std::string main_button_quit_over;
 
     // SDL_Mixer music
     Mix_Music* music_title;
@@ -121,11 +124,18 @@ public:
     // SDL_Mixer sounds
     Mix_Chunk* sound_move_player;
     Mix_Chunk* sound_move_computer;
+    Mix_Chunk* sound_action_attack;
+    Mix_Chunk* sound_action_speed;
+    Mix_Chunk* sound_action_heal;
+    Mix_Chunk* sound_action_grid_damage;
+    Mix_Chunk* sound_action_grid_fix;
+    Mix_Chunk* sound_select;
+    Mix_Chunk* sound_pickup_credit;
+    Mix_Chunk* sound_pickup_files;
 protected:
 private:
 };
 
 void initData();
-//void initProgram(PROGRAM, std::string)
 
 #endif // NODEICONCONTAINER_H

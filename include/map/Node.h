@@ -11,28 +11,29 @@
 class Node
 {
     public:
-        Node(Coord);
-        Node(Coord, int, int);
-        Node(Coord, int, int, std::string);
+        Node(Coord, int, int, int);
         virtual ~Node();
         void draw(Coord);
         Coord getPos();
         bool mouseDown();
         bool isMouseOver(Coord);
-        void addChild(Node*);
+        void addNeighbor(Node*);
         void setNodeStatus(NODESTATUS);
         NODESTATUS getNodeStatus();
         void winNode();
-        std::string getLevelStr();
+        int getLevelId();
+        int getNodeType();
+        int getZone();
+        LinkedList<Node*>* getNeighbors();
     protected:
     private:
         Coord pos;
         int nodeType;
         NODESTATUS nodeStatus;
-        SDL_Texture* img;
-        LinkedList<Node*>* children;
         int zone;
-        std::string levelStr;
+        int id;
+        SDL_Texture* img;
+        LinkedList<Node*>* neighbors;
 };
 
 #endif // NODEICON_H

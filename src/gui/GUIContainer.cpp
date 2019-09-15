@@ -5,27 +5,64 @@
 #include "LinkedList.h"
 #include "Global.h"
 
-GUIContainer::GUIContainer(ANCHOR anchorPoint, Coord disp, Coord dims,
-                           GUIContainer* parent, SDL_Texture* bkg)
+GUIContainer::GUIContainer(ANCHOR anchorPoint, Coord disp, Coord dims, GUIContainer* parent, SDL_Texture* bkg)
     : GUIObject(anchorPoint, disp, dims, parent)
 {
+    movable = true;
     bkgImg = bkg;
+    bkgCol = NULL;
+    contents = new LinkedList<GUIObject*>();
+}
+
+GUIContainer::GUIContainer(ANCHOR anch, Coord disp, GUIContainer* parent, SDL_Texture* bkg)
+    : GUIObject(anch, disp, {0, 0}, parent)
+{
+    movable = true;
+    bkgImg = bkg;
+    bkgCol = NULL;
+    SDL_QueryTexture(bkg, NULL, NULL, &bounds.w, &bounds.h);
+    contents = new LinkedList<GUIObject*>();
+}
+
+GUIContainer::GUIContainer(ANCHOR anch, Coord disp, Coord dims, GUIContainer* parent, SDL_Color col)
+    : GUIObject(anch, disp, dims, parent)
+{
+    movable = true;
+    bkgImg = NULL;
+    bkgCol = new SDL_Color(col);
     contents = new LinkedList<GUIObject*>();
 }
 
 GUIContainer::~GUIContainer()
 {
-    //dtor
+    if (bkgCol != NULL)
+        delete bkgCol;
 }
 
-SDL_Texture* GUIContainer::getBackground()
+SDL_Texture* GUIContainer::getBackgroundImg()
 {
     return bkgImg;
 }
 
-void GUIContainer::setBackground(SDL_Texture* bkg)
+SDL_Color GUIContainer::getBackgroundCol()
+{
+    return *bkgCol;
+}
+
+void GUIContainer::setBackgroundImg(SDL_Texture* bkg)
 {
     bkgImg = bkg;
+    if (bkgCol != NULL)
+    {
+        delete bkgCol;
+        bkgCol = NULL;
+    }
+}
+
+void GUIContainer::setBackgroundCol(SDL_Color col)
+{
+    bkgCol = new SDL_Color(col);
+    bkgImg = NULL;
 }
 
 LinkedList<GUIObject*>* GUIContainer::getContents()
@@ -45,6 +82,15 @@ bool GUIContainer::mouseDown()
             return curr->mouseDown();
         }
     }
+
+    if (isMovable() && isMouseOver())
+    {
+        heldContainer = this;
+        parent->removeObject(this);
+        parent->addObject(this);
+        return true;
+    }
+
     return false;
 }
 
@@ -63,7 +109,7 @@ bool GUIContainer::mouseUp()
     }
 
     setPressed(false);
-
+    heldContainer = NULL;
     return ret;
 }
 
@@ -90,12 +136,12 @@ void GUIContainer::resetBounds()
 
 void GUIContainer::addObject(GUIObject* obj)
 {
-    contents->addLast(obj);
+    contents->addFirst(obj);
 }
 
 void GUIContainer::addAllObjects(LinkedList<GUIObject*>* objList)
 {
-    contents->addAllLast(objList);
+    contents->addAllFirst(objList);
 }
 
 void GUIContainer::drawBkg()
@@ -108,7 +154,14 @@ void GUIContainer::drawBkg()
         SDL_RenderClear( gRenderer );
     }
 
-    if (bkgImg != NULL)
+    if (bkgCol != NULL)
+    {
+        // draw background color
+        SDL_SetRenderDrawColor(gRenderer, bkgCol->r, bkgCol->g, bkgCol->b, bkgCol->a);
+        SDL_SetRenderDrawBlendMode(gRenderer, SDL_BLENDMODE_BLEND);
+        SDL_RenderFillRect(gRenderer, &bounds);
+    }
+    else if (bkgImg != NULL)
     {
         // draw background image
         SDL_RenderCopy(gRenderer, bkgImg, NULL, &bounds);
@@ -117,7 +170,7 @@ void GUIContainer::drawBkg()
 
 void GUIContainer::drawContents()
 {
-    contents->forEach([](GUIObject* g){if (g->isVisible()) g->draw();});
+    contents->forEachBackwards([](GUIObject* g){if (g->isVisible()) g->draw();});
 }
 
 void GUIContainer::draw()
@@ -150,4 +203,26 @@ void GUIContainer::tick(int ms)
     {
         it.next()->tick(ms);
     }
+}
+
+void GUIContainer::incDisplacement(Coord delta)
+{
+    displacement = delta + displacement;
+    resetBounds();
+}
+
+bool GUIContainer::isMovable()
+{
+    if (movable && parent != NULL && currAlpha > 0) return true;
+    else return false;
+}
+
+void GUIContainer::setMovable(bool m)
+{
+    movable = m;
+}
+
+void GUIContainer::removeObject(GUIObject* o)
+{
+    contents->remove(o);
 }

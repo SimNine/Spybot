@@ -14,6 +14,8 @@ class TitleScreen : public GUIContainer
         bool mouseDown();
     protected:
     private:
+        //LinkedList<GUITexture*>* sprites;
+
         int tickCount;
 
         int timingCompany;

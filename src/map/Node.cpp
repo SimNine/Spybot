@@ -4,45 +4,20 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-// constructor for procedurally generated nodes
-Node::Node(Coord p)
-{
-    pos = p;
-    nodeType = (rand()%7 + 1);
-    zone = 0;
-    nodeStatus = NODESTATUS_HIDDEN;
-    children = NULL;
-    img = dataContainer->node_normal[nodeType];
-    levelStr = "custom";
-}
-
-// constructor for predetermined nodes (STORES)
-Node::Node(Coord p, int type, int nodeZone)
+Node::Node(Coord p, int type, int nodeZone, int lvlId)
 {
     pos = p;
     nodeType = type;
     zone = nodeZone;
+    id = lvlId;
     nodeStatus = NODESTATUS_HIDDEN;
-    children = NULL;
-    img = dataContainer->node_normal[nodeType];
-    levelStr = "undefined";
-}
-
-// constructor for predetermined nodes (*NOT* STORES)
-Node::Node(Coord p, int type, int nodeZone, std::string lvlFileName)
-{
-    pos = p;
-    nodeType = type;
-    zone = nodeZone;
-    nodeStatus = NODESTATUS_HIDDEN;
-    children = NULL;
-    img = dataContainer->node_normal[nodeType];
-    levelStr = lvlFileName;
+    neighbors = new LinkedList<Node*>();
+    img = dataContainer->node_owned[nodeType];
 }
 
 Node::~Node()
 {
-    //dtor
+    delete neighbors;
 }
 
 void Node::draw(Coord mapRoot)
@@ -151,13 +126,12 @@ bool Node::isMouseOver(Coord mapRoot)
             mousePos.y < this->pos.y + (height - heightOffset) - mapRoot.y);
 }
 
-void Node::addChild(Node* child)
+void Node::addNeighbor(Node* neighbor)
 {
-    if (children == NULL)
-    {
-        children = new LinkedList<Node*>();
-    }
-    children->addLast(child);
+    if (neighbor == this || neighbors->contains(neighbor))
+        return;
+    neighbors->addLast(neighbor);
+    neighbor->addNeighbor(this);
 }
 
 void Node::setNodeStatus(NODESTATUS ns)
@@ -190,17 +164,34 @@ NODESTATUS Node::getNodeStatus()
 void Node::winNode()
 {
     nodeStatus = NODESTATUS_OWNED;
-    if (children != NULL)
+    if (neighbors != NULL)
     {
-        Iterator<Node*> it = children->getIterator();
+        Iterator<Node*> it = neighbors->getIterator();
         while (it.hasNext())
         {
-            it.next()->setNodeStatus(NODESTATUS_UNOWNED);
+            Node* n = it.next();
+            if (n->getNodeStatus() != NODESTATUS_OWNED)
+                n->setNodeStatus(NODESTATUS_UNOWNED);
         }
     }
 }
 
-std::string Node::getLevelStr()
+int Node::getLevelId()
 {
-    return levelStr;
+    return id;
+}
+
+int Node::getNodeType()
+{
+    return nodeType;
+}
+
+int Node::getZone()
+{
+    return zone;
+}
+
+LinkedList<Node*>* Node::getNeighbors()
+{
+    return neighbors;
 }
