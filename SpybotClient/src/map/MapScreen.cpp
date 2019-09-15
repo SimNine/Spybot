@@ -57,11 +57,11 @@ MapScreen::MapScreen()
     addObject(levelConfirm);
 
     // add program display object
-    invDisplay = new ProgramInventoryDisplay(ANCHOR_NORTHEAST, {-320, 20}, {300, 500}, this);
+    invDisplay = new ProgramInventoryDisplay(ANCHOR_NORTHEAST, {-20, 20}, {300, 500}, this);
     addObject(invDisplay);
 
     // add pause menu
-    pauseMenu = new GUIContainer(ANCHOR_CENTER, {-110, -95}, {220, 3*60 + 10}, this, _color_bkg_standard);
+    pauseMenu = new GUIContainer(ANCHOR_CENTER, {0, 0}, {220, 3*60 + 10}, this, _color_bkg_standard);
     GUIButton* resumeButton = new GUIButton(ANCHOR_NORTHWEST, {10, 10}, {200, 50}, pauseMenu,
                                                 [](){_mapScreen->togglePauseMenu();},
                                                 _game_button_resume);

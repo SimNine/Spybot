@@ -62,6 +62,7 @@ private:
     void drawGrid();
     void checkShiftable();
 
+	void buildEditorGUI();
     void buildGUI();
 
     // for use of the level editor

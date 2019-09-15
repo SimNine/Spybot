@@ -115,6 +115,7 @@ extern std::string _game_disp_compturn;
 // mainScreen resources
 extern SDL_Texture* _main_bkgdata;
 extern SDL_Texture* _main_bkgsplotch;
+extern SDL_Texture* _main_bkgsplotch2;
 
 extern std::string _main_button_classic;
 extern std::string _main_button_classic_over;

@@ -26,11 +26,13 @@ class LobbyScreen : public GUIContainer
 		void setGameMode(GAMEMODE gameMode);
     protected:
     private:
+		// currently configured gamemode to launch
 		GAMEMODE gameMode_;
 
 		void buildGUI();
 
 		GUIContainer* gameConfigContainer_;
+		GUIContainer* gameConnectedPlayerContainer_;
 		GUIButton* gameConfigButtonCoop_;
 		GUIButton* gameConfigButtonFFA_;
 		GUIButton* gameConfigButtonTeamDM_;

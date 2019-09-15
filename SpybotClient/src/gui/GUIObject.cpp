@@ -28,10 +28,10 @@ GUIObject::~GUIObject()
 void GUIObject::setBounds(Coord disp, Coord dims)
 {
     displacement = disp;
+	bounds.w = dims.x;
+	bounds.h = dims.y;
     bounds.x = getXAnchor() + disp.x;
     bounds.y = getYAnchor() + disp.y;
-    bounds.w = dims.x;
-    bounds.h = dims.y;
 }
 
 int GUIObject::getXAnchor()
@@ -46,11 +46,11 @@ int GUIObject::getXAnchor()
     case ANCHOR_NORTHEAST:
     case ANCHOR_EAST:
     case ANCHOR_SOUTHEAST:
-        return parent->getBounds()->x + parent->getBounds()->w;
+        return parent->getBounds()->x + parent->getBounds()->w - bounds.w;
     case ANCHOR_NORTH:
     case ANCHOR_CENTER:
     case ANCHOR_SOUTH:
-        return parent->getBounds()->x + parent->getBounds()->w/2;
+        return parent->getBounds()->x + parent->getBounds()->w/2 - bounds.w/2;
     case ANCHOR_NORTHWEST:
     case ANCHOR_WEST:
     case ANCHOR_SOUTHWEST:
@@ -76,11 +76,11 @@ int GUIObject::getYAnchor()
     case ANCHOR_WEST:
     case ANCHOR_CENTER:
     case ANCHOR_EAST:
-        return parent->getBounds()->y + parent->getBounds()->h/2;
+        return parent->getBounds()->y + parent->getBounds()->h/2 - bounds.h/2;
     case ANCHOR_SOUTHEAST:
     case ANCHOR_SOUTH:
     case ANCHOR_SOUTHWEST:
-        return parent->getBounds()->y + parent->getBounds()->h;
+        return parent->getBounds()->y + parent->getBounds()->h - bounds.h;
     }
 
     return -1;

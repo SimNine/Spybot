@@ -59,7 +59,8 @@ void ProgramDisplayActionButton::draw()
 		GUIObject::drawBounds();
 
 	// draw background
-	if (isMouseOver())
+	bool mouseIsOver = isMouseOver();
+	if (mouseIsOver)
 		SDL_SetRenderDrawColor(_renderer, 255, 0, 0, 140);
 	else
 		SDL_SetRenderDrawColor(_renderer, 120, 120, 120, 140);
@@ -132,6 +133,29 @@ void ProgramDisplayActionButton::draw()
 	drawString("Power: " + to_string(action_->power), FONT_NORMAL, 20, _color_white, clipRect);
 	clipRect.y += 20;
 	drawString("Min Size: " + to_string(action_->requiredSize), FONT_NORMAL, 20, _color_white, clipRect);
+
+	// draw tooltip
+	if (mouseIsOver)
+	{
+		SDL_Texture* descText = loadString(this->action_->description, FONT_NORMAL, 20, _color_white);
+		SDL_QueryTexture(descText, NULL, NULL, &clipRect.w, &clipRect.h);
+		clipRect.x = _mousePos.x - clipRect.w;
+		clipRect.y = _mousePos.y;
+
+		clipRect.x -= 5;
+		clipRect.y -= 5;
+		clipRect.w += 10;
+		clipRect.h += 10;
+		SDL_SetRenderDrawColor(_renderer, _color_bkg_standard.r, _color_bkg_standard.g, _color_bkg_standard.b, _color_bkg_standard.a);
+		SDL_RenderFillRect(_renderer, &clipRect);
+
+		clipRect.x += 5;
+		clipRect.y += 5;
+		clipRect.w -= 10;
+		clipRect.h -= 10;
+		SDL_RenderCopy(_renderer, descText, NULL, &clipRect);
+		SDL_DestroyTexture(descText);
+	}
 }
 
 void ProgramDisplayActionButton::tick(int t)

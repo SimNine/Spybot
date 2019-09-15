@@ -182,3 +182,15 @@ Program display redo, action messages enabled
 --Includes dropdown menu-like section for ProgramDisplayActionButtons
 -Enabled passing of action messages from client to server
 -All action types except HEAL and TILEDELETE are now functional
+
+1.4.0 - 1/19/18
+GUIObject anchor revamp
+-----
+-Added tooltip containing description when hovering the mouse over ProgramDisplayActionButton
+-Changed GUIObject to recompute its anchor relative to its parent differently
+--If an object has ANCHOR_CENTER, its displacement will be its own center to its parents' center,
+	not its own upper-left corner to its parents' center
+--Recomputed all GUIObject displacements
+-Redid "background glow" objects
+--They now fade and move more slowly
+--Assigned a randomized color

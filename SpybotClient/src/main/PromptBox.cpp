@@ -12,10 +12,10 @@ PromptBox::PromptBox(ANCHOR anchor, Coord disp, Coord dims, GUIContainer* parent
 {
 	promptText_ = prompt;
 
-	okButton_ = new GUIButton(ANCHOR_SOUTHWEST, { 20, -80 }, "Ok", this, onOk);
+	okButton_ = new GUIButton(ANCHOR_SOUTHWEST, { 20, -20 }, "Ok", this, onOk);
 	addObject(okButton_);
 
-	cancelButton_ = new GUIButton(ANCHOR_SOUTHEAST, { -120, - 80 }, "Cancel", this, onCancel);
+	cancelButton_ = new GUIButton(ANCHOR_SOUTHEAST, { -20, -20 }, "Cancel", this, onCancel);
 	addObject(cancelButton_);
 
 	entryField_ = new GUITextbox(ANCHOR_NORTHWEST, { 5, 50 }, { bounds.w - 10, textSize_ }, this, DEFAULT_MSG_TEXTSIZE);

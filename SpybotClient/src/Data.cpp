@@ -113,6 +113,7 @@ std::string _game_disp_compturn;
 // mainScreen resources
 SDL_Texture* _main_bkgdata;
 SDL_Texture* _main_bkgsplotch;
+SDL_Texture* _main_bkgsplotch2;
 
 std::string _main_button_classic;
 std::string _main_button_classic_over;
@@ -405,6 +406,7 @@ void initData()
 	// mainScreen resources
 	_main_bkgdata = loadTexture("resources/main/menu_bkgdata.png");
 	_main_bkgsplotch = loadTexture("resources/main/menu_bkgsplotch.png");
+	_main_bkgsplotch2 = loadTexture("resources/main/menu_bkgsplotch2.png");
 
 	_main_button_classic = "resources/main/menu_button_classic.png";
 	_main_button_classic_over = "resources/main/menu_button_classic_over.png";

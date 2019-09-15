@@ -12,11 +12,11 @@ TitleScreen::TitleScreen()
     int w;
     int h;
     SDL_QueryTexture(_title_company, NULL, NULL, &w, &h);
-    addObject(new GUITexture(ANCHOR_CENTER, {-w/2, -h/2}, _title_company, {w, h}, this));
+    addObject(new GUITexture(ANCHOR_CENTER, {0, 0}, _title_company, {w, h}, this));
     SDL_QueryTexture(_title_title, NULL, NULL, &w, &h);
-    addObject(new GUITexture(ANCHOR_CENTER, {-w/2, -h}, _title_title, {w, h}, this));
+    addObject(new GUITexture(ANCHOR_CENTER, {0, -h/2}, _title_title, {w, h}, this));
     SDL_QueryTexture(_title_subtitle, NULL, NULL, &w, &h);
-    addObject(new GUITexture(ANCHOR_CENTER, {-w/2, 20}, _title_subtitle, {w, h}, this));
+    addObject(new GUITexture(ANCHOR_CENTER, {0, h/2 + 10}, _title_subtitle, {w, h}, this));
 
     //sprites = new LinkedList<GUITexture*>();
 

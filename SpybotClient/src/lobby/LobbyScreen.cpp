@@ -26,31 +26,28 @@ LobbyScreen::~LobbyScreen()
 
 void LobbyScreen::buildGUI()
 {
-	GUIButton* leaveLobbyButton = new GUIButton(ANCHOR_NORTHEAST, { -200, 10 }, "Leave Lobby", this, []() { _lobbyScreen->leaveLobby(); });
+	GUIButton* leaveLobbyButton = new GUIButton(ANCHOR_NORTHEAST, { -10, 10 }, "Leave Lobby", this, []() { _lobbyScreen->leaveLobby(); });
 	this->addObject(leaveLobbyButton);
 
-	GUIButton* loadLevelButton = new GUIButton(ANCHOR_NORTHEAST, { -200, 80 }, "Load Level", this, []() {
-		Message msg;
-		msg.type = MSGTYPE_LOAD;
-		msg.levelNum = 2;
-		_client->sendMessage(msg); });
-	this->addObject(loadLevelButton);
-
-	gameConfigContainer_ = new GUIContainer(ANCHOR_CENTER, { -400, -200 }, { 800, 400 }, this, _color_bkg_standard);
-		GUIContainer* gameConfigModeContainer = new GUIContainer(ANCHOR_NORTHEAST, { -98, 5 }, { 93, 390 }, gameConfigContainer_, _color_bkg_standard);
-			GUITexture* gameConfigModeLabel = new GUITexture(ANCHOR_NORTH, { -50, 5 }, "Game Mode", 30, gameConfigModeContainer);
+	gameConfigContainer_ = new GUIContainer(ANCHOR_CENTER, { 0, 0 }, { 800, 400 }, this, _color_bkg_standard);
+		gameConnectedPlayerContainer_ = new GUIContainer(ANCHOR_NORTHWEST, { 5, 5 }, { 300, 390 }, gameConfigContainer_, _color_bkg_standard);
+			GUITexture* gameConfigLabel = new GUITexture(ANCHOR_NORTH, { 0, 5 }, "Connected players:", 30, gameConnectedPlayerContainer_);
+			gameConnectedPlayerContainer_->addObject(gameConfigLabel);
+		gameConfigContainer_->addObject(gameConnectedPlayerContainer_);
+		GUIContainer* gameConfigModeContainer = new GUIContainer(ANCHOR_NORTHEAST, { -5, 5 }, { 150, 390 }, gameConfigContainer_, _color_bkg_standard);
+			GUITexture* gameConfigModeLabel = new GUITexture(ANCHOR_NORTH, { 0, 5 }, "Game Mode", 30, gameConfigModeContainer);
 			gameConfigModeContainer->addObject(gameConfigModeLabel);
-			gameConfigButtonCoop_ = new GUIButton(ANCHOR_NORTHEAST, { -88, 5 }, { 83, 83 }, gameConfigModeContainer,
+			gameConfigButtonCoop_ = new GUIButton(ANCHOR_NORTH, { 0, 40 }, { 83, 83 }, gameConfigModeContainer,
 				[]() { Message m; m.type = MSGTYPE_GAMECONFIG; m.gameConfigType = MSGGAMECONFIGTYPE_COOP; _client->sendMessage(m); },
 				_lobby_button_gamemode_coop,
 				_lobby_button_gamemode_coop_over);
 			gameConfigModeContainer->addObject(gameConfigButtonCoop_);
-			gameConfigButtonFFA_ = new GUIButton(ANCHOR_NORTHEAST, { -88, 93 }, { 83, 83 }, gameConfigModeContainer,
+			gameConfigButtonFFA_ = new GUIButton(ANCHOR_NORTH, { 0, 128 }, { 83, 83 }, gameConfigModeContainer,
 				[]() { Message m; m.type = MSGTYPE_GAMECONFIG; m.gameConfigType = MSGGAMECONFIGTYPE_FFA; _client->sendMessage(m); },
 				_lobby_button_gamemode_ffa,
 				_lobby_button_gamemode_ffa_over);
 			gameConfigModeContainer->addObject(gameConfigButtonFFA_);
-			gameConfigButtonTeamDM_ = new GUIButton(ANCHOR_NORTHEAST, { -88, 181 }, { 83, 83 }, gameConfigModeContainer,
+			gameConfigButtonTeamDM_ = new GUIButton(ANCHOR_NORTH, { 0, 216 }, { 83, 83 }, gameConfigModeContainer,
 				[]() { Message m; m.type = MSGTYPE_GAMECONFIG; m.gameConfigType = MSGGAMECONFIGTYPE_TEAMDM; _client->sendMessage(m); },
 				_lobby_button_gamemode_teamdm,
 				_lobby_button_gamemode_teamdm_over);
@@ -60,7 +57,7 @@ void LobbyScreen::buildGUI()
 	gameConfigContainer_->setMovable(false);
 	this->addObject(gameConfigContainer_);
 
-	chatDisplay_ = new ChatDisplay(ANCHOR_SOUTHWEST, { 0, -500 }, { 800, 500 }, this, 19);
+	chatDisplay_ = new ChatDisplay(ANCHOR_SOUTHWEST, { 0, 0 }, { 800, 500 }, this, 19);
 	//this->addObject(chatDisplay_);
 }
 
@@ -76,20 +73,28 @@ void LobbyScreen::draw()
 
 	// render each clientID
 	Iterator<ClientMirror*> clients = _client->getClientList()->getIterator();
-	int yOffset = 0;
+	int xOffset = 5;
+	int yOffsetDefault = 50;
+	int yOffset = yOffsetDefault;
 	int textSize = 24;
+	SDL_Rect configBounds = *gameConnectedPlayerContainer_->getBounds();
 	while (clients.hasNext())
 	{
 		ClientMirror* currID = clients.next();
 		SDL_Rect textBound;
 		SDL_Texture* text = loadString(currID->name_ + " (" + to_string(currID->clientID_) + ")", FONT_BOLD, textSize, _color_white);
 		SDL_QueryTexture(text, NULL, NULL, &textBound.w, &textBound.h);
-		textBound.x = bounds.x;
-		textBound.y = bounds.y + yOffset;
+		textBound.x = configBounds.x + xOffset;
+		textBound.y = configBounds.y + yOffset;
 		SDL_RenderCopy(_renderer, text, NULL, &textBound);
 		SDL_DestroyTexture(text);
 
 		yOffset += textSize;
+		if (yOffset > configBounds.h)
+		{
+			yOffset = yOffsetDefault;
+			xOffset += 100;
+		}
 	}
 
 	// render highlight for selected gamemode

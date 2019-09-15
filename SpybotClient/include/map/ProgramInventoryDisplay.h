@@ -14,7 +14,6 @@ class ProgramInventoryDisplay : public GUIContainer
         void updateContents();
     protected:
     private:
-        int col;
 };
 
 #endif // PROGRAMINVENTORYDISPLAY_H

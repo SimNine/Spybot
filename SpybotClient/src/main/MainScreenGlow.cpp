@@ -4,18 +4,24 @@
 #include "Data.h"
 #include "Global.h"
 
-MainScreenGlow::MainScreenGlow(Coord p)
+MainScreenGlow::MainScreenGlow()
 {
-    xPos = (float)p.x;
-    yPos = (float)p.y;
+	radius_ = (rand() % 300);
+
+	rCol = rand() % 255;
+	gCol = rand() % 255;
+	bCol = rand() % 255;
+
+    xPos = (float)(rand() % (_SCREEN_WIDTH + radius_*2) - radius_);
+    yPos = (float)(rand() % (_SCREEN_HEIGHT + radius_*2) - radius_);
     xVel = 0;
     yVel = 0;
-    xAcc = (float)rand()/(float)RAND_MAX - (float)0.5;
-    yAcc = (float)rand()/(float)RAND_MAX - (float)0.5;
+    xAcc = ((float)rand()/(float)RAND_MAX - (float)0.5)/(float)50;
+    yAcc = ((float)rand()/(float)RAND_MAX - (float)0.5)/(float)50;
 
-    aPos = 1;
+    aPos = 0;
     aVel = 0;
-    aAcc = rand()/(float)RAND_MAX;
+    aAcc = (rand()/(float)RAND_MAX)/(float)5;
 }
 
 MainScreenGlow::~MainScreenGlow()
@@ -25,27 +31,20 @@ MainScreenGlow::~MainScreenGlow()
 
 void MainScreenGlow::draw()
 {
+	//SDL_SetTextureColorMod(_main_bkgsplotch2, rCol, gCol, bCol);
     SDL_SetTextureAlphaMod(_main_bkgsplotch, (Uint8)aPos);
 
     SDL_Rect destRect;
     destRect.x = (int)xPos;
     destRect.y = (int)yPos;
-    destRect.w = 200;
-    destRect.h = 200;
+    destRect.w = radius_;
+    destRect.h = radius_;
 
     SDL_RenderCopy(_renderer, _main_bkgsplotch, NULL, &destRect);
 }
 
 void MainScreenGlow::tick(int ms)
 {
-    // 2% chance of changing accelerations
-    if ((rand() % 500) == 1)
-    {
-        xAcc = ((float)rand()/(float)RAND_MAX - (float)0.5)/(float)1000.0;
-        yAcc = ((float)rand()/(float)RAND_MAX - (float)0.5)/(float)1000.0;
-        aAcc = ((float)rand()/(float)RAND_MAX - (float)0.5)/(float)1000.0;
-    }
-
     // update physics
     xVel += (float)xAcc*(float)ms/(float)100.0;
     yVel += (float)yAcc*(float)ms/(float)100.0;
@@ -55,32 +54,31 @@ void MainScreenGlow::tick(int ms)
     yPos += (float)yVel*(float)ms;
     aPos += (float)aVel*(float)ms;
 
-    if (aPos < 0)
-    {
-        aPos = 0;
-        aVel = 0;
-        aAcc = 0;
-    }
-    else if (aPos > 255)
-    {
-        aVel = -aVel;
-        aPos = 255;
-    }
+	if (aPos <= 0)
+	{
+		aPos = 0;
+		aVel = 0;
+		aAcc = 0;
+	}
+	else if (aPos > 255)
+	{
+		aAcc = -aAcc;
+		aVel = 0;
+		aPos = 255;
+	}
 }
 
 bool MainScreenGlow::getTransparent()
 {
-    if (aPos < 0)
-    {
-        return true;
-    }
-    else
-    {
-        return false;
-    }
+	return (aPos <= 0);
 }
 
 Coord MainScreenGlow::getPos()
 {
     return {(int)xPos, (int)yPos};
+}
+
+int MainScreenGlow::getRadius()
+{
+	return radius_;
 }

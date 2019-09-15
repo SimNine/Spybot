@@ -25,11 +25,11 @@ MainScreen::MainScreen()
     GUITexture* main_subtitle = new GUITexture(ANCHOR_NORTHWEST, {20, 82}, _title_subtitle, {390, 10}, this);
     addObject(main_subtitle);
 
-    // options container
-    optionsContainer_ = new GUIContainer(ANCHOR_SOUTHWEST, {0, -500}, {1000, 500}, this, NULL);
-    GUIButton* options_backbutton = new GUIButton(ANCHOR_SOUTHWEST, {20, -70}, "BACK", optionsContainer_, [](){_mainScreen->toggleOptions();});
+    // options container // TODO: FIX ANCHORS
+    optionsContainer_ = new GUIContainer(ANCHOR_SOUTHWEST, {0, 0}, {1000, 500}, this, NULL);
+    GUIButton* options_backbutton = new GUIButton(ANCHOR_SOUTHWEST, {20, -50}, "BACK", optionsContainer_, [](){_mainScreen->toggleOptions();});
     optionsContainer_->addObject(options_backbutton);
-    GUISlider* options_slider_sound = new GUISlider(ANCHOR_SOUTHWEST, {270, -140}, {200, 50}, optionsContainer_,
+    GUISlider* options_slider_sound = new GUISlider(ANCHOR_SOUTHWEST, {270, -150}, {200, 50}, optionsContainer_,
                                           []( float d ){ Mix_Volume(-1, (int)(d*128)); });
     optionsContainer_->addObject(options_slider_sound);
     GUITexture* options_label_soundslider = new GUITexture(ANCHOR_SOUTHWEST, {20, -150}, "Sound Volume:", 50, optionsContainer_);
@@ -48,10 +48,10 @@ MainScreen::MainScreen()
 	optionsContainer_->setTransparency(0);
 
     // main container
-    mainContainer_ = new GUIContainer(ANCHOR_SOUTHWEST, {0, -500}, {1000, 500}, this, NULL);
-    int ln = 1;
+    mainContainer_ = new GUIContainer(ANCHOR_SOUTHWEST, {0, 0}, {1000, 500}, this, NULL);
+    int ln = 0;
 
-    GUIButton* button_quit = new GUIButton(ANCHOR_SOUTHWEST, {20, -(41 + 20)*ln++}, {73, 41}, mainContainer_,
+    GUIButton* button_quit = new GUIButton(ANCHOR_SOUTHWEST, {20, -(41 + 20)*ln++ - 20}, {73, 41}, mainContainer_,
                                            []()
     {
         Mix_PlayChannel(-1, _sound_move_player, 0);
@@ -61,7 +61,7 @@ MainScreen::MainScreen()
     _main_button_quit_over);
     mainContainer_->addObject(button_quit);
 
-    GUIButton* button_options = new GUIButton(ANCHOR_SOUTHWEST, {20, -(41 + 20)*ln++}, {138, 41}, mainContainer_,
+    GUIButton* button_options = new GUIButton(ANCHOR_SOUTHWEST, {20, -(41 + 20)*ln++ - 20}, {138, 41}, mainContainer_,
 		[]() {
 			_mainScreen->toggleOptions();
 			Mix_PlayChannel(-1, _sound_move_player, 0);
@@ -70,7 +70,7 @@ MainScreen::MainScreen()
     _main_button_options_over);
     mainContainer_->addObject(button_options);
 
-    GUIButton* button_achievements = new GUIButton(ANCHOR_SOUTHWEST, {20, -(41 + 20)*ln++}, {242, 41}, mainContainer_,
+    GUIButton* button_achievements = new GUIButton(ANCHOR_SOUTHWEST, {20, -(41 + 20)*ln++ - 20}, {242, 41}, mainContainer_,
 		[]() {
 			printf("placeholder: goto achievs");
 			Mix_PlayChannel(-1, _sound_move_player, 0);
@@ -79,7 +79,7 @@ MainScreen::MainScreen()
 		_main_button_achievements_over);
     mainContainer_->addObject(button_achievements);
 
-	GUIButton* button_multiplayer = new GUIButton(ANCHOR_SOUTHWEST, { 20, -(41 + 20)*ln++ }, {216, 41}, mainContainer_,
+	GUIButton* button_multiplayer = new GUIButton(ANCHOR_SOUTHWEST, { 20, -(41 + 20)*ln++ - 20}, {216, 41}, mainContainer_,
 		[]() {
 			_mainScreen->showIPEntry();
 			_mainScreen->hideMainContainer();
@@ -88,7 +88,7 @@ MainScreen::MainScreen()
 		_main_button_multiplayer_over);
 	mainContainer_->addObject(button_multiplayer);
 
-    GUIButton* button_freeform = new GUIButton(ANCHOR_SOUTHWEST, {20, -(41 + 20)*ln++}, {320, 41}, mainContainer_,
+    GUIButton* button_freeform = new GUIButton(ANCHOR_SOUTHWEST, {20, -(41 + 20)*ln++ - 20}, {320, 41}, mainContainer_,
         []() {
 			printf("placeholder: goto freeform map");
 			Mix_PlayChannel(-1, _sound_move_player, 0);
@@ -97,7 +97,7 @@ MainScreen::MainScreen()
 		_main_button_freeform_over);
     mainContainer_->addObject(button_freeform);
 
-    GUIButton* button_nightfall = new GUIButton(ANCHOR_SOUTHWEST, {20, -(41 + 20)*ln++}, {349, 41}, mainContainer_,
+    GUIButton* button_nightfall = new GUIButton(ANCHOR_SOUTHWEST, {20, -(41 + 20)*ln++ - 20}, {349, 41}, mainContainer_,
         []() {
 			printf("placeholder: goto nightfall campaign map");
 			_mapScreen->switchMap(MAPPRESET_NIGHTFALL);
@@ -109,7 +109,7 @@ MainScreen::MainScreen()
 		_main_button_nightfall_over);
     mainContainer_->addObject(button_nightfall);
 
-    GUIButton* button_classic = new GUIButton(ANCHOR_SOUTHWEST, {20, -(41 + 20)*ln++}, {315, 41}, mainContainer_,
+    GUIButton* button_classic = new GUIButton(ANCHOR_SOUTHWEST, {20, -(41 + 20)*ln++ - 20}, {315, 41}, mainContainer_,
         []() {
 			_mapScreen->switchMap(MAPPRESET_CLASSIC);
 			_currScreen = _mapScreen;
@@ -124,31 +124,32 @@ MainScreen::MainScreen()
     mainContainer_->setMovable(false);
 
 	// IP prompt
-	IPEntryContainer_ = new GUIContainer(ANCHOR_CENTER, { -5000, -5000 }, { 10000, 10000 },  this, NULL);
-	IPEntryBox_ = new PromptBox(ANCHOR_CENTER, { -300, -100 }, { 600, 200 }, this, "Enter IP of server to connect to:", 
+	IPEntryContainer_ = new GUIContainer(ANCHOR_CENTER, { 0, 0 }, { 10000, 10000 },  this, NULL);
+	IPEntryBox_ = new PromptBox(ANCHOR_CENTER, { 0, 0 }, { 600, 200 }, this, "Enter IP of server to connect to:", 
 		[]() {_mainScreen->submitIPEntry(); _mainScreen->hideMainContainer(); },
 		[]() {_mainScreen->hideIPEntry(); _mainScreen->showMainContainer(); });
 	IPEntryContainer_->addObject(IPEntryBox_);
 	IPEntryContainer_->setTransparency(0);
+	IPEntryContainer_->setMovable(false);
 	addObject(IPEntryContainer_);
 
 	// login prompt
-	loginEntryContainer_ = new GUIContainer(ANCHOR_CENTER, { -400, -200 }, { 800, 400 }, this, _color_bkg_standard);
-	GUITexture* usernamePrompt = new GUITexture(ANCHOR_NORTHWEST, { 20, 20 }, "Username:", 50, loginEntryContainer_);
-	loginEntryContainer_->addObject(usernamePrompt);
-	loginUsername_ = new GUITextbox(ANCHOR_NORTHWEST, { 20, 80 }, { 760, 40 }, loginEntryContainer_, DEFAULT_MSG_TEXTSIZE);
-	loginEntryContainer_->addObject(loginUsername_);
-	GUITexture* passwordPrompt = new GUITexture(ANCHOR_NORTHWEST, { 20, 140 }, "Password:", 50, loginEntryContainer_);
-	loginEntryContainer_->addObject(passwordPrompt);
-	loginPassword_ = new GUITextbox(ANCHOR_NORTHWEST, { 20, 200 }, { 760, 40 }, loginEntryContainer_, DEFAULT_MSG_TEXTSIZE);
-	loginEntryContainer_->addObject(loginPassword_);
-	loginCancelButton_ = new GUIButton(ANCHOR_SOUTHWEST, { 20, -80 }, "Cancel", loginEntryContainer_, []() {_mainScreen->loginHide(); _client->disconnect(); });
-	loginEntryContainer_->addObject(loginCancelButton_);
-	loginCreateButton_ = new GUIButton(ANCHOR_SOUTH, { -40, -80 }, "Create Account", loginEntryContainer_, []() {_mainScreen->loginCreate(); });
-	loginEntryContainer_->addObject(loginCreateButton_);
-	loginSubmitButton_ = new GUIButton(ANCHOR_SOUTHEAST, { -120, -80 }, "Login", loginEntryContainer_, []() {_mainScreen->loginSubmit(); });
-	loginEntryContainer_->addObject(loginSubmitButton_);
-	loginEntryContainer_->setTransparency(0);
+	loginEntryContainer_ = new GUIContainer(ANCHOR_CENTER, { 0, 0 }, { 800, 400 }, this, _color_bkg_standard);
+		GUITexture* usernamePrompt = new GUITexture(ANCHOR_NORTHWEST, { 20, 20 }, "Username:", 50, loginEntryContainer_);
+		loginEntryContainer_->addObject(usernamePrompt);
+		loginUsername_ = new GUITextbox(ANCHOR_NORTHWEST, { 20, 80 }, { 760, 40 }, loginEntryContainer_, DEFAULT_MSG_TEXTSIZE);
+		loginEntryContainer_->addObject(loginUsername_);
+		GUITexture* passwordPrompt = new GUITexture(ANCHOR_NORTHWEST, { 20, 140 }, "Password:", 50, loginEntryContainer_);
+		loginEntryContainer_->addObject(passwordPrompt);
+		loginPassword_ = new GUITextbox(ANCHOR_NORTHWEST, { 20, 200 }, { 760, 40 }, loginEntryContainer_, DEFAULT_MSG_TEXTSIZE);
+		loginEntryContainer_->addObject(loginPassword_);
+		loginCancelButton_ = new GUIButton(ANCHOR_SOUTHWEST, { 20, -20 }, "Cancel", loginEntryContainer_, []() {_mainScreen->loginHide(); _client->disconnect(); });
+		loginEntryContainer_->addObject(loginCancelButton_);
+		loginCreateButton_ = new GUIButton(ANCHOR_SOUTH, { 0, -20 }, "Create Account", loginEntryContainer_, []() {_mainScreen->loginCreate(); });
+		loginEntryContainer_->addObject(loginCreateButton_);
+		loginSubmitButton_ = new GUIButton(ANCHOR_SOUTHEAST, { -20, -20 }, "Login", loginEntryContainer_, []() {_mainScreen->loginSubmit(); });
+		loginEntryContainer_->addObject(loginSubmitButton_);
+		loginEntryContainer_->setTransparency(0);
 	addObject(loginEntryContainer_);
 
 	// misc
@@ -214,8 +215,8 @@ void MainScreen::tick(int ms)
         {
             delList.addFirst(currObj);
         }
-        else if (currObj->getPos().x + 200 < 0 ||
-                 currObj->getPos().y + 200 < 0 ||
+        else if (currObj->getPos().x + currObj->getRadius() < 0 ||
+                 currObj->getPos().y + currObj->getRadius() < 0 ||
                  currObj->getPos().x > _SCREEN_WIDTH ||
                  currObj->getPos().y > _SCREEN_HEIGHT)
         {
@@ -233,9 +234,9 @@ void MainScreen::tick(int ms)
 
     // the longer the delay, the more likely to add a particle
     // at 50ms, a particle is guaranteed to be added
-    if (rand() % 50 < ms)
+    if (glowList_->getLength() < 50 && rand() % 50 < ms)
     {
-        MainScreenGlow* newGlow = new MainScreenGlow({rand()%_SCREEN_WIDTH, rand()%_SCREEN_HEIGHT});
+        MainScreenGlow* newGlow = new MainScreenGlow();
         glowList_->addLast(newGlow);
     }
 }

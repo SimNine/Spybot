@@ -21,7 +21,7 @@ ProgramDisplayContainer::ProgramDisplayContainer(ANCHOR a, Coord disp, Coord dim
 {
 	currProg_ = NULL;
 
-	iconBacking_ = new GUITexture(ANCHOR_NORTHEAST, { -155, 5 }, _program_core_100px, { 150, 150 }, this);
+	iconBacking_ = new GUITexture(ANCHOR_NORTHEAST, { -5, 5 }, _program_core_100px, { 150, 150 }, this);
 	this->addObject(iconBacking_);
 
 	icon_ = NULL;
@@ -97,12 +97,14 @@ void ProgramDisplayContainer::setCurrProg(Program* p)
 	if (icon_ != NULL)
 	{
 		this->removeObject(icon_);
+		icon_ = NULL;
 		delete icon_;
 	}
 
 	if (nameText_ != NULL)
 	{
 		this->removeObject(nameText_);
+		nameText_ = NULL;
 		delete nameText_;
 	}
 
@@ -119,18 +121,12 @@ void ProgramDisplayContainer::setCurrProg(Program* p)
 	//delete descText_;
 	//}
 
-	if (p == NULL)
+	if (p != NULL)
 	{
-		icon_ = NULL;
-		nameText_ = NULL;
-		//descText_ = NULL;
-	}
-	else
-	{
-		icon_ = new GUITexture(ANCHOR_NORTHEAST, { -155, 5 }, p->getIcon(), { 135, 135 }, false, this);
+		icon_ = new GUITexture(ANCHOR_NORTHEAST, { -20, 5 }, p->getIcon(), { 135, 135 }, false, this);
 		this->addObject(icon_);
 
-		nameText_ = new GUITexture(ANCHOR_NORTHEAST, { -155, 155 }, p->getName(), 38, this);
+		nameText_ = new GUITexture(ANCHOR_NORTHEAST, { -5, 155 }, p->getName(), 38, this);
 		this->addObject(nameText_);
 
 		//descText_ = new GUITexture(ANCHOR_NORTHWEST, { 5, 105 }, p->getDescription(), 20, this);
@@ -144,7 +140,7 @@ void ProgramDisplayContainer::setCurrProg(Program* p)
 		{
 			ProgramAction* curr = it.next();
 			ProgramDisplayActionButton* actionButton = new ProgramDisplayActionButton(ANCHOR_NORTHEAST,
-			{ -bounds.w + 10, 200 + yDisp },
+			{ -10, 200 + yDisp },
 			{ bounds.w - 20, buttonHeight },
 				this, curr, index);
 			actionButtons_->addFirst(actionButton);
@@ -160,4 +156,5 @@ void ProgramDisplayContainer::setCurrProg(Program* p)
 	}
 
 	currProg_ = p;
+	resetBounds();
 }
