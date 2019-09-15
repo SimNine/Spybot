@@ -38,9 +38,9 @@ void _serializeMessage(char* buffer, Message m) {
 		currByte += 4;
 
 		// write general-purpose ints
-		buffer[currByte] = m.num;
+		serializeInt(&buffer[currByte], m.num);
 		currByte += 4;
-		buffer[currByte] = m.num2;
+		serializeInt(&buffer[currByte], m.num2);
 		currByte += 4;
 
 		// write select
@@ -75,7 +75,7 @@ void _serializeMessage(char* buffer, Message m) {
 		buffer[currByte] = m.animType;
 		currByte++;
 
-		// write gameselect
+		// write game config
 		buffer[currByte] = m.gameConfigType;
 		currByte++;
 
@@ -122,9 +122,9 @@ Message _deserializeMessage(char* in) {
 
 		// read general-purpose ints
 		deserializeInt(&in[currByte], &m.num);
-		currByte++;
+		currByte += 4;
 		deserializeInt(&in[currByte], &m.num2);
-		currByte++;
+		currByte += 4;
 
 		// read select
 		m.selectType = (MSGSELECTTYPE)in[currByte];

@@ -297,3 +297,7 @@ Save format rebuild, control flow, "Mentalist" program, logging
 	-Added relevant graphics and icons
 -Implemented logging function, replaced every instance of printf() with log()
 -Messages now have two general-purpose int fields to hold level num, program counts, or anything else
+
+2.5.1 - 6/20/18
+-----
+-Fixed nasty message serialization and deserialization bug

@@ -1,0 +1,20 @@
+
+-----SpybotServer-----
+SERVER: reading levels/multi/users.dat
+SERVER: reading constants
+SERVER: read constants: int:4 char:1 double:8 bool:1
+SERVER: reading 3 users
+SERVER: successfully read user table
+Server initialized
+Master listener set up and detached
+Command line parser set up and detached
+SERVER: new client attempting to connect, assigning clientID 1
+SERVER: received confirmation CONNECT message from clientID 1
+SERVER RECIEVED MSG: 1 - MSGTYPE_LOGIN - Chris
+onionsoup
+SERVER: new client attempting to connect, assigning clientID 2
+SERVER: received confirmation CONNECT message from clientID 2
+SERVER RECIEVED MSG: 2 - MSGTYPE_LOGIN - Nick
+pass
+yo 1
+yo 2

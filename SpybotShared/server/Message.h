@@ -1,10 +1,9 @@
 #pragma once
 
 #define DEFAULT_MSG_TEXTSIZE 50
-#define DEFAULT_MSG_ESSENTIALBYTES 21
-#define DEFAULT_MSG_NONESSENTIALBYTES 36
-#define DEFAULT_MSGSIZE (DEFAULT_MSG_ESSENTIALBYTES + DEFAULT_MSG_NONESSENTIALBYTES + DEFAULT_MSG_TEXTSIZE)
-#define DEFAULT_CHATSIZE (DEFAULT_MSGSIZE - DEFAULT_MSG_ESSENTIALBYTES)
+#define DEFAULT_MSGSIZE (57 + DEFAULT_MSG_TEXTSIZE)
+// there are 21 essential bytes in a message: one MSGTYPE byte, 5x ID ints (4 bytes each)
+#define DEFAULT_CHATSIZE (DEFAULT_MSGSIZE - 21)
 
 #include "Enums.h"
 #include "Coord.h"
@@ -151,7 +150,7 @@ struct Message {
 	MSGGAMECONFIGTYPE gameConfigType;
 
 	// text
-	char text[DEFAULT_MSGSIZE];
+	char text[DEFAULT_CHATSIZE];
 };
 
 void _serializeMessage(char* buffer, Message m);

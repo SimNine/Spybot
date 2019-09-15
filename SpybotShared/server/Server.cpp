@@ -227,6 +227,7 @@ void Server::login(Pipe* client, User* user) {
 	m.type = MSGTYPE_INFO;
 	m.infoType = MSGINFOTYPE_CREDITS;
 	m.num = getUserByName(client->getUser())->numCredits_;
+	printf("credits: %i\n", m.num);
 	client->sendData(m);
 
 	// send the issuing client its program inventory contents
