@@ -5,8 +5,7 @@
 #include "ResourceLoader.h"
 
 GUITextbox::GUITextbox(ANCHOR anchor, Coord disp, Coord dims, GUIContainer* parent, int maxChars, bool censored)
-	: GUIContainer(anchor, disp, dims, parent, { 120, 120, 120, 140 })
-{
+	: GUIContainer(anchor, disp, dims, parent, { 120, 120, 120, 140 }) {
 	maxChars_ = maxChars;
 	textSize_ = dims.y;
 	contentText_ = "";
@@ -14,18 +13,16 @@ GUITextbox::GUITextbox(ANCHOR anchor, Coord disp, Coord dims, GUIContainer* pare
 }
 
 
-GUITextbox::~GUITextbox()
-{
+GUITextbox::~GUITextbox() {
 
 }
 
-void GUITextbox::draw()
-{
+void GUITextbox::draw() {
 	// draw the box
 	GUIContainer::drawBkg();
 
 	// draw bounds
-	if (_debug >= DEBUG_NORMAL) 
+	if (_debug >= DEBUG_NORMAL)
 		GUIContainer::drawBounds();
 
 	// draw text box
@@ -39,22 +36,19 @@ void GUITextbox::draw()
 	SDL_Rect tempBounds = bounds;
 	tempBounds.w = 0;
 	SDL_Texture* content;
-	if (censored_)
-	{
+	if (censored_) {
 		std::string ast = "";
-		for (int i = 0; i < contentText_.length(); i++)
+		for (unsigned int i = 0; i < contentText_.length(); i++)
 			ast += "*";
 		content = loadString(ast, FONT_NORMAL, textSize_, _color_white);
-	}
-	else
+	} else
 		content = loadString(contentText_, FONT_NORMAL, textSize_, _color_white);
 	SDL_QueryTexture(content, NULL, NULL, &tempBounds.w, NULL);
 	SDL_RenderCopy(_renderer, content, NULL, &tempBounds);
 	SDL_DestroyTexture(content);
 
 	// draw cursor
-	if (_activeTextbox == this && cursorFade_ < 500)
-	{
+	if (_activeTextbox == this && cursorFade_ < 500) {
 		tempBounds.x += tempBounds.w + 2;
 		tempBounds.y += 5;
 		tempBounds.w = 2;
@@ -64,45 +58,37 @@ void GUITextbox::draw()
 	}
 }
 
-std::string GUITextbox::getContents()
-{
+std::string GUITextbox::getContents() {
 	return contentText_;
 }
 
-void GUITextbox::clearContents()
-{
+void GUITextbox::clearContents() {
 	contentText_ = "";
 }
 
-void GUITextbox::addChar(char c)
-{
+void GUITextbox::addChar(char c) {
 	if (_activeTextbox != this)
 		return;
 
-	if (c == 127) // backspace
-	{
+	if (c == 127) { // backspace
 		if (contentText_.length() > 0)
 			contentText_.pop_back();
-	}
-	else if (contentText_.length() < maxChars_)
+	} else if (contentText_.length() < maxChars_)
 		contentText_ += c;
 
 	cursorFade_ = 0;
 }
 
-bool GUITextbox::mouseDown()
-{
+bool GUITextbox::mouseDown() {
 	_activeTextbox = this;
 	return true;
 }
 
-bool GUITextbox::mouseUp()
-{
+bool GUITextbox::mouseUp() {
 	return true;
 }
 
-void GUITextbox::tick(int ms)
-{
+void GUITextbox::tick(int ms) {
 	cursorFade_ += ms;
 	if (cursorFade_ > 1000)
 		cursorFade_ -= 1000;

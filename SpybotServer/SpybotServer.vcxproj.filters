@@ -13,17 +13,29 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
-    <Filter Include="Source Files\util">
+    <Filter Include="Source Files\shared">
+      <UniqueIdentifier>{f5147e14-4cbf-430f-8ee9-3d88a1a3b3f5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\shared\util">
       <UniqueIdentifier>{986b6aa2-d63d-4f41-afb9-fe862ddf1758}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\util">
-      <UniqueIdentifier>{f38088ec-f043-4b1b-9067-c1f0332b1020}</UniqueIdentifier>
+    <Filter Include="Source Files\shared\server">
+      <UniqueIdentifier>{416ac636-511b-47f6-bed2-3d56e21073ed}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\game">
-      <UniqueIdentifier>{38e5fc73-372a-4364-8bad-c4ee92b31af5}</UniqueIdentifier>
+    <Filter Include="Header Files\shared">
+      <UniqueIdentifier>{2b2b6e5d-15ae-479b-93a1-2103aac49b16}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\game">
-      <UniqueIdentifier>{c03d2ddb-f1bb-4f11-bcbe-fb22f21cbc10}</UniqueIdentifier>
+    <Filter Include="Source Files\shared\game">
+      <UniqueIdentifier>{d89cd1b1-9e68-46cc-b958-f7c312b659f4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\shared\util">
+      <UniqueIdentifier>{08329a0a-4943-48d3-90f4-184f4e0cc579}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\shared\server">
+      <UniqueIdentifier>{b52fcbfc-6927-47d5-8c1d-6242abb6b1ab}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\shared\game">
+      <UniqueIdentifier>{00d5152b-4606-4a4e-ac6a-2373a0487c33}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -33,118 +45,127 @@
     <ClInclude Include="targetver.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\Server.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\Enums.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\Main.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\SpybotShared\Message.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\SpybotShared\Coord.h">
-      <Filter>Header Files\util</Filter>
-    </ClInclude>
-    <ClInclude Include="..\SpybotShared\Entry.h">
-      <Filter>Header Files\util</Filter>
-    </ClInclude>
-    <ClInclude Include="..\SpybotShared\Iterator.h">
-      <Filter>Header Files\util</Filter>
-    </ClInclude>
-    <ClInclude Include="..\SpybotShared\LinkedList.h">
-      <Filter>Header Files\util</Filter>
-    </ClInclude>
-    <ClInclude Include="..\SpybotShared\ListNode.h">
-      <Filter>Header Files\util</Filter>
-    </ClInclude>
-    <ClInclude Include="..\SpybotShared\Map.h">
-      <Filter>Header Files\util</Filter>
-    </ClInclude>
-    <ClInclude Include="..\SpybotShared\MiscUtil.h">
-      <Filter>Header Files\util</Filter>
-    </ClInclude>
-    <ClInclude Include="..\SpybotShared\Pair.h">
-      <Filter>Header Files\util</Filter>
-    </ClInclude>
     <ClInclude Include="include\Standard.h">
       <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\game\Team.h">
-      <Filter>Header Files\game</Filter>
     </ClInclude>
     <ClInclude Include="include\Pipe.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\game\AIBasic.h">
-      <Filter>Header Files\game</Filter>
+    <ClInclude Include="..\SpybotShared\Enums.h">
+      <Filter>Header Files\shared</Filter>
     </ClInclude>
-    <ClInclude Include="include\game\AICore.h">
-      <Filter>Header Files\game</Filter>
+    <ClInclude Include="..\SpybotShared\utils\Coord.h">
+      <Filter>Header Files\shared\util</Filter>
     </ClInclude>
-    <ClInclude Include="include\game\AIModerate.h">
-      <Filter>Header Files\game</Filter>
+    <ClInclude Include="..\SpybotShared\utils\Entry.h">
+      <Filter>Header Files\shared\util</Filter>
     </ClInclude>
-    <ClInclude Include="include\game\Game.h">
-      <Filter>Header Files\game</Filter>
+    <ClInclude Include="..\SpybotShared\utils\Iterator.h">
+      <Filter>Header Files\shared\util</Filter>
     </ClInclude>
-    <ClInclude Include="include\game\Player.h">
-      <Filter>Header Files\game</Filter>
+    <ClInclude Include="..\SpybotShared\utils\LinkedList.h">
+      <Filter>Header Files\shared\util</Filter>
     </ClInclude>
-    <ClInclude Include="include\game\Program.h">
-      <Filter>Header Files\game</Filter>
+    <ClInclude Include="..\SpybotShared\utils\ListNode.h">
+      <Filter>Header Files\shared\util</Filter>
     </ClInclude>
-    <ClInclude Include="include\game\ProgramAction.h">
-      <Filter>Header Files\game</Filter>
+    <ClInclude Include="..\SpybotShared\utils\Map.h">
+      <Filter>Header Files\shared\util</Filter>
     </ClInclude>
-    <ClInclude Include="include\User.h">
+    <ClInclude Include="..\SpybotShared\utils\MiscUtil.h">
+      <Filter>Header Files\shared\util</Filter>
+    </ClInclude>
+    <ClInclude Include="..\SpybotShared\utils\Pair.h">
+      <Filter>Header Files\shared\util</Filter>
+    </ClInclude>
+    <ClInclude Include="..\SpybotShared\server\Server.h">
+      <Filter>Header Files\shared\server</Filter>
+    </ClInclude>
+    <ClInclude Include="..\SpybotShared\server\Message.h">
+      <Filter>Header Files\shared\server</Filter>
+    </ClInclude>
+    <ClInclude Include="..\SpybotShared\game\AIBasic.h">
+      <Filter>Header Files\shared\game</Filter>
+    </ClInclude>
+    <ClInclude Include="..\SpybotShared\game\AICore.h">
+      <Filter>Header Files\shared\game</Filter>
+    </ClInclude>
+    <ClInclude Include="..\SpybotShared\game\AIModerate.h">
+      <Filter>Header Files\shared\game</Filter>
+    </ClInclude>
+    <ClInclude Include="..\SpybotShared\game\Game.h">
+      <Filter>Header Files\shared\game</Filter>
+    </ClInclude>
+    <ClInclude Include="..\SpybotShared\game\Player.h">
+      <Filter>Header Files\shared\game</Filter>
+    </ClInclude>
+    <ClInclude Include="..\SpybotShared\game\Program.h">
+      <Filter>Header Files\shared\game</Filter>
+    </ClInclude>
+    <ClInclude Include="..\SpybotShared\game\ProgramAction.h">
+      <Filter>Header Files\shared\game</Filter>
+    </ClInclude>
+    <ClInclude Include="..\SpybotShared\game\Team.h">
+      <Filter>Header Files\shared\game</Filter>
+    </ClInclude>
+    <ClInclude Include="..\SpybotShared\server\User.h">
+      <Filter>Header Files\shared\server</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Global.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\SpybotShared\server\CommandProcessor.h">
+      <Filter>Header Files\shared\server</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\Server.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\Main.cpp">
       <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\SpybotShared\Message.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\SpybotShared\MiscUtil.cpp">
-      <Filter>Source Files\util</Filter>
-    </ClCompile>
-    <ClCompile Include="src\game\Team.cpp">
-      <Filter>Source Files\game</Filter>
-    </ClCompile>
-    <ClCompile Include="src\game\AIBasic.cpp">
-      <Filter>Source Files\game</Filter>
-    </ClCompile>
-    <ClCompile Include="src\game\AICore.cpp">
-      <Filter>Source Files\game</Filter>
-    </ClCompile>
-    <ClCompile Include="src\game\AIModerate.cpp">
-      <Filter>Source Files\game</Filter>
-    </ClCompile>
-    <ClCompile Include="src\game\Game.cpp">
-      <Filter>Source Files\game</Filter>
-    </ClCompile>
-    <ClCompile Include="src\game\Player.cpp">
-      <Filter>Source Files\game</Filter>
-    </ClCompile>
-    <ClCompile Include="src\game\Program.cpp">
-      <Filter>Source Files\game</Filter>
-    </ClCompile>
-    <ClCompile Include="src\game\ProgramAction.cpp">
-      <Filter>Source Files\game</Filter>
     </ClCompile>
     <ClCompile Include="src\Pipe.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\User.cpp">
+    <ClCompile Include="..\SpybotShared\utils\MiscUtil.cpp">
+      <Filter>Source Files\shared\util</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SpybotShared\server\Message.cpp">
+      <Filter>Source Files\shared\server</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SpybotShared\server\Server.cpp">
+      <Filter>Source Files\shared\server</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SpybotShared\game\AIBasic.cpp">
+      <Filter>Source Files\shared\game</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SpybotShared\game\AICore.cpp">
+      <Filter>Source Files\shared\game</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SpybotShared\game\AIModerate.cpp">
+      <Filter>Source Files\shared\game</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SpybotShared\game\Game.cpp">
+      <Filter>Source Files\shared\game</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SpybotShared\game\Player.cpp">
+      <Filter>Source Files\shared\game</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SpybotShared\game\Program.cpp">
+      <Filter>Source Files\shared\game</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SpybotShared\game\ProgramAction.cpp">
+      <Filter>Source Files\shared\game</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SpybotShared\game\Team.cpp">
+      <Filter>Source Files\shared\game</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SpybotShared\server\User.cpp">
+      <Filter>Source Files\shared\server</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Global.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SpybotShared\server\CommandProcessor.cpp">
+      <Filter>Source Files\shared\server</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

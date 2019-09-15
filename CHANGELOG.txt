@@ -207,3 +207,15 @@ Gamescreen animations
 --AnimationParticleSquareSpeck
 --AnimationParticleSelectRing
 -Changed GUITextbox to take a boolean indicating whether it is censored or not (i.e., passwords)
+
+2.0.0 - 5/5/18
+Game code separation, singleplayer reintroduction
+-----
+-Separated and modularized Server class and server logic:
+	-Server is now included by default in the client
+	-A local instance of Server is created when the client opens a singleplayer game
+-Added MSGTYPE_CHAT, which fills the entire contents of the message,
+	(including other fields) with text
+-Separated CommandProcessor from Server
+-Commands sent from external clients are now echoed back their responses
+-Singleplayer is now functional again

@@ -13,9 +13,6 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
-    <Filter Include="Header Files\game">
-      <UniqueIdentifier>{f332649a-a682-4961-853f-72623a8e2649}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Header Files\gui">
       <UniqueIdentifier>{0178c817-c246-4a2e-82ed-4eecbfe2ec92}</UniqueIdentifier>
     </Filter>
@@ -27,18 +24,6 @@
     </Filter>
     <Filter Include="Header Files\title">
       <UniqueIdentifier>{b5d17fa2-bc12-45a6-b1e8-aaafaf57cd5f}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files\util">
-      <UniqueIdentifier>{83cdbdaa-4b35-45ab-b821-9532c531a42f}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files\game\client">
-      <UniqueIdentifier>{0dfc10c6-294f-48a3-a297-cbaf5096d1e2}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files\game\server">
-      <UniqueIdentifier>{e31a917e-40b5-4c47-b93f-162e40784f7a}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\game">
-      <UniqueIdentifier>{afa6b553-573b-47cd-aae3-b7686746927e}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source Files\gui">
       <UniqueIdentifier>{1430b8bd-77f1-44de-bfc1-8f4e11b9019d}</UniqueIdentifier>
@@ -52,15 +37,6 @@
     <Filter Include="Source Files\title">
       <UniqueIdentifier>{0aa7ec40-184c-4aeb-8c92-bf4398763829}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\util">
-      <UniqueIdentifier>{2c69d195-9920-4563-8e05-43caf76f5c18}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\game\client">
-      <UniqueIdentifier>{28bb3bcf-4ec0-45a2-b2cf-4fa7146e9ea0}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\game\server">
-      <UniqueIdentifier>{d28d9a57-9f17-4178-938d-0aeb6e48e718}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source Files\notify">
       <UniqueIdentifier>{fb4037a4-d395-47ed-b77b-368590092f2a}</UniqueIdentifier>
     </Filter>
@@ -73,17 +49,53 @@
     <Filter Include="Header Files\lobby">
       <UniqueIdentifier>{c6c45c00-1aae-4b14-9ad4-03ca781a4f51}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\game\client\animations">
-      <UniqueIdentifier>{43bed4f1-e3b1-452b-be07-bcd6e50b34e1}</UniqueIdentifier>
+    <Filter Include="Header Files\shared">
+      <UniqueIdentifier>{c4029958-b833-4973-8a85-c5b3b2dd02f7}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\game\client\animations">
-      <UniqueIdentifier>{2c961274-cc49-4982-a159-44c2991732e1}</UniqueIdentifier>
+    <Filter Include="Header Files\shared\util">
+      <UniqueIdentifier>{83cdbdaa-4b35-45ab-b821-9532c531a42f}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\game\client\animations\particles">
-      <UniqueIdentifier>{b3ad104a-50a2-422a-940b-971a3200fca5}</UniqueIdentifier>
+    <Filter Include="Header Files\shared\server">
+      <UniqueIdentifier>{e31a917e-40b5-4c47-b93f-162e40784f7a}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\game\client\animations\particles">
-      <UniqueIdentifier>{457c1ed6-107e-406e-9963-31606fca294b}</UniqueIdentifier>
+    <Filter Include="Header Files\game">
+      <UniqueIdentifier>{3c308990-8a6c-4062-9904-3dc2b2faadb5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\shared\game">
+      <UniqueIdentifier>{139a1905-d8a2-428c-8344-11293f9330d6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\game\animations">
+      <UniqueIdentifier>{61ac7e4b-3184-4c9e-8b20-1d1f204a9ce3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\game\animations\particles">
+      <UniqueIdentifier>{93e61272-4a90-4c7e-ba86-15db01b67e28}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\client">
+      <UniqueIdentifier>{55481ed5-bf17-4eba-97dd-dbe5c1b73c2f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\shared">
+      <UniqueIdentifier>{cf569284-ffcc-45bf-89aa-4b3773fe983e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\shared\game">
+      <UniqueIdentifier>{71e6a70c-efc1-4a97-be77-e8f03119bbf1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\shared\server">
+      <UniqueIdentifier>{3d27cc85-ac70-40e5-82de-e3678be4445c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\shared\utils">
+      <UniqueIdentifier>{4e26f836-d57d-49b9-a8e6-bb6645c485b0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\game">
+      <UniqueIdentifier>{94c8b5d2-84da-4c90-a373-f7ede3f073e7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\game\animations">
+      <UniqueIdentifier>{6f8e89a8-a95f-49dd-bd01-886540dcf17e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\game\animations\particles">
+      <UniqueIdentifier>{2c21df80-7b20-4ded-8fda-0d1f3b4ade24}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\client">
+      <UniqueIdentifier>{00de5b4a-5bdd-434b-bd57-afd3b96657e0}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -91,9 +103,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="targetver.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\Enums.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\Global.h">
@@ -141,73 +150,13 @@
     <ClInclude Include="include\gui\GUITexture.h">
       <Filter>Header Files\gui</Filter>
     </ClInclude>
-    <ClInclude Include="include\game\server\Game.h">
-      <Filter>Header Files\game\server</Filter>
-    </ClInclude>
-    <ClInclude Include="include\game\server\Player.h">
-      <Filter>Header Files\game\server</Filter>
-    </ClInclude>
-    <ClInclude Include="include\game\server\Program.h">
-      <Filter>Header Files\game\server</Filter>
-    </ClInclude>
-    <ClInclude Include="include\game\server\ProgramAction.h">
-      <Filter>Header Files\game\server</Filter>
-    </ClInclude>
-    <ClInclude Include="include\game\server\Server.h">
-      <Filter>Header Files\game\server</Filter>
-    </ClInclude>
-    <ClInclude Include="include\game\client\GameScreen.h">
-      <Filter>Header Files\game\client</Filter>
-    </ClInclude>
-    <ClInclude Include="include\game\client\ProgramDisplayContainer.h">
-      <Filter>Header Files\game\client</Filter>
-    </ClInclude>
-    <ClInclude Include="..\SpybotShared\Message.h">
-      <Filter>Header Files\game</Filter>
-    </ClInclude>
-    <ClInclude Include="include\Client.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="include\notify\NotifyScreen.h">
       <Filter>Header Files\notify</Filter>
-    </ClInclude>
-    <ClInclude Include="..\SpybotShared\Coord.h">
-      <Filter>Header Files\util</Filter>
-    </ClInclude>
-    <ClInclude Include="..\SpybotShared\Entry.h">
-      <Filter>Header Files\util</Filter>
-    </ClInclude>
-    <ClInclude Include="..\SpybotShared\Iterator.h">
-      <Filter>Header Files\util</Filter>
-    </ClInclude>
-    <ClInclude Include="..\SpybotShared\LinkedList.h">
-      <Filter>Header Files\util</Filter>
-    </ClInclude>
-    <ClInclude Include="..\SpybotShared\ListNode.h">
-      <Filter>Header Files\util</Filter>
-    </ClInclude>
-    <ClInclude Include="..\SpybotShared\Map.h">
-      <Filter>Header Files\util</Filter>
-    </ClInclude>
-    <ClInclude Include="..\SpybotShared\MiscUtil.h">
-      <Filter>Header Files\util</Filter>
-    </ClInclude>
-    <ClInclude Include="..\SpybotShared\Pair.h">
-      <Filter>Header Files\util</Filter>
-    </ClInclude>
-    <ClInclude Include="..\SpybotShared\Timer.h">
-      <Filter>Header Files\util</Filter>
     </ClInclude>
     <ClInclude Include="include\lobby\LobbyScreen.h">
       <Filter>Header Files\lobby</Filter>
     </ClInclude>
     <ClInclude Include="include\Standard.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\game\client\PlayerDisplayContainer.h">
-      <Filter>Header Files\game\client</Filter>
-    </ClInclude>
-    <ClInclude Include="include\ClientMirror.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\lobby\ChatDisplay.h">
@@ -222,32 +171,119 @@
     <ClInclude Include="include\Data.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\game\client\ProgramDisplayActionButton.h">
-      <Filter>Header Files\game\client</Filter>
+    <ClInclude Include="..\SpybotShared\server\Message.h">
+      <Filter>Header Files\shared\server</Filter>
     </ClInclude>
-    <ClInclude Include="include\game\server\Team.h">
-      <Filter>Header Files\game\server</Filter>
+    <ClInclude Include="..\SpybotShared\server\Server.h">
+      <Filter>Header Files\shared\server</Filter>
     </ClInclude>
-    <ClInclude Include="include\game\client\animations\Animation.h">
-      <Filter>Header Files\game\client\animations</Filter>
+    <ClInclude Include="..\SpybotShared\Enums.h">
+      <Filter>Header Files\shared</Filter>
     </ClInclude>
-    <ClInclude Include="include\game\client\animations\particles\AnimationParticle.h">
-      <Filter>Header Files\game\client\animations\particles</Filter>
+    <ClInclude Include="..\SpybotShared\utils\Coord.h">
+      <Filter>Header Files\shared\util</Filter>
     </ClInclude>
-    <ClInclude Include="include\game\client\animations\particles\AnimationParticleSelectRing.h">
-      <Filter>Header Files\game\client\animations\particles</Filter>
+    <ClInclude Include="..\SpybotShared\utils\Entry.h">
+      <Filter>Header Files\shared\util</Filter>
     </ClInclude>
-    <ClInclude Include="include\game\client\animations\AnimationAttack.h">
-      <Filter>Header Files\game\client\animations</Filter>
+    <ClInclude Include="..\SpybotShared\utils\Iterator.h">
+      <Filter>Header Files\shared\util</Filter>
     </ClInclude>
-    <ClInclude Include="include\game\client\animations\AnimationSelect.h">
-      <Filter>Header Files\game\client\animations</Filter>
+    <ClInclude Include="..\SpybotShared\utils\LinkedList.h">
+      <Filter>Header Files\shared\util</Filter>
     </ClInclude>
-    <ClInclude Include="include\game\client\animations\particles\AnimationParticleSquareSpeck.h">
-      <Filter>Header Files\game\client\animations\particles</Filter>
+    <ClInclude Include="..\SpybotShared\utils\ListNode.h">
+      <Filter>Header Files\shared\util</Filter>
     </ClInclude>
-    <ClInclude Include="include\game\client\animations\AnimationTileFade.h">
-      <Filter>Header Files\game\client\animations</Filter>
+    <ClInclude Include="..\SpybotShared\utils\Map.h">
+      <Filter>Header Files\shared\util</Filter>
+    </ClInclude>
+    <ClInclude Include="..\SpybotShared\utils\MiscUtil.h">
+      <Filter>Header Files\shared\util</Filter>
+    </ClInclude>
+    <ClInclude Include="..\SpybotShared\utils\Pair.h">
+      <Filter>Header Files\shared\util</Filter>
+    </ClInclude>
+    <ClInclude Include="..\SpybotShared\utils\Timer.h">
+      <Filter>Header Files\shared\util</Filter>
+    </ClInclude>
+    <ClInclude Include="..\SpybotShared\game\AIBasic.h">
+      <Filter>Header Files\shared\game</Filter>
+    </ClInclude>
+    <ClInclude Include="..\SpybotShared\game\AICore.h">
+      <Filter>Header Files\shared\game</Filter>
+    </ClInclude>
+    <ClInclude Include="..\SpybotShared\game\AIModerate.h">
+      <Filter>Header Files\shared\game</Filter>
+    </ClInclude>
+    <ClInclude Include="..\SpybotShared\game\Game.h">
+      <Filter>Header Files\shared\game</Filter>
+    </ClInclude>
+    <ClInclude Include="..\SpybotShared\game\Player.h">
+      <Filter>Header Files\shared\game</Filter>
+    </ClInclude>
+    <ClInclude Include="..\SpybotShared\game\Program.h">
+      <Filter>Header Files\shared\game</Filter>
+    </ClInclude>
+    <ClInclude Include="..\SpybotShared\game\ProgramAction.h">
+      <Filter>Header Files\shared\game</Filter>
+    </ClInclude>
+    <ClInclude Include="..\SpybotShared\game\Team.h">
+      <Filter>Header Files\shared\game</Filter>
+    </ClInclude>
+    <ClInclude Include="include\game\GameScreen.h">
+      <Filter>Header Files\game</Filter>
+    </ClInclude>
+    <ClInclude Include="include\game\PlayerDisplayContainer.h">
+      <Filter>Header Files\game</Filter>
+    </ClInclude>
+    <ClInclude Include="include\game\ProgramDisplayActionButton.h">
+      <Filter>Header Files\game</Filter>
+    </ClInclude>
+    <ClInclude Include="include\game\ProgramDisplayContainer.h">
+      <Filter>Header Files\game</Filter>
+    </ClInclude>
+    <ClInclude Include="include\game\animations\Animation.h">
+      <Filter>Header Files\game\animations</Filter>
+    </ClInclude>
+    <ClInclude Include="include\game\animations\AnimationAttack.h">
+      <Filter>Header Files\game\animations</Filter>
+    </ClInclude>
+    <ClInclude Include="include\game\animations\AnimationSelect.h">
+      <Filter>Header Files\game\animations</Filter>
+    </ClInclude>
+    <ClInclude Include="include\game\animations\AnimationTileFade.h">
+      <Filter>Header Files\game\animations</Filter>
+    </ClInclude>
+    <ClInclude Include="include\game\animations\particles\AnimationParticle.h">
+      <Filter>Header Files\game\animations\particles</Filter>
+    </ClInclude>
+    <ClInclude Include="include\game\animations\particles\AnimationParticleSelectRing.h">
+      <Filter>Header Files\game\animations\particles</Filter>
+    </ClInclude>
+    <ClInclude Include="include\game\animations\particles\AnimationParticleSquareSpeck.h">
+      <Filter>Header Files\game\animations\particles</Filter>
+    </ClInclude>
+    <ClInclude Include="include\client\Client.h">
+      <Filter>Header Files\client</Filter>
+    </ClInclude>
+    <ClInclude Include="include\client\ClientMirror.h">
+      <Filter>Header Files\client</Filter>
+    </ClInclude>
+    <ClInclude Include="..\SpybotShared\server\User.h">
+      <Filter>Header Files\shared\server</Filter>
+    </ClInclude>
+    <ClInclude Include="include\notify\Notification.h">
+      <Filter>Header Files\notify</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Pipe.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\client\ConnectionManager.h">
+      <Filter>Header Files\client</Filter>
+    </ClInclude>
+    <ClInclude Include="..\SpybotShared\server\CommandProcessor.h">
+      <Filter>Header Files\shared\server</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -259,24 +295,6 @@
     </ClCompile>
     <ClCompile Include="src\ResourceLoader.cpp">
       <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\game\client\GameScreen.cpp">
-      <Filter>Source Files\game\client</Filter>
-    </ClCompile>
-    <ClCompile Include="src\game\client\ProgramDisplayContainer.cpp">
-      <Filter>Source Files\game\client</Filter>
-    </ClCompile>
-    <ClCompile Include="src\game\server\Game.cpp">
-      <Filter>Source Files\game\server</Filter>
-    </ClCompile>
-    <ClCompile Include="src\game\server\Player.cpp">
-      <Filter>Source Files\game\server</Filter>
-    </ClCompile>
-    <ClCompile Include="src\game\server\Program.cpp">
-      <Filter>Source Files\game\server</Filter>
-    </ClCompile>
-    <ClCompile Include="src\game\server\ProgramAction.cpp">
-      <Filter>Source Files\game\server</Filter>
     </ClCompile>
     <ClCompile Include="src\gui\GUIButton.cpp">
       <Filter>Source Files\gui</Filter>
@@ -314,35 +332,14 @@
     <ClCompile Include="src\title\TitleScreen.cpp">
       <Filter>Source Files\title</Filter>
     </ClCompile>
-    <ClCompile Include="..\SpybotShared\Message.cpp">
-      <Filter>Source Files\game</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Client.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\notify\NotifyScreen.cpp">
       <Filter>Source Files\notify</Filter>
-    </ClCompile>
-    <ClCompile Include="..\SpybotShared\MiscUtil.cpp">
-      <Filter>Source Files\util</Filter>
-    </ClCompile>
-    <ClCompile Include="..\SpybotShared\Timer.cpp">
-      <Filter>Source Files\util</Filter>
     </ClCompile>
     <ClCompile Include="src\lobby\LobbyScreen.cpp">
       <Filter>Source Files\lobby</Filter>
     </ClCompile>
-    <ClCompile Include="src\game\client\PlayerDisplayContainer.cpp">
-      <Filter>Source Files\game\client</Filter>
-    </ClCompile>
-    <ClCompile Include="src\ClientMirror.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\lobby\ChatDisplay.cpp">
       <Filter>Source Files\lobby</Filter>
-    </ClCompile>
-    <ClCompile Include="src\game\server\Team.cpp">
-      <Filter>Source Files\game\server</Filter>
     </ClCompile>
     <ClCompile Include="src\main\PromptBox.cpp">
       <Filter>Source Files\main</Filter>
@@ -353,29 +350,95 @@
     <ClCompile Include="src\Data.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\game\client\ProgramDisplayActionButton.cpp">
-      <Filter>Source Files\game\client</Filter>
+    <ClCompile Include="..\SpybotShared\game\AIBasic.cpp">
+      <Filter>Source Files\shared\game</Filter>
     </ClCompile>
-    <ClCompile Include="src\game\client\animations\Animation.cpp">
-      <Filter>Source Files\game\client\animations</Filter>
+    <ClCompile Include="..\SpybotShared\game\AICore.cpp">
+      <Filter>Source Files\shared\game</Filter>
     </ClCompile>
-    <ClCompile Include="src\game\client\animations\AnimationAttack.cpp">
-      <Filter>Source Files\game\client\animations</Filter>
+    <ClCompile Include="..\SpybotShared\game\AIModerate.cpp">
+      <Filter>Source Files\shared\game</Filter>
     </ClCompile>
-    <ClCompile Include="src\game\client\animations\AnimationSelect.cpp">
-      <Filter>Source Files\game\client\animations</Filter>
+    <ClCompile Include="..\SpybotShared\game\Game.cpp">
+      <Filter>Source Files\shared\game</Filter>
     </ClCompile>
-    <ClCompile Include="src\game\client\animations\particles\AnimationParticle.cpp">
-      <Filter>Source Files\game\client\animations\particles</Filter>
+    <ClCompile Include="..\SpybotShared\game\Player.cpp">
+      <Filter>Source Files\shared\game</Filter>
     </ClCompile>
-    <ClCompile Include="src\game\client\animations\particles\AnimationParticleSelectRing.cpp">
-      <Filter>Source Files\game\client\animations\particles</Filter>
+    <ClCompile Include="..\SpybotShared\game\Program.cpp">
+      <Filter>Source Files\shared\game</Filter>
     </ClCompile>
-    <ClCompile Include="src\game\client\animations\particles\AnimationParticleSquareSpeck.cpp">
-      <Filter>Source Files\game\client\animations\particles</Filter>
+    <ClCompile Include="..\SpybotShared\game\ProgramAction.cpp">
+      <Filter>Source Files\shared\game</Filter>
     </ClCompile>
-    <ClCompile Include="src\game\client\animations\AnimationTileFade.cpp">
-      <Filter>Source Files\game\client\animations</Filter>
+    <ClCompile Include="..\SpybotShared\game\Team.cpp">
+      <Filter>Source Files\shared\game</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SpybotShared\utils\MiscUtil.cpp">
+      <Filter>Source Files\shared\utils</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SpybotShared\utils\Timer.cpp">
+      <Filter>Source Files\shared\utils</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SpybotShared\server\Message.cpp">
+      <Filter>Source Files\shared\server</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SpybotShared\server\Server.cpp">
+      <Filter>Source Files\shared\server</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SpybotShared\server\User.cpp">
+      <Filter>Source Files\shared\server</Filter>
+    </ClCompile>
+    <ClCompile Include="src\game\GameScreen.cpp">
+      <Filter>Source Files\game</Filter>
+    </ClCompile>
+    <ClCompile Include="src\game\PlayerDisplayContainer.cpp">
+      <Filter>Source Files\game</Filter>
+    </ClCompile>
+    <ClCompile Include="src\game\ProgramDisplayActionButton.cpp">
+      <Filter>Source Files\game</Filter>
+    </ClCompile>
+    <ClCompile Include="src\game\ProgramDisplayContainer.cpp">
+      <Filter>Source Files\game</Filter>
+    </ClCompile>
+    <ClCompile Include="src\game\animations\Animation.cpp">
+      <Filter>Source Files\game\animations</Filter>
+    </ClCompile>
+    <ClCompile Include="src\game\animations\AnimationAttack.cpp">
+      <Filter>Source Files\game\animations</Filter>
+    </ClCompile>
+    <ClCompile Include="src\game\animations\AnimationSelect.cpp">
+      <Filter>Source Files\game\animations</Filter>
+    </ClCompile>
+    <ClCompile Include="src\game\animations\AnimationTileFade.cpp">
+      <Filter>Source Files\game\animations</Filter>
+    </ClCompile>
+    <ClCompile Include="src\game\animations\particles\AnimationParticle.cpp">
+      <Filter>Source Files\game\animations\particles</Filter>
+    </ClCompile>
+    <ClCompile Include="src\game\animations\particles\AnimationParticleSelectRing.cpp">
+      <Filter>Source Files\game\animations\particles</Filter>
+    </ClCompile>
+    <ClCompile Include="src\game\animations\particles\AnimationParticleSquareSpeck.cpp">
+      <Filter>Source Files\game\animations\particles</Filter>
+    </ClCompile>
+    <ClCompile Include="src\client\Client.cpp">
+      <Filter>Source Files\client</Filter>
+    </ClCompile>
+    <ClCompile Include="src\client\ClientMirror.cpp">
+      <Filter>Source Files\client</Filter>
+    </ClCompile>
+    <ClCompile Include="src\notify\Notification.cpp">
+      <Filter>Source Files\notify</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Pipe.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\client\ConnectionManager.cpp">
+      <Filter>Source Files\client</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SpybotShared\server\CommandProcessor.cpp">
+      <Filter>Source Files\shared\server</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

@@ -73,7 +73,7 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>C:\Users\curff\Desktop\Workspaces\C &amp; C++\[Libraries]\SDL2-2.0.7-VC++\include;C:\Users\curff\Desktop\Workspaces\C &amp; C++\[Libraries]\SDL2_ttf-2.0.14-VC++\include;C:\Users\curff\Desktop\Workspaces\C &amp; C++\[Libraries]\SDL2_mixer-2.0.2-VC++\include;C:\Users\curff\Desktop\Workspaces\C &amp; C++\[Libraries]\SDL2_image-2.0.2-VC++\include;C:\Users\curff\Desktop\Workspaces\C &amp; C++\Spybot\SpybotClient;C:\Users\curff\Desktop\Workspaces\C &amp; C++\Spybot\SpybotClient\include\game\server;C:\Users\curff\Desktop\Workspaces\C &amp; C++\Spybot\SpybotClient\include\game\client;C:\Users\curff\Desktop\Workspaces\C &amp; C++\Spybot\SpybotClient\include\game\client\animations;C:\Users\curff\Desktop\Workspaces\C &amp; C++\Spybot\SpybotClient\include\game\client\animations\particles;C:\Users\curff\Desktop\Workspaces\C &amp; C++\Spybot\SpybotClient\include\game;C:\Users\curff\Desktop\Workspaces\C &amp; C++\Spybot\SpybotClient\include\notify;C:\Users\curff\Desktop\Workspaces\C &amp; C++\Spybot\SpybotClient\include\lobby;C:\Users\curff\Desktop\Workspaces\C &amp; C++\Spybot\SpybotClient\include\gui;C:\Users\curff\Desktop\Workspaces\C &amp; C++\Spybot\SpybotClient\include\map;C:\Users\curff\Desktop\Workspaces\C &amp; C++\Spybot\SpybotClient\include\main;C:\Users\curff\Desktop\Workspaces\C &amp; C++\Spybot\SpybotClient\include\title;C:\Users\curff\Desktop\Workspaces\C &amp; C++\Spybot\SpybotClient\include\util;C:\Users\curff\Desktop\Workspaces\C &amp; C++\Spybot\SpybotClient\include;C:\Users\curff\Desktop\Workspaces\C &amp; C++\Spybot\SpybotShared;$(IncludePath)</IncludePath>
+    <IncludePath>C:\Users\curff\Desktop\Workspaces\C &amp; C++\Spybot\SpybotClient\include\game\animations\particles;C:\Users\curff\Desktop\Workspaces\C &amp; C++\Spybot\SpybotClient\include\game\animations;C:\Users\curff\Desktop\Workspaces\C &amp; C++\Spybot\SpybotClient\include\game;C:\Users\curff\Desktop\Workspaces\C &amp; C++\Spybot\SpybotClient\include\client;C:\Users\curff\Desktop\Workspaces\C &amp; C++\Spybot\SpybotClient\include\notify;C:\Users\curff\Desktop\Workspaces\C &amp; C++\Spybot\SpybotClient\include\lobby;C:\Users\curff\Desktop\Workspaces\C &amp; C++\Spybot\SpybotClient\include\gui;C:\Users\curff\Desktop\Workspaces\C &amp; C++\Spybot\SpybotClient\include\map;C:\Users\curff\Desktop\Workspaces\C &amp; C++\Spybot\SpybotClient\include\main;C:\Users\curff\Desktop\Workspaces\C &amp; C++\Spybot\SpybotClient\include\title;C:\Users\curff\Desktop\Workspaces\C &amp; C++\Spybot\SpybotClient\include;C:\Users\curff\Desktop\Workspaces\C &amp; C++\Spybot\SpybotClient;C:\Users\curff\Desktop\Workspaces\C &amp; C++\Spybot\SpybotShared\utils;C:\Users\curff\Desktop\Workspaces\C &amp; C++\Spybot\SpybotShared\server;C:\Users\curff\Desktop\Workspaces\C &amp; C++\Spybot\SpybotShared\game;C:\Users\curff\Desktop\Workspaces\C &amp; C++\Spybot\SpybotShared;C:\Users\curff\Desktop\Workspaces\C &amp; C++\[Libraries]\SDL2-2.0.7-VC++\include;C:\Users\curff\Desktop\Workspaces\C &amp; C++\[Libraries]\SDL2_ttf-2.0.14-VC++\include;C:\Users\curff\Desktop\Workspaces\C &amp; C++\[Libraries]\SDL2_mixer-2.0.2-VC++\include;C:\Users\curff\Desktop\Workspaces\C &amp; C++\[Libraries]\SDL2_image-2.0.2-VC++\include;$(IncludePath)</IncludePath>
     <LibraryPath>C:\Users\curff\Desktop\Workspaces\C &amp; C++\[Libraries]\SDL2_image-2.0.2-VC++\lib\x86;C:\Users\curff\Desktop\Workspaces\C &amp; C++\[Libraries]\SDL2_mixer-2.0.2-VC++\lib\x86;C:\Users\curff\Desktop\Workspaces\C &amp; C++\[Libraries]\SDL2_ttf-2.0.14-VC++\lib\x86;C:\Users\curff\Desktop\Workspaces\C &amp; C++\[Libraries]\SDL2-2.0.7-VC++\lib\x86;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -81,7 +81,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>C:\Users\curff\Desktop\Workspaces\C &amp; C++\[Libraries]\SDL2-2.0.7-VC++\include;C:\Users\curff\Desktop\Workspaces\C &amp; C++\[Libraries]\SDL2_ttf-2.0.14-VC++\include;C:\Users\curff\Desktop\Workspaces\C &amp; C++\[Libraries]\SDL2_mixer-2.0.2-VC++\include;C:\Users\curff\Desktop\Workspaces\C &amp; C++\[Libraries]\SDL2_image-2.0.2-VC++\include;C:\Users\curff\Desktop\Workspaces\C &amp; C++\Spybot\SpybotClient;C:\Users\curff\Desktop\Workspaces\C &amp; C++\Spybot\SpybotClient\include\game\server;C:\Users\curff\Desktop\Workspaces\C &amp; C++\Spybot\SpybotClient\include\game\client;C:\Users\curff\Desktop\Workspaces\C &amp; C++\Spybot\SpybotClient\include\game\client\animations;C:\Users\curff\Desktop\Workspaces\C &amp; C++\Spybot\SpybotClient\include\game\client\animations\particles;C:\Users\curff\Desktop\Workspaces\C &amp; C++\Spybot\SpybotClient\include\game;C:\Users\curff\Desktop\Workspaces\C &amp; C++\Spybot\SpybotClient\include\notify;C:\Users\curff\Desktop\Workspaces\C &amp; C++\Spybot\SpybotClient\include\lobby;C:\Users\curff\Desktop\Workspaces\C &amp; C++\Spybot\SpybotClient\include\gui;C:\Users\curff\Desktop\Workspaces\C &amp; C++\Spybot\SpybotClient\include\map;C:\Users\curff\Desktop\Workspaces\C &amp; C++\Spybot\SpybotClient\include\main;C:\Users\curff\Desktop\Workspaces\C &amp; C++\Spybot\SpybotClient\include\title;C:\Users\curff\Desktop\Workspaces\C &amp; C++\Spybot\SpybotClient\include\util;C:\Users\curff\Desktop\Workspaces\C &amp; C++\Spybot\SpybotClient\include;C:\Users\curff\Desktop\Workspaces\C &amp; C++\Spybot\SpybotShared;$(IncludePath)</IncludePath>
+    <IncludePath>C:\Users\curff\Desktop\Workspaces\C &amp; C++\Spybot\SpybotClient\include\game\animations\particles;C:\Users\curff\Desktop\Workspaces\C &amp; C++\Spybot\SpybotClient\include\game\animations;C:\Users\curff\Desktop\Workspaces\C &amp; C++\Spybot\SpybotClient\include\game;C:\Users\curff\Desktop\Workspaces\C &amp; C++\Spybot\SpybotClient\include\client;C:\Users\curff\Desktop\Workspaces\C &amp; C++\Spybot\SpybotClient\include\notify;C:\Users\curff\Desktop\Workspaces\C &amp; C++\Spybot\SpybotClient\include\lobby;C:\Users\curff\Desktop\Workspaces\C &amp; C++\Spybot\SpybotClient\include\gui;C:\Users\curff\Desktop\Workspaces\C &amp; C++\Spybot\SpybotClient\include\map;C:\Users\curff\Desktop\Workspaces\C &amp; C++\Spybot\SpybotClient\include\main;C:\Users\curff\Desktop\Workspaces\C &amp; C++\Spybot\SpybotClient\include\title;C:\Users\curff\Desktop\Workspaces\C &amp; C++\Spybot\SpybotClient\include;C:\Users\curff\Desktop\Workspaces\C &amp; C++\Spybot\SpybotClient;C:\Users\curff\Desktop\Workspaces\C &amp; C++\Spybot\SpybotShared\utils;C:\Users\curff\Desktop\Workspaces\C &amp; C++\Spybot\SpybotShared\server;C:\Users\curff\Desktop\Workspaces\C &amp; C++\Spybot\SpybotShared\game;C:\Users\curff\Desktop\Workspaces\C &amp; C++\Spybot\SpybotShared;C:\Users\curff\Desktop\Workspaces\C &amp; C++\[Libraries]\SDL2-2.0.7-VC++\include;C:\Users\curff\Desktop\Workspaces\C &amp; C++\[Libraries]\SDL2_ttf-2.0.14-VC++\include;C:\Users\curff\Desktop\Workspaces\C &amp; C++\[Libraries]\SDL2_mixer-2.0.2-VC++\include;C:\Users\curff\Desktop\Workspaces\C &amp; C++\[Libraries]\SDL2_image-2.0.2-VC++\include;$(IncludePath)</IncludePath>
     <LibraryPath>C:\Users\curff\Desktop\Workspaces\C &amp; C++\[Libraries]\SDL2_image-2.0.2-VC++\lib\x86;C:\Users\curff\Desktop\Workspaces\C &amp; C++\[Libraries]\SDL2_mixer-2.0.2-VC++\lib\x86;C:\Users\curff\Desktop\Workspaces\C &amp; C++\[Libraries]\SDL2_ttf-2.0.14-VC++\lib\x86;C:\Users\curff\Desktop\Workspaces\C &amp; C++\[Libraries]\SDL2-2.0.7-VC++\lib\x86;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -155,37 +155,43 @@
     <Text Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\SpybotShared\Coord.h" />
-    <ClInclude Include="..\SpybotShared\Entry.h" />
-    <ClInclude Include="..\SpybotShared\Iterator.h" />
-    <ClInclude Include="..\SpybotShared\LinkedList.h" />
-    <ClInclude Include="..\SpybotShared\ListNode.h" />
-    <ClInclude Include="..\SpybotShared\Map.h" />
-    <ClInclude Include="..\SpybotShared\Message.h" />
-    <ClInclude Include="..\SpybotShared\MiscUtil.h" />
-    <ClInclude Include="..\SpybotShared\Pair.h" />
-    <ClInclude Include="..\SpybotShared\Timer.h" />
-    <ClInclude Include="include\Client.h" />
-    <ClInclude Include="include\ClientMirror.h" />
+    <ClInclude Include="..\SpybotShared\Enums.h" />
+    <ClInclude Include="..\SpybotShared\game\AIBasic.h" />
+    <ClInclude Include="..\SpybotShared\game\AICore.h" />
+    <ClInclude Include="..\SpybotShared\game\AIModerate.h" />
+    <ClInclude Include="..\SpybotShared\game\Game.h" />
+    <ClInclude Include="..\SpybotShared\game\Player.h" />
+    <ClInclude Include="..\SpybotShared\game\Program.h" />
+    <ClInclude Include="..\SpybotShared\game\ProgramAction.h" />
+    <ClInclude Include="..\SpybotShared\game\Team.h" />
+    <ClInclude Include="..\SpybotShared\server\CommandProcessor.h" />
+    <ClInclude Include="..\SpybotShared\server\Message.h" />
+    <ClInclude Include="..\SpybotShared\server\Server.h" />
+    <ClInclude Include="..\SpybotShared\server\User.h" />
+    <ClInclude Include="..\SpybotShared\utils\Coord.h" />
+    <ClInclude Include="..\SpybotShared\utils\Entry.h" />
+    <ClInclude Include="..\SpybotShared\utils\Iterator.h" />
+    <ClInclude Include="..\SpybotShared\utils\LinkedList.h" />
+    <ClInclude Include="..\SpybotShared\utils\ListNode.h" />
+    <ClInclude Include="..\SpybotShared\utils\Map.h" />
+    <ClInclude Include="..\SpybotShared\utils\MiscUtil.h" />
+    <ClInclude Include="..\SpybotShared\utils\Pair.h" />
+    <ClInclude Include="..\SpybotShared\utils\Timer.h" />
+    <ClInclude Include="include\client\Client.h" />
+    <ClInclude Include="include\client\ConnectionManager.h" />
+    <ClInclude Include="include\client\ClientMirror.h" />
     <ClInclude Include="include\Data.h" />
-    <ClInclude Include="include\Enums.h" />
-    <ClInclude Include="include\game\client\animations\Animation.h" />
-    <ClInclude Include="include\game\client\animations\AnimationAttack.h" />
-    <ClInclude Include="include\game\client\animations\AnimationSelect.h" />
-    <ClInclude Include="include\game\client\animations\AnimationTileFade.h" />
-    <ClInclude Include="include\game\client\animations\particles\AnimationParticle.h" />
-    <ClInclude Include="include\game\client\animations\particles\AnimationParticleSquareSpeck.h" />
-    <ClInclude Include="include\game\client\animations\particles\AnimationParticleSelectRing.h" />
-    <ClInclude Include="include\game\client\GameScreen.h" />
-    <ClInclude Include="include\game\client\PlayerDisplayContainer.h" />
-    <ClInclude Include="include\game\client\ProgramDisplayActionButton.h" />
-    <ClInclude Include="include\game\client\ProgramDisplayContainer.h" />
-    <ClInclude Include="include\game\server\Game.h" />
-    <ClInclude Include="include\game\server\Player.h" />
-    <ClInclude Include="include\game\server\Program.h" />
-    <ClInclude Include="include\game\server\ProgramAction.h" />
-    <ClInclude Include="include\game\server\Server.h" />
-    <ClInclude Include="include\game\server\Team.h" />
+    <ClInclude Include="include\game\animations\Animation.h" />
+    <ClInclude Include="include\game\animations\AnimationAttack.h" />
+    <ClInclude Include="include\game\animations\AnimationSelect.h" />
+    <ClInclude Include="include\game\animations\AnimationTileFade.h" />
+    <ClInclude Include="include\game\animations\particles\AnimationParticle.h" />
+    <ClInclude Include="include\game\animations\particles\AnimationParticleSelectRing.h" />
+    <ClInclude Include="include\game\animations\particles\AnimationParticleSquareSpeck.h" />
+    <ClInclude Include="include\game\GameScreen.h" />
+    <ClInclude Include="include\game\PlayerDisplayContainer.h" />
+    <ClInclude Include="include\game\ProgramDisplayActionButton.h" />
+    <ClInclude Include="include\game\ProgramDisplayContainer.h" />
     <ClInclude Include="include\Global.h" />
     <ClInclude Include="include\gui\GUIButton.h" />
     <ClInclude Include="include\gui\GUIContainer.h" />
@@ -203,35 +209,44 @@
     <ClInclude Include="include\map\Node.h" />
     <ClInclude Include="include\map\ProgramInventoryButton.h" />
     <ClInclude Include="include\map\ProgramInventoryDisplay.h" />
+    <ClInclude Include="include\notify\Notification.h" />
     <ClInclude Include="include\notify\NotifyScreen.h" />
+    <ClInclude Include="include\Pipe.h" />
     <ClInclude Include="include\ResourceLoader.h" />
     <ClInclude Include="include\Standard.h" />
     <ClInclude Include="include\title\TitleScreen.h" />
     <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\SpybotShared\Message.cpp" />
-    <ClCompile Include="..\SpybotShared\MiscUtil.cpp" />
-    <ClCompile Include="..\SpybotShared\Timer.cpp" />
-    <ClCompile Include="src\Client.cpp" />
-    <ClCompile Include="src\ClientMirror.cpp" />
+    <ClCompile Include="..\SpybotShared\game\AIBasic.cpp" />
+    <ClCompile Include="..\SpybotShared\game\AICore.cpp" />
+    <ClCompile Include="..\SpybotShared\game\AIModerate.cpp" />
+    <ClCompile Include="..\SpybotShared\game\Game.cpp" />
+    <ClCompile Include="..\SpybotShared\game\Player.cpp" />
+    <ClCompile Include="..\SpybotShared\game\Program.cpp" />
+    <ClCompile Include="..\SpybotShared\game\ProgramAction.cpp" />
+    <ClCompile Include="..\SpybotShared\game\Team.cpp" />
+    <ClCompile Include="..\SpybotShared\server\CommandProcessor.cpp" />
+    <ClCompile Include="..\SpybotShared\server\Message.cpp" />
+    <ClCompile Include="..\SpybotShared\server\Server.cpp" />
+    <ClCompile Include="..\SpybotShared\server\User.cpp" />
+    <ClCompile Include="..\SpybotShared\utils\MiscUtil.cpp" />
+    <ClCompile Include="..\SpybotShared\utils\Timer.cpp" />
+    <ClCompile Include="src\client\Client.cpp" />
+    <ClCompile Include="src\client\ConnectionManager.cpp" />
+    <ClCompile Include="src\client\ClientMirror.cpp" />
     <ClCompile Include="src\Data.cpp" />
-    <ClCompile Include="src\game\client\animations\Animation.cpp" />
-    <ClCompile Include="src\game\client\animations\AnimationAttack.cpp" />
-    <ClCompile Include="src\game\client\animations\AnimationSelect.cpp" />
-    <ClCompile Include="src\game\client\animations\AnimationTileFade.cpp" />
-    <ClCompile Include="src\game\client\animations\particles\AnimationParticle.cpp" />
-    <ClCompile Include="src\game\client\animations\particles\AnimationParticleSquareSpeck.cpp" />
-    <ClCompile Include="src\game\client\animations\particles\AnimationParticleSelectRing.cpp" />
-    <ClCompile Include="src\game\client\GameScreen.cpp" />
-    <ClCompile Include="src\game\client\PlayerDisplayContainer.cpp" />
-    <ClCompile Include="src\game\client\ProgramDisplayActionButton.cpp" />
-    <ClCompile Include="src\game\client\ProgramDisplayContainer.cpp" />
-    <ClCompile Include="src\game\server\Game.cpp" />
-    <ClCompile Include="src\game\server\Player.cpp" />
-    <ClCompile Include="src\game\server\Program.cpp" />
-    <ClCompile Include="src\game\server\ProgramAction.cpp" />
-    <ClCompile Include="src\game\server\Team.cpp" />
+    <ClCompile Include="src\game\animations\Animation.cpp" />
+    <ClCompile Include="src\game\animations\AnimationAttack.cpp" />
+    <ClCompile Include="src\game\animations\AnimationSelect.cpp" />
+    <ClCompile Include="src\game\animations\AnimationTileFade.cpp" />
+    <ClCompile Include="src\game\animations\particles\AnimationParticle.cpp" />
+    <ClCompile Include="src\game\animations\particles\AnimationParticleSelectRing.cpp" />
+    <ClCompile Include="src\game\animations\particles\AnimationParticleSquareSpeck.cpp" />
+    <ClCompile Include="src\game\GameScreen.cpp" />
+    <ClCompile Include="src\game\PlayerDisplayContainer.cpp" />
+    <ClCompile Include="src\game\ProgramDisplayActionButton.cpp" />
+    <ClCompile Include="src\game\ProgramDisplayContainer.cpp" />
     <ClCompile Include="src\Global.cpp" />
     <ClCompile Include="src\gui\GUIButton.cpp" />
     <ClCompile Include="src\gui\GUIContainer.cpp" />
@@ -249,7 +264,9 @@
     <ClCompile Include="src\map\Node.cpp" />
     <ClCompile Include="src\map\ProgramInventoryButton.cpp" />
     <ClCompile Include="src\map\ProgramInventoryDisplay.cpp" />
+    <ClCompile Include="src\notify\Notification.cpp" />
     <ClCompile Include="src\notify\NotifyScreen.cpp" />
+    <ClCompile Include="src\Pipe.cpp" />
     <ClCompile Include="src\ResourceLoader.cpp" />
     <ClCompile Include="src\title\TitleScreen.cpp" />
   </ItemGroup>

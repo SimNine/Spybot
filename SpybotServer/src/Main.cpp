@@ -1,13 +1,11 @@
 #include "Standard.h"
-#include "Main.h"
 
+#include "Global.h"
 #include "Message.h"
 #include "Server.h"
 #include "Pipe.h"
 #include "MiscUtil.h"
-
-Server* server;
-DEBUG _debug = DEBUG_NORMAL;
+#include "CommandProcessor.h"
 
 // main loop to recieve new sockets
 void masterSocketFunc() {
@@ -82,7 +80,7 @@ void masterSocketFunc() {
 			WSACleanup();
 			exit(1);
 		} else
-			server->connect(newSock);
+			_server->connect(newSock);
 	}
 }
 
@@ -91,7 +89,7 @@ int main(int argc, char* args[]) {
 	printf("SpybotServer.exe launched\n");
 
 	// initialize the server
-	server = new Server();
+	_server = new Server(false);
 	printf("Server initialized\n");
 
 	// start up the master listener thread
@@ -100,13 +98,13 @@ int main(int argc, char* args[]) {
 	printf("Master listener set up and detached\n");
 
 	// start up the command line thread
-	std::thread commandLine(&Server::processCommandLoop, server);
+	std::thread commandLine(processCommandLoop);
 	commandLine.detach();
 	printf("Command line parser set up and detached\n");
 
 	// tick the server continuously
-	while (true)
-		server->tick(0);
+	while (!_quit)
+		_server->processAllMessages();
 
 	return 0;
 }

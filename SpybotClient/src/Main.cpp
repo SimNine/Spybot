@@ -12,6 +12,8 @@
 #include "Client.h"
 #include "Timer.h"
 #include "ChatDisplay.h"
+#include "ConnectionManager.h"
+#include "Server.h"
 
 void savePrefs();
 void loadPrefs();
@@ -179,12 +181,6 @@ bool initSDL() {
 		return false;
 	}
 
-	loadPrefs();
-	loadProgs();
-	initData();
-	initGUIs(); // initialize GUIContainers
-	resetBounds();
-
 	return true;
 }
 
@@ -198,9 +194,6 @@ bool initWinsock() {
 		printf("WSAStartup failed with error: %d\n", iResult);
 		return false;
 	}
-
-	// initialize the client entity
-	_client = new Client();
 
 	return true;
 }
@@ -467,7 +460,7 @@ void tick(int ms) {
 
 // main function
 int main(int argc, char* args[]) {
-	// start up winsock and create the client
+	// start up winsock
 	if (!initWinsock()) {
 		printf("Failed to initialize Winsock\n");
 	}
@@ -477,6 +470,16 @@ int main(int argc, char* args[]) {
 		printf("Failed to initialize SDL\n");
 		return 1;
 	}
+
+	// initialize connectionmanager and client
+	_client = new Client();
+	_connectionManager = new ConnectionManager();
+
+	loadPrefs(); // load GUI preferences
+	loadProgs(); // load program list
+	initData(); // initialize resource data
+	initGUIs(); // initialize GUIContainers
+	resetBounds(); // reset bounds of all containers
 
 	// setup timers
 	Timer tickTimer;
@@ -506,6 +509,8 @@ int main(int argc, char* args[]) {
 	while (!_quit) {
 		// process messages
 		_client->processAllMessages();
+		if (_server != NULL)
+			_server->processAllMessages();
 
 		// handle ticks
 		unsigned int ticksPassed = tickTimer.getTicks();
@@ -513,14 +518,16 @@ int main(int argc, char* args[]) {
 			tickTimer.stop();
 			tickTimer.start();
 			tick(ticksPassed); // tick whatever needs to be ticked
-			if (_acceptingInput) handleEvents();
+			if (_acceptingInput)
+				handleEvents();
 			tickCount++;
 		}
 		if (ticksPassed >= msPerTick) { // tick whenever 20+ ms have gone by
 			tickTimer.stop();
 			tickTimer.start();
 			tick(ticksPassed); // tick whatever needs to be ticked
-			if (_acceptingInput) handleEvents();
+			if (_acceptingInput)
+				handleEvents();
 			tickCount++;
 		}
 

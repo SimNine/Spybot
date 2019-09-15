@@ -5,10 +5,9 @@
 #include "GUIContainer.h"
 #include "LinkedList.h"
 
-class GUITexture;
+class Notification;
 
-class NotifyScreen : public GUIContainer
-{
+class NotifyScreen : public GUIContainer {
 public:
 	NotifyScreen();
 	virtual ~NotifyScreen();
@@ -18,10 +17,10 @@ public:
 	void addNotification(std::string str);
 protected:
 private:
-	LinkedList<std::string*>* notificationList_;
-	LinkedList<int*>* notificationTiming_;
+	LinkedList<Notification*>* notificationList_;
 	int pushOffset;
-	const int textSize = 30;
+	const int defaultDuration_ = 5000;
+	const int defaultTextSize_ = 30;
 };
 
 #endif // NOTIFYSCREEN_H

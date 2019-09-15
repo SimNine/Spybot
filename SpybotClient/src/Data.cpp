@@ -167,8 +167,7 @@ SDL_Texture* _particle_basic;
 SDL_Texture* _particle_selectring;
 
 // initialize all data
-void initData()
-{
+void initData() {
 	// titleScreen resources
 	_title_title = loadTexture("resources/title_main.png");
 	_title_subtitle = loadTexture("resources/title_subtitle.png");

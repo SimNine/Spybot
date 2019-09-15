@@ -11,6 +11,8 @@
 #include "Data.h"
 #include "Client.h"
 #include "GUITextbox.h"
+#include "ConnectionManager.h"
+#include "Server.h"
 
 // initial screen dimension constants
 int _SCREEN_WIDTH = 800;
@@ -74,4 +76,10 @@ GUITextbox* _activeTextbox = NULL;
 int _numCredits = 0;
 
 // client monolith
-Client* _client;
+Client* _client = NULL;
+
+// client connection manager monolith
+ConnectionManager* _connectionManager = NULL;
+
+// server monolith
+Server* _server = NULL;

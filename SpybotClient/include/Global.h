@@ -12,6 +12,8 @@ class LobbyScreen;
 class NotifyScreen;
 class Client;
 class GUITextbox;
+class ConnectionManager;
+class Server;
 
 // screen dimensions
 extern int _SCREEN_WIDTH;
@@ -76,5 +78,11 @@ extern int _numCredits;
 
 // client entity
 extern Client* _client;
+
+// client connection manager monolith
+extern ConnectionManager* _connectionManager;
+
+// server monolith
+extern Server* _server;
 
 #endif

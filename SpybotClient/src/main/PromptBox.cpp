@@ -8,8 +8,7 @@
 #include "GUITextbox.h"
 
 PromptBox::PromptBox(ANCHOR anchor, Coord disp, Coord dims, GUIContainer* parent, std::string prompt, void(*onOk) (void), void(*onCancel) (void))
-	: GUIContainer(anchor, disp, dims, parent, _color_bkg_standard)
-{
+	: GUIContainer(anchor, disp, dims, parent, _color_bkg_standard) {
 	promptText_ = prompt;
 
 	okButton_ = new GUIButton(ANCHOR_SOUTHWEST, { 20, -20 }, "Ok", this, onOk);
@@ -23,13 +22,11 @@ PromptBox::PromptBox(ANCHOR anchor, Coord disp, Coord dims, GUIContainer* parent
 }
 
 
-PromptBox::~PromptBox()
-{
+PromptBox::~PromptBox() {
 	// dtor
 }
 
-void PromptBox::draw()
-{
+void PromptBox::draw() {
 	// draw the box
 	GUIContainer::drawBkg();
 
@@ -37,7 +34,7 @@ void PromptBox::draw()
 	GUIContainer::drawContents();
 
 	// draw bounds
-	if (_debug >= DEBUG_NORMAL) 
+	if (_debug >= DEBUG_NORMAL)
 		GUIContainer::drawBounds();
 
 	// draw prompt
@@ -50,33 +47,27 @@ void PromptBox::draw()
 	SDL_DestroyTexture(name);
 }
 
-std::string PromptBox::getContents()
-{
+std::string PromptBox::getContents() {
 	return entryField_->getContents();
 }
 
-void PromptBox::clearContents()
-{
+void PromptBox::clearContents() {
 	entryField_->clearContents();
 }
 
-void PromptBox::addChar(char c)
-{
+void PromptBox::addChar(char c) {
 	if (c == 13) // enter/return
 	{
 		okButton_->mouseDown();
 		okButton_->mouseUp();
-	}
-	else if (c == 27) // escape
+	} else if (c == 27) // escape
 	{
 		cancelButton_->mouseDown();
 		cancelButton_->mouseUp();
-	}
-	else
+	} else
 		entryField_->addChar(c);
 }
 
-GUITextbox* PromptBox::getTextbox()
-{
+GUITextbox* PromptBox::getTextbox() {
 	return entryField_;
 }
