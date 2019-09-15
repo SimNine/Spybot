@@ -331,3 +331,12 @@ Spawngroups, multiplayer levels, game configuration, general multiplayability
 -If a level contains more spawngroups than human players, AI players are generated to populate them
 -Spawngroups controlled by AIs are automatically filled with simple offensive programs
 -Release configuration now builds SpybotClient on the Windows subsystem instead of the Console subsystem
+
+2.6.1 - 7/14/18
+-----
+-Fixed bug causing client crash on second level entry
+-Fixed bug causing crash on singleplayer game entry
+-Fixed bug caused by pingSender thread trying to send messages to deleted clientList
+	-pingSender thread is now only run by non-local servers
+-Fixed bug causing singleplayer dummy client mirror to appear in multiplayer lobby
+	-Message queue and ClientMirror list are now emptied on disconnect from a server

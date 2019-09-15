@@ -30,8 +30,8 @@ public:
 	void loadMap(std::string);
 	void switchMap(MAPPRESET);
 
-	void pauseMenuHide();
-	void pauseMenuShow();
+	void hidePauseMenu();
+	void showPauseMenu();
 protected:
 private:
 	SDL_Texture* bkgImg_;

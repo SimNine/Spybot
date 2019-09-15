@@ -37,9 +37,10 @@ Server::Server(bool isLocal, CAMPAIGN campaign) {
 	users_ = new LinkedList<User*>();
 	loadUsers();
 
-	std::thread pingThread(&Server::pingSender, this);
-	pingThread.detach();
-	log("SERVER: pinger set up and detached\n");
+	if (!isLocal) {
+		std::thread pingThread(&Server::pingSender, this);
+		pingThread.detach();
+	}
 }
 
 Server::~Server() {
@@ -49,6 +50,7 @@ Server::~Server() {
 	while (clients_->getLength() > 0)
 		delete clients_->poll();
 	delete clients_;
+
 	while (msgQueue_->getLength() > 0)
 		delete msgQueue_->poll();
 	delete msgQueue_;
@@ -58,13 +60,13 @@ Server::~Server() {
 }
 
 void Server::processAllMessages() {
-	mtx_.lock();
+	msgMutex_.lock();
 	while (msgQueue_->getLength() > 0) {
 		Message* m = msgQueue_->removeFirst();
 		processMessage(m);
 		delete m;
 	}
-	mtx_.unlock();
+	msgMutex_.unlock();
 }
 
 void Server::sendMessageToAllClients(Message message) {
@@ -114,9 +116,9 @@ Pipe* Server::getClientByID(int clientID) {
 }
 
 void Server::recieveMessage(Message message) {
-	mtx_.lock();
+	msgMutex_.lock();
 	msgQueue_->addLast(new Message(message));
-	mtx_.unlock();
+	msgMutex_.unlock();
 }
 
 // attempts to log a Client in
@@ -572,6 +574,8 @@ void Server::processMessage(Message* msg) {
 			config_.gameMode_ = GAMEMODE_FFA;
 		else if (msg->gameConfigType == MSGGAMECONFIGTYPE_TEAMDM)
 			config_.gameMode_ = GAMEMODE_TEAMDM;
+		else if (msg->gameConfigType == MSGGAMECONFIGTYPE_CAMPAIGN)
+			config_.gameMode_ = GAMEMODE_CAMPAIGN;
 
 		// standard levels
 		else if (msg->gameConfigType == MSGGAMECONFIGTYPE_LEVEL_ARRAY)
@@ -992,12 +996,21 @@ std::string Server::getSavePath() {
 }
 
 void Server::pingSender() {
+	log("SERVER: pinger set up and detached\n");
+
+	// continue until client list is null (meaning the server has been deleted)
 	while (true) {
+
+		if (clients_ == NULL)
+			break;
+
 		Message m;
 		m.type = MSGTYPE_PING;
 		sendMessageToAllClients(m);
 		sendMessageToNonLoggedInClients(m);
+
 		Sleep(1000);
 	}
+
 	log("SERVER: pinger exited\n");
 }

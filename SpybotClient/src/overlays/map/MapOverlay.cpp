@@ -41,6 +41,9 @@ MapOverlay::MapOverlay()
 			msg.num = _mapOverlay->getSelectedNode()->getLevelId();
 			_connectionManager->sendMessage(msg);
 
+			msg.gameConfigType = MSGGAMECONFIGTYPE_CAMPAIGN;
+			_connectionManager->sendMessage(msg);
+
 			msg.type = MSGTYPE_STARTGAME;
 			_connectionManager->sendMessage(msg);
 		}
@@ -75,7 +78,7 @@ MapOverlay::MapOverlay()
 	pauseMenu_->addObject(pauseMenuOptions);
 	GUIButton* resumeButton = new GUIButton(pauseMenuOptions, ANCHOR_NORTHWEST, { 10, 10 }, { 200, 50 },
 		[] () {
-		_mapOverlay->pauseMenuHide();
+		_mapOverlay->hidePauseMenu();
 	}, _game_button_resume);
 	pauseMenuOptions->addObject(resumeButton);
 	GUIButton* exitToMainButton = new GUIButton(pauseMenuOptions, ANCHOR_NORTHWEST, { 10, 70 }, { 200, 50 },
@@ -83,7 +86,7 @@ MapOverlay::MapOverlay()
 	_overlayStack->push(_backgroundOverlay);
 	_overlayStack->push(_mainOverlay);
 	_mainOverlay->loginHide(0);
-	_mapOverlay->pauseMenuHide();
+	_mapOverlay->hidePauseMenu();
 	}, _game_button_quitToMain);
 	pauseMenuOptions->addObject(exitToMainButton);
 	GUIButton* exitToDesktopButton = new GUIButton(pauseMenuOptions, ANCHOR_NORTHWEST, { 10, 130 }, { 200, 50 },
@@ -601,11 +604,11 @@ void MapOverlay::switchMap(MAPPRESET pre) {
 	}
 }
 
-void MapOverlay::pauseMenuShow() {
+void MapOverlay::showPauseMenu() {
 	pauseMenu_->setTransparency(255);
 }
 
-void MapOverlay::pauseMenuHide() {
+void MapOverlay::hidePauseMenu() {
 	pauseMenu_->setTransparency(0);
 }
 

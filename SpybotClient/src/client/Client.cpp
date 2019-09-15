@@ -61,6 +61,7 @@ void Client::processMessage(Message* msg) {
 		game_ = NULL;
 		game_ = new GameMirror();
 		_gameOverlay->centerScreen();
+		_gameOverlay->startGameContainers();
 
 		// reset all clientmirrors' players
 		Iterator<ClientMirror*> clientIt = _connectionManager->getClientList()->getIterator();

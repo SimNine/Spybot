@@ -45,7 +45,7 @@ private:
 
 	// message passing utils
 	LinkedList<Message*>* msgQueue_;
-	std::mutex mtx_;
+	std::mutex msgMutex_;
 
 	// all clients connected to server (null if no connection)
 	LinkedList<ClientMirror*>* clientList_;

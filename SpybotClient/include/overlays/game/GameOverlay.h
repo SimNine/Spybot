@@ -34,17 +34,18 @@ public:
 	void changeGameStatus(GAMESTATUS gs);
 
 	// misc
-	void pauseMenuShow();
-	void pauseMenuHide();
 	void toggleTurnButtonShown(bool b);
 	ChatDisplay* getChatDisplay();
 	void addAnimation(Animation* a);
 	void updateProgramInventoryDisplay();
 	ProgramDisplayContainer* getProgramDisplayContainer();
 
-	// win container
+	// container shows/hides
 	void showWinContainer(int teamID);
 	void hideWinContainer();
+	void showPauseMenu();
+	void hidePauseMenu();
+	void startGameContainers();
 
 	// credit displays
 	void showCreditPickup(int numCredits);

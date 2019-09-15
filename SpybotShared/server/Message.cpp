@@ -242,7 +242,7 @@ void _printMessage(Message m) {
 			break;
 
 		case MSGINFOTYPE_PLAYERSETMIND:
-			log("MSGINFOTYPE_PLAYERSETMIND - PLAYER " + to_string(m.playerID) + " : " + (m.num == 0 ? "false" : "true"));
+			log("MSGINFOTYPE_PLAYERSETMIND - PLAYER " + to_string(m.playerID) + " : " + (m.num == 0 ? "false" : "true") + "\n");
 			break;
 
 		case MSGINFOTYPE_PROGRAMADDHEAD:
@@ -335,6 +335,9 @@ void _printMessage(Message m) {
 	case MSGTYPE_GAMECONFIG:
 		log("MSGTYPE_GAMECONFIG - ");
 		switch (m.gameConfigType) {
+		case MSGGAMECONFIGTYPE_CAMPAIGN:
+			log("MSGGAMECONFIGTYPE_CAMPAIGN\n");
+			break;
 		case MSGGAMECONFIGTYPE_COOP:
 			log("MSGGAMECONFIGTYPE_COOP\n");
 			break;
@@ -357,7 +360,7 @@ void _printMessage(Message m) {
 			log("MSGGAMECONFIGTYPE_LEVEL_SHOWDOWN\n");
 			break;
 		case MSGGAMECONFIGTYPE_LEVEL_NUMBERED:
-			log("MSGGAMECONFIGTYPE_LEVEL_NUMBERED - " + to_string(m.num));
+			log("MSGGAMECONFIGTYPE_LEVEL_NUMBERED - " + to_string(m.num) + "\n");
 			break;
 		}
 		break;

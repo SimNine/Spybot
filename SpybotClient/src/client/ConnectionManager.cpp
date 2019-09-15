@@ -26,15 +26,15 @@ ConnectionManager::~ConnectionManager() {
 }
 
 void ConnectionManager::recieveMessage(Message message) {
-	mtx_.lock();
+	msgMutex_.lock();
 	msgQueue_->addLast(new Message(message));
-	mtx_.unlock();
+	msgMutex_.unlock();
 }
 
 Message* ConnectionManager::pollMessage() {
-	mtx_.lock();
+	msgMutex_.lock();
 	Message* ret = msgQueue_->poll();
-	mtx_.unlock();
+	msgMutex_.unlock();
 	return ret;
 }
 
@@ -111,11 +111,6 @@ void ConnectionManager::disconnect() {
 			log("CLIENT ERR: shutdown failed with error: " + to_string(WSAGetLastError()) + "\n");
 		}
 		closesocket(socket_);
-
-		while (msgQueue_->getLength() > 0)
-			delete msgQueue_->poll();
-		while (clientList_->getLength() > 0)
-			delete clientList_->poll();
 		socket_ = INVALID_SOCKET;
 	} else if (_server != NULL) { // disconnect from internal server
 		delete _server;
@@ -123,6 +118,11 @@ void ConnectionManager::disconnect() {
 	}
 
 	// clean up
+	while (msgQueue_->getLength() > 0)
+		delete msgQueue_->poll();
+	while (clientList_->getLength() > 0)
+		delete clientList_->poll();
+
 	serverOwner_ = NULL;
 	_client->setClientID(-1);
 	_notifyOverlay->addNotification("disconnected from server");

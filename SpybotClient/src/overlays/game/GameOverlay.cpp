@@ -174,19 +174,19 @@ void GameOverlay::buildGUI() {
 	pauseMenu_->addObject(pauseMenuOptions_);
 	GUIButton* resumeGameButton = new GUIButton(pauseMenuOptions_, ANCHOR_NORTHWEST, { 10, 10 }, { 200, 50 },
 		[] () {
-		_gameOverlay->pauseMenuHide();
+		_gameOverlay->hidePauseMenu();
 	}, _game_button_resume);
 	pauseMenuOptions_->addObject(resumeGameButton);
 	GUIButton* exitToMapButton = new GUIButton(pauseMenuOptions_, ANCHOR_NORTHWEST, { 10, 70 }, { 200, 50 },
 		[] () {
-		_gameOverlay->pauseMenuHide();
+		_gameOverlay->hidePauseMenu();
 		_overlayStack->removeAll();
 		_overlayStack->push(_mapOverlay);
 	}, _game_button_quitToMap);
 	pauseMenuOptions_->addObject(exitToMapButton);
 	GUIButton* exitToMainButton = new GUIButton(pauseMenuOptions_, ANCHOR_NORTHWEST, { 10, 130 }, { 200, 50 },
 		[] () {
-		_gameOverlay->pauseMenuHide();
+		_gameOverlay->hidePauseMenu();
 		_overlayStack->removeAll();
 		_overlayStack->push(_mapOverlay);
 	}, _game_button_quitToMain);
@@ -688,8 +688,9 @@ void GameOverlay::tick(int ms) {
 		} else
 			anim++;
 	}
-	if (_debug >= DEBUG_NORMAL)
-		log("num anims: " + to_string(animList_->getLength()) + "\n");
+	
+	//if (_debug >= DEBUG_NORMAL)
+		//log("num anims: " + to_string(animList_->getLength()) + "\n");
 
 	// check if the current music track is done, if so, pick a new one
 	if (Mix_PlayingMusic() == 0) {
@@ -746,14 +747,6 @@ void GameOverlay::centerScreen() {
 	}
 }
 
-void GameOverlay::pauseMenuShow() {
-	pauseMenu_->setTransparency(255);
-}
-
-void GameOverlay::pauseMenuHide() {
-	pauseMenu_->setTransparency(0);
-}
-
 void GameOverlay::changeGameStatus(GAMESTATUS g) {
 	// TODO: refactor this
 	switch (g) {
@@ -786,6 +779,14 @@ void GameOverlay::setPlayerTurnDisplay(std::string name) {
 	SDL_QueryTexture(nameTex, NULL, NULL, &wid, &hei);
 	currTurn_->setDimensions({ wid, hei });
 	currTurn_->addEffect(new GUIEffectFade(0, 500, currTurn_->getTransparency(), 255));
+}
+
+void GameOverlay::showPauseMenu() {
+	pauseMenu_->setTransparency(255);
+}
+
+void GameOverlay::hidePauseMenu() {
+	pauseMenu_->setTransparency(0);
 }
 
 void GameOverlay::toggleTurnButtonShown(bool b) {
@@ -847,4 +848,13 @@ void GameOverlay::refreshCreditCounter() {
 
 ProgramDisplayContainer* GameOverlay::getProgramDisplayContainer() {
 	return progDisp_;
+}
+
+void GameOverlay::startGameContainers() {
+	winMenu_->setTransparency(0);
+	turnButton_->setTransparency(255);
+	playerDisp_->setTransparency(255);
+	progDisp_->setCurrProg(NULL);
+	progDisp_->setTransparency(255);
+	creditCounterContainer_->setTransparency(255);
 }

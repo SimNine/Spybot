@@ -461,7 +461,7 @@ void handleEvents() {
 			if (e.type == SDL_KEYDOWN) {
 				// show or hide pause menu
 				if (e.key.keysym.sym == SDLK_ESCAPE) {
-					_gameOverlay->pauseMenuShow();
+					_gameOverlay->showPauseMenu();
 				}
 
 				// handle chat display
@@ -477,7 +477,7 @@ void handleEvents() {
 				if (e.key.keysym.sym == SDLK_l) {
 					_mapOverlay->unlockAllLevels();
 				} else if (e.key.keysym.sym == SDLK_ESCAPE) {
-					_mapOverlay->pauseMenuShow();
+					_mapOverlay->showPauseMenu();
 				} else if (e.key.keysym.sym == SDLK_p) {
 					Message m;
 					m.type = MSGTYPE_PROGINVENTORY;

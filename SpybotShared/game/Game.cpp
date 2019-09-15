@@ -955,8 +955,9 @@ void Game::loadLevel(std::string str) {
 		}
 
 		// load (waste) debug delineation
-		int delineator = -1; // 0xFFFFFFFF - easy to see in hexdump
+		int delineator; // should be 0xFFFFFFFF - easy to see in hexdump
 		lvl.read((char*)&delineator, sizeOfInt);
+		log("loaded delineator (sanity check, should be 0xFFFFFFFF): " + to_string(delineator) + "\n");
 
 		// load number of teams
 		int numTeams;

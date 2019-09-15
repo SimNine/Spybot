@@ -1,11 +1,102 @@
 
 -----SpybotServer-----
-SERVER: reading levels/multi/users.dat
-SERVER: reading constants
-SERVER: read constants: int:4 char:1 double:8 bool:1
-SERVER: reading 1 users
-SERVER: successfully read user table
+SERVER ERROR: could not open levels/multi/users.dat
 SERVER: pinger set up and detached
 SERVER MAIN: Server initialized
 SERVER MAIN: Master listener set up and detached
 SERVER MAIN: Command line parser set up and detached
+SERVER: new client attempting to connect, assigning clientID 1
+SERVER: received confirmation CONNECT message from clientID 1
+SERVER RECIEVED MSG: 1 - MSGTYPE_CREATEUSER - Noah
+Noah
+SERVER: writing levels/multi/users.dat
+SERVER: saving constants... int:4 char:1 double:8 bool:1
+SERVER: writing 1 users
+SERVER: successfully wrote user table
+SERVER: new client attempting to connect, assigning clientID 2
+SERVER: received confirmation CONNECT message from clientID 2
+SERVER RECIEVED MSG: 2 - MSGTYPE_LOGIN - Chris
+onionsoup
+SERVER ERR: requested user does not exist in database
+SERVER RECIEVED MSG: 1 - SERVER RECIEVED MSG: 2 - MSGTYPE_CREATEUSER - Chris
+onionsoup
+SERVER: writing levels/multi/users.dat
+SERVER: saving constants... int:4 char:1 double:8 bool:1
+SERVER: writing 2 users
+SERVER: successfully wrote user table
+SERVER RECIEVED MSG: 2 - SERVER RECIEVED MSG: 2 - SERVER RECIEVED MSG: 1 - SERVER RECIEVED MSG: 2 - SERVER RECIEVED MSG: 1 - >> Available commands:
+>> -----
+>> listusers
+>> userinfo (username)
+>> userinventory (username)
+>> -----
+>> listclients
+>> kick (clientID)
+>> say (string)
+>> listplayers
+>> getowner
+>> -----
+>> addteam
+>> removeteam (teamID)
+>> -----
+>> addspawngroup
+>> removespawngroup (groupID)
+>> listspawngroups
+>> addspawngrouptile (groupID) (x) (y)
+>> removespawngrouptile (groupID) (x) (y)
+>> -----
+>> startgame
+>> save (filename)
+>> settile (x) (y) (tiletype)
+>> settilerect (x) (y) (width) (height) (tiletype)
+>> -----
+>> printgridprograms
+>> printgridspawngroups
+>> -----
+>> giveprogram (user) (progtype) (count)
+>> -----
+SERVER RECIEVED MSG: 2 - MSGTYPE_GAMECONFIG - MSGGAMECONFIGTYPE_LEVEL_ARRAY
+SERVER RECIEVED MSG: 1 - MSGTYPE_GAMECONFIG - MSGGAMECONFIGTYPE_LEVEL_ARRAY
+SERVER RECIEVED MSG: 1 - MSGTYPE_GAMECONFIG - MSGGAMECONFIGTYPE_LEVEL_ARRAY
+SERVER RECIEVED MSG: 1 - MSGTYPE_STARTGAME
+loading level levels/multi/array.urf...
+loaded constants... int:4 char:1 double:8 bool:1
+loaded enums: item:4 tile:4 bkg:4 prog:4
+loaded grid bounds... left91 right:109 top:91 bottom:109
+loading tiles and items...
+loading 8 spawn groups...
+loaded delineator (sanity check, should be 0xFFFFFFFF): -1
+loading 0 teams...
+done
+SERVER RECIEVED MSG: 2 - MSGTYPE_SELECT - TILE (86,103)
+SERVER ERR: recieve from clientID 1 failed with error: 10054
+SERVER: Client 1 disconnected
+SERVER ERR: recieve from clientID 2 failed with error: 10054
+SERVER: Client 2 disconnected
+>> team 25:
+>> -- player 26 : AI
+>> team 23:
+>> -- player 24 : AI
+>> team 21:
+>> -- player 22 : AI
+>> team 19:
+>> -- player 20 : AI
+>> team 17:
+>> -- player 18 : AI
+>> team 15:
+>> -- player 16 : AI
+>> team 13:
+>> team 11:
+>> connected clientIDs:
+SERVER: new client attempting to connect, assigning clientID 39
+SERVER: received confirmation CONNECT message from clientID 39
+SERVER RECIEVED MSG: 39 - MSGTYPE_CREATEUSER - Noah
+Noah
+SERVER ERR: client tried to create an account with a name that already exists
+SERVER: new client attempting to connect, assigning clientID 40
+SERVER: received confirmation CONNECT message from clientID 40
+SERVER RECIEVED MSG: 39 - MSGTYPE_CREATEUSER - Noah
+Noah1
+SERVER ERR: client tried to create an account with a name that already exists
+SERVER RECIEVED MSG: 39 - MSGTYPE_LOGIN - 
+

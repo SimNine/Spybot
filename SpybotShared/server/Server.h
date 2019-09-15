@@ -67,7 +67,9 @@ private:
 	// message processing core
 	void processMessage(Message* msg);
 	LinkedList<Message*>* msgQueue_;
-	std::mutex mtx_;
+
+	// mutexes
+	std::mutex msgMutex_;
 
 	// message processing helpers
 	void resyncClient(int clientID);
