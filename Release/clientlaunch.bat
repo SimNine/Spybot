@@ -1,2 +1,0 @@
-SpybotClient localhost
-pause

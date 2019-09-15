@@ -5,16 +5,19 @@
 
 ProgramAction::ProgramAction(ACTIONTYPE t, std::string name, std::string description, int range, int power, int reqSize)
 {
-    this->type = t;
-    this->name = name;
-    this->description = description;
-    this->range = range;
-    this->power = power;
-    this->requiredSize = reqSize;
+	this->type = t;
+	this->name = name;
+	this->description = description;
+	this->range = range;
+	this->power = power;
+	this->requiredSize = reqSize;
+	this->actionID = -1;
 }
 
 ProgramAction::ProgramAction(MOVEPRESET p)
 {
+	actionID = -1;
+
     switch (p)
     {
     case MOVEPRESET_BASH:

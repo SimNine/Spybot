@@ -178,14 +178,14 @@ Coord* AICore::naiveStepTowardsProgram(Program* p)
             ret = NULL;
         else // otherwise, pick one of the marginally acceptable moves
         {
-            Coord* temp = nonidealMoves.getObjectAt(rand() % nonidealMoves.getLength());
+            Coord* temp = nonidealMoves.getObjectAt(randInt() % nonidealMoves.getLength());
             ret = new Coord{temp->x, temp->y};
             while (idealMoves.getLength() > 0) delete idealMoves.poll();
         }
     }
     else // otherwise, pick one of the ideal moves
     {
-        Coord* temp = idealMoves.getObjectAt(rand() % idealMoves.getLength());
+        Coord* temp = idealMoves.getObjectAt(randInt() % idealMoves.getLength());
         ret = new Coord{temp->x, temp->y};
         while (idealMoves.getLength() > 0) delete idealMoves.poll();
     }

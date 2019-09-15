@@ -217,5 +217,8 @@ void printMessage(Message m) {
 	case MSGTYPE_DISCONNECT:
 		printf("MSGTYPE_DISCONNECT\n");
 		break;
+	case MSGTYPE_TEXT:
+		printf("MSGTYPE_TEXT - %s\n", m.text);
+		break;
 	}
 }

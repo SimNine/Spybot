@@ -11,6 +11,7 @@ class GUIButton;
 class GUITexture;
 class ProgramInventoryDisplay;
 class PlayerDisplayContainer;
+class ChatDisplay;
 
 class GameScreen : public GUIContainer
 {
@@ -29,8 +30,7 @@ public:
 	void centerScreen();
 
     // gameplay methods
-    void endTurn();
-	void resumeTurn();
+	void setPlayerTurnDisplay(std::string name);
     void tryPlacingProgram(PROGRAM);
 
     // editor methods
@@ -49,6 +49,8 @@ public:
 
     // misc
     void togglePauseMenu();
+	void toggleTurnButtonShown(bool b);
+	ChatDisplay* getChatDisplay();
 protected:
 private:
     Coord bkgPos_;
@@ -84,11 +86,11 @@ private:
     GUIButton* turnButton_;
 
     // displays
-    GUITexture* playerTurn_;
-    GUITexture* aiTurn_;
+    GUITexture* currTurn_;
     ProgramInventoryDisplay* progInv_;
 	ProgramDisplayContainer* progDisp_;
 	PlayerDisplayContainer* playerDisp_;
+	ChatDisplay* chatDisplay_;
 };
 
 #endif // GAMESCREEN_H

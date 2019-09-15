@@ -3,6 +3,7 @@
 
 #include "Message.h"
 #include "Server.h"
+#include "MiscUtil.h"
 
 Pipe::Pipe(SOCKET client, Server* server)
 {
@@ -13,7 +14,7 @@ Pipe::Pipe(SOCKET client, Server* server)
 	dead_ = false;
 
 	// set client ID
-	clientID_ = rand();
+	clientID_ = randInt();
 
 	// send a message informing this client about its new ID
 	Message m;
@@ -47,6 +48,7 @@ void Pipe::listenData()
 		}
 		else
 		{
+			printf("SERVER: received initial CONNECT message from clientID %i - %s\n", clientID_, m.text);
 			server_->recieveMessage(m);
 		}
 	}
@@ -133,6 +135,12 @@ bool Pipe::isDead()
 	return dead_;
 }
 
-void listenToPipe(Pipe* p) {
-	p->listenData();
+std::string Pipe::getName()
+{
+	return name_;
+}
+
+void Pipe::setName(std::string name)
+{
+	name_ = name;
 }

@@ -17,6 +17,7 @@
 #include "ProgramAction.h"
 #include "MapScreen.h"
 #include "Node.h"
+#include "ChatDisplay.h"
 
 GameScreen::GameScreen()
     : GUIContainer(ANCHOR_NORTHWEST, {0, 0}, {SCREEN_WIDTH, SCREEN_HEIGHT}, NULL, loadTexture("resources/company_4.png"))
@@ -805,17 +806,12 @@ void GameScreen::buildGUI()
     dataContainer->game_editor_button_bkg[BKG_CELL]);
     gridBkgPanel_->addObject(bkgCellButton);
 
-    // turn display items
-    playerTurn_ = new GUITexture(ANCHOR_NORTH, {-200, 50},
-                                dataContainer->game_disp_playerturn,
+    // current turn display
+    currTurn_ = new GUITexture(ANCHOR_NORTH, {-200, 50},
+                                dataContainer->game_button_aiStep,
                                 {400, 100}, this);
-    playerTurn_->setTransparency(0);
-    addObject(playerTurn_);
-    aiTurn_ = new GUITexture(ANCHOR_NORTH, {-200, 50},
-                            dataContainer->game_disp_compturn,
-                            {400, 100}, this);
-    aiTurn_->setTransparency(0);
-    addObject(aiTurn_);
+    currTurn_->setTransparency(0);
+    addObject(currTurn_);
 
     // debug options
     debugOptions_ = new GUIContainer(ANCHOR_NORTHWEST, {10, 10}, {220, 190}, this, {120, 120, 120, 140});
@@ -833,19 +829,6 @@ void GameScreen::buildGUI()
     debugOptions_->addObject(stepButton);
     debugOptions_->setTransparency(0);
     addObject(debugOptions_);
-
-    // pre-game options
-    preGameOptions_ = new GUIContainer(ANCHOR_SOUTHWEST, {10, -150}, {220, 130}, this, {120, 120, 120, 140});
-    GUIButton* startGameButton = new GUIButton(ANCHOR_NORTHWEST, {10, 10}, {200, 50}, preGameOptions_,
-                                    [](){Message m; m.type = MSGTYPE_INFO; m.infoType = MSGINFOTYPE_GAMESTATUS; 
-									m.statusType = GAMESTATUS_PLAYING; client->sendMessage(m);},
-                                    dataContainer->game_button_start);
-    preGameOptions_->addObject(startGameButton);
-    GUIButton* backToMapButton = new GUIButton(ANCHOR_NORTHWEST, {10, 70}, {200, 50}, preGameOptions_,
-                                    [](){Message m; m.type = MSGTYPE_LEAVE; client->sendMessage(m);},
-                                    dataContainer->game_button_quitToMap);
-    preGameOptions_->addObject(backToMapButton);
-    addObject(preGameOptions_);
 
     // pause menu
     pauseMenu_ = new GUIContainer(ANCHOR_CENTER, {-110, -200}, {220, 5*60 + 10}, this, {120, 120, 120, 140});
@@ -880,19 +863,35 @@ void GameScreen::buildGUI()
     turnButton_->setTransparency(0);
     addObject(turnButton_);
 
-    // program display window
-    progDisp_ = new ProgramDisplayContainer(ANCHOR_SOUTHWEST, {10, -210}, {200, 200}, this);
-    progDisp_->setTransparency(0);
-    addObject(progDisp_);
-
 	// player display window
-	playerDisp_ = new PlayerDisplayContainer(ANCHOR_NORTHWEST, { 10, 10 }, { 10, 10 }, this);
+	playerDisp_ = new PlayerDisplayContainer(ANCHOR_NORTHWEST, { 10, 10 }, { 200, 200 }, this);
 	playerDisp_->setTransparency(255);
 	addObject(playerDisp_);
+
+	// program display window
+	progDisp_ = new ProgramDisplayContainer(ANCHOR_NORTHWEST, { 220, 10 }, { 200, 200 }, this);
+	progDisp_->setTransparency(0);
+	addObject(progDisp_);
+
+	// pre-game options
+	preGameOptions_ = new GUIContainer(ANCHOR_NORTHWEST, { 220, 10 }, { 220, 130 }, this, { 120, 120, 120, 140 });
+	GUIButton* startGameButton = new GUIButton(ANCHOR_NORTHWEST, { 10, 10 }, { 200, 50 }, preGameOptions_,
+		[]() {Message m; m.type = MSGTYPE_INFO; m.infoType = MSGINFOTYPE_GAMESTATUS;
+	m.statusType = GAMESTATUS_PLAYING; client->sendMessage(m); },
+		dataContainer->game_button_start);
+	preGameOptions_->addObject(startGameButton);
+	GUIButton* backToMapButton = new GUIButton(ANCHOR_NORTHWEST, { 10, 70 }, { 200, 50 }, preGameOptions_,
+		[]() {Message m; m.type = MSGTYPE_LEAVE; client->sendMessage(m); },
+		dataContainer->game_button_quitToMap);
+	preGameOptions_->addObject(backToMapButton);
+	addObject(preGameOptions_);
 
     // add the program inventory display
     progInv_ = new ProgramInventoryDisplay(ANCHOR_NORTHEAST, {0, 0}, {0, 0}, this);
     addObject(progInv_);
+
+	// create but DON'T ADD the chat display
+	chatDisplay_ = new ChatDisplay(ANCHOR_SOUTHWEST, { 0, -500 }, { 800, 500 }, this, 19);
 }
 
 void GameScreen::resetBounds()
@@ -1056,16 +1055,6 @@ bool GameScreen::mouseUp()
     return r;
 }
 
-void GameScreen::endTurn()
-{
-    aiTurn_->fade(255, 500);
-}
-
-void GameScreen::resumeTurn()
-{
-	playerTurn_->fade(255, 500);
-}
-
 void GameScreen::drawBkg()
 {
     // draw background image
@@ -1144,11 +1133,13 @@ void GameScreen::drawGrid()
                 else
                     SDL_SetTextureColorMod(dataContainer->program_core, prog->getColor(0), prog->getColor(1), prog->getColor(2));
 
-                if (client->getPlayer() == NULL)
-                    continue;
+				// if for some reason this client's player hasn't been initialized yet
+                //if (client->getGame()->getCurrTurnPlayer() == NULL)
+                    //continue;
 
                 // if this is the farthest chunk of this program
-                if (prog == client->getPlayer()->getSelectedProgram() &&
+                if (client->getGame()->getCurrTurnPlayer() != NULL &&
+					prog == client->getGame()->getCurrTurnPlayer()->getSelectedProgram() &&
                     prog->getHealth() == prog->getMaxHealth() &&
                     prog->getMoves() > 0)
                 {
@@ -1164,7 +1155,9 @@ void GameScreen::drawGrid()
                 else SDL_RenderCopy(gRenderer, dataContainer->program_core, NULL, &tileRect);
 
                 // if this is part of the selected program, indicate it
-                if (prog == client->getPlayer()->getSelectedProgram() && debug >= DEBUG_NORMAL)
+                if (client->getGame()->getCurrTurnPlayer() != NULL &&
+					prog == client->getGame()->getCurrTurnPlayer()->getSelectedProgram() &&
+					debug >= DEBUG_NORMAL)
                 {
                     SDL_SetRenderDrawColor(gRenderer, 255, 0, 0, 0);
                     SDL_RenderDrawLine(gRenderer, tileRect.x, tileRect.y, tileRect.x + tileRect.w, tileRect.y + tileRect.h);
@@ -1239,12 +1232,16 @@ void GameScreen::drawGrid()
                     SDL_RenderCopy(gRenderer, prog->getIcon(), NULL, &tileRect);
 
                     // draw the highlight rectangle if this program is selected
-                    if (prog == client->getPlayer()->getSelectedProgram())
+                    if (client->getGame()->getCurrTurnPlayer() != NULL &&
+						client->getGame()->getCurrTurnPlayer() &&
+						prog == client->getGame()->getCurrTurnPlayer()->getSelectedProgram())
                     {
                         tileRect.x = xDefault - 2;
                         tileRect.y = yDefault - 2;
                         tileRect.w = TILE_WIDTH;
                         tileRect.h = TILE_WIDTH;
+						SDL_Color c = client->getGame()->getCurrTurnPlayer()->getColor();
+						SDL_SetTextureColorMod(dataContainer->tile_selected, c.r, c.g, c.b);
                         SDL_SetTextureAlphaMod(dataContainer->tile_selected, ((double)-textureTickCount_/1000.0)*255 + 255);
                         SDL_RenderCopy(gRenderer, dataContainer->tile_selected, NULL, &tileRect);
                     }
@@ -1296,10 +1293,10 @@ void GameScreen::drawGrid()
                 SDL_RenderCopy(gRenderer, dataContainer->item_icons[client->getGame()->getItemAt(curr)], NULL, &tileRect);
             }
 
-            if (client->getPlayer() == NULL)
-                continue;
+            //if (client->getPlayer() == NULL)
+                //continue;
 
-            // if this is the selected tile
+            // if this is a selected tile
 			Iterator<Player*> playIt = client->getGame()->getHumanPlayers()->getIterator();
 			while (playIt.hasNext())
 			{
@@ -1316,36 +1313,39 @@ void GameScreen::drawGrid()
 				}
 			}
 
-            // if this tile is movable-to
-            if (client->getPlayer()->getSelectedProgramDist(curr) > 0 && client->getPlayer()->getSelectedProgram()->getOwner() == client->getPlayer())
+            // if this tile is movable-to by the current player
+            if (client->getGame()->getCurrTurnPlayer() != NULL &&
+				client->getGame()->getCurrTurnPlayer()->getSelectedProgramDist(curr) > 0 &&
+				client->getGame()->getCurrTurnPlayer()->getSelectedProgram()->getOwner() == client->getGame()->getCurrTurnPlayer())
             {
                 tileRect.x = xDefault;
                 tileRect.y = yDefault;
                 tileRect.w = sizeDefault;
                 tileRect.h = sizeDefault;
 
-                if (curr == client->getPlayer()->getSelectedProgram()->getCore() + Coord{0, 1})
+                if (curr == client->getGame()->getCurrTurnPlayer()->getSelectedProgram()->getCore() + Coord{0, 1})
                     SDL_RenderCopy(gRenderer, dataContainer->tile_moveSouth, NULL, &tileRect);
-                else if (curr == client->getPlayer()->getSelectedProgram()->getCore() + Coord{1, 0})
+                else if (curr == client->getGame()->getCurrTurnPlayer()->getSelectedProgram()->getCore() + Coord{1, 0})
                     SDL_RenderCopy(gRenderer, dataContainer->tile_moveEast, NULL, &tileRect);
-                else if (curr == client->getPlayer()->getSelectedProgram()->getCore() + Coord{0, -1})
+                else if (curr == client->getGame()->getCurrTurnPlayer()->getSelectedProgram()->getCore() + Coord{0, -1})
                     SDL_RenderCopy(gRenderer, dataContainer->tile_moveNorth, NULL, &tileRect);
-                else if (curr == client->getPlayer()->getSelectedProgram()->getCore() + Coord{-1, 0})
+                else if (curr == client->getGame()->getCurrTurnPlayer()->getSelectedProgram()->getCore() + Coord{-1, 0})
                     SDL_RenderCopy(gRenderer, dataContainer->tile_moveWest, NULL, &tileRect);
                 else
                     SDL_RenderCopy(gRenderer, dataContainer->tile_movePossible, NULL, &tileRect);
             }
 
             // if this tile is in the range of a programAction
-            if (client->getPlayer()->getSelectedActionDist(curr) > 0 &&
-				client->getGame()->getProgramAt(curr) != client->getPlayer()->getSelectedProgram())
+            if (client->getGame()->getCurrTurnPlayer() != NULL &&
+				client->getGame()->getCurrTurnPlayer()->getSelectedActionDist(curr) > 0 &&
+				client->getGame()->getProgramAt(curr) != client->getGame()->getCurrTurnPlayer()->getSelectedProgram())
             {
                 tileRect.x = xDefault - 2;
                 tileRect.y = yDefault - 2;
                 tileRect.w = sizeDefault + 4;
                 tileRect.h = sizeDefault + 4;
 
-                switch (client->getPlayer()->getSelectedAction()->type)
+                switch (client->getGame()->getCurrTurnPlayer()->getSelectedAction()->type)
                 {
                 case ACTIONTYPE_DAMAGE:
                     SDL_RenderCopy(gRenderer, dataContainer->tile_actionDamage, NULL, &tileRect);
@@ -1404,6 +1404,7 @@ void GameScreen::draw()
     drawBkg();
     drawGrid();
     GUIContainer::drawContents();
+	chatDisplay_->draw();
 
     if (editorMode_)
     {
@@ -1501,6 +1502,7 @@ void GameScreen::tick(int ms)
 {
     // tick gui objects
     GUIContainer::tick(ms);
+	chatDisplay_->tick(ms);
 
     // don't do anything if pause is visible
     if (pauseMenu_->isVisible())
@@ -1517,10 +1519,8 @@ void GameScreen::tick(int ms)
     if (textureTickCount_ >= 1000) textureTickCount_ = 0;
 
     // fade out the playerTurn display if it is visible
-    if (playerTurn_->isVisible() && playerTurn_->getTransparency() == 255)
-    {
-        playerTurn_->fade(0, 500);
-    }
+    if (currTurn_->isVisible() && currTurn_->getTransparency() == 255)
+        currTurn_->fade(0, 500);
 
     // check if the current music track is done, if so, pick a new one
     if (Mix_PlayingMusic() == 0)
@@ -1647,12 +1647,16 @@ void GameScreen::toggleEditorMode()
 
 void GameScreen::togglePauseMenu()
 {
-    if (pauseMenu_->isVisible()) pauseMenu_->setTransparency(0);
-    else pauseMenu_->setTransparency(255);
+    if (pauseMenu_->isVisible())
+		pauseMenu_->setTransparency(0);
+    else
+		pauseMenu_->setTransparency(255);
 }
 
 void GameScreen::changeGameStatus(GAMESTATUS g)
 {
+	// refactor this whole system
+
 	switch (g)
 	{
 	case GAMESTATUS_NO_GAME:
@@ -1688,4 +1692,28 @@ void GameScreen::changeGameStatus(GAMESTATUS g)
 		mapScreen->clearSelectedNode();
 		break;
 	}
+}
+
+ChatDisplay* GameScreen::getChatDisplay()
+{
+	return chatDisplay_;
+}
+
+void GameScreen::setPlayerTurnDisplay(std::string name)
+{
+	SDL_Texture* nameTex = loadString((name + "'s turn"), FONT_NORMAL, 100, { 255, 255, 255, 255 });
+	SDL_DestroyTexture(currTurn_->swapTexture(nameTex));
+	int wid = 0;
+	int hei = 0;
+	SDL_QueryTexture(nameTex, NULL, NULL, &wid, &hei);
+	currTurn_->setBounds({-wid/2, 50}, {wid, hei});
+	currTurn_->fade(255, 500);
+}
+
+void GameScreen::toggleTurnButtonShown(bool b)
+{
+	if (b)
+		turnButton_->setTransparency(255);
+	else
+		turnButton_->setTransparency(0);
 }

@@ -20,23 +20,23 @@ AIBasic::~AIBasic()
 
 bool AIBasic::actStep()
 {
-    // get the next usable program
-    //if (debug >= DEBUG_NORMAL) 
+    // select the next usable program
+    if (debug >= DEBUG_NORMAL) 
 		printf("stepping aiBasic %x: ", (unsigned int)this);
     if (owner_->getSelectedProgram() == NULL || owner_->getSelectedProgram()->isDone())
     {
-        //if (debug >= DEBUG_NORMAL) 
+        if (debug >= DEBUG_NORMAL) 
 			printf("selecting next usable program... ");
         Program* myProg = getNextUsableProgram();
         if (myProg == NULL)
         {
-            //if (debug >= DEBUG_NORMAL) 
+            if (debug >= DEBUG_NORMAL) 
 				printf("found no remaining usable programs\n");
             return false;
         }
         else
         {
-            //if (debug >= DEBUG_NORMAL) 
+            if (debug >= DEBUG_NORMAL) 
 				printf("found %s\n", myProg->getName().c_str());
             owner_->setSelectedProgram(myProg);
             return true;
@@ -55,7 +55,8 @@ bool AIBasic::actStep()
         // check if all enemies are dead
         if (enemyProg == NULL)
         {
-            if (debug >= DEBUG_NORMAL) printf("nowhere; no enemies left\n");
+            if (debug >= DEBUG_NORMAL) 
+				printf("nowhere; no enemies left\n");
 			owner_->getSelectedProgram()->setMoves(owner_->getSelectedProgram()->getMoves() - 1);
             return false;
         }
@@ -66,12 +67,14 @@ bool AIBasic::actStep()
         // use the naive best move
         if (bestMove == NULL)
         {
-            if (debug >= DEBUG_NORMAL) printf("nowhere; move blocked\n");
+            if (debug >= DEBUG_NORMAL) 
+				printf("nowhere; move blocked\n");
 			owner_->getSelectedProgram()->setMoves(owner_->getSelectedProgram()->getMoves() - 1);
         }
         else
         {
-            if (debug >= DEBUG_NORMAL) printf("%i,%i\n", bestMove->x, bestMove->y);
+            if (debug >= DEBUG_NORMAL)
+				printf("%i,%i\n", bestMove->x, bestMove->y);
             owner_->moveSelectedProgramBy(*bestMove);
             delete bestMove;
         }
@@ -83,22 +86,26 @@ bool AIBasic::actStep()
     {
         if (owner_->getSelectedAction() == NULL)
         {
-            if (debug >= DEBUG_NORMAL) printf("picking one of %s's actions... ", owner_->getSelectedProgram()->getName().c_str());
+            if (debug >= DEBUG_NORMAL) 
+				printf("picking one of %s's actions... ", owner_->getSelectedProgram()->getName().c_str());
             ProgramAction* progAct = owner_->getSelectedProgram()->getActions()->getFirst();
             if (progAct == NULL)
             {
-                if (debug >= DEBUG_NORMAL) printf("found no available actions\n");
+                if (debug >= DEBUG_NORMAL) 
+					printf("found no available actions\n");
 				owner_->getSelectedProgram()->setActionsLeft(0);
             }
             else
             {
-                if (debug >= DEBUG_NORMAL) printf("picked %s\n", progAct->name.c_str());
+                if (debug >= DEBUG_NORMAL) 
+					printf("picked %s\n", progAct->name.c_str());
                 owner_->setSelectedAction(progAct);
             }
         }
         else
         {
-            if (debug >= DEBUG_NORMAL) printf("using %s's action %s...", owner_->getSelectedProgram()->getName().c_str(), owner_->getSelectedProgram()->getName().c_str());
+            if (debug >= DEBUG_NORMAL) 
+				printf("using %s's action %s...", owner_->getSelectedProgram()->getName().c_str(), owner_->getSelectedProgram()->getName().c_str());
             Coord c = {-1, -1};
             for (int x = 0; x < 200; x++) for (int y = 0; y < 200; y++)
                 if (owner_->getSelectedActionDist({x,y}) != -1 &&
@@ -109,11 +116,13 @@ bool AIBasic::actStep()
                 }
             if (c == Coord{-1, -1})
             {
-                if (debug >= DEBUG_NORMAL) printf("nowhere- no enemy progs in range\n");
+                if (debug >= DEBUG_NORMAL) 
+					printf("nowhere- no enemy progs in range\n");
             }
             else
             {
-                if (debug >= DEBUG_NORMAL) printf("at %i,%i\n", c.x, c.y);
+                if (debug >= DEBUG_NORMAL) 
+					printf("at %i,%i\n", c.x, c.y);
                 owner_->useSelectedActionAt(c);
             }
 

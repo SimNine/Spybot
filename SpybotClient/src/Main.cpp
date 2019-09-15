@@ -11,12 +11,78 @@
 #include "DataContainer.h"
 #include "Client.h"
 #include "Timer.h"
+#include "ChatDisplay.h"
 
 void savePrefs();
 void loadPrefs();
 
 void saveProgs();
 void loadProgs();
+
+// converts an SDL_Keycode into a char
+char convertSDLKeycodeToChar(SDL_Keycode keycode, bool shift)
+{
+	const char* k = SDL_GetKeyName(keycode);
+	if (strlen(k) == 1)
+	{
+		// get the key
+		char key = k[0];
+
+		// if alphabetical
+		if (key >= 60 && key <= 90)
+			return shift ? key : key + 32;
+
+		// other regular chars
+		switch (key) {
+		case '1':
+			return shift ? '!' : '1';
+		case '2':
+			return shift ? '@' : '2';
+		case '3':
+			return shift ? '#' : '3';
+		case '4':
+			return shift ? '$' : '4';
+		case '5':
+			return shift ? '%' : '5';
+		case '6':
+			return shift ? '^' : '6';
+		case '7':
+			return shift ? '&' : '7';
+		case '8':
+			return shift ? '*' : '8';
+		case '9':
+			return shift ? '(' : '9';
+		case '0':
+			return shift ? ')' : '0';
+		case '/':
+			return shift ? '?' : '/';
+		case '.':
+			return shift ? '>' : '.';
+		case ',':
+			return shift ? '<' : ',';
+		case '-':
+			return shift ? '_' : '-';
+		case '=':
+			return shift ? '+' : '=';
+		case '\'':
+			return shift ? '\"' : '\'';
+		case ';':
+			return shift ? ':' : ';';
+		default:
+			return 0;
+		}
+	}
+	else if (keycode == SDLK_SPACE)
+		return ' ';
+	else if (keycode == SDLK_BACKSPACE)
+		return 127;
+	else if (keycode == SDLK_RETURN)
+		return 13;
+	else if (keycode == SDLK_ESCAPE)
+		return 27;
+	else 
+		return 0;
+}
 
 // closes SDL and SDL_image
 void closeSDL()
@@ -405,6 +471,14 @@ void handleEvents()
                 {
                     gameScreen->toggleEditorMode();
                 }
+
+				// handle chat display
+				SDL_Keycode keycode = e.key.keysym.sym;
+				bool isShiftPressed = (SDL_GetKeyboardState(NULL)[SDL_SCANCODE_LSHIFT] || SDL_GetKeyboardState(NULL)[SDL_SCANCODE_RSHIFT]);
+
+				char out = convertSDLKeycodeToChar(keycode, isShiftPressed);
+				if (out != 0)
+					gameScreen->getChatDisplay()->addInputChar(out);
             }
         }
         else if (currScreen == mapScreen)
@@ -421,7 +495,31 @@ void handleEvents()
                 }
             }
         }
-    }
+		else if (currScreen == mainScreen)
+		{
+			if (e.type == SDL_KEYDOWN)
+			{
+				SDL_Keycode keycode = e.key.keysym.sym;
+				bool isShiftPressed = (SDL_GetKeyboardState(NULL)[SDL_SCANCODE_LSHIFT] || SDL_GetKeyboardState(NULL)[SDL_SCANCODE_RSHIFT]);
+
+				char out = convertSDLKeycodeToChar(keycode, isShiftPressed);
+				if (out != 0)
+					mainScreen->keyPress(out);
+			}
+		}
+		else if (currScreen == lobbyScreen)
+		{
+			if (e.type == SDL_KEYDOWN)
+			{
+				SDL_Keycode keycode = e.key.keysym.sym;
+				bool isShiftPressed = (SDL_GetKeyboardState(NULL)[SDL_SCANCODE_LSHIFT] || SDL_GetKeyboardState(NULL)[SDL_SCANCODE_RSHIFT]);
+
+				char out = convertSDLKeycodeToChar(keycode, isShiftPressed);
+				if (out != 0)
+					lobbyScreen->getChatDisplay()->addInputChar(out);
+			}
+		}
+	}
 }
 
 // draw the current screen
@@ -454,31 +552,6 @@ int main( int argc, char* args[] )
         printf("Failed to initialize SDL\n");
         return 1;
     }
-
-	// check number of args, save server string
-	if (argc != 2) {
-		printf("No serverIP given, assuming localhost\n");
-		serverIP = "localhost";
-	}
-	else
-	{
-		serverIP = args[1];
-	}
-
-	// TODO: create a user input for this
-	int r = (GetTickCount() % 5);
-	if (r == 0)
-		username = "Mike";
-	else if (r == 1)
-		username = "Bob";
-	else if (r == 2)
-		username = "Larry";
-	else if (r == 3)
-		username = "Alice";
-	else if (r == 4)
-		username = "Stacy";
-	else
-		username = "Chris";
 
     // setup timers
     Timer tickTimer;

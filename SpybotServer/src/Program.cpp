@@ -3,15 +3,16 @@
 
 #include "ProgramAction.h"
 #include "Player.h"
+#include "MiscUtil.h"
 
 Program::Program(PROGRAM type, int team, Coord head)
 {
     this->team = team;
     this->type = type;
     //icon = dataContainer->program_icons[type];
-    color[0] = rand()%255;
-    color[1] = rand()%255;
-    color[2] = rand()%255;
+    color[0] = randInt()%255;
+    color[1] = randInt()%255;
+    color[2] = randInt()%255;
     actionList = new LinkedList<ProgramAction*>();
     tiles = new LinkedList<Coord*>();
     tiles->addFirst(new Coord(head));

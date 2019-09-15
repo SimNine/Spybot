@@ -25,8 +25,8 @@ class GUITexture : public GUIObject
         void resetBounds();
     protected:
     private:
-        SDL_Texture* texture;
-        bool willDestroyTexture;
+        SDL_Texture* texture_;
+        bool willDestroyTexture_;
 };
 
 #endif // GUITEXTURE_H

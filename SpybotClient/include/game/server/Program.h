@@ -53,6 +53,7 @@ class Program
         void addAction(MOVEPRESET);
         void addAction(ProgramAction*);
         LinkedList<ProgramAction*>* getActions();
+		ProgramAction* getActionByID(int actionID);
 
 		int getProgramID();
 		void setProgramID(int progID);

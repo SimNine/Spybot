@@ -14,7 +14,8 @@ Player::Player(Game* g, int t)
     game = g;
     team = t;
     doneTurn = false;
-    setSelectedTile({-1, -1});
+	selectedTile = { -1, -1 };
+	selectedProgram = NULL;
     progsOwned = new LinkedList<Program*>();
 	playerID_ = -1;
 }
@@ -37,6 +38,17 @@ void Player::setSelectedProgram(Program* p)
 
     setSelectedAction(NULL);
     selectedProgram = p;
+
+	if (p != NULL)
+	{
+		Message m;
+		m.type = MSGTYPE_SELECT;
+		m.selectType = MSGSELECTTYPE_PROGRAM;
+		m.clientID = 0;
+		m.playerID = playerID_;
+		m.programID = p->getProgramID();
+		server->sendMessageToAllClients(m);
+	}
 }
 
 void Player::moveSelectedProgram(Coord pos)
@@ -253,19 +265,36 @@ void Player::addProgram(Program* p)
 
 void Player::setSelectedTile(Coord pos)
 {
+	Message m;
+	m.type = MSGTYPE_SELECT;
+	m.selectType = MSGSELECTTYPE_TILE;
+	m.clientID = 0;
+	m.playerID = playerID_;
+
     if (game->isOOB(pos))
     {
         setSelectedProgram(NULL);
         selectedTile = {-1, -1};
+		
+		m.pos = pos;
+		server->sendMessageToAllClients(m);
         return;
     }
 
     setSelectedProgram(game->getProgramAt(pos));
 
-    if (selectedProgram == NULL)
-        selectedTile = pos;
-    else
-        selectedTile = selectedProgram->getHead();
+	if (selectedProgram == NULL)
+	{
+		selectedTile = pos;
+		m.pos = pos;
+		server->sendMessageToAllClients(m);
+	}
+	else
+	{
+		selectedTile = selectedProgram->getHead();
+		m.pos = selectedProgram->getHead();
+		server->sendMessageToAllClients(m);
+	}
 }
 
 Coord Player::getSelectedTile()
@@ -327,6 +356,15 @@ void Player::setSelectedAction(ProgramAction* pa)
     selectedActionDist[center.x][center.y] = 0;
 
     selectedAction = pa;
+
+	Message m;
+	m.type = MSGTYPE_SELECT;
+	m.selectType = MSGSELECTTYPE_ACTION;
+	m.clientID = 0;
+	m.playerID = playerID_;
+	m.programID = selectedProgram->getProgramID();
+	m.actionID = 1;
+	server->sendMessageToAllClients(m);
 }
 
 ProgramAction* Player::getSelectedAction()
@@ -347,6 +385,13 @@ void Player::useSelectedActionAt(Coord pos)
         return;
 
     Program* tgtProg = game->getProgramAt(pos);
+
+	Message m;
+	m.type = MSGTYPE_ACTION;
+	m.clientID = 0;
+	m.playerID = playerID_;
+	m.pos = pos;
+	server->sendMessageToAllClients(m);
 
     switch (selectedAction->type)
     {

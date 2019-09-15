@@ -62,7 +62,7 @@ class Game
         ITEM gridItems[200][200];
         Program* gridPrograms[200][200];
         void removeReferencesToProgram(Program*);
-        BACKGROUND bkg;
+        BACKGROUND bkg_;
 
         // helper methods
         void loadLevel(std::string);

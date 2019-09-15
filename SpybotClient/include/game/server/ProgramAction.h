@@ -16,6 +16,7 @@ class ProgramAction
         int power;
         int requiredSize;
         bool hitsFriendlies, hitsEnemies;
+		int actionID;
     protected:
     private:
         void setMove(ACTIONTYPE, std::string, std::string, int, int, int);

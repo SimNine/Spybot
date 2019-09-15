@@ -6,6 +6,8 @@
 #include "Standard.h"
 #include "GUIContainer.h"
 
+class ChatDisplay;
+
 class LobbyScreen : public GUIContainer
 {
     public:
@@ -14,9 +16,13 @@ class LobbyScreen : public GUIContainer
 
 		void draw();
 		void leaveLobby();
+
+		ChatDisplay* getChatDisplay();
     protected:
     private:
 		void buildGUI();
+
+		ChatDisplay* chatDisplay_;
 };
 
 #endif // LOBBYSCREEN_H

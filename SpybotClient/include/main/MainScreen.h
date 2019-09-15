@@ -6,16 +6,28 @@
 #include "LinkedList.h"
 
 class MainScreenGlow;
+class TextEntryBox;
 
 class MainScreen : public GUIContainer
 {
     public:
         MainScreen();
         virtual ~MainScreen();
+
         void draw();
         void tick(int);
 
         void toggleOptions();
+
+		void showNameEntry();
+		void cancelNameEntry();
+		void submitNameEntry();
+
+		void showIPEntry();
+		void cancelIPEntry();
+		void submitIPEntry();
+
+		void keyPress(char c);
     protected:
     private:
         int textBkgDisplacement;
@@ -24,6 +36,10 @@ class MainScreen : public GUIContainer
 
         GUIContainer* optionsContainer;
         GUIContainer* mainContainer;
+		GUIContainer* nameEntryContainer;
+		TextEntryBox* nameEntryBox;
+		GUIContainer* IPEntryContainer;
+		TextEntryBox* IPEntryBox;
 };
 
 #endif // MAINSCREEN_H

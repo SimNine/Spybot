@@ -18,9 +18,11 @@ class Pipe
 
 		int getClientID();
 
+		std::string getName();
+		void setName(std::string name);
+
 		Player* getPlayer();
 		void setPlayer(Player* p);
-
 		void kill();
 		bool isDead();
     protected:
@@ -29,12 +31,11 @@ class Pipe
 		SOCKET socket_;
         Server* server_;
 		int clientID_;
+		std::string name_;
 
 		Player* player_;
 
 		bool dead_;
 };
-
-void listenToPipe(Pipe* p);
 
 #endif // PIPE_H

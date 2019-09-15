@@ -730,3 +730,16 @@ void Program::setProgramID(int progID)
 {
 	programID_ = progID;
 }
+
+ProgramAction* Program::getActionByID(int actionID)
+{
+	Iterator<ProgramAction*> it = actionList->getIterator();
+	while (it.hasNext())
+	{
+		ProgramAction* curr = it.next();
+		if (curr->actionID == actionID)
+			return curr;
+	}
+
+	return NULL;
+}

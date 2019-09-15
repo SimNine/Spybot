@@ -12,11 +12,13 @@
 #include "LobbyScreen.h"
 #include "MainScreen.h"
 #include "Player.h"
+#include "ClientMirror.h"
+#include "ChatDisplay.h"
 
 Client::Client()
 {
     msgQueue_ = new LinkedList<Message*>();
-	clientList_ = new LinkedList<int*>();
+	clientList_ = new LinkedList<ClientMirror*>();
 	socket_ = INVALID_SOCKET;
 	myClientID_ = -1;
 	game_ = NULL;
@@ -55,6 +57,13 @@ void Client::processMessage(Message* msg)
 
 	switch (msg->type)
 	{
+	case MSGTYPE_ACTION:
+		{
+			// TODO: support more types of actions
+			Player* p = game_->getPlayerByID(msg->playerID);
+			p->useSelectedActionAt(msg->pos);
+		}
+		break;
 	case MSGTYPE_MOVE:
 		if (game_->getStatus() != GAMESTATUS_PLAYING)
 			return;
@@ -119,7 +128,7 @@ void Client::processMessage(Message* msg)
 			game_->setTileAt(msg->pos, msg->tileType);
 		else if (msg->infoType == MSGINFOTYPE_PROGRAM)
 		{
-			printf("team %i\n", msg->team);
+			// TODO: refactor this to support an arbitrary number of teams
 			if (msg->team == 0)
 			{
 				Player* player = game_->getPlayerByID(msg->playerID);
@@ -165,6 +174,10 @@ void Client::processMessage(Message* msg)
 				game_->setProgramAt(msg->pos, prog);
 			}
 		}
+		else if (msg->infoType == MSGINFOTYPE_ACTION)
+		{
+			// TOOD: have this support creating an arbitrary action
+		}
 		else if (msg->infoType == MSGINFOTYPE_ITEM)
 			game_->setItemAt(msg->pos, msg->itemType);
 		else if (msg->infoType == MSGINFOTYPE_GAMESTATUS)
@@ -173,20 +186,36 @@ void Client::processMessage(Message* msg)
 			gameScreen->changeGameStatus(msg->statusType);
 			currScreen = gameScreen;
 		}
-
 		gameScreen->centerScreen();
 		break;
 	case MSGTYPE_SELECT:
-		game_->getPlayerByID(msg->playerID)->setSelectedTile(msg->pos);
+		if (msg->selectType == MSGSELECTTYPE_TILE)
+		{
+			game_->getPlayerByID(msg->playerID)->setSelectedTile(msg->pos);
+		}
+		else if (msg->selectType == MSGSELECTTYPE_PROGRAM)
+		{
+			Player* p = game_->getPlayerByID(msg->playerID);
+			p->setSelectedProgram(p->getProgramByID(msg->programID));
+		}
+		else if (msg->selectType == MSGSELECTTYPE_ACTION)
+		{
+			printf("GOT A MSGINFOTYPE ACTION\n");
+			Program* p = game_->getPlayerByID(msg->playerID)->getProgramByID(msg->programID);
+			game_->getPlayerByID(msg->playerID)->setSelectedAction(p->getActions()->getFirst());
+		}
 		break;
 	case MSGTYPE_JOIN:
 		{
+			// add notification
 			notifyScreen->addNotification("received player id " + to_string(msg->playerID));
 
+			// create player
 			Player* newP = new Player(game_, 0);
 			newP->setPlayerID(msg->playerID);
 			game_->getHumanPlayers()->addLast(newP);
 
+			// if this is my client's player
 			if (msg->clientID == myClientID_)
 			{
 				player_ = newP;
@@ -195,20 +224,25 @@ void Client::processMessage(Message* msg)
 				m.type = MSGTYPE_RESYNCGAME;
 				sendMessage(m);
 			}
+
+			// set this clientMirror's player
+			for (int i = 0; i < clientList_->getLength(); i++)
+			{
+				ClientMirror* cm = clientList_->getObjectAt(i);
+				if (cm->clientID_ == msg->clientID)
+					cm->player_ = newP;
+			}
 		}
 		break;
 	case MSGTYPE_CONNECT:
-		if (myClientID_ == msg->clientID)
-			printf("CLIENT ERR: client received a MSGTYPE_CONNECT after already having confirmed connection\n");
-		else if (myClientID_ == -1)
-			printf("CLIENT ERR: client received two MSGTYPE_CONNECTs but didn't connect? something fucked up\n");
-		else
 		{
-			notifyScreen->addNotification("client " + to_string(msg->clientID) + " has joined the game");
-			int* i = (int*)malloc(sizeof(int));
-			*i = msg->clientID;
-			clientList_->addFirst(i);
-			//lobbyScreen->addClient(msg->clientID);
+			notifyScreen->addNotification(std::string(msg->text) + " has connected to the server");
+			ClientMirror* mirror = new ClientMirror();
+			mirror->clientID_ = msg->clientID;
+			if (msg->actionID == 9000)// arbitrary value
+				mirror->owner_ = true;
+			mirror->name_ = msg->text;
+			clientList_->addFirst(mirror);
 		}
 		break;
 	case MSGTYPE_DISCONNECT:
@@ -221,32 +255,53 @@ void Client::processMessage(Message* msg)
 			int index = -1;
 			for (int i = 0; i < clientList_->getLength(); i++)
 			{
-				if (*clientList_->getObjectAt(i) == msg->clientID)
+				if (clientList_->getObjectAt(i)->clientID_ == msg->clientID)
 					index = i;
 			}
 
+			notifyScreen->addNotification(clientList_->getObjectAt(index)->name_ + " has disconnected from the server");
 			delete clientList_->removeObjectAt(index);
 		}
 
-		notifyScreen->addNotification("client " + to_string(msg->clientID) + " has left the game");
-
 		break;
 	case MSGTYPE_NEXTTURN:
-		// set the next player
-		Player* pNext = game_->getPlayerByID(msg->playerID);
-		game_->setCurrTurnPlayer(pNext);
-
-		// if it's now my turn
-		if (msg->playerID == player_->getPlayerID())
 		{
-			printf("ITS MY TURN NOW. NICE");
+			// set the next player
+			Player* pNext = game_->getPlayerByID(msg->playerID);
+			game_->setCurrTurnPlayer(pNext);
+			ClientMirror* cNext = getClientMirrorByPlayerID(msg->playerID);
+			if (cNext != NULL)
+				gameScreen->setPlayerTurnDisplay(cNext->name_);
+			else
+				gameScreen->setPlayerTurnDisplay("AI");
+			gameScreen->toggleTurnButtonShown(false);
 
-			// display the "your turn" pic
-			gameScreen->resumeTurn();
+			// if it's now my turn
+			if (msg->playerID == player_->getPlayerID())
+			{
+				// reset everyone's turns
+				game_->getHumanPlayers()->forEach([](Player* ph) {ph->endTurn(); });
+				game_->getAIPlayers()->forEach([](Player* pc) {pc->endTurn(); });
 
-			// reset everyone's turns
-			game_->getHumanPlayers()->forEach([](Player* ph) {ph->endTurn(); });
-			game_->getAIPlayers()->forEach([](Player* pc) {pc->endTurn(); });
+				// show the "end turn" button
+				gameScreen->toggleTurnButtonShown(true);
+			}
+		}
+		break;
+	case MSGTYPE_TEXT:
+		{
+			std::string text = "";
+			for (int i = 0; i < clientList_->getLength(); i++)
+			{
+				if (clientList_->getObjectAt(i)->clientID_ == msg->clientID)
+					text += clientList_->getObjectAt(i)->name_;
+			}
+			text += "> " + std::string(msg->text);
+
+			if (currScreen == lobbyScreen)
+				lobbyScreen->getChatDisplay()->addMessage(text);
+			else if (currScreen == gameScreen)
+				gameScreen->getChatDisplay()->addMessage(text);
 		}
 		break;
 	}
@@ -300,7 +355,7 @@ void Client::connectIP(std::string IP)
 
 	// Receive until the peer closes the connection
 	printf("CLIENT: attempting to connect to server \"%s\"\n", IP.c_str());
-	std::thread newThread(listenOnSocket, this);
+	std::thread newThread(&Client::listen, this);
 	newThread.detach();
 }
 
@@ -344,7 +399,7 @@ void Client::listen()
 		if (m.type == MSGTYPE_CONNECT)
 		{
 			myClientID_ = m.clientID;
-			strcpy_s(m.text, DEFAULT_MSG_TEXTSIZE, username.c_str());
+			strncpy_s(m.text, DEFAULT_MSG_TEXTSIZE, username.c_str(), DEFAULT_MSG_TEXTSIZE);
 			printf("CLIENT: received connection confirmation from server, acquired client ID %i\n", myClientID_);
 
 			this->sendMessage(m);
@@ -415,12 +470,33 @@ void Client::setGame(Game* game)
 	game_ = game;
 }
 
-LinkedList<int*>* Client::getClientList()
+LinkedList<ClientMirror*>* Client::getClientList()
 {
 	return clientList_;
 }
 
-void listenOnSocket(Client* c)
+ClientMirror* Client::getClientMirrorByClientID(int clientID)
 {
-	c->listen();
+	Iterator<ClientMirror*> it = clientList_->getIterator();
+	while (it.hasNext())
+	{
+		ClientMirror* curr = it.next();
+		if (curr->clientID_ == clientID)
+			return curr;
+	}
+
+	return NULL;
+}
+
+ClientMirror* Client::getClientMirrorByPlayerID(int playerID)
+{
+	Iterator<ClientMirror*> it = clientList_->getIterator();
+	while (it.hasNext())
+	{
+		ClientMirror* curr = it.next();
+		if (curr->player_->getPlayerID() == playerID)
+			return curr;
+	}
+
+	return NULL;
 }

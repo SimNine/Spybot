@@ -19,9 +19,9 @@ public:
 protected:
 private:
 	LinkedList<std::string*>* notificationList_;
-	GUITexture* currTex_;
-	int texWidth_;
-	int timeLeft_;
+	LinkedList<int*>* notificationTiming_;
+	int pushOffset;
+	const int textSize = 30;
 };
 
 #endif // NOTIFYSCREEN_H

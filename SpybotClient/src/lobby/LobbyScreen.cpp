@@ -8,6 +8,8 @@
 #include "ResourceLoader.h"
 #include "MiscUtil.h"
 #include "MainScreen.h"
+#include "ClientMirror.h"
+#include "ChatDisplay.h"
 
 LobbyScreen::LobbyScreen()
 	: GUIContainer(ANCHOR_NORTHWEST, { 0, 0 }, { SCREEN_WIDTH, SCREEN_HEIGHT }, NULL, { 0, 0, 0, 0 })
@@ -22,15 +24,18 @@ LobbyScreen::~LobbyScreen()
 
 void LobbyScreen::buildGUI()
 {
-	GUIButton* leaveLobbyButton = new GUIButton(ANCHOR_SOUTHWEST, { 20, -70 }, "Leave Lobby", this, []() { lobbyScreen->leaveLobby(); });
+	GUIButton* leaveLobbyButton = new GUIButton(ANCHOR_NORTHEAST, { -200, 10 }, "Leave Lobby", this, []() { lobbyScreen->leaveLobby(); });
 	this->addObject(leaveLobbyButton);
 
-	GUIButton* loadLevelButton = new GUIButton(ANCHOR_SOUTHWEST, { 20, -140 }, "Load Level", this, []() {
+	GUIButton* loadLevelButton = new GUIButton(ANCHOR_NORTHEAST, { -200, 80 }, "Load Level", this, []() {
 		Message msg;
 		msg.type = MSGTYPE_LOAD;
 		msg.levelNum = 2;
 		client->sendMessage(msg); });
 	this->addObject(loadLevelButton);
+
+	chatDisplay_ = new ChatDisplay(ANCHOR_SOUTHWEST, { 0, -500 }, { 800, 500 }, this, 19);
+	this->addObject(chatDisplay_);
 }
 
 void LobbyScreen::draw()
@@ -43,14 +48,14 @@ void LobbyScreen::draw()
 	GUIContainer::drawContents();
 
 	// render each clientID
-	Iterator<int*> ids = client->getClientList()->getIterator();
+	Iterator<ClientMirror*> clients = client->getClientList()->getIterator();
 	int yOffset = 0;
 	int textSize = 24;
-	while (ids.hasNext())
+	while (clients.hasNext())
 	{
-		int currID = *ids.next();
+		ClientMirror* currID = clients.next();
 		SDL_Rect textBound;
-		SDL_Texture* text = loadString(to_string(currID), FONT_BOLD, textSize, { 255, 255, 255, 255 });
+		SDL_Texture* text = loadString(currID->name_ + " (" + to_string(currID->clientID_) + ")", FONT_BOLD, textSize, { 255, 255, 255, 255 });
 		SDL_QueryTexture(text, NULL, NULL, &textBound.w, &textBound.h);
 		textBound.x = bounds.x;
 		textBound.y = bounds.y + yOffset;
@@ -68,4 +73,9 @@ void LobbyScreen::leaveLobby()
 
 	// clean up the lobby screen, return to main screen
 	currScreen = mainScreen;
+}
+
+ChatDisplay* LobbyScreen::getChatDisplay()
+{
+	return chatDisplay_;
 }

@@ -10,6 +10,7 @@
 #include "ProgramAction.h"
 #include "Client.h"
 #include "Player.h"
+#include "Game.h"
 
 ProgramDisplayContainer::ProgramDisplayContainer(ANCHOR a, Coord disp, Coord dims, GUIContainer* par)
     : GUIContainer(a, disp, dims, par, {120, 120, 120, 140})
@@ -28,11 +29,13 @@ void ProgramDisplayContainer::draw()
     GUIContainer::drawBkg();
 
     // draw bounds
-    if (debug >= DEBUG_NORMAL) drawBounds();
+    if (debug >= DEBUG_NORMAL) 
+		drawBounds();
 
     // get the current program
 	Program* currProgram = client->getPlayer()->getSelectedProgram();
-    if (currProgram == NULL) return;
+    if (currProgram == NULL) 
+		return;
 
     // draw the current program's name
     SDL_Rect nameBound;

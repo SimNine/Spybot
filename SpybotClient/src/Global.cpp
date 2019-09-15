@@ -72,6 +72,3 @@ Client* client;
 
 // username string
 std::string username;
-
-// server string
-std::string serverIP;

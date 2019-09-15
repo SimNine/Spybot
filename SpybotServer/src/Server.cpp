@@ -13,9 +13,6 @@ Server::Server()
 {
     clients_ = new LinkedList<Pipe*>();
     msgQueue_ = new LinkedList<Message*>();
-
-	// TODO: undo this
-	game_ = new Game();
 }
 
 Server::~Server()
@@ -25,12 +22,14 @@ Server::~Server()
 
 void Server::tick(int ms)
 {
+	mtx.lock();
     while (msgQueue_->getLength() > 0)
     {
         Message* m = msgQueue_->removeFirst();
         processMessage(m);
         delete m;
     }
+	mtx.unlock();
 }
 
 void Server::sendMessageToAllClients(Message message)
@@ -44,21 +43,21 @@ void Server::sendMessageToAllClients(Message message)
 
 void Server::sendMessageToClient(Message message, int clientID)
 {
-	getClientWithID(clientID)->sendData(message);
+	getClientByID(clientID)->sendData(message);
 }
 
-void Server::sendMessageToIngameClients(Message message)
+void Server::sendMessageToAllClientsExcept(Message message, int clientID)
 {
 	Iterator<Pipe*> it = clients_->getIterator();
 	while (it.hasNext())
 	{
 		Pipe* curr = it.next();
-		if (curr->getPlayer() != NULL)
+		if (curr->getClientID() != clientID)
 			curr->sendData(message);
 	}
 }
 
-Pipe* Server::getClientWithID(int clientID)
+Pipe* Server::getClientByID(int clientID)
 {
 	Iterator<Pipe*> it = clients_->getIterator();
 	while (it.hasNext())
@@ -86,7 +85,7 @@ void Server::processMessage(Message* msg)
 	printMessage(*msg);
 
 	// get the pipe of the issuer
-	Pipe* issuingClient = getClientWithID(msg->clientID);
+	Pipe* issuingClient = getClientByID(msg->clientID);
 	if (issuingClient == NULL && msg->clientID != 0)
 	{
 		printf("SERVER ERR: got a message from a client that doesn't exist\n");
@@ -96,11 +95,22 @@ void Server::processMessage(Message* msg)
 	// process the incoming message and then send it to all clients
 	switch (msg->type)
 	{
+	case MSGTYPE_TEXT:
+		// check if usable as a command
+		if (msg->text[0] == '/' && msg->clientID == clients_->getLast()->getClientID())
+		{
+			std::thread doCommand(&Server::processCommand, this, std::string(&msg->text[1]));
+			doCommand.detach();
+		}
+		else
+			// forward to all clients
+			sendMessageToAllClients(*msg);
+		break;
 	case MSGTYPE_MOVE:
 		if (game_->getStatus() != GAMESTATUS_PLAYING)
 			return;
 
-		if (game_->getCurrTurnPlayer() != getClientWithID(msg->clientID)->getPlayer())
+		if (game_->getCurrTurnPlayer() != getClientByID(msg->clientID)->getPlayer())
 			return;
 
 		{
@@ -109,19 +119,28 @@ void Server::processMessage(Message* msg)
 		}
 		break;
 	case MSGTYPE_CONNECT:
-		sendMessageToAllClients(*msg);
+		// if there is no owner client, make this it
+		if (ownerClient_ == NULL)
+			ownerClient_ = getClientByID(msg->clientID);
 
-		// send the issuing client a message for each other clients currently connected
+		// set this client's name
+		getClientByID(msg->clientID)->setName(msg->text);
+
+		// send a connect message for the new client to all *other* clients
+		sendMessageToAllClientsExcept(*msg, msg->clientID);
+
+		// send the issuing client a message for every client currently connected
 		{
 			Iterator<Pipe*> it = clients_->getIterator();
 			while (it.hasNext())
 			{
 				Pipe* curr = it.next();
 
+				// send the newly connected client a list of all clients
 				Message m;
 				m.type = MSGTYPE_CONNECT;
 				m.clientID = curr->getClientID();
-				strcpy_s(m.text, DEFAULT_MSG_TEXTSIZE, msg->text);
+				strncpy_s(m.text, DEFAULT_MSG_TEXTSIZE, curr->getName().c_str(), DEFAULT_MSG_TEXTSIZE);
 				if (curr == ownerClient_)
 					m.actionID = 9000; // an arbitrary value to indicate this is the owner client
 				else
@@ -154,7 +173,7 @@ void Server::processMessage(Message* msg)
 
 			// create a new player in the local game, assign it a unique playerID
             Player* newPlayer = new Player(game_, 0);
-			msg->playerID = rand();
+			msg->playerID = issuingClient->getClientID();
 			newPlayer->setPlayerID(msg->playerID);
             game_->getHumanPlayers()->addLast(newPlayer);
 			issuingClient->setPlayer(newPlayer);
@@ -172,8 +191,6 @@ void Server::processMessage(Message* msg)
 		{
 			Player* p = issuingClient->getPlayer();
 			p->setSelectedTile(msg->pos);
-			msg->playerID = p->getPlayerID();
-			sendMessageToAllClients(*msg);
 			break;
 		}
 	case MSGTYPE_LEAVE:
@@ -214,7 +231,7 @@ void Server::processMessage(Message* msg)
 			else
 			{
 				Program* p = new Program(msg->progType, 0, msg->pos);
-				p->setProgramID(rand());
+				p->setProgramID(randInt());
 				game_->getPlayerByID(msg->playerID)->addProgram(p);
 				game_->setProgramAt(msg->pos, p);
 
@@ -226,7 +243,7 @@ void Server::processMessage(Message* msg)
 		break;
 	case MSGTYPE_NEXTTURN:
 		// get the player that just ended its turn
-		Player* p = getClientWithID(msg->clientID)->getPlayer();
+		Player* p = getClientByID(msg->clientID)->getPlayer();
 
 		// check if this message actually came from the current player
 		if (p->getPlayerID() != game_->getCurrTurnPlayer()->getPlayerID())
@@ -234,53 +251,22 @@ void Server::processMessage(Message* msg)
 			printf("SERVER ERR: NEXTTURN message received from player %i, but current player is %i\n", p->getPlayerID(), game_->getCurrTurnPlayer()->getPlayerID());
 			return;
 		}
-
+		
 		// reset this player's moves
 		p->endTurn();
 
 		// if this is the last player in the list
 		if (game_->getHumanPlayers()->getIndexOf(p) == game_->getHumanPlayers()->getLength() - 1)
 		{
-			// step all AIs
-			for (int i = 0; i < game_->getAIPlayers()->getLength(); i++)
-			{
-				Player* player = game_->getAIPlayers()->getObjectAt(i);
-				AICore* core = game_->getAIPlayers()->getObjectAt(i)->getMind();
-				if (core != NULL)
-				{
-					printf("SERVER ERR: AI player %i doesn't have a mind\n", player->getPlayerID());
-				}
-				while (!player->getDoneTurn())
-				{
-					core->act(1);
-				}
-			}
-
-			// reset all AIs' turns
-			game_->getAIPlayers()->forEach([](Player* a) {a->endTurn(); });
-
-			// send a message saying it's the first player on the list's turn
-			Message m;
-			m.type = MSGTYPE_NEXTTURN;
-			m.clientID = 0;
-			m.playerID = game_->getHumanPlayers()->getFirst()->getPlayerID();
-			sendMessageToAllClients(m);
-
-			// set the current player in the local gamestate
-			game_->setCurrTurnPlayer(game_->getPlayerByID(m.playerID));
+			// release thread to handle AI moves so that server can continue receiving messages
+			std::thread enemies(&Server::processAITurns, this);
+			enemies.detach();
 		}
 		else 
 		{
 			// get the next player
 			int index = game_->getHumanPlayers()->getIndexOf(p);
 			Player* nextPlayer = game_->getHumanPlayers()->getObjectAt(index + 1);
-
-			// send a message saying it's the next player's turn
-			Message m;
-			m.type = MSGTYPE_NEXTTURN;
-			m.clientID = 0;
-			m.playerID = nextPlayer->getPlayerID();
-			sendMessageToAllClients(m);
 
 			// set the current player in the gamestate
 			game_->setCurrTurnPlayer(nextPlayer);
@@ -294,7 +280,7 @@ void Server::connect(SOCKET client)
 	Pipe* newPipe = new Pipe(client, this);
     clients_->addFirst(newPipe);
 
-	std::thread newThread(listenToPipe, newPipe);
+	std::thread newThread(&Pipe::listenData, newPipe);
 	newThread.detach();
 }
 
@@ -314,7 +300,6 @@ void Server::disconnect(Pipe* client)
 	clients_->remove(client);
 
 	// remove the player
-	// TODO: fix this so that the removed PlayerHuman is either scrubbed from the game or given an AI
 	Player* p = client->getPlayer();
 	game_->getHumanPlayers()->remove(p);
 
@@ -438,4 +423,159 @@ void Server::resyncClient(int clientID)
 LinkedList<Pipe*>* Server::getClientList()
 {
 	return clients_;
+}
+
+void Server::processAITurns()
+{
+	// step all AIs
+	for (int i = 0; i < game_->getAIPlayers()->getLength(); i++)
+	{
+		// pick the next AI player
+		Player* player = game_->getAIPlayers()->getObjectAt(i);
+		AICore* core = game_->getAIPlayers()->getObjectAt(i)->getMind();
+
+		// set the next AI player
+		game_->setCurrTurnPlayer(player);
+
+		// execute this player's moves and actions
+		if (core == NULL)
+		{
+			printf("SERVER ERR: AI player %i doesn't have a mind\n", player->getPlayerID());
+		}
+		else
+			while (!player->getDoneTurn())
+			{
+				core->act(1);
+				Sleep(200);
+			}
+	}
+
+	// reset all AIs' turns
+	game_->getAIPlayers()->forEach([](Player* a) {a->endTurn(); });
+
+	// set the current player to the first human player
+	game_->setCurrTurnPlayer(game_->getHumanPlayers()->getFirst());
+}
+
+void Server::processCommand(std::string cmd)
+{
+	// tokenize
+	// (gotta add a newline because that's how the tokenizer works)
+	char* tokens[1024];
+	int numTokens = tokenize(tokens, (cmd + "\n").c_str(), ' ');
+
+	// process tokens
+	if (numTokens == 0)
+	{
+		printf(">> no command entered\n");
+	}
+	else if (strcmp(tokens[0], "listclients") == 0)
+	{
+		printf(">> connected clientIDs:\n");
+		Iterator<Pipe*> it = clients_->getIterator();
+		while (it.hasNext())
+		{
+			Pipe* curr = it.next();
+			printf(">> %i\n", curr->getClientID());
+		}
+	}
+	else if (strcmp(tokens[0], "kick") == 0)
+	{
+		if (numTokens != 2)
+		{
+			printf(">> wrong number of arguments:\nkick (clientID)\n");
+			printf(">> kick (clientID)\n");
+			destroyTokens(tokens);
+		}
+
+		int clientID = atoi(tokens[1]);
+		if (clientID == 0)
+		{
+			printf(">> cannot kick clientID 0: is server\n");
+			destroyTokens(tokens);
+		}
+		printf(">> attempting to kick clientID %i\n", clientID);
+
+		Message m;
+		m.type = MSGTYPE_LEAVE;
+		m.clientID = clientID;
+		recieveMessage(m);
+	}
+	else if (strcmp(tokens[0], "load") == 0)
+	{
+		if (numTokens != 2)
+		{
+			printf(">> wrong number of arguments:\nload (levelnum)\n");
+			printf(">> load (levelnum)\n");
+			destroyTokens(tokens);
+		}
+
+		int levelNum = atoi(tokens[1]);
+
+		Message m;
+		m.type = MSGTYPE_LOAD;
+		m.levelNum = levelNum;
+		m.clientID = 0;
+		recieveMessage(m);
+	}
+	else if (strcmp(tokens[0], "help") == 0)
+	{
+		printf(">> Available commands:\n");
+		printf(">> listclients\n");
+		printf(">> kick (clientID)\n");
+		printf(">> load (levelnum)\n");
+		printf(">> say (string)\n");
+		printf(">> listplayers\n");
+	}
+	else if (strcmp(tokens[0], "say") == 0)
+	{
+		std::string ret = "";
+		for (int i = 1; i < numTokens; i++)
+			ret += std::string(tokens[i]) + " ";
+
+		Message m;
+		m.type = MSGTYPE_TEXT;
+		m.clientID = 0;
+		strncpy_s(m.text, DEFAULT_MSG_TEXTSIZE, ret.c_str(), DEFAULT_MSG_TEXTSIZE);
+		recieveMessage(m);
+	}
+	else if (strcmp(tokens[0], "listplayers") == 0)
+	{
+		Iterator<Pipe*> ith = clients_->getIterator();
+		while (ith.hasNext())
+		{
+			Pipe* curr = ith.next();
+			printf(">> player %i - client %i\n", curr->getPlayer()->getPlayerID(), curr->getClientID());
+		}
+
+		Iterator<Player*> itc = game_->getAIPlayers()->getIterator();
+		while (itc.hasNext())
+		{
+			Player* curr = itc.next();
+			printf(">> player %i - AI\n", curr->getPlayerID());
+		}
+	}
+	else
+	{
+		printf(">> \"%s\" is not a valid command\n", cmd.c_str());
+		printf(">> use \"help\" for a list of commands\n");
+	}
+
+	// destroy tokens
+	destroyTokens(tokens);
+}
+
+void Server::processCommandLoop()
+{
+	while (true)
+	{
+		// get the line
+		std::string buffer;
+		getline(std::cin, buffer);
+
+		// process it
+		processCommand(buffer);
+	}
+
+	printf("parser loop existed for some reason\n");
 }

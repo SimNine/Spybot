@@ -4,6 +4,9 @@
 #include "Global.h"
 #include "Program.h"
 #include "Player.h"
+#include "Message.h"
+#include "Main.h"
+#include "Server.h"
 
 Game::Game()
 {
@@ -206,7 +209,7 @@ void Game::saveLevel()
         lvl.write((char*) &gridBottomBound, sizeOfInt);
 
         // write the enum of the level's background
-        lvl.write((char*) &bkg, sizeOfInt);
+        lvl.write((char*) &bkg_, sizeOfInt);
 
         // collect all the programs in a linked list
         if (debug >= DEBUG_NORMAL) printf("gathering program list...\n");
@@ -312,8 +315,8 @@ void Game::loadLevel(std::string str)
         lvl.read((char*) &bottom, sizeOfInt);
 
         // load the enum of the level's background
-        lvl.read((char*) &bkg, sizeOfInt);
-        setBackground(bkg);
+        lvl.read((char*) &bkg_, sizeOfInt);
+        setBackground(bkg_);
 
         // load the list of programs
         int numPrograms;
@@ -408,12 +411,12 @@ int Game::getBottomBound()
 
 void Game::setBackground(BACKGROUND b)
 {
-    bkg = b;
+    bkg_ = b;
 }
 
 BACKGROUND Game::getBackground()
 {
-    return bkg;
+    return bkg_;
 }
 
 void Game::setProgramAt(Coord pos, Program* p)

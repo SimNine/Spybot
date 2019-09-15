@@ -21,10 +21,14 @@ class Server
 
 		void sendMessageToClient(Message message, int clientID);
         void sendMessageToAllClients(Message message);
-		void sendMessageToIngameClients(Message message);
+		void sendMessageToAllClientsExcept(Message message, int clientID);
         void recieveMessage(Message message);
 
 		LinkedList<Pipe*>* getClientList();
+		void processAITurns();
+
+		void processCommandLoop();
+		void processCommand(std::string cmd);
     protected:
 
     private:
@@ -34,7 +38,7 @@ class Server
         // clients
 		Pipe* ownerClient_;
         LinkedList<Pipe*>* clients_;
-		Pipe* getClientWithID(int clientID);
+		Pipe* getClientByID(int clientID);
 
 		// message processing core
 		void processMessage(Message* msg);

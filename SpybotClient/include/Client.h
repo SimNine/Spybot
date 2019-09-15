@@ -7,6 +7,7 @@
 struct Message;
 class Game;
 class Player;
+class ClientMirror;
 
 class Client
 {
@@ -28,7 +29,9 @@ class Client
 		Game* getGame();
 		void setGame(Game* game);
 
-		LinkedList<int*>* getClientList();
+		ClientMirror* getClientMirrorByClientID(int clientID);
+		ClientMirror* getClientMirrorByPlayerID(int playerID);
+		LinkedList<ClientMirror*>* getClientList();
     protected:
 
     private:
@@ -44,9 +47,7 @@ class Client
 		std::mutex mtx;
 
 		// list of all clients connected to server (null if no connection)
-		LinkedList<int*>* clientList_;
+		LinkedList<ClientMirror*>* clientList_;
 };
-
-void listenOnSocket(Client* c);
 
 #endif // SERVER_H

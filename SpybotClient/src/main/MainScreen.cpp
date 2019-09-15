@@ -11,6 +11,7 @@
 #include "MapScreen.h"
 #include "LobbyScreen.h"
 #include "MainScreenGlow.h"
+#include "TextEntryBox.h"
 
 MainScreen::MainScreen()
     : GUIContainer(ANCHOR_NORTHWEST, {0, 0}, {SCREEN_WIDTH, SCREEN_HEIGHT}, NULL, NULL)
@@ -40,11 +41,14 @@ MainScreen::MainScreen()
                                                         [](){toggleFullscreen();});
     optionsContainer->addObject(options_fullscreenbutton);
     addObject(optionsContainer);
+
     optionsContainer->setMovable(false);
+	optionsContainer->setTransparency(0);
 
     // main container
     mainContainer = new GUIContainer(ANCHOR_SOUTHWEST, {0, -500}, {1000, 500}, this, NULL);
     int ln = 1;
+
     GUIButton* button_quit = new GUIButton(ANCHOR_SOUTHWEST, {20, -(41 + 20)*ln++}, {73, 41}, mainContainer,
                                            []()
     {
@@ -54,6 +58,7 @@ MainScreen::MainScreen()
     dataContainer->main_button_quit,
     dataContainer->main_button_quit_over);
     mainContainer->addObject(button_quit);
+
     GUIButton* button_options = new GUIButton(ANCHOR_SOUTHWEST, {20, -(41 + 20)*ln++}, {138, 41}, mainContainer,
 		[]() {
 			mainScreen->toggleOptions();
@@ -62,6 +67,7 @@ MainScreen::MainScreen()
     dataContainer->main_button_options,
     dataContainer->main_button_options_over);
     mainContainer->addObject(button_options);
+
     GUIButton* button_achievements = new GUIButton(ANCHOR_SOUTHWEST, {20, -(41 + 20)*ln++}, {242, 41}, mainContainer,
 		[]() {
 			printf("placeholder: goto achievs");
@@ -73,54 +79,64 @@ MainScreen::MainScreen()
 
 	GUIButton* button_multiplayer = new GUIButton(ANCHOR_SOUTHWEST, { 20, -(41 + 20)*ln++ }, {216, 41}, mainContainer,
 		[]() {
-			// TODO: have the string containing the IP be given by the user
-			client->connectIP(serverIP);
-			currScreen = lobbyScreen;
+			mainScreen->showIPEntry();
 		},
 		dataContainer->main_button_multiplayer,
 		dataContainer->main_button_multiplayer_over);
 	mainContainer->addObject(button_multiplayer);
 
     GUIButton* button_freeform = new GUIButton(ANCHOR_SOUTHWEST, {20, -(41 + 20)*ln++}, {320, 41}, mainContainer,
-            []()
-    {
-        printf("placeholder: goto freeform map");
-        Mix_PlayChannel(-1, dataContainer->sound_move_player, 0);
-    },
-    dataContainer->main_button_freeform,
-    dataContainer->main_button_freeform_over);
+        []() {
+			printf("placeholder: goto freeform map");
+			Mix_PlayChannel(-1, dataContainer->sound_move_player, 0);
+		},
+		dataContainer->main_button_freeform,
+		dataContainer->main_button_freeform_over);
     mainContainer->addObject(button_freeform);
 
     GUIButton* button_nightfall = new GUIButton(ANCHOR_SOUTHWEST, {20, -(41 + 20)*ln++}, {349, 41}, mainContainer,
-            []()
-    {
-        printf("placeholder: goto nightfall campaign map");
-        mapScreen->switchMap(MAPPRESET_NIGHTFALL);
-        currScreen = mapScreen;
-        Mix_PlayMusic(dataContainer->music_map_ambient, -1);
-        Mix_PlayChannel(-1, dataContainer->sound_move_player, 0);
-    },
-    dataContainer->main_button_nightfall,
-    dataContainer->main_button_nightfall_over);
+        []() {
+			printf("placeholder: goto nightfall campaign map");
+			mapScreen->switchMap(MAPPRESET_NIGHTFALL);
+			currScreen = mapScreen;
+			Mix_PlayMusic(dataContainer->music_map_ambient, -1);
+			Mix_PlayChannel(-1, dataContainer->sound_move_player, 0);
+		},
+		dataContainer->main_button_nightfall,
+		dataContainer->main_button_nightfall_over);
     mainContainer->addObject(button_nightfall);
 
     GUIButton* button_classic = new GUIButton(ANCHOR_SOUTHWEST, {20, -(41 + 20)*ln++}, {315, 41}, mainContainer,
-            []()
-    {
-        mapScreen->switchMap(MAPPRESET_CLASSIC);
-        currScreen = mapScreen;
-        Mix_PlayMusic(dataContainer->music_map_ambient, -1);
-        Mix_PlayChannel(-1, dataContainer->sound_move_player, 0);
-    },
-    dataContainer->main_button_classic,
-    dataContainer->main_button_classic_over);
+        []() {
+			mapScreen->switchMap(MAPPRESET_CLASSIC);
+			currScreen = mapScreen;
+			Mix_PlayMusic(dataContainer->music_map_ambient, -1);
+			Mix_PlayChannel(-1, dataContainer->sound_move_player, 0);
+		},
+		dataContainer->main_button_classic,
+		dataContainer->main_button_classic_over);
     mainContainer->addObject(button_classic);
 
     addObject(mainContainer);
     mainContainer->setMovable(false);
-    optionsContainer->setTransparency(0);
 
+	// name prompt
+	nameEntryContainer = new GUIContainer(ANCHOR_CENTER, { -5000, -5000 }, { 10000, 10000 }, this, NULL);
+	nameEntryBox = new TextEntryBox(ANCHOR_CENTER, { -300, -100 }, { 600, 200 }, this, "Enter your name:", []() {mainScreen->submitNameEntry(); }, []() {mainScreen->cancelNameEntry(); });
+	nameEntryContainer->addObject(nameEntryBox);
+	nameEntryContainer->setTransparency(0);
+	addObject(nameEntryContainer);
+
+	// IP prompt
+	IPEntryContainer = new GUIContainer(ANCHOR_CENTER, { -5000, -5000 }, { 10000, 10000 },  this, NULL);
+	IPEntryBox = new TextEntryBox(ANCHOR_CENTER, { -300, -100 }, { 600, 200 }, this, "Enter IP of server to connect to:", []() {mainScreen->submitIPEntry(); }, []() {mainScreen->cancelIPEntry(); });
+	IPEntryContainer->addObject(IPEntryBox);
+	IPEntryContainer->setTransparency(0);
+	addObject(IPEntryContainer);
+
+	// misc
     textBkgDisplacement = 0;
+	showNameEntry();
 }
 
 MainScreen::~MainScreen()
@@ -220,4 +236,58 @@ void MainScreen::toggleOptions()
         optionsContainer->fade(255, 1000);
         mainContainer->fade(0, 1000);
     }
+}
+
+void MainScreen::showNameEntry()
+{
+	nameEntryContainer->setTransparency(255);
+	mainContainer->setTransparency(0);
+	nameEntryBox->clearContents();
+}
+
+void MainScreen::cancelNameEntry()
+{
+	nameEntryContainer->setTransparency(0);
+
+	mainContainer->setTransparency(255);
+}
+
+void MainScreen::submitNameEntry()
+{
+	username = (nameEntryBox->getContents() == "") ? "null" : nameEntryBox->getContents();
+	nameEntryContainer->setTransparency(0);
+
+	mainContainer->setTransparency(255);
+}
+
+void MainScreen::showIPEntry()
+{
+	IPEntryContainer->setTransparency(255);
+	mainContainer->setTransparency(0);
+	IPEntryBox->clearContents();
+}
+
+void MainScreen::cancelIPEntry()
+{
+	IPEntryContainer->setTransparency(0);
+
+	mainContainer->setTransparency(255);
+}
+
+void MainScreen::submitIPEntry()
+{
+	client->connectIP(IPEntryBox->getContents());
+	currScreen = lobbyScreen;
+
+	IPEntryContainer->setTransparency(0);
+
+	mainContainer->setTransparency(255);
+}
+
+void MainScreen::keyPress(char c)
+{
+	if (nameEntryContainer->isVisible())
+		nameEntryBox->addChar(c);
+	if (IPEntryContainer->isVisible())
+		IPEntryBox->addChar(c);
 }

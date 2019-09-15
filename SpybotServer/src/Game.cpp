@@ -7,6 +7,7 @@
 #include "Message.h"
 #include "Server.h"
 #include "Player.h"
+#include "MiscUtil.h"
 
 Game::Game()
 {
@@ -68,7 +69,7 @@ void Game::initBoard()
 	Player* pc = new Player(this, 1);
 	AIBasic* pcm = new AIBasic(pc);
 	pc->setMind(pcm);
-	pc->setPlayerID(rand());
+	pc->setPlayerID(randInt());
 	playerCompList->addFirst(pc);
 
 	status_ = GAMESTATUS_PLACING_PROGRAMS;
@@ -231,7 +232,7 @@ void Game::saveLevel()
         lvl.write((char*) &gridBottomBound, sizeOfInt);
 
         // write the enum of the level's background
-        lvl.write((char*) &bkg, sizeOfInt);
+        lvl.write((char*) &bkg_, sizeOfInt);
 
         // collect all the programs in a linked list
         if (debug >= DEBUG_NORMAL) printf("gathering program list...\n");
@@ -337,8 +338,8 @@ void Game::loadLevel(std::string str)
         lvl.read((char*) &bottom, sizeOfInt);
 
         // load the enum of the level's background
-        lvl.read((char*) &bkg, sizeOfInt);
-        setBackground(bkg);
+        lvl.read((char*) &bkg_, sizeOfInt);
+        setBackground(bkg_);
 
         // load the list of programs
         int numPrograms;
@@ -435,12 +436,12 @@ int Game::getBottomBound()
 
 void Game::setBackground(BACKGROUND b)
 {
-    bkg = b;
+    bkg_ = b;
 }
 
 BACKGROUND Game::getBackground()
 {
-    return bkg;
+    return bkg_;
 }
 
 void Game::setProgramAt(Coord pos, Program* p)
@@ -552,7 +553,7 @@ void Game::setStatus(GAMESTATUS g)
 				msg.infoType = MSGINFOTYPE_TILE;
 				msg.tileType = TILE_PLAIN;
 				msg.pos = Coord{ x, y };
-				server->sendMessageToIngameClients(msg);
+				server->sendMessageToAllClients(msg);
 
 				// send the current player turn to each client
 				msg.type = MSGTYPE_NEXTTURN;
@@ -593,4 +594,11 @@ Player* Game::getCurrTurnPlayer()
 void Game::setCurrTurnPlayer(Player* p)
 {
 	currTurnPlayer = p;
+
+	// send a message saying it's this player's turn
+	Message m;
+	m.type = MSGTYPE_NEXTTURN;
+	m.clientID = 0;
+	m.playerID = p->getPlayerID();
+	server->sendMessageToAllClients(m);
 }

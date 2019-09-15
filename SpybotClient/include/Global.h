@@ -75,7 +75,4 @@ extern std::string username;
 // client entity
 extern Client* client;
 
-// server string
-extern std::string serverIP;
-
 #endif

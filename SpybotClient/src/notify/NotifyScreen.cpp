@@ -3,14 +3,14 @@
 
 #include "Global.h"
 #include "GUITexture.h"
+#include "ResourceLoader.h"
 
 NotifyScreen::NotifyScreen()
 	: GUIContainer(ANCHOR_NORTHWEST, { 0, 0 }, { SCREEN_WIDTH, SCREEN_HEIGHT }, NULL, NULL)
 {
 	notificationList_ = new LinkedList<std::string*>();
-	timeLeft_ = 0;
-	currTex_ = NULL;
-	texWidth_ = 0;
+	notificationTiming_ = new LinkedList<int*>();
+	pushOffset = 0;
 }
 
 NotifyScreen::~NotifyScreen()
@@ -20,57 +20,56 @@ NotifyScreen::~NotifyScreen()
 
 void NotifyScreen::draw()
 {
-	if (currTex_ != NULL)
-		currTex_->draw();
+	// set up constants
+	int currTime = -1;
+	SDL_Texture* currStr = NULL;
+	int yOffset = -5;
+	SDL_Rect strBounds;
+	
+	// for each notification
+	for (int i = 0; i < notificationList_->getLength(); i++)
+	{
+		// create texture, set bounds
+		currStr = loadString(*notificationList_->getObjectAt(i), FONT_BOLD, textSize, { 255, 255, 255, 255 });
+		SDL_QueryTexture(currStr, NULL, NULL, &strBounds.w, &strBounds.h);
+		yOffset -= strBounds.h;
+		strBounds.x = SCREEN_WIDTH - strBounds.w - 5;
+		strBounds.y = SCREEN_HEIGHT + yOffset + pushOffset;
+
+		// set fade
+		currTime = *notificationTiming_->getObjectAt(i);
+		if (currTime < 1000)
+			SDL_SetTextureAlphaMod(currStr, currTime / 4);
+
+		// render and destroy
+		SDL_RenderCopy(gRenderer, currStr, NULL, &strBounds);
+		SDL_DestroyTexture(currStr);
+	}
 }
 
 void NotifyScreen::tick(int ms)
 {
-	static const int offset = -25;
+	// update the push offset
+	if (pushOffset > 0)
+		pushOffset -= (ms/20 + 1);
+	if (pushOffset < 0)
+		pushOffset = 0;
 
-	if (timeLeft_ > 0)
+	// update the time for each notification
+	for (int i = 0; i < notificationTiming_->getLength(); i++)
+		*notificationTiming_->getObjectAt(i) -= ms;
+
+	// check for dead notifications
+	while (notificationTiming_->getLength() > 0 && *notificationTiming_->getLast() <= 0)
 	{
-		timeLeft_ -= ms;
-
-		if (timeLeft_ > 4000)
-		{
-			int newDisp = ((5000 - timeLeft_)*texWidth_) / 1000 - offset;
-			currTex_->setBounds({ -newDisp, -75 }, { currTex_->getBounds()->w, currTex_->getBounds()->h });
-		}
-		else if (timeLeft_ < 1000)
-		{
-			int newDisp = (timeLeft_*texWidth_) / 1000 - offset;
-			currTex_->setBounds({ -newDisp, -75 }, { currTex_->getBounds()->w, currTex_->getBounds()->h });
-		}
-		else
-		{
-			currTex_->setBounds({ -texWidth_ + offset, -75 }, { currTex_->getBounds()->w, currTex_->getBounds()->h });
-		}
-	}
-	else
-	{
-		if (currTex_ != NULL)
-		{
-			delete currTex_;
-			currTex_ = NULL;
-			texWidth_ = 0;
-		}
-
-		if (notificationList_->getLength() > 0)
-		{
-			std::string* currStr = notificationList_->poll();
-			currTex_ = new GUITexture(ANCHOR_SOUTHEAST, { 0, -75 }, *currStr, this);
-			texWidth_ = currTex_->getBounds()->w;
-			delete currStr;
-
-			timeLeft_ = 5000 - notificationList_->getLength()*600;
-			if (timeLeft_ < 2000)
-				timeLeft_ = 2000;
-		}
+		delete notificationList_->removeLast();
+		delete notificationTiming_->removeLast();
 	}
 }
 
 void NotifyScreen::addNotification(std::string str)
 {
-	notificationList_->addLast(new std::string(str));
+	notificationList_->addFirst(new std::string(str));
+	notificationTiming_->addFirst(new int(5000));
+	pushOffset += textSize;
 }

@@ -132,3 +132,27 @@ TOO MUCH STUFF TO REMEMBER IT ALL - THIS MILESTONE IS A SANITY CHECK, NOT THE FI
 --Works on the basis of message passing: packets of fixed size, about 96 bytes
 -New "Multiplayer" button on main screen
 -Singleplayer is broken
+
+1.1.0 - 1/1/18
+Multiplayer chat, new GUI features
+-----
+-Added passing of client's username to server after connecting
+-Added TextEntryBox, subclass of GUIContainer designed to receive char input
+-Added a text entry immediately after title screen to get username
+-Added a text entry on click of "Multiplayer" button to get server IP
+-Removed command line arguments
+-Added new icon in player display indicating which player/client is the server "owner"
+--The server owner is the first client to connect, and has final say on timing and level selection
+-Redid notification display as a stack of text, most recent at bottom of stack
+--inefficient rendering, might want to optimize
+-AI players now have a 200ms delay between their moves again, sleeping using system call Sleep()
+-Implemented a chat display very similar to the new notification display
+--Hit "T" to activate the chat display
+--When activated, shows a set number of past messages
+--Accepts keyboard input when activated
+--Sends MSGTYPE_TEXT to server when Enter key is hit, server relays message to all clients
+-The server owner can prefix messages with "/" to have the server interpret them as commands
+-Added a unique int ID generator in the MiscUtil class
+-Genericized Player class; a Player may have a "mind" (AICore) or not - if not, it is a human player
+-PlayerID is now equal to ClientID in the case of human players
+-Popup showing next player's turn shows up on all screens
