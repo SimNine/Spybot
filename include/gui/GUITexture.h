@@ -7,9 +7,9 @@
 class GUITexture : public GUIObject
 {
     public:
-        GUITexture(ANCHOR, int, int, SDL_Texture*, int, int, GUIContainer*);
-        GUITexture(ANCHOR, int, int, SDL_Texture*, int, int, bool, GUIContainer*);
-        GUITexture(ANCHOR, int, int, std::string, GUIContainer*);
+        GUITexture(ANCHOR, Coord, SDL_Texture*, Coord, GUIContainer*);
+        GUITexture(ANCHOR, Coord, SDL_Texture*, Coord, bool, GUIContainer*);
+        GUITexture(ANCHOR, Coord, std::string, GUIContainer*);
         virtual ~GUITexture();
 
         SDL_Texture* swapTexture(SDL_Texture*);

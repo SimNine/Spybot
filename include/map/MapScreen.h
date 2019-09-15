@@ -22,6 +22,7 @@ class MapScreen : public GUIContainer
         void clearSelectedNode();
         void resetProgramInvDisplay();
         void toggleInvDisplay();
+        void unlockAllLevels();
     protected:
     private:
         double bkgX;

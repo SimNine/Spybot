@@ -9,7 +9,7 @@
 class GUIContainer : public GUIObject
 {
     public:
-        GUIContainer(ANCHOR, int, int, int, int, GUIContainer*, SDL_Texture*);
+        GUIContainer(ANCHOR, Coord, Coord, GUIContainer*, SDL_Texture*);
         virtual ~GUIContainer();
         SDL_Texture* getBackground();
         void setBackground(SDL_Texture*);

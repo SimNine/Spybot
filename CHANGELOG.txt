@@ -74,3 +74,26 @@
 --This was noted because of the modification of ProgramInventoryDisplay
 -Added a new enum DEBUG representing various levels of debug
 -Added a new enum GAMESTATUS representing various degrees of debugging output
+
+0.5.0 - 8/12/17
+-----
+-Added new enum MOVEPRESET in order to generate default moves
+-Transcribed all default moves' data from original game
+-Added new class Player to separate program movement calculations from grid data
+--Player contains tools to help various types of ai
+--Player contains a list of all the programs owned by this player
+--Player now decides which program moves are valid
+-Game class no longer changes any part of Program objects themselves--all Game now does in regards to the Program grid is keep track of pointers to occupied sectors
+-Did some miscellanius quality-of-life readability and code simplification changes to Game and GameScreen
+-Added new class AICore as an interface to extend Player
+-Added new class AIBasic as a basic ai agent to extend AICore
+--AIBasic acts as such:
+--It goes through each program it owns and selects one that can still move or act
+--It finds the closest enemy program to the selected program and moves towards it if it can
+--It picks the selected program's first attack and uses it if it can
+-Converted every instance where an x and y coordinate were necessary to a Coord struct. This makes passing coordinates between functions much more convenient.
+-Renamed some DataContainer fields to be more uniform
+-Added a utility function "unlockAllNodes" to mapScreen by pressing "l"
+-Added the ability of programs to use their moves
+-The human player cannot select moves yet - instead, the selected program's first move is picked when it is done moving
+-Added functionality of damage, speedup, tileadd and tileremove actions

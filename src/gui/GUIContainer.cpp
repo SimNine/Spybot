@@ -5,9 +5,9 @@
 #include "LinkedList.h"
 #include "Global.h"
 
-GUIContainer::GUIContainer(ANCHOR anchorPoint, int xRel, int yRel, int width, int height,
+GUIContainer::GUIContainer(ANCHOR anchorPoint, Coord disp, Coord dims,
                            GUIContainer* parent, SDL_Texture* bkg)
-    : GUIObject(anchorPoint, xRel, yRel, width, height, parent)
+    : GUIObject(anchorPoint, disp, dims, parent)
 {
     bkgImg = bkg;
     contents = new LinkedList<GUIObject*>();
@@ -82,7 +82,7 @@ void GUIContainer::resetBounds()
 
     if (parent == NULL)
     {
-        setBounds(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
+        setBounds({0, 0}, {SCREEN_WIDTH, SCREEN_HEIGHT});
     }
 
     contents->forEach([](GUIObject* g){g->resetBounds();});

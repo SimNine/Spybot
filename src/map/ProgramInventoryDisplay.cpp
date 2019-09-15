@@ -5,8 +5,8 @@
 #include "MiscUtil.h"
 #include "Global.h"
 
-ProgramInventoryDisplay::ProgramInventoryDisplay(ANCHOR a, int xDisp, int yDisp, int w, int h, GUIContainer* parent, int* progList)
-    : GUIContainer(a, 0, 0, 0, 0, parent, NULL)
+ProgramInventoryDisplay::ProgramInventoryDisplay(ANCHOR a, Coord disp, Coord dims, GUIContainer* parent, int* progList)
+    : GUIContainer(a, {0, 0}, {0, 0}, parent, NULL)
 {
     this->progList = progList;
 
@@ -31,7 +31,7 @@ void ProgramInventoryDisplay::updateContents()
     int w, h;
     SDL_Texture* moves = loadString("PROGRAMS:", FONT_BOLD, 35, {255, 255, 255, 255});
     SDL_QueryTexture(moves, NULL, NULL, &w, &h);
-    GUITexture* moveTex = new GUITexture(ANCHOR_NORTHEAST, -w - 20, 20, moves, w, h, true, this);
+    GUITexture* moveTex = new GUITexture(ANCHOR_NORTHEAST, {-w - 20, 20}, moves, {w, h}, true, this);
     addObject(moveTex);
 
     col = 1;
@@ -46,10 +46,10 @@ void ProgramInventoryDisplay::updateContents()
             std::string str = "x" + to_string(progList[i]);
             SDL_Texture* tex = loadString(str, FONT_BOLD, 24, {255, 255, 255, 255});
             SDL_QueryTexture(tex, NULL, NULL, &w, &h);
-            GUITexture* progTex = new GUITexture(ANCHOR_NORTHEAST, (-100)*col + 40, 100 + row*h, tex, w, h, true, this);
+            GUITexture* progTex = new GUITexture(ANCHOR_NORTHEAST, {(-100)*col + 40, 100 + row*h}, tex, {w, h}, true, this);
             addObject(progTex);
 
-            ProgramInventoryButton* progButton = new ProgramInventoryButton(ANCHOR_NORTHEAST, (-100)*col, 100 + row*h,
+            ProgramInventoryButton* progButton = new ProgramInventoryButton(ANCHOR_NORTHEAST, {(-100)*col, 100 + row*h},
                                                                             progList, (PROGRAM)i, this);
             addObject(progButton);
 
@@ -62,7 +62,7 @@ void ProgramInventoryDisplay::updateContents()
         }
     }
 
-    setBounds(-40 - 100*col, 20, 100*col + 20, SCREEN_HEIGHT - 40);
+    setBounds({-40 - 100*col, 20}, {100*col + 20, SCREEN_HEIGHT - 40});
 }
 
 void ProgramInventoryDisplay::resetBounds()

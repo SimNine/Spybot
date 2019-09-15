@@ -3,8 +3,8 @@
 #include "Global.h"
 #include "ResourceLoader.h"
 
-ProgramDisplayContainer::ProgramDisplayContainer(ANCHOR a, int xDisp, int yDisp, int wid, int hei, GUIContainer* par)
-    : GUIObject(a, xDisp, yDisp, wid, hei, par)
+ProgramDisplayContainer::ProgramDisplayContainer(ANCHOR a, Coord disp, Coord dims, GUIContainer* par)
+    : GUIObject(a, disp, dims, par)
 {
     //nothing
 }

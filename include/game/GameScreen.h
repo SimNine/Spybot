@@ -25,13 +25,14 @@ public:
     bool mouseDown();
     bool mouseUp();
     void resetBounds();
-    void shiftBkg(int, int);
+    void shiftBkg(Coord);
     void toggleViewTeams();
 
     // Game play methods
     Program* getSelectedProgram();
     void setSelectedProgram(Program*);
     void endTurn();
+    void stepAI();
     void tryPlacingProgram(PROGRAM);
     void setGameStatus(GAMESTATUS);
 
@@ -45,24 +46,25 @@ public:
     void setBackground(BACKGROUND);
 
     // Game loading/saving methods
-    void saveLevel();
-    void loadLevel(std::string);
-    void clearLevel();
+    void saveGame();
+    void loadGame(std::string);
+    void clearGame();
 protected:
 private:
-    int bkgX;
-    int bkgY;
-    int tickCount;
+    Coord bkgPos;
+    int textureTickCount;
+    int turnTickCount;
+    bool tickingAI;
     bool canShiftScreen;
     double shiftSpeed;
     void drawBkg();
     void drawGrid();
     void checkShiftable();
     void centerScreen();
-    int selectedTileX, selectedTileY;
 
     void buildGUI();
 
+    // for use of the level editor
     bool editorMode;
     ProgramDisplayContainer* progDisp;
     GUIContainer* gridSelectBrushPanel;
@@ -77,18 +79,22 @@ private:
     int brushProgramTeam;
     bool programViewTeams;
 
+    // buttons and interactables
     GUIButton* endTurnButton;
+    GUIButton* stepButton;
     GUIButton* abandonGameButton;
     GUIButton* winGameButton;
     GUIButton* resetGameButton;
     GUIButton* startGameButton;
     GUIButton* backToMapButton;
+    GUIButton* teamViewButton;
 
     ProgramInventoryDisplay* progInv;
 
     GAMESTATUS gameStatus;
 
     Game* game;
+    Player* currPlayer;
 };
 
 #endif // GAMESCREEN_H

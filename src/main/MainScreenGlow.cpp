@@ -4,10 +4,10 @@
 #include "MainScreenGlow.h"
 #include "Global.h"
 
-MainScreenGlow::MainScreenGlow(int x, int y)
+MainScreenGlow::MainScreenGlow(Coord p)
 {
-    xPos = x;
-    yPos = y;
+    xPos = p.x;
+    yPos = p.y;
     xVel = 0;
     yVel = 0;
     xAcc = rand()/(float)RAND_MAX - 0.5;
@@ -80,12 +80,7 @@ bool MainScreenGlow::getTransparent()
     }
 }
 
-int MainScreenGlow::getXPos()
+Coord MainScreenGlow::getPos()
 {
-    return xPos;
-}
-
-int MainScreenGlow::getYPos()
-{
-    return yPos;
+    return {(int)xPos, (int)yPos};
 }

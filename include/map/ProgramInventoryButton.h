@@ -6,7 +6,7 @@
 class ProgramInventoryButton : public GUIObject
 {
     public:
-        ProgramInventoryButton(ANCHOR, int, int, int*, PROGRAM, GUIContainer*);
+        ProgramInventoryButton(ANCHOR, Coord, int*, PROGRAM, GUIContainer*);
         virtual ~ProgramInventoryButton();
 
         void setTransparency(int);

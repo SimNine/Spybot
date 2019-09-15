@@ -88,25 +88,25 @@ void initData()
     dataContainer->node_yoffset[6] = 98;
     dataContainer->node_yoffset[7] = 49;
 
-    dataContainer->level_confirm_window = loadTexture("resources/level_confirm.png");
-    dataContainer->level_cancel_window = loadTexture("resources/level_cancel.png");
+    dataContainer->map_window_levelConfirm = loadTexture("resources/level_confirm.png");
+    dataContainer->map_window_levelCancel = loadTexture("resources/level_cancel.png");
 
-    dataContainer->begin_databattle_button_normal = loadTexture("resources/begin_databattle_button_normal.png");
-    dataContainer->begin_databattle_button_over = loadTexture("resources/begin_databattle_button_over.png");
-    dataContainer->cancel_button_normal = loadTexture("resources/cancel_button_normal.png");
-    dataContainer->cancel_button_over = loadTexture("resources/cancel_button_over.png");
+    dataContainer->map_button_beginDatabattle_normal = loadTexture("resources/begin_databattle_button_normal.png");
+    dataContainer->map_button_beginDatabattle_over = loadTexture("resources/begin_databattle_button_over.png");
+    dataContainer->map_button_cancel_normal = loadTexture("resources/cancel_button_normal.png");
+    dataContainer->map_button_cancel_over = loadTexture("resources/cancel_button_over.png");
 
     // gameScreen resources
-    dataContainer->level_backgrounds[BKG_DONUT] = loadTexture("resources/company_0.png");
-    dataContainer->level_backgrounds[BKG_CELL] = loadTexture("resources/company_1.png");
-    dataContainer->level_backgrounds[BKG_MONKEY] = loadTexture("resources/company_2.png");
-    dataContainer->level_backgrounds[BKG_PHARM] = loadTexture("resources/company_3.png");
-    dataContainer->level_backgrounds[BKG_PED] = loadTexture("resources/company_4.png");
-    dataContainer->level_bkg_buttons[BKG_DONUT] = loadTexture("resources/board/editor/bkg_donut.png");
-    dataContainer->level_bkg_buttons[BKG_CELL] = loadTexture("resources/board/editor/bkg_cellular.png");
-    dataContainer->level_bkg_buttons[BKG_MONKEY] = loadTexture("resources/board/editor/bkg_monkey.png");
-    dataContainer->level_bkg_buttons[BKG_PHARM] = loadTexture("resources/board/editor/bkg_pharmhaus.png");
-    dataContainer->level_bkg_buttons[BKG_PED] = loadTexture("resources/board/editor/bkg_ped.png");
+    dataContainer->game_backgrounds[BKG_DONUT] = loadTexture("resources/company_0.png");
+    dataContainer->game_backgrounds[BKG_CELL] = loadTexture("resources/company_1.png");
+    dataContainer->game_backgrounds[BKG_MONKEY] = loadTexture("resources/company_2.png");
+    dataContainer->game_backgrounds[BKG_PHARM] = loadTexture("resources/company_3.png");
+    dataContainer->game_backgrounds[BKG_PED] = loadTexture("resources/company_4.png");
+    dataContainer->game_editor_button_bkg[BKG_DONUT] = loadTexture("resources/board/editor/bkg_donut.png");
+    dataContainer->game_editor_button_bkg[BKG_CELL] = loadTexture("resources/board/editor/bkg_cellular.png");
+    dataContainer->game_editor_button_bkg[BKG_MONKEY] = loadTexture("resources/board/editor/bkg_monkey.png");
+    dataContainer->game_editor_button_bkg[BKG_PHARM] = loadTexture("resources/board/editor/bkg_pharmhaus.png");
+    dataContainer->game_editor_button_bkg[BKG_PED] = loadTexture("resources/board/editor/bkg_ped.png");
 
     // initialize tile graphics
     dataContainer->tile_over = loadTexture("resources/board/tile_empty.png");
@@ -128,6 +128,10 @@ void initData()
     dataContainer->tile_images[TILE_SPAWN] = loadTexture("resources/board/spawn_transparency.png");
     dataContainer->tile_images[TILE_SPAWN2] = loadTexture("resources/board/spawn2_transparency.png");
     dataContainer->tile_images[TILE_NONE] = loadTexture("resources/board/tile_null.png");
+    dataContainer->tile_actionDamage = loadTexture("resources/board/hitsquare_transparency.png");
+    dataContainer->tile_actionHeal = loadTexture("resources/board/hitsquare2_transparency.png");
+    dataContainer->tile_actionSpeed = loadTexture("resources/board/hitsquare3_transparency.png");
+    dataContainer->tile_actionGrid = loadTexture("resources/board/hitsquare3_transparency.png");
 
     // initialize program core graphics
     dataContainer->program_core = loadTexture("resources/board/programs/program_core.png");
@@ -195,26 +199,30 @@ void initData()
     dataContainer->program_icons[PROGRAM_WATCHMAN2] = loadTexture("resources/board/programs/program_icon_watchman2.png");
     dataContainer->program_icons[PROGRAM_WATCHMAN3] = loadTexture("resources/board/programs/program_icon_watchman3.png");
 
-    dataContainer->editorBrushNone = loadTexture("resources/board/editor/brush_none.png");
-    dataContainer->editorBrushTiles = loadTexture("resources/board/editor/brush_tile.png");
-    dataContainer->editorBrushPrograms = loadTexture("resources/board/editor/brush_program.png");
-    dataContainer->editorBrushDeletePrograms = loadTexture("resources/board/editor/brush_clearprogram.png");
-    dataContainer->editorBrushItems = loadTexture("resources/board/editor/brush_item.png");
-    dataContainer->editorTeamViewToggle = loadTexture("resources/board/editor/team_view.png");
-    dataContainer->editorTeamPlayer = loadTexture("resources/board/editor/team_player.png");
-    dataContainer->editorTeamComputer = loadTexture("resources/board/editor/team_computer.png");
-    dataContainer->editorClearGrid = loadTexture("resources/board/editor/clear_grid.png");
+    dataContainer->game_editor_brush_none = loadTexture("resources/board/editor/brush_none.png");
+    dataContainer->game_editor_brush_tiles = loadTexture("resources/board/editor/brush_tile.png");
+    dataContainer->game_editor_brush_programs = loadTexture("resources/board/editor/brush_program.png");
+    dataContainer->game_editor_brush_deletePrograms = loadTexture("resources/board/editor/brush_clearprogram.png");
+    dataContainer->game_editor_brush_items = loadTexture("resources/board/editor/brush_item.png");
+    dataContainer->game_editor_toggle_teamView = loadTexture("resources/board/editor/team_view.png");
+    dataContainer->game_editor_toggle_teamPlayer = loadTexture("resources/board/editor/team_player.png");
+    dataContainer->game_editor_toggle_teamComputer = loadTexture("resources/board/editor/team_computer.png");
+    dataContainer->game_editor_button_clearGrid = loadTexture("resources/board/editor/clear_grid.png");
 
     dataContainer->item_icons[ITEM_CREDIT] = loadTexture("resources/board/items/item_credit.png");
     dataContainer->item_icons[ITEM_BIGCREDIT] = loadTexture("resources/board/items/item_coin.png");
     dataContainer->item_icons[ITEM_FILES] = loadTexture("resources/board/items/item_files.png");
 
-    dataContainer->gameButtonEndTurn = loadTexture("resources/board/button_end_turn.png");
-    dataContainer->gameButtonAbandonGame = loadTexture("resources/board/button_abandon_game.png");
-    dataContainer->gameButtonWinGame = loadTexture("resources/board/button_win_game.png");
-    dataContainer->gameButtonResetGame = loadTexture("resources/board/button_reset_game.png");
-    dataContainer->gameButtonStartGame = loadTexture("resources/board/button_begin_game.png");
-    dataContainer->gameButtonBackToMap = loadTexture("resources/board/button_back_to_map.png");
+    dataContainer->game_button_endTurn = loadTexture("resources/board/button_end_turn.png");
+    dataContainer->game_button_aiStep = loadTexture("resources/board/button_step.png");
+    dataContainer->game_button_abandon = loadTexture("resources/board/button_abandon_game.png");
+    dataContainer->game_button_win = loadTexture("resources/board/button_win_game.png");
+    dataContainer->game_button_reset = loadTexture("resources/board/button_reset_game.png");
+    dataContainer->game_button_start = loadTexture("resources/board/button_begin_game.png");
+    dataContainer->game_button_returnToMap = loadTexture("resources/board/button_back_to_map.png");
+
+    dataContainer->game_disp_compturn = loadTexture("resources/board/disp_turn_ai.png");
+    dataContainer->game_disp_playerturn = loadTexture("resources/board/disp_turn_player.png");
 
     // mainScreen resources
     dataContainer->main_bkgdata = loadTexture("resources/main/menu_bkgdata.png");

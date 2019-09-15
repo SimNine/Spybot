@@ -2,27 +2,27 @@
 #include "Global.h"
 #include "ResourceLoader.h"
 
-GUITexture::GUITexture(ANCHOR a, int xDisp, int yDisp, SDL_Texture* tex, int w, int h, GUIContainer* par)
-    : GUIObject(a, xDisp, yDisp, w, h, par)
+GUITexture::GUITexture(ANCHOR a, Coord disp, SDL_Texture* tex, Coord dims, GUIContainer* par)
+    : GUIObject(a, disp, dims, par)
 {
     texture = tex;
     willDestroyTexture = false;
 }
 
-GUITexture::GUITexture(ANCHOR a, int xDisp, int yDisp, SDL_Texture* tex, int w, int h, bool destroyTex, GUIContainer* par)
-    : GUIObject(a, xDisp, yDisp, w, h, par)
+GUITexture::GUITexture(ANCHOR a, Coord disp, SDL_Texture* tex, Coord dims, bool destroyTex, GUIContainer* par)
+    : GUIObject(a, disp, dims, par)
 {
     texture = tex;
     willDestroyTexture = destroyTex;
 }
 
-GUITexture::GUITexture(ANCHOR a, int xDisp, int yDisp, std::string str, GUIContainer* parent)
-    : GUIObject(a, xDisp, yDisp, 0, 0, parent)
+GUITexture::GUITexture(ANCHOR a, Coord disp, std::string str, GUIContainer* parent)
+    : GUIObject(a, disp, {0, 0}, parent)
 {
     texture = loadString(str, FONT_NORMAL, 50, {255, 255, 255, 255});
     int w, h;
     SDL_QueryTexture(texture, NULL, NULL, &w, &h);
-    setBounds(xDisp, yDisp, w, h);
+    setBounds(disp, {0, 0});
     willDestroyTexture = true;
 }
 

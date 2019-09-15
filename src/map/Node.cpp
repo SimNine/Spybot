@@ -5,10 +5,9 @@
 #include <stdlib.h>
 
 // constructor for procedurally generated nodes
-Node::Node(int xp, int yp)
+Node::Node(Coord p)
 {
-    x = xp;
-    y = yp;
+    pos = p;
     nodeType = (rand()%7 + 1);
     zone = 0;
     nodeStatus = NODESTATUS_HIDDEN;
@@ -18,10 +17,9 @@ Node::Node(int xp, int yp)
 }
 
 // constructor for predetermined nodes (STORES)
-Node::Node(int xp, int yp, int type, int nodeZone)
+Node::Node(Coord p, int type, int nodeZone)
 {
-    x = xp;
-    y = yp;
+    pos = p;
     nodeType = type;
     zone = nodeZone;
     nodeStatus = NODESTATUS_HIDDEN;
@@ -31,10 +29,9 @@ Node::Node(int xp, int yp, int type, int nodeZone)
 }
 
 // constructor for predetermined nodes (*NOT* STORES)
-Node::Node(int xp, int yp, int type, int nodeZone, std::string lvlFileName)
+Node::Node(Coord p, int type, int nodeZone, std::string lvlFileName)
 {
-    x = xp;
-    y = yp;
+    pos = p;
     nodeType = type;
     zone = nodeZone;
     nodeStatus = NODESTATUS_HIDDEN;
@@ -48,7 +45,7 @@ Node::~Node()
     //dtor
 }
 
-void Node::draw(int mapRootX, int mapRootY)
+void Node::draw(Coord mapRoot)
 {
     // if this node is not available yet
     if (nodeStatus == NODESTATUS_HIDDEN)
@@ -57,7 +54,7 @@ void Node::draw(int mapRootX, int mapRootY)
     }
 
     // if the mouse is over this node
-    if (!isMouseOver(mapRootX, mapRootY))
+    if (!isMouseOver(mapRoot))
     {
         if (nodeStatus == NODESTATUS_OWNED)
         {
@@ -96,8 +93,8 @@ void Node::draw(int mapRootX, int mapRootY)
     SDL_QueryTexture(img, NULL, NULL, &width, &height);
 
     // dump the dimensions and position into a rect
-    destRect.x = this->x - mapRootX - width/2;
-    destRect.y = this->y - mapRootY - dataContainer->node_yoffset[this->nodeType];
+    destRect.x = this->pos.x - mapRoot.x - width/2;
+    destRect.y = this->pos.y - mapRoot.y - dataContainer->node_yoffset[this->nodeType];
     destRect.w = width;
     destRect.h = height;
 
@@ -118,14 +115,9 @@ void Node::draw(int mapRootX, int mapRootY)
     }
 }
 
-int Node::getX()
+Coord Node::getPos()
 {
-    return x;
-}
-
-int Node::getY()
-{
-    return y;
+    return pos;
 }
 
 bool Node::mouseDown()
@@ -145,7 +137,7 @@ bool Node::mouseDown()
     return false;
 }
 
-bool Node::isMouseOver(int mapRootX, int mapRootY)
+bool Node::isMouseOver(Coord mapRoot)
 {
     // get the width and height of the current node
     int width = 0, height = 0;
@@ -153,10 +145,10 @@ bool Node::isMouseOver(int mapRootX, int mapRootY)
     int widthOffset = width/2;
     int heightOffset = dataContainer->node_yoffset[this->nodeType];
 
-    return (mousePosX > this->x - mapRootX - widthOffset &&
-            mousePosX < this->x + widthOffset - mapRootX &&
-            mousePosY > this->y - mapRootY - heightOffset &&
-            mousePosY < this->y + (height - heightOffset) - mapRootY);
+    return (mousePos.x > this->pos.x - mapRoot.x - widthOffset &&
+            mousePos.x < this->pos.x + widthOffset - mapRoot.x &&
+            mousePos.y > this->pos.y - mapRoot.y - heightOffset &&
+            mousePos.y < this->pos.y + (height - heightOffset) - mapRoot.y);
 }
 
 void Node::addChild(Node* child)

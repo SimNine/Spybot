@@ -14,3 +14,9 @@ std::string to_string(int i)
     delete[] buf;
     return str;
 }
+
+// gets the non-square-rooted distance from one point to another
+int dist(Coord a, Coord b)
+{
+    return ((a.x-b.x)*(a.x-b.x) + (a.y-b.y)*(a.y-b.y));
+}

@@ -1,3 +1,6 @@
+#ifndef GLOBAL_H
+#define GLOBAL_H
+
 #include <SDL.h>
 
 #include "GUIContainer.h"
@@ -28,8 +31,7 @@ extern GameScreen* gameScreen;
 extern DataContainer* dataContainer;
 
 // mouse data
-extern int mousePosX;
-extern int mousePosY;
+extern Coord mousePos;
 extern bool mousePressed;
 
 // action flags
@@ -51,3 +53,5 @@ extern int usedPrograms[PROGRAM_NUM_PROGTYPES];
 
 // program ID currently selected (to be placed)
 extern PROGRAM currProgram;
+
+#endif

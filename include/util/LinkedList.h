@@ -7,8 +7,7 @@
 #include "ListNode.h"
 #include "Iterator.h"
 
-template<class T>
-class LinkedList
+template<class T> class LinkedList
 {
 public:
     LinkedList()

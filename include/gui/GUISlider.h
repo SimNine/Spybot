@@ -6,7 +6,7 @@
 class GUISlider : public GUIObject
 {
     public:
-        GUISlider(ANCHOR, int, int, int, int, GUIContainer*, void (*func) (float));
+        GUISlider(ANCHOR, Coord, Coord, GUIContainer*, void (*func) (float));
         virtual ~GUISlider();
 
         void setTransparency(int);

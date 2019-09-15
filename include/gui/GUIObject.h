@@ -4,16 +4,17 @@
 #include <SDL.h>
 
 #include "Enums.h"
+#include "Coord.h"
 
 class GUIContainer;
 
 class GUIObject
 {
     public:
-        GUIObject(ANCHOR, int, int, int, int, GUIContainer*);
+        GUIObject(ANCHOR, Coord, Coord, GUIContainer*);
         virtual ~GUIObject();
         SDL_Rect* getBounds();
-        void setBounds(int, int, int, int);
+        void setBounds(Coord, Coord);
         int getXAnchor();
         int getYAnchor();
         bool isMouseOver();
@@ -33,8 +34,7 @@ class GUIObject
         virtual void tick(int) = 0;
         virtual void resetBounds() = 0;
     protected:
-        int xDisplacement;
-        int yDisplacement;
+        Coord displacement;
         ANCHOR anchor;
         SDL_Rect bounds;
         GUIContainer* parent;

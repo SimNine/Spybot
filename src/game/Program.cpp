@@ -4,9 +4,8 @@
 #include <SDL.h>
 #include <stdlib.h>
 
-Program::Program(PROGRAM type, int team, int xHead, int yHead)
+Program::Program(PROGRAM type, int team, Coord head)
 {
-    tiles.addFirst(new Pair<int>(xHead, yHead));
     this->team = team;
     this->type = type;
     icon = dataContainer->program_icons[type];
@@ -14,6 +13,8 @@ Program::Program(PROGRAM type, int team, int xHead, int yHead)
     color[1] = rand()%255;
     color[2] = rand()%255;
     actionList = new LinkedList<ProgramAction*>();
+    tiles = new LinkedList<Coord*>();
+    tiles->addFirst(new Coord(head));
 
     if (this->type == PROGRAM_CUSTOM)
     {
@@ -35,7 +36,7 @@ Program::Program(PROGRAM type, int team, int xHead, int yHead)
         maxMoves = 1;
         maxHealth = 2;
         cost = 3000;
-        addAction(new ProgramAction(MOVE_DAMAGE, "Fling", "Range:4 Damage:2", 4, 2, 0));
+        addAction(MOVEPRESET_FLING);
         break;
     case PROGRAM_BITMAN:
         name = "Bit-Man";
@@ -43,8 +44,8 @@ Program::Program(PROGRAM type, int team, int xHead, int yHead)
         maxMoves = 3;
         maxHealth = 3;
         cost = 250;
-        addAction(new ProgramAction(MOVE_TILEPLACE, "One", "Repairs one grid square", 1, 0, 0));
-        addAction(new ProgramAction(MOVE_TILEDELETE, "Zero", "Deletes one grid square", 1, 0, 0));
+        addAction(MOVEPRESET_ONE);
+        addAction(MOVEPRESET_ZERO);
         break;
     case PROGRAM_BITMAN2:
         name = "Bit-Woman";
@@ -52,8 +53,8 @@ Program::Program(PROGRAM type, int team, int xHead, int yHead)
         maxMoves = 4;
         maxHealth = 2;
         cost = 1000;
-        addAction(new ProgramAction(MOVE_TILEPLACE, "Constructor", "Repairs one grid square", 3, 0, 0));
-        addAction(new ProgramAction(MOVE_TILEDELETE, "Deconstructor", "Deletes one grid square", 3, 0, 0));
+        addAction(MOVEPRESET_CONSTRUCTOR);
+        addAction(MOVEPRESET_DECONSTRUCTOR);
         break;
     case PROGRAM_BLACKWIDOW:
         name = "Black Widow";
@@ -61,8 +62,8 @@ Program::Program(PROGRAM type, int team, int xHead, int yHead)
         maxMoves = 4;
         maxHealth = 3;
         cost = 2000;
-        addAction(new ProgramAction(MOVE_DAMAGE, "Byte", "Range:1 Damage:2", 1, 2, 0));
-        addAction(new ProgramAction(MOVE_SPEEDDOWN, "Paralyze", "Decreases move rate of target program by 3", 1, 3, 0));
+        addAction(MOVEPRESET_BYTE);
+        addAction(MOVEPRESET_PARALYZE);
         break;
     case PROGRAM_BOSS:
         name = "Boss";
@@ -70,7 +71,7 @@ Program::Program(PROGRAM type, int team, int xHead, int yHead)
         maxMoves = 6;
         maxHealth = 25;
         cost = 50000;
-        //addMove(new ProgramMove(MOVE_DAMAGE, "Shutdown",));
+        addAction(MOVEPRESET_SHUTDOWN);
         break;
     case PROGRAM_BUG:
         name = "Bug";
@@ -78,7 +79,7 @@ Program::Program(PROGRAM type, int team, int xHead, int yHead)
         maxMoves = 5;
         maxHealth = 1;
         cost = 750;
-        // TODO "Glitch"
+        addAction(MOVEPRESET_GLITCH);
         break;
     case PROGRAM_BUG2:
         name = "MandelBug";
@@ -86,7 +87,7 @@ Program::Program(PROGRAM type, int team, int xHead, int yHead)
         maxMoves = 5;
         maxHealth = 1;
         cost = 3000;
-        // TODO "Fractal Glitch"
+        addAction(MOVEPRESET_FRACTAL_GLITCH);
         break;
     case PROGRAM_BUG3:
         name = "HeisenBug";
@@ -94,7 +95,7 @@ Program::Program(PROGRAM type, int team, int xHead, int yHead)
         maxMoves = 5;
         maxHealth = 1;
         cost = 4000;
-        // TODO "Quantum Glitch"
+        addAction(MOVEPRESET_QUANTUM_GLITCH);
         break;
     case PROGRAM_CATAPULT:
         name = "Catapult";
@@ -102,7 +103,7 @@ Program::Program(PROGRAM type, int team, int xHead, int yHead)
         maxMoves = 2;
         maxHealth = 3;
         cost = 4000;
-        // TODO "Fling"
+        addAction(MOVEPRESET_FLING);
         break;
     case PROGRAM_CLOG:
         name = "Clog.01";
@@ -110,7 +111,7 @@ Program::Program(PROGRAM type, int team, int xHead, int yHead)
         maxMoves = 2;
         maxHealth = 4;
         cost = 1000;
-        // TODO "Lag"
+        addAction(MOVEPRESET_LAG);
         break;
     case PROGRAM_CLOG2:
         name = "Clog.02";
@@ -118,7 +119,7 @@ Program::Program(PROGRAM type, int team, int xHead, int yHead)
         maxMoves = 2;
         maxHealth = 4;
         cost = 2000;
-        // TODO "Chug"
+        addAction(MOVEPRESET_CHUG);
         break;
     case PROGRAM_CLOG3:
         name = "Clog.03";
@@ -126,8 +127,8 @@ Program::Program(PROGRAM type, int team, int xHead, int yHead)
         maxMoves = 2;
         maxHealth = 4;
         cost = 3500;
-        // TODO "Chug"
-        // TODO "Hang"
+        addAction(MOVEPRESET_CHUG);
+        addAction(MOVEPRESET_HANG);
         break;
     case PROGRAM_DATABOMB:
         name = "LogicBomb";
@@ -135,7 +136,7 @@ Program::Program(PROGRAM type, int team, int xHead, int yHead)
         maxMoves = 3;
         maxHealth = 6;
         cost = 3500;
-        // TODO "Selfdestruct"
+        addAction(MOVEPRESET_SELFDESTRUCT);
         break;
     case PROGRAM_DATADOCTOR:
         name = "Data Doctor";
@@ -143,7 +144,7 @@ Program::Program(PROGRAM type, int team, int xHead, int yHead)
         maxMoves = 4;
         maxHealth = 5;
         cost = 500;
-        // TODO "Grow"
+        addAction(MOVEPRESET_GROW);
         break;
     case PROGRAM_DATADOCTOR2:
         name = "Data Doctor Pro";
@@ -151,8 +152,8 @@ Program::Program(PROGRAM type, int team, int xHead, int yHead)
         maxMoves = 5;
         maxHealth = 8;
         cost = 1500;
-        // TODO "Megagrow"
-        // TODO "Surgery"
+        addAction(MOVEPRESET_MEGAGROW);
+        addAction(MOVEPRESET_SURGERY);
         break;
     case PROGRAM_DOG:
         name = "Guard Pup";
@@ -160,7 +161,7 @@ Program::Program(PROGRAM type, int team, int xHead, int yHead)
         maxMoves = 3;
         maxHealth = 2;
         cost = 300;
-        // TODO "Byte"
+        addAction(MOVEPRESET_BYTE);
         break;
     case PROGRAM_DOG2:
         name = "Guard Dog";
@@ -168,7 +169,7 @@ Program::Program(PROGRAM type, int team, int xHead, int yHead)
         maxMoves = 3;
         maxHealth = 3;
         cost = 300;
-        // TODO "Byte"
+        addAction(MOVEPRESET_BYTE);
         break;
     case PROGRAM_DOG3:
         name = "Attack Dog";
@@ -176,7 +177,7 @@ Program::Program(PROGRAM type, int team, int xHead, int yHead)
         maxMoves = 4;
         maxHealth = 7;
         cost = 300;
-        // TODO "Megabyte"
+        addAction(MOVEPRESET_MEGABYTE);
         break;
     case PROGRAM_FIDDLE:
         name = "Fiddle";
@@ -184,8 +185,8 @@ Program::Program(PROGRAM type, int team, int xHead, int yHead)
         maxMoves = 3;
         maxHealth = 3;
         cost = 2400;
-        // TODO "Tweak"
-        // TODO "Twiddle"
+        addAction(MOVEPRESET_TWEAK);
+        addAction(MOVEPRESET_TWIDDLE);
         break;
     case PROGRAM_FIREWALL:
         name = "Fire Wall";
@@ -193,7 +194,7 @@ Program::Program(PROGRAM type, int team, int xHead, int yHead)
         maxMoves = 2;
         maxHealth = 20;
         cost = 300;
-        // TODO "Burn"
+        addAction(MOVEPRESET_BURN);
         break;
     case PROGRAM_GOLEM:
         name = "Golem.mud";
@@ -201,7 +202,7 @@ Program::Program(PROGRAM type, int team, int xHead, int yHead)
         maxMoves = 1;
         maxHealth = 5;
         cost = 1200;
-        // TODO "Thump"
+        addAction(MOVEPRESET_THUMP);
         break;
     case PROGRAM_GOLEM2:
         name = "Golem.clay";
@@ -209,7 +210,7 @@ Program::Program(PROGRAM type, int team, int xHead, int yHead)
         maxMoves = 2;
         maxHealth = 6;
         cost = 3000;
-        // TODO "Bash"
+        addAction(MOVEPRESET_BASH);
         break;
     case PROGRAM_GOLEM3:
         name = "Golem.stone";
@@ -217,7 +218,7 @@ Program::Program(PROGRAM type, int team, int xHead, int yHead)
         maxMoves = 3;
         maxHealth = 7;
         cost = 5000;
-        // TODO "Crash"
+        addAction(MOVEPRESET_CRASH);
         break;
     case PROGRAM_HACK:
         name = "Hack";
@@ -225,7 +226,7 @@ Program::Program(PROGRAM type, int team, int xHead, int yHead)
         maxMoves = 2;
         maxHealth = 4;
         cost = 500;
-        // TODO "Slice"
+        addAction(MOVEPRESET_SLICE);
         break;
     case PROGRAM_HACK2:
         name = "Hack 2.0";
@@ -233,8 +234,8 @@ Program::Program(PROGRAM type, int team, int xHead, int yHead)
         maxMoves = 3;
         maxHealth = 4;
         cost = 1500;
-        // TODO "Slice"
-        // TODO "Dice"
+        addAction(MOVEPRESET_SLICE);
+        addAction(MOVEPRESET_DICE);
         break;
     case PROGRAM_HACK3:
         name = "Hack 3.0";
@@ -242,8 +243,8 @@ Program::Program(PROGRAM type, int team, int xHead, int yHead)
         maxMoves = 4;
         maxHealth = 4;
         cost = 3500;
-        // TODO "Slice"
-        // TODO "Mutilate"
+        addAction(MOVEPRESET_SLICE);
+        addAction(MOVEPRESET_MUTILATE);
         break;
     case PROGRAM_KAMIKAZEE:
         name = "BuzzBomb";
@@ -251,8 +252,8 @@ Program::Program(PROGRAM type, int team, int xHead, int yHead)
         maxMoves = 8;
         maxHealth = 2;
         cost = 3500;
-        // TODO "Sting"
-        // TODO "Kamikazee"
+        addAction(MOVEPRESET_STING);
+        addAction(MOVEPRESET_KAMIKAZEE);
         break;
     case PROGRAM_MEDIC:
         name = "Medic";
@@ -260,7 +261,7 @@ Program::Program(PROGRAM type, int team, int xHead, int yHead)
         maxMoves = 3;
         maxHealth = 3;
         cost = 1000;
-        // TODO "Hypo"
+        addAction(MOVEPRESET_HYPO);
         break;
     case PROGRAM_MEMHOG:
         name = "Memory Hog";
@@ -270,12 +271,13 @@ Program::Program(PROGRAM type, int team, int xHead, int yHead)
         cost = 300;
         break;
     case PROGRAM_MOBILETOWER:
-        name = "Tower";
+        // TODO: check this program's description and moves again
+        name = "Mobile Tower";
         description = "Immobile long-range program";
         maxMoves = 0;
         maxHealth = 1;
         cost = 1000;
-        // TODO "Launch";
+        addAction(MOVEPRESET_LAUNCH);
         break;
     case PROGRAM_SATELLITE:
         name = "Satellite";
@@ -283,7 +285,7 @@ Program::Program(PROGRAM type, int team, int xHead, int yHead)
         maxMoves = 1;
         maxHealth = 1;
         cost = 3500;
-        // TODO "Scramble";
+        addAction(MOVEPRESET_SCRAMBLE);
         break;
     case PROGRAM_SATELLITE2:
         name = "Laser Satellite";
@@ -291,7 +293,7 @@ Program::Program(PROGRAM type, int team, int xHead, int yHead)
         maxMoves = 2;
         maxHealth = 1;
         cost = 5000;
-        // TODO "Megascramble"
+        addAction(MOVEPRESET_MEGASCRAMBLE);
         break;
     case PROGRAM_SEEKER:
         name = "Seeker";
@@ -299,7 +301,7 @@ Program::Program(PROGRAM type, int team, int xHead, int yHead)
         maxMoves = 3;
         maxHealth = 3;
         cost = 1000;
-        // TODO "Peek"
+        addAction(MOVEPRESET_PEEK);
         break;
     case PROGRAM_SEEKER2:
         name = "Seeker 2.0";
@@ -307,7 +309,7 @@ Program::Program(PROGRAM type, int team, int xHead, int yHead)
         maxMoves = 3;
         maxHealth = 4;
         cost = 2500;
-        // TODO "Poke"
+        addAction(MOVEPRESET_POKE);
         break;
     case PROGRAM_SEEKER3:
         name = "Seeker 3.0";
@@ -315,8 +317,8 @@ Program::Program(PROGRAM type, int team, int xHead, int yHead)
         maxMoves = 4;
         maxHealth = 5;
         cost = 4500;
-        // TODO "Poke"
-        // TODO "Seek and Destroy"
+        addAction(MOVEPRESET_POKE);
+        addAction(MOVEPRESET_SEEK_AND_DESTROY);
         break;
     case PROGRAM_SLINGSHOT:
         name = "Slingshot";
@@ -324,7 +326,7 @@ Program::Program(PROGRAM type, int team, int xHead, int yHead)
         maxMoves = 2;
         maxHealth = 2;
         cost = 750;
-        // TODO "Stone"
+        addAction(MOVEPRESET_STONE);
         break;
     case PROGRAM_SONAR:
         name = "Sensor";
@@ -332,7 +334,7 @@ Program::Program(PROGRAM type, int team, int xHead, int yHead)
         maxMoves = 0;
         maxHealth = 1;
         cost = 1750;
-        // TODO "Blip"
+        addAction(MOVEPRESET_BLIP);
         break;
     case PROGRAM_SONAR2:
         name = "Radar";
@@ -340,7 +342,7 @@ Program::Program(PROGRAM type, int team, int xHead, int yHead)
         maxMoves = 0;
         maxHealth = 1;
         cost = 1750;
-        // TODO "Ping"
+        addAction(MOVEPRESET_PING);
         break;
     case PROGRAM_SONAR3:
         name = "Radar";
@@ -348,7 +350,7 @@ Program::Program(PROGRAM type, int team, int xHead, int yHead)
         maxMoves = 0;
         maxHealth = 1;
         cost = 1750;
-        // TODO "Pong"
+        addAction(MOVEPRESET_PONG);
         break;
     case PROGRAM_SPECS:
         name = "Guru";
@@ -356,8 +358,8 @@ Program::Program(PROGRAM type, int team, int xHead, int yHead)
         maxMoves = 2;
         maxHealth = 3;
         cost = 4500;
-        // TODO "Fire"
-        // TODO "Ice"
+        addAction(MOVEPRESET_FIRE);
+        addAction(MOVEPRESET_ICE);
         break;
     case PROGRAM_SUMO:
         name = "Sumo";
@@ -365,7 +367,7 @@ Program::Program(PROGRAM type, int team, int xHead, int yHead)
         maxMoves = 2;
         maxHealth = 12;
         cost = 4500;
-        // TODO "Dataslam"
+        addAction(MOVEPRESET_DATASLAM);
         break;
     case PROGRAM_TARANTULA:
         name = "Tarantula";
@@ -373,8 +375,8 @@ Program::Program(PROGRAM type, int team, int xHead, int yHead)
         maxMoves = 5;
         maxHealth = 3;
         cost = 3500;
-        // TODO "Megabyte"
-        // TODO "Paralyze"
+        addAction(MOVEPRESET_MEGABYTE);
+        addAction(MOVEPRESET_PARALYZE);
         break;
     case PROGRAM_TOWER:
         name = "Tower";
@@ -382,7 +384,7 @@ Program::Program(PROGRAM type, int team, int xHead, int yHead)
         maxMoves = 0;
         maxHealth = 1;
         cost = 1000;
-        // TODO "Launch"
+        addAction(MOVEPRESET_LAUNCH);
         break;
     case PROGRAM_TURBO:
         name = "Turbo";
@@ -390,7 +392,7 @@ Program::Program(PROGRAM type, int team, int xHead, int yHead)
         maxMoves = 3;
         maxHealth = 3;
         cost = 1000;
-        // TODO "Boost"
+        addAction(MOVEPRESET_BOOST);
         break;
     case PROGRAM_TURBO2:
         name = "Turbo Deluxe";
@@ -398,7 +400,7 @@ Program::Program(PROGRAM type, int team, int xHead, int yHead)
         maxMoves = 4;
         maxHealth = 4;
         cost = 1750;
-        // TODO "Megaboost"
+        addAction(MOVEPRESET_MEGABOOST);
         break;
     case PROGRAM_TURBO3:
         name = "Turbo DLC";
@@ -406,7 +408,7 @@ Program::Program(PROGRAM type, int team, int xHead, int yHead)
         maxMoves = 5;
         maxHealth = 5;
         cost = 3000;
-        // TODO "Gigaboost"
+        addAction(MOVEPRESET_GIGABOOST);
         break;
     case PROGRAM_WALKER:
         name = "Sentinel";
@@ -414,7 +416,7 @@ Program::Program(PROGRAM type, int team, int xHead, int yHead)
         maxMoves = 1;
         maxHealth = 3;
         cost = 300;
-        // TODO "Cut"
+        addAction(MOVEPRESET_CUT);
         break;
     case PROGRAM_WALKER2:
         name = "Sentinel 2.0";
@@ -422,7 +424,7 @@ Program::Program(PROGRAM type, int team, int xHead, int yHead)
         maxMoves = 2;
         maxHealth = 4;
         cost = 300;
-        // TODO "Cut"
+        addAction(MOVEPRESET_CUT);
         break;
     case PROGRAM_WALKER3:
         name = "Sentinel 3.0";
@@ -430,7 +432,7 @@ Program::Program(PROGRAM type, int team, int xHead, int yHead)
         maxMoves = 2;
         maxHealth = 4;
         cost = 300;
-        // TODO "Taser"
+        addAction(MOVEPRESET_TASER);
         break;
     case PROGRAM_WARDEN:
         name = "Warden";
@@ -438,7 +440,7 @@ Program::Program(PROGRAM type, int team, int xHead, int yHead)
         maxMoves = 1;
         maxHealth = 5;
         cost = 2500;
-        // TODO "Thump"
+        addAction(MOVEPRESET_THUMP);
         break;
     case PROGRAM_WARDEN2:
         name = "Warden+";
@@ -446,7 +448,7 @@ Program::Program(PROGRAM type, int team, int xHead, int yHead)
         maxMoves = 2;
         maxHealth = 6;
         cost = 3500;
-        // TODO "Bash"
+        addAction(MOVEPRESET_BASH);
         break;
     case PROGRAM_WARDEN3:
         name = "Warden++";
@@ -454,7 +456,7 @@ Program::Program(PROGRAM type, int team, int xHead, int yHead)
         maxMoves = 3;
         maxHealth = 7;
         cost = 5000;
-        // TODO "Crash"
+        addAction(MOVEPRESET_CRASH);
         break;
     case PROGRAM_WATCHMAN:
         name = "Watchman";
@@ -462,7 +464,7 @@ Program::Program(PROGRAM type, int team, int xHead, int yHead)
         maxMoves = 1;
         maxHealth = 2;
         cost = 300;
-        // TODO "Phaser"
+        addAction(MOVEPRESET_PHASER);
         break;
     case PROGRAM_WATCHMAN2:
         name = "Watchman X";
@@ -470,7 +472,7 @@ Program::Program(PROGRAM type, int team, int xHead, int yHead)
         maxMoves = 1;
         maxHealth = 4;
         cost = 300;
-        // TODO "Phaser"
+        addAction(MOVEPRESET_PHASER);
         break;
     case PROGRAM_WATCHMAN3:
         name = "Watchman SP";
@@ -478,7 +480,7 @@ Program::Program(PROGRAM type, int team, int xHead, int yHead)
         maxMoves = 1;
         maxHealth = 4;
         cost = 300;
-        // TODO "Photon"
+        addAction(MOVEPRESET_PHOTON);
         break;
     case PROGRAM_WIZARD:
         name = "Wizard";
@@ -486,8 +488,8 @@ Program::Program(PROGRAM type, int team, int xHead, int yHead)
         maxMoves = 3;
         maxHealth = 4;
         cost = 300;
-        // TODO "Scorch"
-        // TODO "Stretch"
+        addAction(MOVEPRESET_SCORCH);
+        addAction(MOVEPRESET_STRETCH);
         break;
     case PROGRAM_WOLFSPIDER:
         name = "Wolf Spider";
@@ -495,20 +497,22 @@ Program::Program(PROGRAM type, int team, int xHead, int yHead)
         maxMoves = 3;
         maxHealth = 3;
         cost = 750;
-        // TODO "Byte"
+        addAction(MOVEPRESET_BYTE);
         break;
     }
 
     moves = maxMoves;
+    actionsLeft = 1;
 }
 
 Program::~Program()
 {
-    while (tiles.getLength() > 0)
+    while (tiles->getLength() > 0)
     {
-        Pair<int>* p = tiles.poll();
-        delete p;
+        Coord* c = tiles->poll();
+        delete c;
     }
+    delete tiles;
 
     while (actionList->getLength() > 0)
     {
@@ -528,14 +532,9 @@ SDL_Texture* Program::getIcon()
     return icon;
 }
 
-int Program::getCoreX()
+Coord Program::getCore()
 {
-    return tiles.getFirst()->a;
-}
-
-int Program::getCoreY()
-{
-    return tiles.getFirst()->b;
+    return *tiles->getFirst();
 }
 
 int Program::getColor(int n)
@@ -557,12 +556,12 @@ void Program::setColor(int r, int g, int b)
 
 int Program::getTeam()
 {
-    return team;
+    return owner->getTeam();
 }
 
 int Program::getHealth()
 {
-    return tiles.getLength();
+    return tiles->getLength();
 }
 
 int Program::getMaxHealth()
@@ -597,17 +596,13 @@ void Program::setMaxHealth(int i)
 
 void Program::setMoves(int i)
 {
-    moves = i;
+    if (i < 0) moves = 0;
+    else moves = i;
 }
 
 void Program::setMaxMoves(int i)
 {
     maxMoves = i;
-}
-
-void Program::setTeam(int i)
-{
-    team = i;
 }
 
 std::string Program::getName()
@@ -620,18 +615,14 @@ void Program::setName(std::string n)
     name = n;
 }
 
-void Program::addAction(ProgramAction* m)
+void Program::addAction(MOVEPRESET p)
 {
-    if (actionList == NULL)
-    {
-        actionList = new LinkedList<ProgramAction*>();
-    }
-
-    actionList->addLast(m);
+    actionList->addLast(new ProgramAction(p));
 }
 
 void Program::endTurn()
 {
+    actionsLeft = 1;
     moves = maxMoves;
 }
 
@@ -640,51 +631,85 @@ LinkedList<ProgramAction*>* Program::getActions()
     return actionList;
 }
 
-Pair<int>* Program::getHead()
+Coord Program::getHead()
 {
-    return tiles.getFirst();
+    return *tiles->getFirst();
 }
 
-Pair<int>* Program::getTail()
+Coord Program::getTail()
 {
-    return tiles.getLast();
+    return *tiles->getLast();
 }
 
-void Program::moveTo(int x, int y)
+void Program::moveTo(Coord pos)
 {
     // decrement number of moves left
     moves--;
 
     // check if the tile to move to is already occupied by this program
-    for (int i = 0; i < tiles.getLength(); i++)
+    for (int i = 0; i < tiles->getLength(); i++)
     {
-        Pair<int>* curr = tiles.getObjectAt(i);
-        if (curr->a == x && curr->b == y)
+        Coord* curr = tiles->getObjectAt(i);
+        if (curr->x == pos.x && curr->y == pos.y)
         {
-            tiles.removeObjectAt(i);
-            tiles.addFirst(curr);
+            tiles->removeObjectAt(i);
+            tiles->addFirst(curr);
             return;
         }
     }
 
     // if this program is at max health
-    if (tiles.getLength() == maxHealth) delete tiles.removeLast();
+    if (tiles->getLength() == maxHealth) delete tiles->removeLast();
 
     // add a new head
-    tiles.addFirst(new Pair<int>(x, y));
+    tiles->addFirst(new Coord(pos));
 }
 
-void Program::setCoreX(int i)
+void Program::setCore(Coord pos)
 {
-    moveTo(i, getCoreY());
+    moveTo(pos);
 }
 
-void Program::setCoreY(int i)
+void Program::addTail(Coord pos)
 {
-    moveTo(getCoreX(), i);
+    // check if the tail to add is already occupied by this program
+    for (int i = 0; i < tiles->getLength(); i++)
+    {
+        Coord curr = *tiles->getObjectAt(i);
+        if (curr.x == pos.x && curr.y == pos.y) return;
+    }
+
+    // if the given coords aren't occupied by this program, add it
+    if (tiles->getLength() < maxHealth) tiles->addLast(new Coord(pos));
 }
 
-void Program::addTail(int x, int y)
+int Program::getActionsLeft()
 {
-    if (tiles.getLength() < maxHealth) tiles.addLast(new Pair<int>(x, y));
+    return actionsLeft;
+}
+
+void Program::setActionsLeft(int i)
+{
+    actionsLeft = i;
+}
+
+bool Program::isDone()
+{
+    if (moves == 0 && actionsLeft == 0) return true;
+    else return false;
+}
+
+Coord* Program::popTail()
+{
+    return tiles->removeLast();
+}
+
+Player* Program::getOwner()
+{
+    return owner;
+}
+
+void Program::setOwner(Player* p)
+{
+    owner = p;
 }

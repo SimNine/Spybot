@@ -3,8 +3,8 @@
 
 #include <SDL.h>
 
-ProgramInventoryButton::ProgramInventoryButton(ANCHOR a, int xD, int yD, int* progList, PROGRAM t, GUIContainer* p)
-    : GUIObject(a, xD, yD, 30, 30, p)
+ProgramInventoryButton::ProgramInventoryButton(ANCHOR a, Coord disp, int* progList, PROGRAM t, GUIContainer* p)
+    : GUIObject(a, disp, {30, 30}, p)
 {
     icon = dataContainer->program_icons[t];
     this->progList = progList;
@@ -41,11 +41,6 @@ bool ProgramInventoryButton::mouseUp()
 
 void ProgramInventoryButton::draw()
 {
-    SDL_Rect r;
-    r.w = 30;
-    r.h = 30;
-    r.x = bounds.x;
-    r.y = bounds.y;
     SDL_RenderCopy(gRenderer, icon, NULL, &bounds);
 
     if (debug >= DEBUG_NORMAL) drawBounds();

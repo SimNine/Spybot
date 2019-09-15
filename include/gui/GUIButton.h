@@ -7,15 +7,15 @@
 class GUIButton : public GUIObject
 {
     public:
-        GUIButton(ANCHOR, int, int, std::string, GUIContainer*,
+        GUIButton(ANCHOR, Coord, std::string, GUIContainer*,
                   void (*func) (void));
-        GUIButton(ANCHOR, int, int, int, int, GUIContainer*,
+        GUIButton(ANCHOR, Coord, Coord, GUIContainer*,
                   void (*func) (void), SDL_Texture*);
-        GUIButton(ANCHOR, int, int, int, int, GUIContainer*,
+        GUIButton(ANCHOR, Coord, Coord, GUIContainer*,
                   void (*func) (void), SDL_Texture*, SDL_Texture*);
-        GUIButton(ANCHOR, int, int, int, int, GUIContainer*,
+        GUIButton(ANCHOR, Coord, Coord, GUIContainer*,
                   void (*func) (void), SDL_Texture*, SDL_Texture*, SDL_Texture*);
-        GUIButton(ANCHOR, int, int, int, int, GUIContainer*,
+        GUIButton(ANCHOR, Coord, Coord, GUIContainer*,
                   void (*func) (void));
         virtual ~GUIButton();
 

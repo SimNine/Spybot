@@ -9,7 +9,7 @@
 class ProgramDisplayContainer : public GUIObject
 {
     public:
-        ProgramDisplayContainer(ANCHOR, int, int, int, int, GUIContainer*);
+        ProgramDisplayContainer(ANCHOR, Coord, Coord, GUIContainer*);
         virtual ~ProgramDisplayContainer();
 
         void draw();

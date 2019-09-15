@@ -365,8 +365,8 @@ void handleEvents()
         }
         else if (e.type == SDL_MOUSEMOTION)
         {
-            mousePosX = e.motion.x;
-            mousePosY = e.motion.y;
+            mousePos.x = e.motion.x;
+            mousePos.y = e.motion.y;
         }
         else if (e.type == SDL_MOUSEBUTTONDOWN)
         {
@@ -384,11 +384,18 @@ void handleEvents()
         {
             if (e.type == SDL_KEYDOWN && e.key.keysym.sym == SDLK_s)
             {
-                gameScreen->saveLevel();
+                gameScreen->saveGame();
             }
             else if (e.type == SDL_KEYDOWN && e.key.keysym.sym == SDLK_l)
             {
-                gameScreen->loadLevel("");
+                gameScreen->loadGame("");
+            }
+        }
+        else if (currScreen == mapScreen)
+        {
+            if (e.type == SDL_KEYDOWN && e.key.keysym.sym == SDLK_l)
+            {
+                mapScreen->unlockAllLevels();
             }
         }
     }

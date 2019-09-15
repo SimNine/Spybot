@@ -4,8 +4,8 @@
 
 #include <stdio.h>
 
-GUIButton::GUIButton(ANCHOR a, int xDisp, int yDisp, std::string str, GUIContainer* parent, void (*func) (void))
-    : GUIObject(a, xDisp, yDisp, 0, 0, parent)
+GUIButton::GUIButton(ANCHOR a, Coord disp, std::string str, GUIContainer* parent, void (*func) (void))
+    : GUIObject(a, disp, {0, 0}, parent)
 {
     this->func = func;
     this->bkgNormal = loadString(str, FONT_NORMAL, 50, {255, 255, 255, 255});
@@ -14,12 +14,12 @@ GUIButton::GUIButton(ANCHOR a, int xDisp, int yDisp, std::string str, GUIContain
 
     int w, h;
     SDL_QueryTexture(bkgNormal, NULL, NULL, &w, &h);
-    setBounds(xDisp, yDisp, w, h);
+    setBounds(disp, {w, h});
 }
 
-GUIButton::GUIButton(ANCHOR a, int xDisp, int yDisp, int width, int height, GUIContainer* parent,
+GUIButton::GUIButton(ANCHOR a, Coord disp, Coord dims, GUIContainer* parent,
                      void (*func) (void), SDL_Texture* bkgN, SDL_Texture* bkgO, SDL_Texture* bkgP)
-    : GUIObject(a, xDisp, yDisp, width, height, parent)
+    : GUIObject(a, disp, dims, parent)
 {
     this->func = func;
     this->bkgNormal = bkgN;
@@ -27,9 +27,9 @@ GUIButton::GUIButton(ANCHOR a, int xDisp, int yDisp, int width, int height, GUIC
     this->bkgPressed = bkgP;
 }
 
-GUIButton::GUIButton(ANCHOR a, int xDisp, int yDisp, int width, int height, GUIContainer* parent,
+GUIButton::GUIButton(ANCHOR a, Coord disp, Coord dims, GUIContainer* parent,
                      void (*func) (void), SDL_Texture* bkgN, SDL_Texture* bkgO)
-    : GUIObject(a, xDisp, yDisp, width, height, parent)
+    : GUIObject(a, disp, dims, parent)
 {
     this->func = func;
     this->bkgNormal = bkgN;
@@ -37,9 +37,9 @@ GUIButton::GUIButton(ANCHOR a, int xDisp, int yDisp, int width, int height, GUIC
     this->bkgPressed = bkgO;
 }
 
-GUIButton::GUIButton(ANCHOR a, int xDisp, int yDisp, int width, int height, GUIContainer* parent,
+GUIButton::GUIButton(ANCHOR a, Coord disp, Coord dims, GUIContainer* parent,
                      void (*func) (void), SDL_Texture* bkgN)
-    : GUIObject(a, xDisp, yDisp, width, height, parent)
+    : GUIObject(a, disp, dims, parent)
 {
     this->func = func;
     this->bkgNormal = bkgN;
@@ -47,9 +47,9 @@ GUIButton::GUIButton(ANCHOR a, int xDisp, int yDisp, int width, int height, GUIC
     this->bkgPressed = bkgN;
 }
 
-GUIButton::GUIButton(ANCHOR a, int xDisp, int yDisp, int width, int height, GUIContainer* parent,
+GUIButton::GUIButton(ANCHOR a, Coord disp, Coord dims, GUIContainer* parent,
                      void (*func) (void))
-    : GUIObject(a, xDisp, yDisp, width, height, parent)
+    : GUIObject(a, disp, dims, parent)
 {
     this->func = func;
     this->bkgNormal = NULL;

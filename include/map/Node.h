@@ -6,19 +6,19 @@
 
 #include "LinkedList.h"
 #include "Enums.h"
+#include "Coord.h"
 
 class Node
 {
     public:
-        Node(int, int);
-        Node(int, int, int, int);
-        Node(int, int, int, int, std::string);
+        Node(Coord);
+        Node(Coord, int, int);
+        Node(Coord, int, int, std::string);
         virtual ~Node();
-        void draw(int, int);
-        int getX();
-        int getY();
+        void draw(Coord);
+        Coord getPos();
         bool mouseDown();
-        bool isMouseOver(int, int);
+        bool isMouseOver(Coord);
         void addChild(Node*);
         void setNodeStatus(NODESTATUS);
         NODESTATUS getNodeStatus();
@@ -26,8 +26,7 @@ class Node
         std::string getLevelStr();
     protected:
     private:
-        int x;
-        int y;
+        Coord pos;
         int nodeType;
         NODESTATUS nodeStatus;
         SDL_Texture* img;

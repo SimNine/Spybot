@@ -22,8 +22,7 @@ GameScreen* gameScreen = NULL;
 DataContainer* dataContainer = NULL;
 
 // mouse position
-int mousePosX = 0;
-int mousePosY = 0;
+Coord mousePos = {0, 0};
 bool mousePressed = false;
 
 // update flags
@@ -33,7 +32,7 @@ bool acceptingInput = true;
 bool quit = false;
 
 // debug flag
-DEBUG debug = DEBUG_MINIMAL;
+DEBUG debug = DEBUG_NORMAL;
 
 // owned programs per campaign
 int classicPrograms[PROGRAM_NUM_PROGTYPES];

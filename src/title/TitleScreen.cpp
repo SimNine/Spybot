@@ -3,16 +3,16 @@
 #include "GUITexture.h"
 
 TitleScreen::TitleScreen()
-    : GUIContainer(ANCHOR_NORTHWEST, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, NULL, NULL)
+    : GUIContainer(ANCHOR_NORTHWEST, {0, 0}, {SCREEN_WIDTH, SCREEN_HEIGHT}, NULL, NULL)
 {
     int w;
     int h;
     SDL_QueryTexture(dataContainer->title_company, NULL, NULL, &w, &h);
-    addObject(new GUITexture(ANCHOR_CENTER, -w/2, -h/2, dataContainer->title_company, w, h, this));
+    addObject(new GUITexture(ANCHOR_CENTER, {-w/2, -h/2}, dataContainer->title_company, {w, h}, this));
     SDL_QueryTexture(dataContainer->title_title, NULL, NULL, &w, &h);
-    addObject(new GUITexture(ANCHOR_CENTER, -w/2, -h, dataContainer->title_title, w, h, this));
+    addObject(new GUITexture(ANCHOR_CENTER, {-w/2, -h}, dataContainer->title_title, {w, h}, this));
     SDL_QueryTexture(dataContainer->title_subtitle, NULL, NULL, &w, &h);
-    addObject(new GUITexture(ANCHOR_CENTER, -w/2, 20, dataContainer->title_subtitle, w, h, this));
+    addObject(new GUITexture(ANCHOR_CENTER, {-w/2, 20}, dataContainer->title_subtitle, {w, h}, this));
 
     tickCount = 0;
 

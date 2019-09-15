@@ -2,11 +2,10 @@
 #include "Global.h"
 #include <stdio.h>
 
-GUIObject::GUIObject(ANCHOR anchorPoint, int xRel, int yRel, int width, int height, GUIContainer* parent)
+GUIObject::GUIObject(ANCHOR anchorPoint, Coord disp, Coord dims, GUIContainer* parent)
 {
     anchor = anchorPoint;
-    xDisplacement = xRel;
-    yDisplacement = yRel;
+    displacement = disp;
     pressed = false;
 
     startAlpha = 255;
@@ -16,7 +15,7 @@ GUIObject::GUIObject(ANCHOR anchorPoint, int xRel, int yRel, int width, int heig
     fadeInitDuration = 0;
 
     this->parent = parent;
-    setBounds(xRel, yRel, width, height);
+    setBounds(disp, dims);
 }
 
 GUIObject::~GUIObject()
@@ -24,14 +23,13 @@ GUIObject::~GUIObject()
     //dtor
 }
 
-void GUIObject::setBounds(int xRel, int yRel, int width, int height)
+void GUIObject::setBounds(Coord disp, Coord dims)
 {
-    xDisplacement = xRel;
-    yDisplacement = yRel;
-    bounds.x = getXAnchor() + xRel;
-    bounds.y = getYAnchor() + yRel;
-    bounds.w = width;
-    bounds.h = height;
+    displacement = disp;
+    bounds.x = getXAnchor() + disp.x;
+    bounds.y = getYAnchor() + disp.y;
+    bounds.w = dims.x;
+    bounds.h = dims.y;
 }
 
 int GUIObject::getXAnchor()
@@ -93,16 +91,16 @@ SDL_Rect* GUIObject::getBounds()
 
 void GUIObject::recomputePosition()
 {
-    bounds.x = getXAnchor() + xDisplacement;
-    bounds.y = getYAnchor() + yDisplacement;
+    bounds.x = getXAnchor() + displacement.x;
+    bounds.y = getYAnchor() + displacement.y;
 }
 
 bool GUIObject::isMouseOver()
 {
-    if (mousePosX >= bounds.x &&
-            mousePosX < bounds.x + bounds.w &&
-            mousePosY >= bounds.y &&
-            mousePosY < bounds.y + bounds.h)
+    if (mousePos.x >= bounds.x &&
+        mousePos.x < bounds.x + bounds.w &&
+        mousePos.y >= bounds.y &&
+        mousePos.y < bounds.y + bounds.h)
     {
         return true;
     }

@@ -1,23 +1,10 @@
 #ifndef ENTRY_H
 #define ENTRY_H
 
-template <class T, class U>
-class Entry
+template <class T, class U> struct Entry
 {
-    public:
-        Entry(T first, U second)
-        {
-            a = first;
-            b = second;
-        };
-        virtual ~Entry()
-        {
-
-        };
-        T a;
-        U b;
-    protected:
-    private:
+    T a;
+    U b;
 };
 
 #endif // ENTRY_H

@@ -7,21 +7,23 @@
 #include "Enums.h"
 #include "ProgramAction.h"
 #include "Pair.h"
+#include "Coord.h"
+#include "Player.h"
+
+class Player;
 
 class Program
 {
     public:
-        Program(PROGRAM, int, int, int);
+        Program(PROGRAM, int, Coord);
         virtual ~Program();
 
         SDL_Texture* getIcon();
         void setIcon(SDL_Texture*);
         int getColor(int);
         void setColor(int, int, int);
-        int getCoreX();
-        void setCoreX(int);
-        int getCoreY();
-        void setCoreY(int);
+        Coord getCore();
+        void setCore(Coord);
         PROGRAM getType();
         void setType(PROGRAM);
         int getHealth();
@@ -31,34 +33,43 @@ class Program
         void setMoves(int);
         int getMaxMoves();
         void setMaxMoves(int);
+        Player* getOwner();
+        void setOwner(Player*);
         int getTeam();
-        void setTeam(int);
         std::string getName();
         void setName(std::string);
         std::string getDescription();
         void setDescription(std::string);
         int getCost();
         void setCost(int);
+        int getActionsLeft();
+        void setActionsLeft(int);
 
-        void moveTo(int, int);
-        void addTail(int, int);
-        Pair<int>* getHead();
-        Pair<int>* getTail();
+        void moveTo(Coord);
+        void addTail(Coord);
+        Coord getHead();
+        Coord getTail();
+        Coord* popTail();
 
         void endTurn();
+        bool isDone();
 
+        void addAction(MOVEPRESET);
         void addAction(ProgramAction*);
         LinkedList<ProgramAction*>* getActions();
     protected:
     private:
-        LinkedList<Pair<int>*> tiles;
+        LinkedList<Coord*>* tiles;
+
+        LinkedList<ProgramAction*>* actionList;
+        int actionsLeft;
 
         PROGRAM type;
         int maxHealth;
         int moves, maxMoves;
         int color[3];
         int team;
-        LinkedList<ProgramAction*>* actionList;
+        Player* owner;
         SDL_Texture* icon;
         std::string name;
         std::string description;

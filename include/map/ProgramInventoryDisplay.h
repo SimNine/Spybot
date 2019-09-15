@@ -7,7 +7,7 @@
 class ProgramInventoryDisplay : public GUIContainer
 {
     public:
-        ProgramInventoryDisplay(ANCHOR, int, int, int, int, GUIContainer*, int*);
+        ProgramInventoryDisplay(ANCHOR, Coord, Coord, GUIContainer*, int*);
         virtual ~ProgramInventoryDisplay();
 
         void resetBounds();

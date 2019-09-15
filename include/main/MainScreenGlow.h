@@ -1,17 +1,17 @@
 #ifndef MAINSCREENGLOW_H
 #define MAINSCREENGLOW_H
 
+#include "Coord.h"
 
 class MainScreenGlow
 {
     public:
-        MainScreenGlow(int, int);
+        MainScreenGlow(Coord);
         virtual ~MainScreenGlow();
         void draw();
         void tick(int);
 
-        int getXPos();
-        int getYPos();
+        Coord getPos();
         bool getTransparent();
     protected:
     private:

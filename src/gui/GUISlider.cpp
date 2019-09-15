@@ -1,8 +1,8 @@
 #include "GUISlider.h"
 #include "Global.h"
 
-GUISlider::GUISlider(ANCHOR a, int xD, int yD, int w, int h, GUIContainer* p, void (*func) (float))
-    : GUIObject(a, xD, yD, w, h, p)
+GUISlider::GUISlider(ANCHOR a, Coord disp, Coord dims, GUIContainer* p, void (*func) (float))
+    : GUIObject(a, disp, dims, p)
 {
     sliderBounds.x = bounds.x;
     sliderBounds.y = bounds.y;
@@ -55,9 +55,9 @@ void GUISlider::tick(int ms)
 
     if (pressed)
     {
-        if (mousePosX < bounds.x + sliderBounds.w/2) sliderBounds.x = bounds.x;
-        else if (mousePosX > bounds.x + bounds.w - sliderBounds.w/2) sliderBounds.x = bounds.x + bounds.w - sliderBounds.w;
-        else sliderBounds.x = mousePosX - sliderBounds.w/2;
+        if (mousePos.x < bounds.x + sliderBounds.w/2) sliderBounds.x = bounds.x;
+        else if (mousePos.x > bounds.x + bounds.w - sliderBounds.w/2) sliderBounds.x = bounds.x + bounds.w - sliderBounds.w;
+        else sliderBounds.x = mousePos.x - sliderBounds.w/2;
 
         sliderVal = sliderBounds.x - bounds.x;
         float dinger = (float)sliderVal/bounds.w;

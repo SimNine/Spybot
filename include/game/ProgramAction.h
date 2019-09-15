@@ -8,9 +8,10 @@
 class ProgramAction
 {
     public:
-        ProgramAction(MOVE, std::string, std::string, int, int, int);
+        ProgramAction(MOVEPRESET);
+        ProgramAction(MOVETYPE, std::string, std::string, int, int, int);
         virtual ~ProgramAction();
-        MOVE type;
+        MOVETYPE type;
         std::string name;
         std::string description;
         int range;
@@ -19,6 +20,7 @@ class ProgramAction
         bool hitsFriendlies, hitsEnemies;
     protected:
     private:
+        void setMove(MOVETYPE, std::string, std::string, int, int, int);
 };
 
 #endif // PROGRAMMOVE_H
