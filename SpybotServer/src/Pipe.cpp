@@ -6,11 +6,10 @@
 #include "MiscUtil.h"
 #include "User.h"
 
-Pipe::Pipe(SOCKET client, Server* server)
-{
+Pipe::Pipe(SOCKET client, Server* server) {
 	// fill in fields
-    socket_ = client;
-    server_ = server;
+	socket_ = client;
+	server_ = server;
 	player_ = NULL;
 	closed_ = false;
 	user_ = NULL;
@@ -28,13 +27,13 @@ Pipe::Pipe(SOCKET client, Server* server)
 	printf("SERVER: new client attempting to connect, assigning clientID %u\n", clientID_);
 }
 
-Pipe::~Pipe()
-{
+Pipe::~Pipe() {
 	closed_ = true;
+	if (user_ != NULL)
+		user_->loggedIn_ = false;
 }
 
-void Pipe::listenData()
-{
+void Pipe::listenData() {
 	int bytesRead;
 
 	char readBuffer[DEFAULT_MSGSIZE];
@@ -42,26 +41,18 @@ void Pipe::listenData()
 
 	// listen for connect message (this prevents non-game clients from connecting)
 	bytesRead = recv(socket_, readBuffer, readBufferLength, 0);
-	if (bytesRead > 0) 
-	{
+	if (bytesRead > 0) {
 		Message m = deserializeMessage(readBuffer);
-		if (m.type != MSGTYPE_CONNECT)
-		{
+		if (m.type != MSGTYPE_CONNECT) {
 			printf("SERVER: first message from clientID %i wasn't CONNECT message; likely not a game client. disconnecting...\n", clientID_);
 			closed_ = true;
-		}
-		else
-		{
+		} else {
 			printf("SERVER: received confirmation CONNECT message from clientID %i\n", clientID_);
 		}
-	}
-	else if (bytesRead == 0)
-	{
+	} else if (bytesRead == 0) {
 		closed_ = true;
 		printf("SERVER: received shutdown from clientID %u\n", clientID_);
-	}
-	else
-	{
+	} else {
 		closed_ = true;
 		printf("SERVER ERR: recieve from clientID %u failed with error: %d\n", clientID_, WSAGetLastError());
 	}
@@ -69,18 +60,13 @@ void Pipe::listenData()
 	// receive until the peer shuts down the connection
 	while (!closed_) {
 		bytesRead = recv(socket_, readBuffer, readBufferLength, 0);
-		if (bytesRead > 0) 
-		{
+		if (bytesRead > 0) {
 			Message m = deserializeMessage(readBuffer);
 			server_->recieveMessage(m);
-		}
-		else if (bytesRead == 0)
-		{
+		} else if (bytesRead == 0) {
 			closed_ = true;
 			printf("SERVER: received shutdown from clientID %u\n", clientID_);
-		}
-		else 
-		{
+		} else {
 			closed_ = true;
 			printf("SERVER ERR: recieve from clientID %u failed with error: %d\n", clientID_, WSAGetLastError());
 		}
@@ -95,8 +81,7 @@ void Pipe::listenData()
 	return;
 }
 
-void Pipe::sendData(Message m)
-{
+void Pipe::sendData(Message m) {
 	// create the buffer to serialize the message into
 	char buffer[DEFAULT_MSGSIZE];
 
@@ -111,59 +96,48 @@ void Pipe::sendData(Message m)
 	}
 }
 
-int Pipe::getClientID()
-{
+int Pipe::getClientID() {
 	return clientID_;
 }
 
-Player* Pipe::getPlayer()
-{
+Player* Pipe::getPlayer() {
 	return player_;
 }
 
-void Pipe::setPlayer(Player* p)
-{
+void Pipe::setPlayer(Player* p) {
 	player_ = p;
 }
 
-void Pipe::close()
-{
+void Pipe::close() {
 	closed_ = true;
 	shutdown(socket_, SD_SEND);
 	closesocket(socket_);
 }
 
-bool Pipe::isClosed()
-{
+bool Pipe::isClosed() {
 	return closed_;
 }
 
-User* Pipe::getUser()
-{
+User* Pipe::getUser() {
 	return user_;
 }
 
-void Pipe::setUser(User* user)
-{
+void Pipe::setUser(User* user) {
 	user_ = user;
 }
 
-User* Pipe::getTempUser()
-{
+User* Pipe::getTempUser() {
 	return tempUser_;
 }
 
-void Pipe::setTempUser(User* user)
-{
+void Pipe::setTempUser(User* user) {
 	tempUser_ = user;
 }
 
-User* Pipe::getNewUser()
-{
+User* Pipe::getNewUser() {
 	return newUser_;
 }
 
-void Pipe::setNewUser(User* user)
-{
+void Pipe::setNewUser(User* user) {
 	newUser_ = user;
 }

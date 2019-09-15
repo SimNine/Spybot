@@ -19,6 +19,10 @@ int _SCREEN_HEIGHT = 600;
 // default tile width
 int _TILE_WIDTH = 32;
 
+// default board dims
+int _BOARD_WIDTH = 200;
+int _BOARD_HEIGHT = 200;
+
 // window to render to
 SDL_Window* _window = NULL;
 
@@ -35,7 +39,7 @@ LobbyScreen* _lobbyScreen = NULL;
 NotifyScreen* _notifyScreen = NULL;
 
 // mouse position
-Coord _mousePos = {0, 0};
+Coord _mousePos = { 0, 0 };
 bool _mousePressed = false;
 
 // update flags
@@ -51,6 +55,7 @@ DEBUG _debug = DEBUG_NONE;
 int _progListClassic[PROGRAM_NUM_PROGTYPES];
 int _progListNightfall[PROGRAM_NUM_PROGTYPES];
 int _progListCustom[PROGRAM_NUM_PROGTYPES];
+int _progListMulti[PROGRAM_NUM_PROGTYPES];
 int* _progListCurrent = _progListClassic;
 
 // programs currently in play

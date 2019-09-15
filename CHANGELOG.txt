@@ -194,3 +194,16 @@ GUIObject anchor revamp
 -Redid "background glow" objects
 --They now fade and move more slowly
 --Assigned a randomized color
+
+1.5.0 - 5/1/18
+Gamescreen animations
+-----
+-Added a linkedlist of Animations to GameScreen class
+-Added an Animation class to encapsulate animated effects and associated subclasses for animations
+--AnimationAttack (on a successful use of ACTIONTYPE_DAMAGE)
+--AnimationSelect (on selection of a grid tile)
+--AnimationTileFade (representing eliminated program tiles as they fade out
+-Added an AnimationParticle class and associated subclasses to encapsulate particles
+--AnimationParticleSquareSpeck
+--AnimationParticleSelectRing
+-Changed GUITextbox to take a boolean indicating whether it is censored or not (i.e., passwords)

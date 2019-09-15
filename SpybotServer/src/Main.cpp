@@ -10,8 +10,7 @@ Server* server;
 DEBUG _debug = DEBUG_NORMAL;
 
 // main loop to recieve new sockets
-void masterSocketFunc()
-{
+void masterSocketFunc() {
 	WSADATA wsaData;
 	int iResult;
 
@@ -74,8 +73,7 @@ void masterSocketFunc()
 	}
 
 	// main master listener loop
-	while (true)
-	{
+	while (true) {
 		// attempt to accept a client socket
 		SOCKET newSock = accept(ListenSocket, NULL, NULL);
 		if (newSock == INVALID_SOCKET) {
@@ -83,15 +81,13 @@ void masterSocketFunc()
 			closesocket(ListenSocket);
 			WSACleanup();
 			exit(1);
-		}
-		else
+		} else
 			server->connect(newSock);
 	}
 }
 
 // main function
-int main(int argc, char* args[])
-{
+int main(int argc, char* args[]) {
 	printf("SpybotServer.exe launched\n");
 
 	// initialize the server

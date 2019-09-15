@@ -12,6 +12,7 @@ User::User()
 	numDraws_ = 0;
 	numResigns_ = 0;
 	numGames_ = 0;
+	loggedIn_ = false;
 }
 
 User::~User()

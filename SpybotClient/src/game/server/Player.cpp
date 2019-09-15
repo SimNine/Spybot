@@ -8,6 +8,9 @@
 #include "Client.h"
 #include "MiscUtil.h"
 #include "ProgramAction.h"
+#include "GameScreen.h"
+#include "AnimationAttack.h"
+#include "AnimationTileFade.h"
 
 Player::Player(Game* g, int t)
 {
@@ -16,7 +19,7 @@ Player::Player(Game* g, int t)
     doneTurn = false;
     setSelectedTile({-1, -1});
     progsOwned = new LinkedList<Program*>();
-	color_ = { (Uint8)rand(), (Uint8)rand(), (Uint8)rand(), (Uint8)rand()};
+	color_ = { (Uint8)rand(), (Uint8)rand(), (Uint8)rand(), (Uint8)rand() };
 	brain_ = NULL;
 }
 
@@ -340,13 +343,18 @@ void Player::useSelectedActionAt(Coord pos)
 
         if (tgtProg->getTeam() != team)
         {
+			_gameScreen->addAnimation(new AnimationAttack(tgtProg->getHead(), selectedAction->power));
             for (int i = 0; i < selectedAction->power; i++)
             {
                 Coord* curr = tgtProg->popTail();
                 if (curr == NULL)
                     break;
-                else
-                    game->setProgramAt(*curr, NULL);
+				else
+				{
+					SDL_Color c = tgtProg->getOwner()->getColor();
+					_gameScreen->addAnimation(new AnimationTileFade(*curr, i*255 + 255, c.r, c.g, c.b));
+					game->setProgramAt(*curr, NULL);
+				}
             }
         }
         if (tgtProg->getHealth() <= 0)

@@ -4,12 +4,13 @@
 #include "Global.h"
 #include "ResourceLoader.h"
 
-GUITextbox::GUITextbox(ANCHOR anchor, Coord disp, Coord dims, GUIContainer* parent, int maxChars)
+GUITextbox::GUITextbox(ANCHOR anchor, Coord disp, Coord dims, GUIContainer* parent, int maxChars, bool censored)
 	: GUIContainer(anchor, disp, dims, parent, { 120, 120, 120, 140 })
 {
 	maxChars_ = maxChars;
 	textSize_ = dims.y;
 	contentText_ = "";
+	censored_ = censored;
 }
 
 
@@ -37,7 +38,16 @@ void GUITextbox::draw()
 	// draw current contents
 	SDL_Rect tempBounds = bounds;
 	tempBounds.w = 0;
-	SDL_Texture* content = loadString(contentText_, FONT_NORMAL, textSize_, { 255, 255, 255, 255 });
+	SDL_Texture* content;
+	if (censored_)
+	{
+		std::string ast = "";
+		for (int i = 0; i < contentText_.length(); i++)
+			ast += "*";
+		content = loadString(ast, FONT_NORMAL, textSize_, _color_white);
+	}
+	else
+		content = loadString(contentText_, FONT_NORMAL, textSize_, _color_white);
 	SDL_QueryTexture(content, NULL, NULL, &tempBounds.w, NULL);
 	SDL_RenderCopy(_renderer, content, NULL, &tempBounds);
 	SDL_DestroyTexture(content);

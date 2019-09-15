@@ -26,6 +26,7 @@ class Game
 		Player* getPlayerByID(int playerID);
 		void setCurrTurnPlayer(Player* p);
 		Player* getCurrTurnPlayer();
+		void removePlayer(int playerID);
 
         int getLeftBound();
         int getRightBound();

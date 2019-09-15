@@ -18,7 +18,7 @@ PromptBox::PromptBox(ANCHOR anchor, Coord disp, Coord dims, GUIContainer* parent
 	cancelButton_ = new GUIButton(ANCHOR_SOUTHEAST, { -20, -20 }, "Cancel", this, onCancel);
 	addObject(cancelButton_);
 
-	entryField_ = new GUITextbox(ANCHOR_NORTHWEST, { 5, 50 }, { bounds.w - 10, textSize_ }, this, DEFAULT_MSG_TEXTSIZE);
+	entryField_ = new GUITextbox(ANCHOR_NORTHWEST, { 5, 50 }, { bounds.w - 10, textSize_ }, this, DEFAULT_MSG_TEXTSIZE, false);
 	addObject(entryField_);
 }
 

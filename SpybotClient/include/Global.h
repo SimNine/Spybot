@@ -20,6 +20,10 @@ extern int _SCREEN_HEIGHT;
 // tile default width
 extern int _TILE_WIDTH;
 
+// default game dims
+extern int _BOARD_WIDTH;
+extern int _BOARD_HEIGHT;
+
 // window to render in
 extern SDL_Window* _window;
 
@@ -52,6 +56,7 @@ extern DEBUG _debug;
 extern int _progListClassic[PROGRAM_NUM_PROGTYPES];
 extern int _progListNightfall[PROGRAM_NUM_PROGTYPES];
 extern int _progListCustom[PROGRAM_NUM_PROGTYPES];
+extern int _progListMulti[PROGRAM_NUM_PROGTYPES];
 extern int* _progListCurrent;
 
 // programs currently in play

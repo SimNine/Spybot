@@ -164,4 +164,8 @@ extern SDL_Color _color_action_speedup;
 extern SDL_Color _color_action_tilecreate;
 extern SDL_Color _color_action_tiledestroy;
 
+// animations
+extern SDL_Texture* _particle_basic;
+extern SDL_Texture* _particle_selectring;
+
 #endif // DATA_H

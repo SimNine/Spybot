@@ -14,18 +14,15 @@
 #include "Team.h"
 
 PlayerDisplayContainer::PlayerDisplayContainer(ANCHOR a, Coord disp, Coord dims, GUIContainer* par)
-	: GUIContainer(a, disp, dims, par, _color_bkg_standard)
-{
+	: GUIContainer(a, disp, dims, par, _color_bkg_standard) {
 	//nothing
 }
 
-PlayerDisplayContainer::~PlayerDisplayContainer()
-{
+PlayerDisplayContainer::~PlayerDisplayContainer() {
 	//dtor
 }
 
-void PlayerDisplayContainer::draw()
-{
+void PlayerDisplayContainer::draw() {
 	// initialize constant
 	int fontSize = 30;
 
@@ -33,8 +30,7 @@ void PlayerDisplayContainer::draw()
 	int numTeams = _client->getGame()->getAllTeams()->getLength();
 	int numPlayers = 0;
 	Iterator<Team*> itTeams = _client->getGame()->getAllTeams()->getIterator();
-	while (itTeams.hasNext())
-	{
+	while (itTeams.hasNext()) {
 		numPlayers += itTeams.next()->getAllPlayers()->getLength();
 	}
 	int height = 5 + (fontSize + 5) * (numTeams + numPlayers);
@@ -43,7 +39,8 @@ void PlayerDisplayContainer::draw()
 	GUIContainer::drawBkg();
 
 	// draw bounds
-	if (_debug >= DEBUG_NORMAL) drawBounds();
+	if (_debug >= DEBUG_NORMAL) 
+		drawBounds();
 
 	// initialize locals
 	int xOffset = 5;
@@ -52,13 +49,12 @@ void PlayerDisplayContainer::draw()
 
 	// for each team
 	itTeams = _client->getGame()->getAllTeams()->getIterator();
-	while (itTeams.hasNext())
-	{
+	while (itTeams.hasNext()) {
 		// get current team
 		Team* currTeam = itTeams.next();
 
 		// draw the human player section title
-		SDL_Texture* humanPTitle = loadString("Team " + to_string(currTeam->getTeamNum())+ ":", FONT_NORMAL, fontSize, { 255, 255, 255, 255 });
+		SDL_Texture* humanPTitle = loadString("Team " + to_string(currTeam->getTeamNum()) + ":", FONT_NORMAL, fontSize, { 255, 255, 255, 255 });
 		SDL_QueryTexture(humanPTitle, NULL, NULL, &objBounds.w, &objBounds.h);
 		objBounds.x = bounds.x + xOffset;
 		objBounds.y = bounds.y + yOffset;
@@ -68,8 +64,7 @@ void PlayerDisplayContainer::draw()
 
 		// draw each player's display box
 		Iterator<Player*> it = currTeam->getAllPlayers()->getIterator();
-		while (it.hasNext())
-		{
+		while (it.hasNext()) {
 			// draw background color box
 			Player* curr = it.next();
 			objBounds.x = bounds.x + xOffset;
@@ -78,7 +73,7 @@ void PlayerDisplayContainer::draw()
 			objBounds.h = fontSize;
 			SDL_SetRenderDrawColor(_renderer, curr->getColor().r, curr->getColor().g, curr->getColor().b, 150);
 			SDL_RenderFillRect(_renderer, &objBounds);
-			
+
 			// draw player ID (or client name)
 			ClientMirror* cMirr = _client->getClientMirrorByPlayerID(curr->getPlayerID());
 			SDL_Texture* str;
@@ -96,8 +91,7 @@ void PlayerDisplayContainer::draw()
 			// draw icons representing current state
 
 			// draw icon if player has no programs on the board
-			if (curr->getProgList()->getLength() <= 0)
-			{
+			if (curr->getProgList()->getLength() <= 0) {
 				SDL_QueryTexture(_game_icon_dead, NULL, NULL, &objBounds.w, &objBounds.h);
 				objBounds.x = bounds.x + xOffset;
 				objBounds.y = bounds.y + yOffset;
@@ -106,8 +100,7 @@ void PlayerDisplayContainer::draw()
 			}
 
 			// draw icon if it is currently this player's turn
-			if (curr == _client->getGame()->getCurrTurnPlayer())
-			{
+			if (curr == _client->getGame()->getCurrTurnPlayer()) {
 				SDL_QueryTexture(_game_icon_currTurn, NULL, NULL, &objBounds.w, &objBounds.h);
 				objBounds.x = bounds.x + xOffset;
 				objBounds.y = bounds.y + yOffset;
@@ -116,16 +109,14 @@ void PlayerDisplayContainer::draw()
 			}
 
 			// draw icon if this player is the current owner of the server
-			if (_client->getServerOwner() == NULL)
+			if (_client->getServerOwner() == NULL) {
 				printf("no server owner, for some reason\n");
-			else if (curr == _client->getServerOwner()->player_)
-			{
+			} else if (curr == _client->getServerOwner()->player_) {
 				SDL_QueryTexture(_game_icon_owner, NULL, NULL, &objBounds.w, &objBounds.h);
 				objBounds.x = bounds.x + xOffset;
 				objBounds.y = bounds.y + yOffset;
 				SDL_RenderCopy(_renderer, _game_icon_owner, NULL, &objBounds);
 				xOffset += objBounds.w + 5;
-				break;
 			}
 
 			// change offsets

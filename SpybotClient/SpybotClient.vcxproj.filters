@@ -73,6 +73,18 @@
     <Filter Include="Header Files\lobby">
       <UniqueIdentifier>{c6c45c00-1aae-4b14-9ad4-03ca781a4f51}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\game\client\animations">
+      <UniqueIdentifier>{43bed4f1-e3b1-452b-be07-bcd6e50b34e1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\game\client\animations">
+      <UniqueIdentifier>{2c961274-cc49-4982-a159-44c2991732e1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\game\client\animations\particles">
+      <UniqueIdentifier>{b3ad104a-50a2-422a-940b-971a3200fca5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\game\client\animations\particles">
+      <UniqueIdentifier>{457c1ed6-107e-406e-9963-31606fca294b}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <Text Include="ReadMe.txt" />
@@ -216,6 +228,27 @@
     <ClInclude Include="include\game\server\Team.h">
       <Filter>Header Files\game\server</Filter>
     </ClInclude>
+    <ClInclude Include="include\game\client\animations\Animation.h">
+      <Filter>Header Files\game\client\animations</Filter>
+    </ClInclude>
+    <ClInclude Include="include\game\client\animations\particles\AnimationParticle.h">
+      <Filter>Header Files\game\client\animations\particles</Filter>
+    </ClInclude>
+    <ClInclude Include="include\game\client\animations\particles\AnimationParticleSelectRing.h">
+      <Filter>Header Files\game\client\animations\particles</Filter>
+    </ClInclude>
+    <ClInclude Include="include\game\client\animations\AnimationAttack.h">
+      <Filter>Header Files\game\client\animations</Filter>
+    </ClInclude>
+    <ClInclude Include="include\game\client\animations\AnimationSelect.h">
+      <Filter>Header Files\game\client\animations</Filter>
+    </ClInclude>
+    <ClInclude Include="include\game\client\animations\particles\AnimationParticleSquareSpeck.h">
+      <Filter>Header Files\game\client\animations\particles</Filter>
+    </ClInclude>
+    <ClInclude Include="include\game\client\animations\AnimationTileFade.h">
+      <Filter>Header Files\game\client\animations</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Global.cpp">
@@ -322,6 +355,27 @@
     </ClCompile>
     <ClCompile Include="src\game\client\ProgramDisplayActionButton.cpp">
       <Filter>Source Files\game\client</Filter>
+    </ClCompile>
+    <ClCompile Include="src\game\client\animations\Animation.cpp">
+      <Filter>Source Files\game\client\animations</Filter>
+    </ClCompile>
+    <ClCompile Include="src\game\client\animations\AnimationAttack.cpp">
+      <Filter>Source Files\game\client\animations</Filter>
+    </ClCompile>
+    <ClCompile Include="src\game\client\animations\AnimationSelect.cpp">
+      <Filter>Source Files\game\client\animations</Filter>
+    </ClCompile>
+    <ClCompile Include="src\game\client\animations\particles\AnimationParticle.cpp">
+      <Filter>Source Files\game\client\animations\particles</Filter>
+    </ClCompile>
+    <ClCompile Include="src\game\client\animations\particles\AnimationParticleSelectRing.cpp">
+      <Filter>Source Files\game\client\animations\particles</Filter>
+    </ClCompile>
+    <ClCompile Include="src\game\client\animations\particles\AnimationParticleSquareSpeck.cpp">
+      <Filter>Source Files\game\client\animations\particles</Filter>
+    </ClCompile>
+    <ClCompile Include="src\game\client\animations\AnimationTileFade.cpp">
+      <Filter>Source Files\game\client\animations</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

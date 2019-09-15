@@ -7,7 +7,7 @@ class GUIButton;
 class GUITextbox : public GUIContainer
 {
 public:
-	GUITextbox(ANCHOR anchor, Coord disp, Coord dims, GUIContainer* parent, int maxChars);
+	GUITextbox(ANCHOR anchor, Coord disp, Coord dims, GUIContainer* parent, int maxChars, bool censored);
 	~GUITextbox();
 
 	void draw();
@@ -23,5 +23,6 @@ private:
 	int textSize_;
 	int maxChars_;
 	int cursorFade_;
+	bool censored_;
 };
 

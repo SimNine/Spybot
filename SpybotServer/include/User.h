@@ -17,6 +17,8 @@ class User
 		int numDraws_;
 		int numResigns_;
 		int numGames_;
+		
+		bool loggedIn_;
     protected:
 
     private:

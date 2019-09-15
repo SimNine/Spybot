@@ -187,6 +187,9 @@ void printMessage(Message m) {
 		case MSGINFOTYPE_TILE:
 			printf("MSGINFOTYPE_TILE\n");
 			break;
+		case MSGINFOTYPE_PROGINVENTORY:
+			printf("MSGINFOTYPE_PROGINVENTORY\n");
+			break;
 		}
 		break;
 	case MSGTYPE_INQUIRY:
@@ -250,6 +253,9 @@ void printMessage(Message m) {
 		break;
 	case MSGTYPE_ERROR:
 		printf("MSGTYPE_ERROR - %s\n", m.text);
+		break;
+	case MSGTYPE_PLACEPROG:
+		printf("MSGTYPE_PLACEPROG\n");
 		break;
 	}
 }

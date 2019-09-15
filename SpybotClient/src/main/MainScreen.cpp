@@ -137,11 +137,11 @@ MainScreen::MainScreen()
 	loginEntryContainer_ = new GUIContainer(ANCHOR_CENTER, { 0, 0 }, { 800, 400 }, this, _color_bkg_standard);
 		GUITexture* usernamePrompt = new GUITexture(ANCHOR_NORTHWEST, { 20, 20 }, "Username:", 50, loginEntryContainer_);
 		loginEntryContainer_->addObject(usernamePrompt);
-		loginUsername_ = new GUITextbox(ANCHOR_NORTHWEST, { 20, 80 }, { 760, 40 }, loginEntryContainer_, DEFAULT_MSG_TEXTSIZE);
+		loginUsername_ = new GUITextbox(ANCHOR_NORTHWEST, { 20, 80 }, { 760, 40 }, loginEntryContainer_, DEFAULT_MSG_TEXTSIZE, false);
 		loginEntryContainer_->addObject(loginUsername_);
 		GUITexture* passwordPrompt = new GUITexture(ANCHOR_NORTHWEST, { 20, 140 }, "Password:", 50, loginEntryContainer_);
 		loginEntryContainer_->addObject(passwordPrompt);
-		loginPassword_ = new GUITextbox(ANCHOR_NORTHWEST, { 20, 200 }, { 760, 40 }, loginEntryContainer_, DEFAULT_MSG_TEXTSIZE);
+		loginPassword_ = new GUITextbox(ANCHOR_NORTHWEST, { 20, 200 }, { 760, 40 }, loginEntryContainer_, DEFAULT_MSG_TEXTSIZE, true);
 		loginEntryContainer_->addObject(loginPassword_);
 		loginCancelButton_ = new GUIButton(ANCHOR_SOUTHWEST, { 20, -20 }, "Cancel", loginEntryContainer_, []() {_mainScreen->loginHide(); _client->disconnect(); });
 		loginEntryContainer_->addObject(loginCancelButton_);

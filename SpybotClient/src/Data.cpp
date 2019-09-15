@@ -162,6 +162,10 @@ SDL_Color _color_action_speedup;
 SDL_Color _color_action_tilecreate;
 SDL_Color _color_action_tiledestroy;
 
+// animations
+SDL_Texture* _particle_basic;
+SDL_Texture* _particle_selectring;
+
 // initialize all data
 void initData()
 {
@@ -453,4 +457,8 @@ void initData()
 	_color_action_speedup = { 255, 255, 0, 255 };
 	_color_action_tilecreate = { 153, 255, 102, 255 };
 	_color_action_tiledestroy = { 102, 51, 0, 255 };
+
+	// animations
+	_particle_basic = loadTexture("resources/board/particle.png");
+	_particle_selectring = loadTexture("resources/board/particle_selectring.png");
 }

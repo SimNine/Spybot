@@ -12,6 +12,7 @@ class GUITexture;
 class ProgramInventoryDisplay;
 class PlayerDisplayContainer;
 class ChatDisplay;
+class Animation;
 
 class GameScreen : public GUIContainer
 {
@@ -51,6 +52,7 @@ public:
     void togglePauseMenu();
 	void toggleTurnButtonShown(bool b);
 	ChatDisplay* getChatDisplay();
+	void addAnimation(Animation* a);
 protected:
 private:
     Coord bkgPos_;
@@ -92,6 +94,9 @@ private:
 	ProgramDisplayContainer* progDisp_;
 	PlayerDisplayContainer* playerDisp_;
 	ChatDisplay* chatDisplay_;
+	
+	// effects queue
+	LinkedList<Animation*>* animList_;
 };
 
 #endif // GAMESCREEN_H

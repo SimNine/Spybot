@@ -19,6 +19,7 @@
 #include "Node.h"
 #include "ChatDisplay.h"
 #include "ClientMirror.h"
+#include "Animation.h"
 
 GameScreen::GameScreen()
     : GUIContainer(ANCHOR_NORTHWEST, {0, 0}, {_SCREEN_WIDTH, _SCREEN_HEIGHT}, NULL, loadTexture("resources/company_4.png"))
@@ -38,6 +39,8 @@ GameScreen::GameScreen()
     bkgPos_ = {0, 0};
     shiftSpeed_ = 0.1;
     canShiftScreen_ = true;
+
+	animList_ = new LinkedList<Animation*>();
 }
 
 GameScreen::~GameScreen()
@@ -1072,6 +1075,7 @@ void GameScreen::drawBkg()
 void GameScreen::drawGrid()
 {
     SDL_Rect tileRect;
+
     // set temp variables
     Coord topLeft = {bkgPos_.x / _TILE_WIDTH, bkgPos_.y / _TILE_WIDTH};
     Coord bottomRight;
@@ -1079,10 +1083,10 @@ void GameScreen::drawGrid()
     bottomRight.y = topLeft.y + _SCREEN_HEIGHT / _TILE_WIDTH + 1;
 
     // check for overflows
-    if (bottomRight.x >= 200)
-        bottomRight.x = 200;
-    if (bottomRight.y >= 200)
-        bottomRight.y = 200;
+    if (bottomRight.x > _BOARD_WIDTH)
+        bottomRight.x = _BOARD_WIDTH;
+    if (bottomRight.y > _BOARD_HEIGHT)
+        bottomRight.y = _BOARD_HEIGHT;
     if (topLeft.x < 0)
         topLeft.x = 0;
     if (topLeft.y < 0)
@@ -1120,6 +1124,7 @@ void GameScreen::drawGrid()
                 tileRect.y = yDefault - 1;
                 tileRect.w = sizeDefault + 2;
                 tileRect.h = sizeDefault + 2;
+				SDL_SetTextureAlphaMod(_program_core, 255);
 				if (programViewPlayers_)
 				{
 					SDL_Color c = prog->getOwner()->getColor();
@@ -1301,9 +1306,6 @@ void GameScreen::drawGrid()
                 SDL_RenderCopy(_renderer, _item_icons[_client->getGame()->getItemAt(curr)], NULL, &tileRect);
             }
 
-            //if (client->getPlayer() == NULL)
-                //continue;
-
             // if this is a selected tile
 			Iterator<ClientMirror*> playIt = _client->getClientList()->getIterator();
 			while (playIt.hasNext())
@@ -1384,6 +1386,15 @@ void GameScreen::drawGrid()
                     break;
                 }
             }
+
+			// if this tile is the center of an animation
+			Iterator<Animation*> it = animList_->getIterator();
+			while (it.hasNext())
+			{
+				Animation* currAnim = it.next();
+				if (currAnim->getPos() == curr)
+					currAnim->draw({ xDefault + _TILE_WIDTH / 2, yDefault + _TILE_WIDTH / 2 });
+			}
         }
     }
 
@@ -1392,13 +1403,13 @@ void GameScreen::drawGrid()
     {
         tileRect.x = -bkgPos_.x + 4;
         tileRect.y = -bkgPos_.y + 4;
-        tileRect.w = _TILE_WIDTH * 200 - 4;
-        tileRect.h = _TILE_WIDTH * 200 - 4;
+        tileRect.w = _TILE_WIDTH * _BOARD_WIDTH - 4;
+        tileRect.h = _TILE_WIDTH * _BOARD_HEIGHT - 4;
         SDL_SetRenderDrawColor(_renderer, 0, 0, 255, 0);
         SDL_RenderDrawRect(_renderer, &tileRect);
 
-        SDL_RenderDrawLine(_renderer, -bkgPos_.x + 100*_TILE_WIDTH, -bkgPos_.y + 4, -bkgPos_.x + 100*_TILE_WIDTH, -bkgPos_.y + 200*_TILE_WIDTH); // vert
-        SDL_RenderDrawLine(_renderer, -bkgPos_.x + 4, -bkgPos_.y + 100*_TILE_WIDTH, -bkgPos_.x + 200*_TILE_WIDTH, -bkgPos_.y + 100*_TILE_WIDTH); // horiz
+        SDL_RenderDrawLine(_renderer, -bkgPos_.x + (_BOARD_WIDTH/2)*_TILE_WIDTH, -bkgPos_.y + 4, -bkgPos_.x + (_BOARD_WIDTH/2)*_TILE_WIDTH, -bkgPos_.y + _BOARD_HEIGHT*_TILE_WIDTH); // vert
+        SDL_RenderDrawLine(_renderer, -bkgPos_.x + 4, -bkgPos_.y + (_BOARD_HEIGHT/2)*_TILE_WIDTH, -bkgPos_.x + _BOARD_WIDTH*_TILE_WIDTH, -bkgPos_.y + (_BOARD_HEIGHT/2)*_TILE_WIDTH); // horiz
 
         tileRect.x = -bkgPos_.x + _client->getGame()->getLeftBound()*_TILE_WIDTH;
         tileRect.y = -bkgPos_.y + _client->getGame()->getTopBound()*_TILE_WIDTH;
@@ -1424,7 +1435,7 @@ void GameScreen::draw()
         gridBkgPanel_->draw();
     }
 
-    if (pauseMenu_->isVisible())
+	if (pauseMenu_->isVisible())
     {
 		// draw black shading on game
         SDL_SetRenderDrawColor(_renderer, 0, 0, 0, 140);
@@ -1503,7 +1514,7 @@ void GameScreen::checkShiftable()
 	if (_client->getGame() == NULL)
 		canShiftScreen_ = false;
     else if ((_client->getGame()->getRightBound() - _client->getGame()->getLeftBound())*_TILE_WIDTH < _SCREEN_WIDTH - 200 &&
-        (_client->getGame()->getBottomBound() - _client->getGame()->getTopBound())*_TILE_WIDTH < _SCREEN_HEIGHT - 200)
+			 (_client->getGame()->getBottomBound() - _client->getGame()->getTopBound())*_TILE_WIDTH < _SCREEN_HEIGHT - 200)
         canShiftScreen_ = false;
     else
         canShiftScreen_ = true;
@@ -1532,6 +1543,27 @@ void GameScreen::tick(int ms)
     // fade out the playerTurn display if it is visible
     if (currTurn_->isVisible() && currTurn_->getTransparency() == 255)
         currTurn_->fade(0, 500);
+
+	// tick all animations
+	Iterator<Animation*> it = animList_->getIterator();
+	while (it.hasNext())
+		it.next()->tick(ms);
+
+	// check for, and remove, dead animations
+	int anim = 0;
+	while (anim < animList_->getLength())
+	{
+		Animation* currAnim = animList_->getObjectAt(anim);
+		if (currAnim->isDead())
+		{
+			animList_->remove(currAnim);
+			delete currAnim;
+		}
+		else
+			anim++;
+	}
+	if (_debug >= DEBUG_NORMAL)
+		printf("num anims: %i\n", animList_->getLength());
 
     // check if the current music track is done, if so, pick a new one
     if (Mix_PlayingMusic() == 0)
@@ -1622,8 +1654,16 @@ void GameScreen::tryPlacingProgram(PROGRAM p)
 	if (_client->getGame()->getTileAt(selectedTile) != TILE_SPAWN && _client->getGame()->getTileAt(selectedTile) != TILE_SPAWN2)
 		return;
 
+	// send place message
+	Message m;
+	m.type = MSGTYPE_PLACEPROG;
+	m.progType = p;
+	m.pos = selectedTile;
+	m.playerID = _client->getPlayer()->getPlayerID();
+	_client->sendMessage(m);
+
 	// remove any program that already exists here
-	Program* prog = _client->getGame()->getProgramAt(selectedTile);
+	/*Program* prog = _client->getGame()->getProgramAt(selectedTile);
 	if (prog != NULL)
 	{
 		_usedPrograms[prog->getType()]--;
@@ -1648,7 +1688,7 @@ void GameScreen::tryPlacingProgram(PROGRAM p)
 
 	_usedPrograms[p]++;
 	_progListCurrent[p]--;
-	progInv_->updateContents();
+	progInv_->updateContents();*/
 }
 
 void GameScreen::toggleEditorMode()
@@ -1727,4 +1767,9 @@ void GameScreen::toggleTurnButtonShown(bool b)
 		turnButton_->setTransparency(255);
 	else
 		turnButton_->setTransparency(0);
+}
+
+void GameScreen::addAnimation(Animation* a)
+{
+	animList_->addFirst(a);
 }
