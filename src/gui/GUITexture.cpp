@@ -1,7 +1,7 @@
 #include "GUITexture.h"
 #include "Global.h"
 
-GUITexture::GUITexture(Anch a, int xDisp, int yDisp, SDL_Texture* tex, int w, int h, GUIContainer* par)
+GUITexture::GUITexture(ANCHOR a, int xDisp, int yDisp, SDL_Texture* tex, int w, int h, GUIContainer* par)
     : GUIObject(a, xDisp, yDisp, w, h, par)
 {
     texture = tex;

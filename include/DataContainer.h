@@ -44,6 +44,8 @@ public:
     SDL_Texture* tile_images[TILE_NUM_TILES];
 
     SDL_Texture* program_core;
+    SDL_Texture* program_core_50px;
+    SDL_Texture* program_core_100px;
     SDL_Texture* program_core_vertical;
     SDL_Texture* program_core_horizontal;
 

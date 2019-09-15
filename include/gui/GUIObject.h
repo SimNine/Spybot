@@ -3,14 +3,14 @@
 
 #include <SDL.h>
 
-enum Anch { ANCHOR_TOP_LEFT, ANCHOR_TOP_RIGHT, ANCHOR_BOTTOM_LEFT, ANCHOR_BOTTOM_RIGHT, ANCHOR_CENTER };
+#include "Enums.h"
 
 class GUIContainer;
 
 class GUIObject
 {
     public:
-        GUIObject(Anch, int, int, int, int, GUIContainer*);
+        GUIObject(ANCHOR, int, int, int, int, GUIContainer*);
         virtual ~GUIObject();
         SDL_Rect* getBounds();
         void setBounds(int, int, int, int);
@@ -31,7 +31,7 @@ class GUIObject
     protected:
         int xDisplacement;
         int yDisplacement;
-        Anch anchor;
+        ANCHOR anchor;
         SDL_Rect bounds;
         GUIContainer* parent;
         bool visible;

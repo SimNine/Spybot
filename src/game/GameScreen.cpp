@@ -1,24 +1,47 @@
 #include "GameScreen.h"
 #include "GUIContainer.h"
 #include "Global.h"
-#include "Main.h"
 #include "Program.h"
 #include "GUIButton.h"
 #include "LinkedList.h"
+#include "ResourceLoader.h"
+#include "Pair.h"
 
 #include <stdlib.h>
 #include <stdio.h>
 #include <fstream>
 
 GameScreen::GameScreen()
-    : GUIContainer(ANCHOR_TOP_LEFT, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, NULL, loadTexture("resources/company_4.png"))
+    : GUIContainer(ANCHOR_NORTHWEST, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, NULL, loadTexture("resources/company_4.png"))
 {
     initBoard();
+    buildGUI();
 
+    brushMode = BRUSH_NONE;
+    brushTileType = TILE_NONE;
+    brushProgramType = PROGRAM_BALLISTA;
+    brushProgramTeam = 0;
+    brushItemType = ITEM_NONE;
+    programViewTeams = false;
+    setSelectedProgram(NULL);
+    selectedTileX = 0;
+    selectedTileY = 0;
+    bkgX = 0;
+    bkgY = 0;
+    canPanScreen = true;
+}
+
+GameScreen::~GameScreen()
+{
+    //dtor
+}
+
+void GameScreen::buildGUI()
+{
     int ln = 0;
     int col = 0;
-    gridEditPanel = new GUIContainer(ANCHOR_TOP_LEFT, 20, 20, 8 + 32*12, 36, this, NULL);
-    GUIButton* emptyButton = new GUIButton(ANCHOR_TOP_LEFT, 4 + 32*col++, 4, 28, 28, gridEditPanel,
+    gridEditPanel = new GUIContainer(ANCHOR_NORTHWEST, 20, 20, 8 + 32*12, 36, this, NULL);
+    GUIButton* emptyButton = new GUIButton(ANCHOR_NORTHWEST, 4 + 32*col++, 4, 28, 28, gridEditPanel,
                                            []()
     {
         gameScreen->setBrushTileType(TILE_NONE);
@@ -26,7 +49,7 @@ GameScreen::GameScreen()
     dataContainer->tile_images[TILE_NONE],
     dataContainer->tile_images[TILE_NONE],
     dataContainer->tile_images[TILE_NONE]);
-    GUIButton* plainButton = new GUIButton(ANCHOR_TOP_LEFT, 4 + 32*col++, 4, 28, 28, gridEditPanel,
+    GUIButton* plainButton = new GUIButton(ANCHOR_NORTHWEST, 4 + 32*col++, 4, 28, 28, gridEditPanel,
                                            []()
     {
         gameScreen->setBrushTileType(TILE_PLAIN);
@@ -34,7 +57,7 @@ GameScreen::GameScreen()
     dataContainer->tile_images[TILE_PLAIN],
     dataContainer->tile_images[TILE_PLAIN],
     dataContainer->tile_images[TILE_PLAIN]);
-    GUIButton* plain2Button = new GUIButton(ANCHOR_TOP_LEFT, 4 + 32*col++, 4, 28, 28, gridEditPanel,
+    GUIButton* plain2Button = new GUIButton(ANCHOR_NORTHWEST, 4 + 32*col++, 4, 28, 28, gridEditPanel,
                                             []()
     {
         gameScreen->setBrushTileType(TILE_PLAIN2);
@@ -42,7 +65,7 @@ GameScreen::GameScreen()
     dataContainer->tile_images[TILE_PLAIN2],
     dataContainer->tile_images[TILE_PLAIN2],
     dataContainer->tile_images[TILE_PLAIN2]);
-    GUIButton* plain3Button = new GUIButton(ANCHOR_TOP_LEFT, 4 + 32*col++, 4, 28, 28, gridEditPanel,
+    GUIButton* plain3Button = new GUIButton(ANCHOR_NORTHWEST, 4 + 32*col++, 4, 28, 28, gridEditPanel,
                                             []()
     {
         gameScreen->setBrushTileType(TILE_PLAIN3);
@@ -50,7 +73,7 @@ GameScreen::GameScreen()
     dataContainer->tile_images[TILE_PLAIN3],
     dataContainer->tile_images[TILE_PLAIN3],
     dataContainer->tile_images[TILE_PLAIN3]);
-    GUIButton* plain4Button = new GUIButton(ANCHOR_TOP_LEFT, 4 + 32*col++, 4, 28, 28, gridEditPanel,
+    GUIButton* plain4Button = new GUIButton(ANCHOR_NORTHWEST, 4 + 32*col++, 4, 28, 28, gridEditPanel,
                                             []()
     {
         gameScreen->setBrushTileType(TILE_PLAIN4);
@@ -58,7 +81,7 @@ GameScreen::GameScreen()
     dataContainer->tile_images[TILE_PLAIN4],
     dataContainer->tile_images[TILE_PLAIN4],
     dataContainer->tile_images[TILE_PLAIN4]);
-    GUIButton* plain5Button = new GUIButton(ANCHOR_TOP_LEFT, 4 + 32*col++, 4, 28, 28, gridEditPanel,
+    GUIButton* plain5Button = new GUIButton(ANCHOR_NORTHWEST, 4 + 32*col++, 4, 28, 28, gridEditPanel,
                                             []()
     {
         gameScreen->setBrushTileType(TILE_PLAIN5);
@@ -66,7 +89,7 @@ GameScreen::GameScreen()
     dataContainer->tile_images[TILE_PLAIN5],
     dataContainer->tile_images[TILE_PLAIN5],
     dataContainer->tile_images[TILE_PLAIN5]);
-    GUIButton* plain6Button = new GUIButton(ANCHOR_TOP_LEFT, 4 + 32*col++, 4, 28, 28, gridEditPanel,
+    GUIButton* plain6Button = new GUIButton(ANCHOR_NORTHWEST, 4 + 32*col++, 4, 28, 28, gridEditPanel,
                                             []()
     {
         gameScreen->setBrushTileType(TILE_PLAIN6);
@@ -74,7 +97,7 @@ GameScreen::GameScreen()
     dataContainer->tile_images[TILE_PLAIN6],
     dataContainer->tile_images[TILE_PLAIN6],
     dataContainer->tile_images[TILE_PLAIN6]);
-    GUIButton* plain7Button = new GUIButton(ANCHOR_TOP_LEFT, 4 + 32*col++, 4, 28, 28, gridEditPanel,
+    GUIButton* plain7Button = new GUIButton(ANCHOR_NORTHWEST, 4 + 32*col++, 4, 28, 28, gridEditPanel,
                                             []()
     {
         gameScreen->setBrushTileType(TILE_PLAIN7);
@@ -82,7 +105,7 @@ GameScreen::GameScreen()
     dataContainer->tile_images[TILE_PLAIN7],
     dataContainer->tile_images[TILE_PLAIN7],
     dataContainer->tile_images[TILE_PLAIN7]);
-    GUIButton* plain8Button = new GUIButton(ANCHOR_TOP_LEFT, 4 + 32*col++, 4, 28, 28, gridEditPanel,
+    GUIButton* plain8Button = new GUIButton(ANCHOR_NORTHWEST, 4 + 32*col++, 4, 28, 28, gridEditPanel,
                                             []()
     {
         gameScreen->setBrushTileType(TILE_PLAIN8);
@@ -90,7 +113,7 @@ GameScreen::GameScreen()
     dataContainer->tile_images[TILE_PLAIN9],
     dataContainer->tile_images[TILE_PLAIN9],
     dataContainer->tile_images[TILE_PLAIN9]);
-    GUIButton* plain9Button = new GUIButton(ANCHOR_TOP_LEFT, 4 + 32*col++, 4, 28, 28, gridEditPanel,
+    GUIButton* plain9Button = new GUIButton(ANCHOR_NORTHWEST, 4 + 32*col++, 4, 28, 28, gridEditPanel,
                                             []()
     {
         gameScreen->setBrushTileType(TILE_PLAIN9);
@@ -98,7 +121,7 @@ GameScreen::GameScreen()
     dataContainer->tile_images[TILE_PLAIN9],
     dataContainer->tile_images[TILE_PLAIN9],
     dataContainer->tile_images[TILE_PLAIN9]);
-    GUIButton* spawnButton = new GUIButton(ANCHOR_TOP_LEFT, 4 + 32*col++, 4, 28, 28, gridEditPanel,
+    GUIButton* spawnButton = new GUIButton(ANCHOR_NORTHWEST, 4 + 32*col++, 4, 28, 28, gridEditPanel,
                                            []()
     {
         gameScreen->setBrushTileType(TILE_SPAWN);
@@ -106,7 +129,7 @@ GameScreen::GameScreen()
     dataContainer->tile_images[TILE_SPAWN],
     dataContainer->tile_images[TILE_SPAWN],
     dataContainer->tile_images[TILE_SPAWN]);
-    GUIButton* spawn2Button = new GUIButton(ANCHOR_TOP_LEFT, 4 + 32*col++, 4, 28, 28, gridEditPanel,
+    GUIButton* spawn2Button = new GUIButton(ANCHOR_NORTHWEST, 4 + 32*col++, 4, 28, 28, gridEditPanel,
                                             []()
     {
         gameScreen->setBrushTileType(TILE_SPAWN2);
@@ -130,8 +153,8 @@ GameScreen::GameScreen()
 
     ln = 0;
     col = 0;
-    gridProgramEditPanel = new GUIContainer(ANCHOR_TOP_LEFT, 20, 60, 32*15 + 8, 136, this, NULL);
-    GUIButton* nullProgramButton = new GUIButton(ANCHOR_TOP_LEFT, 4 + 32*col++, 4 + 32*ln, 28, 28, gridProgramEditPanel,
+    gridProgramEditPanel = new GUIContainer(ANCHOR_NORTHWEST, 20, 60, 32*15 + 8, 136, this, NULL);
+    GUIButton* nullProgramButton = new GUIButton(ANCHOR_NORTHWEST, 4 + 32*col++, 4 + 32*ln, 28, 28, gridProgramEditPanel,
             []()
     {
         gameScreen->setSelectedProgram(NULL);
@@ -140,7 +163,7 @@ GameScreen::GameScreen()
     NULL,
     NULL);
     gridProgramEditPanel->addObject(nullProgramButton);
-    GUIButton* ballistaButton = new GUIButton(ANCHOR_TOP_LEFT, 4 + 32*col++, 4 + 32*ln, 28, 28, gridProgramEditPanel,
+    GUIButton* ballistaButton = new GUIButton(ANCHOR_NORTHWEST, 4 + 32*col++, 4 + 32*ln, 28, 28, gridProgramEditPanel,
             []()
     {
         gameScreen->setBrushProgramType(PROGRAM_BALLISTA);
@@ -149,7 +172,7 @@ GameScreen::GameScreen()
     dataContainer->program_icons[PROGRAM_BALLISTA],
     dataContainer->program_icons[PROGRAM_BALLISTA]);
     gridProgramEditPanel->addObject(ballistaButton);
-    GUIButton* bitmanButton = new GUIButton(ANCHOR_TOP_LEFT, 4 + 32*col++, 4 + 32*ln, 28, 28, gridProgramEditPanel,
+    GUIButton* bitmanButton = new GUIButton(ANCHOR_NORTHWEST, 4 + 32*col++, 4 + 32*ln, 28, 28, gridProgramEditPanel,
                                             []()
     {
         gameScreen->setBrushProgramType(PROGRAM_BITMAN);
@@ -158,7 +181,7 @@ GameScreen::GameScreen()
     dataContainer->program_icons[PROGRAM_BITMAN],
     dataContainer->program_icons[PROGRAM_BITMAN]);
     gridProgramEditPanel->addObject(bitmanButton);
-    GUIButton* bitman2Button = new GUIButton(ANCHOR_TOP_LEFT, 4 + 32*col++, 4 + 32*ln, 28, 28, gridProgramEditPanel,
+    GUIButton* bitman2Button = new GUIButton(ANCHOR_NORTHWEST, 4 + 32*col++, 4 + 32*ln, 28, 28, gridProgramEditPanel,
             []()
     {
         gameScreen->setBrushProgramType(PROGRAM_BITMAN2);
@@ -167,7 +190,7 @@ GameScreen::GameScreen()
     dataContainer->program_icons[PROGRAM_BITMAN2],
     dataContainer->program_icons[PROGRAM_BITMAN2]);
     gridProgramEditPanel->addObject(bitman2Button);
-    GUIButton* blackwidowButton = new GUIButton(ANCHOR_TOP_LEFT, 4 + 32*col++, 4 + 32*ln, 28, 28, gridProgramEditPanel,
+    GUIButton* blackwidowButton = new GUIButton(ANCHOR_NORTHWEST, 4 + 32*col++, 4 + 32*ln, 28, 28, gridProgramEditPanel,
             []()
     {
         gameScreen->setBrushProgramType(PROGRAM_BLACKWIDOW);
@@ -176,7 +199,7 @@ GameScreen::GameScreen()
     dataContainer->program_icons[PROGRAM_BLACKWIDOW],
     dataContainer->program_icons[PROGRAM_BLACKWIDOW]);
     gridProgramEditPanel->addObject(blackwidowButton);
-    GUIButton* bossButton = new GUIButton(ANCHOR_TOP_LEFT, 4 + 32*col++, 4 + 32*ln, 28, 28, gridProgramEditPanel,
+    GUIButton* bossButton = new GUIButton(ANCHOR_NORTHWEST, 4 + 32*col++, 4 + 32*ln, 28, 28, gridProgramEditPanel,
                                           []()
     {
         gameScreen->setBrushProgramType(PROGRAM_BOSS);
@@ -185,7 +208,7 @@ GameScreen::GameScreen()
     dataContainer->program_icons[PROGRAM_BOSS],
     dataContainer->program_icons[PROGRAM_BOSS]);
     gridProgramEditPanel->addObject(bossButton);
-    GUIButton* bugButton = new GUIButton(ANCHOR_TOP_LEFT, 4 + 32*col++, 4 + 32*ln, 28, 28, gridProgramEditPanel,
+    GUIButton* bugButton = new GUIButton(ANCHOR_NORTHWEST, 4 + 32*col++, 4 + 32*ln, 28, 28, gridProgramEditPanel,
                                          []()
     {
         gameScreen->setBrushProgramType(PROGRAM_BUG);
@@ -194,7 +217,7 @@ GameScreen::GameScreen()
     dataContainer->program_icons[PROGRAM_BUG],
     dataContainer->program_icons[PROGRAM_BUG]);
     gridProgramEditPanel->addObject(bugButton);
-    GUIButton* bug2Button = new GUIButton(ANCHOR_TOP_LEFT, 4 + 32*col++, 4 + 32*ln, 28, 28, gridProgramEditPanel,
+    GUIButton* bug2Button = new GUIButton(ANCHOR_NORTHWEST, 4 + 32*col++, 4 + 32*ln, 28, 28, gridProgramEditPanel,
                                           []()
     {
         gameScreen->setBrushProgramType(PROGRAM_BUG2);
@@ -203,7 +226,7 @@ GameScreen::GameScreen()
     dataContainer->program_icons[PROGRAM_BUG2],
     dataContainer->program_icons[PROGRAM_BUG2]);
     gridProgramEditPanel->addObject(bug2Button);
-    GUIButton* bug3Button = new GUIButton(ANCHOR_TOP_LEFT, 4 + 32*col++, 4 + 32*ln, 28, 28, gridProgramEditPanel,
+    GUIButton* bug3Button = new GUIButton(ANCHOR_NORTHWEST, 4 + 32*col++, 4 + 32*ln, 28, 28, gridProgramEditPanel,
                                           []()
     {
         gameScreen->setBrushProgramType(PROGRAM_BUG3);
@@ -212,7 +235,7 @@ GameScreen::GameScreen()
     dataContainer->program_icons[PROGRAM_BUG3],
     dataContainer->program_icons[PROGRAM_BUG3]);
     gridProgramEditPanel->addObject(bug3Button);
-    GUIButton* catapultButton = new GUIButton(ANCHOR_TOP_LEFT, 4 + 32*col++, 4 + 32*ln, 28, 28, gridProgramEditPanel,
+    GUIButton* catapultButton = new GUIButton(ANCHOR_NORTHWEST, 4 + 32*col++, 4 + 32*ln, 28, 28, gridProgramEditPanel,
             []()
     {
         gameScreen->setBrushProgramType(PROGRAM_CATAPULT);
@@ -221,7 +244,7 @@ GameScreen::GameScreen()
     dataContainer->program_icons[PROGRAM_CATAPULT],
     dataContainer->program_icons[PROGRAM_CATAPULT]);
     gridProgramEditPanel->addObject(catapultButton);
-    GUIButton* clogButton = new GUIButton(ANCHOR_TOP_LEFT, 4 + 32*col++, 4 + 32*ln, 28, 28, gridProgramEditPanel,
+    GUIButton* clogButton = new GUIButton(ANCHOR_NORTHWEST, 4 + 32*col++, 4 + 32*ln, 28, 28, gridProgramEditPanel,
                                           []()
     {
         gameScreen->setBrushProgramType(PROGRAM_CLOG);
@@ -230,7 +253,7 @@ GameScreen::GameScreen()
     dataContainer->program_icons[PROGRAM_CLOG],
     dataContainer->program_icons[PROGRAM_CLOG]);
     gridProgramEditPanel->addObject(clogButton);
-    GUIButton* clog2Button = new GUIButton(ANCHOR_TOP_LEFT, 4 + 32*col++, 4 + 32*ln, 28, 28, gridProgramEditPanel,
+    GUIButton* clog2Button = new GUIButton(ANCHOR_NORTHWEST, 4 + 32*col++, 4 + 32*ln, 28, 28, gridProgramEditPanel,
                                            []()
     {
         gameScreen->setBrushProgramType(PROGRAM_CLOG2);
@@ -239,7 +262,7 @@ GameScreen::GameScreen()
     dataContainer->program_icons[PROGRAM_CLOG2],
     dataContainer->program_icons[PROGRAM_CLOG2]);
     gridProgramEditPanel->addObject(clog2Button);
-    GUIButton* clog3Button = new GUIButton(ANCHOR_TOP_LEFT, 4 + 32*col++, 4 + 32*ln, 28, 28, gridProgramEditPanel,
+    GUIButton* clog3Button = new GUIButton(ANCHOR_NORTHWEST, 4 + 32*col++, 4 + 32*ln, 28, 28, gridProgramEditPanel,
                                            []()
     {
         gameScreen->setBrushProgramType(PROGRAM_CLOG3);
@@ -248,7 +271,7 @@ GameScreen::GameScreen()
     dataContainer->program_icons[PROGRAM_CLOG3],
     dataContainer->program_icons[PROGRAM_CLOG3]);
     gridProgramEditPanel->addObject(clog3Button);
-    GUIButton* databombButton = new GUIButton(ANCHOR_TOP_LEFT, 4 + 32*col++, 4 + 32*ln, 28, 28, gridProgramEditPanel,
+    GUIButton* databombButton = new GUIButton(ANCHOR_NORTHWEST, 4 + 32*col++, 4 + 32*ln, 28, 28, gridProgramEditPanel,
             []()
     {
         gameScreen->setBrushProgramType(PROGRAM_DATABOMB);
@@ -257,7 +280,7 @@ GameScreen::GameScreen()
     dataContainer->program_icons[PROGRAM_DATABOMB],
     dataContainer->program_icons[PROGRAM_DATABOMB]);
     gridProgramEditPanel->addObject(databombButton);
-    GUIButton* datadoctorButton = new GUIButton(ANCHOR_TOP_LEFT, 4 + 32*col++, 4 + 32*ln, 28, 28, gridProgramEditPanel,
+    GUIButton* datadoctorButton = new GUIButton(ANCHOR_NORTHWEST, 4 + 32*col++, 4 + 32*ln, 28, 28, gridProgramEditPanel,
             []()
     {
         gameScreen->setBrushProgramType(PROGRAM_DATADOCTOR);
@@ -268,7 +291,7 @@ GameScreen::GameScreen()
     gridProgramEditPanel->addObject(datadoctorButton);
     ln++;
     col = 0;
-    GUIButton* datadoctor2Button = new GUIButton(ANCHOR_TOP_LEFT, 4 + 32*col++, 4 + 32*ln, 28, 28, gridProgramEditPanel,
+    GUIButton* datadoctor2Button = new GUIButton(ANCHOR_NORTHWEST, 4 + 32*col++, 4 + 32*ln, 28, 28, gridProgramEditPanel,
             []()
     {
         gameScreen->setBrushProgramType(PROGRAM_DATADOCTOR2);
@@ -277,7 +300,7 @@ GameScreen::GameScreen()
     dataContainer->program_icons[PROGRAM_DATADOCTOR2],
     dataContainer->program_icons[PROGRAM_DATADOCTOR2]);
     gridProgramEditPanel->addObject(datadoctor2Button);
-    GUIButton* dogButton = new GUIButton(ANCHOR_TOP_LEFT, 4 + 32*col++, 4 + 32*ln, 28, 28, gridProgramEditPanel,
+    GUIButton* dogButton = new GUIButton(ANCHOR_NORTHWEST, 4 + 32*col++, 4 + 32*ln, 28, 28, gridProgramEditPanel,
                                          []()
     {
         gameScreen->setBrushProgramType(PROGRAM_DOG);
@@ -286,7 +309,7 @@ GameScreen::GameScreen()
     dataContainer->program_icons[PROGRAM_DOG],
     dataContainer->program_icons[PROGRAM_DOG]);
     gridProgramEditPanel->addObject(dogButton);
-    GUIButton* dog2Button = new GUIButton(ANCHOR_TOP_LEFT, 4 + 32*col++, 4 + 32*ln, 28, 28, gridProgramEditPanel,
+    GUIButton* dog2Button = new GUIButton(ANCHOR_NORTHWEST, 4 + 32*col++, 4 + 32*ln, 28, 28, gridProgramEditPanel,
                                           []()
     {
         gameScreen->setBrushProgramType(PROGRAM_DOG2);
@@ -295,7 +318,7 @@ GameScreen::GameScreen()
     dataContainer->program_icons[PROGRAM_DOG2],
     dataContainer->program_icons[PROGRAM_DOG2]);
     gridProgramEditPanel->addObject(dog2Button);
-    GUIButton* dog3Button = new GUIButton(ANCHOR_TOP_LEFT, 4 + 32*col++, 4 + 32*ln, 28, 28, gridProgramEditPanel,
+    GUIButton* dog3Button = new GUIButton(ANCHOR_NORTHWEST, 4 + 32*col++, 4 + 32*ln, 28, 28, gridProgramEditPanel,
                                           []()
     {
         gameScreen->setBrushProgramType(PROGRAM_DOG3);
@@ -304,7 +327,7 @@ GameScreen::GameScreen()
     dataContainer->program_icons[PROGRAM_DOG3],
     dataContainer->program_icons[PROGRAM_DOG3]);
     gridProgramEditPanel->addObject(dog3Button);
-    GUIButton* fiddleButton = new GUIButton(ANCHOR_TOP_LEFT, 4 + 32*col++, 4 + 32*ln, 28, 28, gridProgramEditPanel,
+    GUIButton* fiddleButton = new GUIButton(ANCHOR_NORTHWEST, 4 + 32*col++, 4 + 32*ln, 28, 28, gridProgramEditPanel,
                                             []()
     {
         gameScreen->setBrushProgramType(PROGRAM_FIDDLE);
@@ -313,7 +336,7 @@ GameScreen::GameScreen()
     dataContainer->program_icons[PROGRAM_FIDDLE],
     dataContainer->program_icons[PROGRAM_FIDDLE]);
     gridProgramEditPanel->addObject(fiddleButton);
-    GUIButton* firewallButton = new GUIButton(ANCHOR_TOP_LEFT, 4 + 32*col++, 4 + 32*ln, 28, 28, gridProgramEditPanel,
+    GUIButton* firewallButton = new GUIButton(ANCHOR_NORTHWEST, 4 + 32*col++, 4 + 32*ln, 28, 28, gridProgramEditPanel,
             []()
     {
         gameScreen->setBrushProgramType(PROGRAM_FIREWALL);
@@ -322,7 +345,7 @@ GameScreen::GameScreen()
     dataContainer->program_icons[PROGRAM_FIREWALL],
     dataContainer->program_icons[PROGRAM_FIREWALL]);
     gridProgramEditPanel->addObject(firewallButton);
-    GUIButton* golemButton = new GUIButton(ANCHOR_TOP_LEFT, 4 + 32*col++, 4 + 32*ln, 28, 28, gridProgramEditPanel,
+    GUIButton* golemButton = new GUIButton(ANCHOR_NORTHWEST, 4 + 32*col++, 4 + 32*ln, 28, 28, gridProgramEditPanel,
                                            []()
     {
         gameScreen->setBrushProgramType(PROGRAM_GOLEM);
@@ -331,7 +354,7 @@ GameScreen::GameScreen()
     dataContainer->program_icons[PROGRAM_GOLEM],
     dataContainer->program_icons[PROGRAM_GOLEM]);
     gridProgramEditPanel->addObject(golemButton);
-    GUIButton* golem2Button = new GUIButton(ANCHOR_TOP_LEFT, 4 + 32*col++, 4 + 32*ln, 28, 28, gridProgramEditPanel,
+    GUIButton* golem2Button = new GUIButton(ANCHOR_NORTHWEST, 4 + 32*col++, 4 + 32*ln, 28, 28, gridProgramEditPanel,
                                             []()
     {
         gameScreen->setBrushProgramType(PROGRAM_GOLEM2);
@@ -340,7 +363,7 @@ GameScreen::GameScreen()
     dataContainer->program_icons[PROGRAM_GOLEM2],
     dataContainer->program_icons[PROGRAM_GOLEM2]);
     gridProgramEditPanel->addObject(golem2Button);
-    GUIButton* golem3Button = new GUIButton(ANCHOR_TOP_LEFT, 4 + 32*col++, 4 + 32*ln, 28, 28, gridProgramEditPanel,
+    GUIButton* golem3Button = new GUIButton(ANCHOR_NORTHWEST, 4 + 32*col++, 4 + 32*ln, 28, 28, gridProgramEditPanel,
                                             []()
     {
         gameScreen->setBrushProgramType(PROGRAM_GOLEM3);
@@ -349,7 +372,7 @@ GameScreen::GameScreen()
     dataContainer->program_icons[PROGRAM_GOLEM3],
     dataContainer->program_icons[PROGRAM_GOLEM3]);
     gridProgramEditPanel->addObject(golem3Button);
-    GUIButton* hackButton = new GUIButton(ANCHOR_TOP_LEFT, 4 + 32*col++, 4 + 32*ln, 28, 28, gridProgramEditPanel,
+    GUIButton* hackButton = new GUIButton(ANCHOR_NORTHWEST, 4 + 32*col++, 4 + 32*ln, 28, 28, gridProgramEditPanel,
                                           []()
     {
         gameScreen->setBrushProgramType(PROGRAM_HACK);
@@ -358,7 +381,7 @@ GameScreen::GameScreen()
     dataContainer->program_icons[PROGRAM_HACK],
     dataContainer->program_icons[PROGRAM_HACK]);
     gridProgramEditPanel->addObject(hackButton);
-    GUIButton* hack2Button = new GUIButton(ANCHOR_TOP_LEFT, 4 + 32*col++, 4 + 32*ln, 28, 28, gridProgramEditPanel,
+    GUIButton* hack2Button = new GUIButton(ANCHOR_NORTHWEST, 4 + 32*col++, 4 + 32*ln, 28, 28, gridProgramEditPanel,
                                            []()
     {
         gameScreen->setBrushProgramType(PROGRAM_HACK2);
@@ -367,7 +390,7 @@ GameScreen::GameScreen()
     dataContainer->program_icons[PROGRAM_HACK2],
     dataContainer->program_icons[PROGRAM_HACK2]);
     gridProgramEditPanel->addObject(hack2Button);
-    GUIButton* hack3Button = new GUIButton(ANCHOR_TOP_LEFT, 4 + 32*col++, 4 + 32*ln, 28, 28, gridProgramEditPanel,
+    GUIButton* hack3Button = new GUIButton(ANCHOR_NORTHWEST, 4 + 32*col++, 4 + 32*ln, 28, 28, gridProgramEditPanel,
                                            []()
     {
         gameScreen->setBrushProgramType(PROGRAM_HACK3);
@@ -376,7 +399,7 @@ GameScreen::GameScreen()
     dataContainer->program_icons[PROGRAM_HACK3],
     dataContainer->program_icons[PROGRAM_HACK3]);
     gridProgramEditPanel->addObject(hack3Button);
-    GUIButton* kamikazeeButton = new GUIButton(ANCHOR_TOP_LEFT, 4 + 32*col++, 4 + 32*ln, 28, 28, gridProgramEditPanel,
+    GUIButton* kamikazeeButton = new GUIButton(ANCHOR_NORTHWEST, 4 + 32*col++, 4 + 32*ln, 28, 28, gridProgramEditPanel,
             []()
     {
         gameScreen->setBrushProgramType(PROGRAM_KAMIKAZEE);
@@ -385,7 +408,7 @@ GameScreen::GameScreen()
     dataContainer->program_icons[PROGRAM_KAMIKAZEE],
     dataContainer->program_icons[PROGRAM_KAMIKAZEE]);
     gridProgramEditPanel->addObject(kamikazeeButton);
-    GUIButton* medicButton = new GUIButton(ANCHOR_TOP_LEFT, 4 + 32*col++, 4 + 32*ln, 28, 28, gridProgramEditPanel,
+    GUIButton* medicButton = new GUIButton(ANCHOR_NORTHWEST, 4 + 32*col++, 4 + 32*ln, 28, 28, gridProgramEditPanel,
                                            []()
     {
         gameScreen->setBrushProgramType(PROGRAM_MEDIC);
@@ -394,7 +417,7 @@ GameScreen::GameScreen()
     dataContainer->program_icons[PROGRAM_MEDIC],
     dataContainer->program_icons[PROGRAM_MEDIC]);
     gridProgramEditPanel->addObject(medicButton);
-    GUIButton* memhogButton = new GUIButton(ANCHOR_TOP_LEFT, 4 + 32*col++, 4 + 32*ln, 28, 28, gridProgramEditPanel,
+    GUIButton* memhogButton = new GUIButton(ANCHOR_NORTHWEST, 4 + 32*col++, 4 + 32*ln, 28, 28, gridProgramEditPanel,
                                             []()
     {
         gameScreen->setBrushProgramType(PROGRAM_MEMHOG);
@@ -405,7 +428,7 @@ GameScreen::GameScreen()
     gridProgramEditPanel->addObject(memhogButton);
     col = 0;
     ln++;
-    GUIButton* mobiletowerButton = new GUIButton(ANCHOR_TOP_LEFT, 4 + 32*col++, 4 + 32*ln, 28, 28, gridProgramEditPanel,
+    GUIButton* mobiletowerButton = new GUIButton(ANCHOR_NORTHWEST, 4 + 32*col++, 4 + 32*ln, 28, 28, gridProgramEditPanel,
             []()
     {
         gameScreen->setBrushProgramType(PROGRAM_MOBILETOWER);
@@ -414,7 +437,7 @@ GameScreen::GameScreen()
     dataContainer->program_icons[PROGRAM_MOBILETOWER],
     dataContainer->program_icons[PROGRAM_MOBILETOWER]);
     gridProgramEditPanel->addObject(mobiletowerButton);
-    GUIButton* satelliteButton = new GUIButton(ANCHOR_TOP_LEFT, 4 + 32*col++, 4 + 32*ln, 28, 28, gridProgramEditPanel,
+    GUIButton* satelliteButton = new GUIButton(ANCHOR_NORTHWEST, 4 + 32*col++, 4 + 32*ln, 28, 28, gridProgramEditPanel,
             []()
     {
         gameScreen->setBrushProgramType(PROGRAM_SATELLITE);
@@ -423,7 +446,7 @@ GameScreen::GameScreen()
     dataContainer->program_icons[PROGRAM_SATELLITE],
     dataContainer->program_icons[PROGRAM_SATELLITE]);
     gridProgramEditPanel->addObject(satelliteButton);
-    GUIButton* satellite2Button = new GUIButton(ANCHOR_TOP_LEFT, 4 + 32*col++, 4 + 32*ln, 28, 28, gridProgramEditPanel,
+    GUIButton* satellite2Button = new GUIButton(ANCHOR_NORTHWEST, 4 + 32*col++, 4 + 32*ln, 28, 28, gridProgramEditPanel,
             []()
     {
         gameScreen->setBrushProgramType(PROGRAM_SATELLITE2);
@@ -432,7 +455,7 @@ GameScreen::GameScreen()
     dataContainer->program_icons[PROGRAM_SATELLITE2],
     dataContainer->program_icons[PROGRAM_SATELLITE2]);
     gridProgramEditPanel->addObject(satellite2Button);
-    GUIButton* seekerButton = new GUIButton(ANCHOR_TOP_LEFT, 4 + 32*col++, 4 + 32*ln, 28, 28, gridProgramEditPanel,
+    GUIButton* seekerButton = new GUIButton(ANCHOR_NORTHWEST, 4 + 32*col++, 4 + 32*ln, 28, 28, gridProgramEditPanel,
                                             []()
     {
         gameScreen->setBrushProgramType(PROGRAM_SEEKER);
@@ -441,7 +464,7 @@ GameScreen::GameScreen()
     dataContainer->program_icons[PROGRAM_SEEKER],
     dataContainer->program_icons[PROGRAM_SEEKER]);
     gridProgramEditPanel->addObject(seekerButton);
-    GUIButton* seeker2Button = new GUIButton(ANCHOR_TOP_LEFT, 4 + 32*col++, 4 + 32*ln, 28, 28, gridProgramEditPanel,
+    GUIButton* seeker2Button = new GUIButton(ANCHOR_NORTHWEST, 4 + 32*col++, 4 + 32*ln, 28, 28, gridProgramEditPanel,
             []()
     {
         gameScreen->setBrushProgramType(PROGRAM_SEEKER2);
@@ -450,7 +473,7 @@ GameScreen::GameScreen()
     dataContainer->program_icons[PROGRAM_SEEKER2],
     dataContainer->program_icons[PROGRAM_SEEKER2]);
     gridProgramEditPanel->addObject(seeker2Button);
-    GUIButton* seeker3Button = new GUIButton(ANCHOR_TOP_LEFT, 4 + 32*col++, 4 + 32*ln, 28, 28, gridProgramEditPanel,
+    GUIButton* seeker3Button = new GUIButton(ANCHOR_NORTHWEST, 4 + 32*col++, 4 + 32*ln, 28, 28, gridProgramEditPanel,
             []()
     {
         gameScreen->setBrushProgramType(PROGRAM_SEEKER3);
@@ -459,7 +482,7 @@ GameScreen::GameScreen()
     dataContainer->program_icons[PROGRAM_SEEKER3],
     dataContainer->program_icons[PROGRAM_SEEKER3]);
     gridProgramEditPanel->addObject(seeker3Button);
-    GUIButton* slingshotButton = new GUIButton(ANCHOR_TOP_LEFT, 4 + 32*col++, 4 + 32*ln, 28, 28, gridProgramEditPanel,
+    GUIButton* slingshotButton = new GUIButton(ANCHOR_NORTHWEST, 4 + 32*col++, 4 + 32*ln, 28, 28, gridProgramEditPanel,
             []()
     {
         gameScreen->setBrushProgramType(PROGRAM_SLINGSHOT);
@@ -468,7 +491,7 @@ GameScreen::GameScreen()
     dataContainer->program_icons[PROGRAM_SLINGSHOT],
     dataContainer->program_icons[PROGRAM_SLINGSHOT]);
     gridProgramEditPanel->addObject(slingshotButton);
-    GUIButton* sonarButton = new GUIButton(ANCHOR_TOP_LEFT, 4 + 32*col++, 4 + 32*ln, 28, 28, gridProgramEditPanel,
+    GUIButton* sonarButton = new GUIButton(ANCHOR_NORTHWEST, 4 + 32*col++, 4 + 32*ln, 28, 28, gridProgramEditPanel,
                                            []()
     {
         gameScreen->setBrushProgramType(PROGRAM_SONAR);
@@ -477,7 +500,7 @@ GameScreen::GameScreen()
     dataContainer->program_icons[PROGRAM_SONAR],
     dataContainer->program_icons[PROGRAM_SONAR]);
     gridProgramEditPanel->addObject(sonarButton);
-    GUIButton* sonar2Button = new GUIButton(ANCHOR_TOP_LEFT, 4 + 32*col++, 4 + 32*ln, 28, 28, gridProgramEditPanel,
+    GUIButton* sonar2Button = new GUIButton(ANCHOR_NORTHWEST, 4 + 32*col++, 4 + 32*ln, 28, 28, gridProgramEditPanel,
                                             []()
     {
         gameScreen->setBrushProgramType(PROGRAM_SONAR2);
@@ -486,7 +509,7 @@ GameScreen::GameScreen()
     dataContainer->program_icons[PROGRAM_SONAR2],
     dataContainer->program_icons[PROGRAM_SONAR2]);
     gridProgramEditPanel->addObject(sonar2Button);
-    GUIButton* sonar3Button = new GUIButton(ANCHOR_TOP_LEFT, 4 + 32*col++, 4 + 32*ln, 28, 28, gridProgramEditPanel,
+    GUIButton* sonar3Button = new GUIButton(ANCHOR_NORTHWEST, 4 + 32*col++, 4 + 32*ln, 28, 28, gridProgramEditPanel,
                                             []()
     {
         gameScreen->setBrushProgramType(PROGRAM_SONAR3);
@@ -495,7 +518,7 @@ GameScreen::GameScreen()
     dataContainer->program_icons[PROGRAM_SONAR3],
     dataContainer->program_icons[PROGRAM_SONAR3]);
     gridProgramEditPanel->addObject(sonar3Button);
-    GUIButton* specsButton = new GUIButton(ANCHOR_TOP_LEFT, 4 + 32*col++, 4 + 32*ln, 28, 28, gridProgramEditPanel,
+    GUIButton* specsButton = new GUIButton(ANCHOR_NORTHWEST, 4 + 32*col++, 4 + 32*ln, 28, 28, gridProgramEditPanel,
                                            []()
     {
         gameScreen->setBrushProgramType(PROGRAM_SPECS);
@@ -504,7 +527,7 @@ GameScreen::GameScreen()
     dataContainer->program_icons[PROGRAM_SPECS],
     dataContainer->program_icons[PROGRAM_SPECS]);
     gridProgramEditPanel->addObject(specsButton);
-    GUIButton* sumoButton = new GUIButton(ANCHOR_TOP_LEFT, 4 + 32*col++, 4 + 32*ln, 28, 28, gridProgramEditPanel,
+    GUIButton* sumoButton = new GUIButton(ANCHOR_NORTHWEST, 4 + 32*col++, 4 + 32*ln, 28, 28, gridProgramEditPanel,
                                           []()
     {
         gameScreen->setBrushProgramType(PROGRAM_SUMO);
@@ -513,7 +536,7 @@ GameScreen::GameScreen()
     dataContainer->program_icons[PROGRAM_SUMO],
     dataContainer->program_icons[PROGRAM_SUMO]);
     gridProgramEditPanel->addObject(sumoButton);
-    GUIButton* tarantulaButton = new GUIButton(ANCHOR_TOP_LEFT, 4 + 32*col++, 4 + 32*ln, 28, 28, gridProgramEditPanel,
+    GUIButton* tarantulaButton = new GUIButton(ANCHOR_NORTHWEST, 4 + 32*col++, 4 + 32*ln, 28, 28, gridProgramEditPanel,
             []()
     {
         gameScreen->setBrushProgramType(PROGRAM_TARANTULA);
@@ -522,7 +545,7 @@ GameScreen::GameScreen()
     dataContainer->program_icons[PROGRAM_TARANTULA],
     dataContainer->program_icons[PROGRAM_TARANTULA]);
     gridProgramEditPanel->addObject(tarantulaButton);
-    GUIButton* towerButton = new GUIButton(ANCHOR_TOP_LEFT, 4 + 32*col++, 4 + 32*ln, 28, 28, gridProgramEditPanel,
+    GUIButton* towerButton = new GUIButton(ANCHOR_NORTHWEST, 4 + 32*col++, 4 + 32*ln, 28, 28, gridProgramEditPanel,
                                            []()
     {
         gameScreen->setBrushProgramType(PROGRAM_TOWER);
@@ -531,7 +554,7 @@ GameScreen::GameScreen()
     dataContainer->program_icons[PROGRAM_TOWER],
     dataContainer->program_icons[PROGRAM_TOWER]);
     gridProgramEditPanel->addObject(towerButton);
-    GUIButton* turboButton = new GUIButton(ANCHOR_TOP_LEFT, 4 + 32*col++, 4 + 32*ln, 28, 28, gridProgramEditPanel,
+    GUIButton* turboButton = new GUIButton(ANCHOR_NORTHWEST, 4 + 32*col++, 4 + 32*ln, 28, 28, gridProgramEditPanel,
                                            []()
     {
         gameScreen->setBrushProgramType(PROGRAM_TURBO);
@@ -542,7 +565,7 @@ GameScreen::GameScreen()
     gridProgramEditPanel->addObject(turboButton);
     col = 0;
     ln++;
-    GUIButton* turbo2Button = new GUIButton(ANCHOR_TOP_LEFT, 4 + 32*col++, 4 + 32*ln, 28, 28, gridProgramEditPanel,
+    GUIButton* turbo2Button = new GUIButton(ANCHOR_NORTHWEST, 4 + 32*col++, 4 + 32*ln, 28, 28, gridProgramEditPanel,
                                             []()
     {
         gameScreen->setBrushProgramType(PROGRAM_TURBO2);
@@ -551,7 +574,7 @@ GameScreen::GameScreen()
     dataContainer->program_icons[PROGRAM_TURBO2],
     dataContainer->program_icons[PROGRAM_TURBO2]);
     gridProgramEditPanel->addObject(turbo2Button);
-    GUIButton* turbo3Button = new GUIButton(ANCHOR_TOP_LEFT, 4 + 32*col++, 4 + 32*ln, 28, 28, gridProgramEditPanel,
+    GUIButton* turbo3Button = new GUIButton(ANCHOR_NORTHWEST, 4 + 32*col++, 4 + 32*ln, 28, 28, gridProgramEditPanel,
                                             []()
     {
         gameScreen->setBrushProgramType(PROGRAM_TURBO3);
@@ -560,7 +583,7 @@ GameScreen::GameScreen()
     dataContainer->program_icons[PROGRAM_TURBO3],
     dataContainer->program_icons[PROGRAM_TURBO3]);
     gridProgramEditPanel->addObject(turbo3Button);
-    GUIButton* walkerButton = new GUIButton(ANCHOR_TOP_LEFT, 4 + 32*col++, 4 + 32*ln, 28, 28, gridProgramEditPanel,
+    GUIButton* walkerButton = new GUIButton(ANCHOR_NORTHWEST, 4 + 32*col++, 4 + 32*ln, 28, 28, gridProgramEditPanel,
                                             []()
     {
         gameScreen->setBrushProgramType(PROGRAM_WALKER);
@@ -569,7 +592,7 @@ GameScreen::GameScreen()
     dataContainer->program_icons[PROGRAM_WALKER],
     dataContainer->program_icons[PROGRAM_WALKER]);
     gridProgramEditPanel->addObject(walkerButton);
-    GUIButton* walker2Button = new GUIButton(ANCHOR_TOP_LEFT, 4 + 32*col++, 4 + 32*ln, 28, 28, gridProgramEditPanel,
+    GUIButton* walker2Button = new GUIButton(ANCHOR_NORTHWEST, 4 + 32*col++, 4 + 32*ln, 28, 28, gridProgramEditPanel,
             []()
     {
         gameScreen->setBrushProgramType(PROGRAM_WALKER2);
@@ -578,7 +601,7 @@ GameScreen::GameScreen()
     dataContainer->program_icons[PROGRAM_WALKER2],
     dataContainer->program_icons[PROGRAM_WALKER2]);
     gridProgramEditPanel->addObject(walker2Button);
-    GUIButton* walker3Button = new GUIButton(ANCHOR_TOP_LEFT, 4 + 32*col++, 4 + 32*ln, 28, 28, gridProgramEditPanel,
+    GUIButton* walker3Button = new GUIButton(ANCHOR_NORTHWEST, 4 + 32*col++, 4 + 32*ln, 28, 28, gridProgramEditPanel,
             []()
     {
         gameScreen->setBrushProgramType(PROGRAM_WALKER3);
@@ -587,7 +610,7 @@ GameScreen::GameScreen()
     dataContainer->program_icons[PROGRAM_WALKER3],
     dataContainer->program_icons[PROGRAM_WALKER3]);
     gridProgramEditPanel->addObject(walker3Button);
-    GUIButton* wardenButton = new GUIButton(ANCHOR_TOP_LEFT, 4 + 32*col++, 4 + 32*ln, 28, 28, gridProgramEditPanel,
+    GUIButton* wardenButton = new GUIButton(ANCHOR_NORTHWEST, 4 + 32*col++, 4 + 32*ln, 28, 28, gridProgramEditPanel,
                                             []()
     {
         gameScreen->setBrushProgramType(PROGRAM_WARDEN);
@@ -596,7 +619,7 @@ GameScreen::GameScreen()
     dataContainer->program_icons[PROGRAM_WARDEN],
     dataContainer->program_icons[PROGRAM_WARDEN]);
     gridProgramEditPanel->addObject(wardenButton);
-    GUIButton* warden2Button = new GUIButton(ANCHOR_TOP_LEFT, 4 + 32*col++, 4 + 32*ln, 28, 28, gridProgramEditPanel,
+    GUIButton* warden2Button = new GUIButton(ANCHOR_NORTHWEST, 4 + 32*col++, 4 + 32*ln, 28, 28, gridProgramEditPanel,
             []()
     {
         gameScreen->setBrushProgramType(PROGRAM_WARDEN2);
@@ -605,7 +628,7 @@ GameScreen::GameScreen()
     dataContainer->program_icons[PROGRAM_WARDEN2],
     dataContainer->program_icons[PROGRAM_WARDEN2]);
     gridProgramEditPanel->addObject(warden2Button);
-    GUIButton* warden3Button = new GUIButton(ANCHOR_TOP_LEFT, 4 + 32*col++, 4 + 32*ln, 28, 28, gridProgramEditPanel,
+    GUIButton* warden3Button = new GUIButton(ANCHOR_NORTHWEST, 4 + 32*col++, 4 + 32*ln, 28, 28, gridProgramEditPanel,
             []()
     {
         gameScreen->setBrushProgramType(PROGRAM_WARDEN3);
@@ -614,7 +637,7 @@ GameScreen::GameScreen()
     dataContainer->program_icons[PROGRAM_WARDEN3],
     dataContainer->program_icons[PROGRAM_WARDEN3]);
     gridProgramEditPanel->addObject(warden3Button);
-    GUIButton* watchmanButton = new GUIButton(ANCHOR_TOP_LEFT, 4 + 32*col++, 4 + 32*ln, 28, 28, gridProgramEditPanel,
+    GUIButton* watchmanButton = new GUIButton(ANCHOR_NORTHWEST, 4 + 32*col++, 4 + 32*ln, 28, 28, gridProgramEditPanel,
             []()
     {
         gameScreen->setBrushProgramType(PROGRAM_WATCHMAN);
@@ -623,7 +646,7 @@ GameScreen::GameScreen()
     dataContainer->program_icons[PROGRAM_WATCHMAN],
     dataContainer->program_icons[PROGRAM_WATCHMAN]);
     gridProgramEditPanel->addObject(watchmanButton);
-    GUIButton* watchman2Button = new GUIButton(ANCHOR_TOP_LEFT, 4 + 32*col++, 4 + 32*ln, 28, 28, gridProgramEditPanel,
+    GUIButton* watchman2Button = new GUIButton(ANCHOR_NORTHWEST, 4 + 32*col++, 4 + 32*ln, 28, 28, gridProgramEditPanel,
             []()
     {
         gameScreen->setBrushProgramType(PROGRAM_WATCHMAN2);
@@ -632,7 +655,7 @@ GameScreen::GameScreen()
     dataContainer->program_icons[PROGRAM_WATCHMAN2],
     dataContainer->program_icons[PROGRAM_WATCHMAN2]);
     gridProgramEditPanel->addObject(watchman2Button);
-    GUIButton* watchman3Button = new GUIButton(ANCHOR_TOP_LEFT, 4 + 32*col++, 4 + 32*ln, 28, 28, gridProgramEditPanel,
+    GUIButton* watchman3Button = new GUIButton(ANCHOR_NORTHWEST, 4 + 32*col++, 4 + 32*ln, 28, 28, gridProgramEditPanel,
             []()
     {
         gameScreen->setBrushProgramType(PROGRAM_WATCHMAN3);
@@ -641,7 +664,7 @@ GameScreen::GameScreen()
     dataContainer->program_icons[PROGRAM_WATCHMAN3],
     dataContainer->program_icons[PROGRAM_WATCHMAN3]);
     gridProgramEditPanel->addObject(watchman3Button);
-    GUIButton* wizardButton = new GUIButton(ANCHOR_TOP_LEFT, 4 + 32*col++, 4 + 32*ln, 28, 28, gridProgramEditPanel,
+    GUIButton* wizardButton = new GUIButton(ANCHOR_NORTHWEST, 4 + 32*col++, 4 + 32*ln, 28, 28, gridProgramEditPanel,
                                             []()
     {
         gameScreen->setBrushProgramType(PROGRAM_WIZARD);
@@ -650,7 +673,7 @@ GameScreen::GameScreen()
     dataContainer->program_icons[PROGRAM_WIZARD],
     dataContainer->program_icons[PROGRAM_WIZARD]);
     gridProgramEditPanel->addObject(wizardButton);
-    GUIButton* wolfspiderButton = new GUIButton(ANCHOR_TOP_LEFT, 4 + 32*col++, 4 + 32*ln, 28, 28, gridProgramEditPanel,
+    GUIButton* wolfspiderButton = new GUIButton(ANCHOR_NORTHWEST, 4 + 32*col++, 4 + 32*ln, 28, 28, gridProgramEditPanel,
             []()
     {
         gameScreen->setBrushProgramType(PROGRAM_WOLFSPIDER);
@@ -662,8 +685,8 @@ GameScreen::GameScreen()
 
     ln = 0;
     col = 0;
-    gridItemEditPanel = new GUIContainer(ANCHOR_TOP_LEFT, 20, 200, 4 + 36*4, 36, this, NULL);
-    GUIButton* creditButton = new GUIButton(ANCHOR_TOP_LEFT, 4 + 32*col++, 4, 28, 28, gridItemEditPanel,
+    gridItemEditPanel = new GUIContainer(ANCHOR_NORTHWEST, 20, 200, 4 + 36*4, 36, this, NULL);
+    GUIButton* creditButton = new GUIButton(ANCHOR_NORTHWEST, 4 + 32*col++, 4, 28, 28, gridItemEditPanel,
                                             []()
     {
         gameScreen->setBrushItem(ITEM_CREDIT);
@@ -671,7 +694,7 @@ GameScreen::GameScreen()
     dataContainer->item_icons[ITEM_CREDIT],
     dataContainer->item_icons[ITEM_CREDIT],
     dataContainer->item_icons[ITEM_CREDIT]);
-    GUIButton* bigCreditButton = new GUIButton(ANCHOR_TOP_LEFT, 4 + 32*col++, 4, 28, 28, gridItemEditPanel,
+    GUIButton* bigCreditButton = new GUIButton(ANCHOR_NORTHWEST, 4 + 32*col++, 4, 28, 28, gridItemEditPanel,
             []()
     {
         gameScreen->setBrushItem(ITEM_BIGCREDIT);
@@ -679,7 +702,7 @@ GameScreen::GameScreen()
     dataContainer->item_icons[ITEM_BIGCREDIT],
     dataContainer->item_icons[ITEM_BIGCREDIT],
     dataContainer->item_icons[ITEM_BIGCREDIT]);
-    GUIButton* filesButton = new GUIButton(ANCHOR_TOP_LEFT, 4 + 32*col++, 4, 28, 28, gridItemEditPanel,
+    GUIButton* filesButton = new GUIButton(ANCHOR_NORTHWEST, 4 + 32*col++, 4, 28, 28, gridItemEditPanel,
                                            []()
     {
         gameScreen->setBrushItem(ITEM_FILES);
@@ -693,8 +716,8 @@ GameScreen::GameScreen()
     gridItemEditPanel->addObject(filesButton);
 
     col = 0;
-    gridSelectBrushPanel = new GUIContainer(ANCHOR_TOP_LEFT, 20, 240, 100, 200, this, NULL);
-    GUIButton* brushNoneButton = new GUIButton(ANCHOR_TOP_LEFT, 4, 4 + 16*col++, 45, 12, gridSelectBrushPanel,
+    gridSelectBrushPanel = new GUIContainer(ANCHOR_NORTHWEST, 20, 240, 100, 200, this, NULL);
+    GUIButton* brushNoneButton = new GUIButton(ANCHOR_NORTHWEST, 4, 4 + 16*col++, 45, 12, gridSelectBrushPanel,
             []()
     {
         gameScreen->setBrushMode(BRUSH_NONE);
@@ -702,7 +725,7 @@ GameScreen::GameScreen()
     dataContainer->editorBrushNone,
     dataContainer->editorBrushNone,
     dataContainer->editorBrushNone);
-    GUIButton* brushTileButton = new GUIButton(ANCHOR_TOP_LEFT, 4, 4 + 16*col++, 45, 12, gridSelectBrushPanel,
+    GUIButton* brushTileButton = new GUIButton(ANCHOR_NORTHWEST, 4, 4 + 16*col++, 45, 12, gridSelectBrushPanel,
             []()
     {
         gameScreen->setBrushMode(BRUSH_TILES);
@@ -710,7 +733,7 @@ GameScreen::GameScreen()
     dataContainer->editorBrushTiles,
     dataContainer->editorBrushTiles,
     dataContainer->editorBrushTiles);
-    GUIButton* brushProgramButton = new GUIButton(ANCHOR_TOP_LEFT, 4, 4 + 16*col++, 73, 12, gridSelectBrushPanel,
+    GUIButton* brushProgramButton = new GUIButton(ANCHOR_NORTHWEST, 4, 4 + 16*col++, 73, 12, gridSelectBrushPanel,
             []()
     {
         gameScreen->setBrushMode(BRUSH_PROGRAMS);
@@ -718,7 +741,7 @@ GameScreen::GameScreen()
     dataContainer->editorBrushPrograms,
     dataContainer->editorBrushPrograms,
     dataContainer->editorBrushPrograms);
-    GUIButton* brushClearProgramButton = new GUIButton(ANCHOR_TOP_LEFT, 4, 4 + 16*col++, 73, 12, gridSelectBrushPanel,
+    GUIButton* brushClearProgramButton = new GUIButton(ANCHOR_NORTHWEST, 4, 4 + 16*col++, 73, 12, gridSelectBrushPanel,
             []()
     {
         gameScreen->setBrushMode(BRUSH_DELETEPROGRAMS);
@@ -726,7 +749,7 @@ GameScreen::GameScreen()
     dataContainer->editorBrushDeletePrograms,
     dataContainer->editorBrushDeletePrograms,
     dataContainer->editorBrushDeletePrograms);
-    GUIButton* brushItemButton = new GUIButton(ANCHOR_TOP_LEFT, 4, 4 + 16*col++, 73, 12, gridSelectBrushPanel,
+    GUIButton* brushItemButton = new GUIButton(ANCHOR_NORTHWEST, 4, 4 + 16*col++, 73, 12, gridSelectBrushPanel,
             []()
     {
         gameScreen->setBrushMode(BRUSH_ITEMS);
@@ -735,7 +758,7 @@ GameScreen::GameScreen()
     dataContainer->editorBrushItems,
     dataContainer->editorBrushItems);
     col++;
-    GUIButton* brushTeamPlayerButton = new GUIButton(ANCHOR_TOP_LEFT, 4, 4 + 16*col++, 73, 12, gridSelectBrushPanel,
+    GUIButton* brushTeamPlayerButton = new GUIButton(ANCHOR_NORTHWEST, 4, 4 + 16*col++, 73, 12, gridSelectBrushPanel,
             []()
     {
         gameScreen->setBrushProgramTeam(0);
@@ -743,7 +766,7 @@ GameScreen::GameScreen()
     dataContainer->editorTeamPlayer,
     dataContainer->editorTeamPlayer,
     dataContainer->editorTeamPlayer);
-    GUIButton* brushTeamComputerButton = new GUIButton(ANCHOR_TOP_LEFT, 4, 4 + 16*col++, 73, 12, gridSelectBrushPanel,
+    GUIButton* brushTeamComputerButton = new GUIButton(ANCHOR_NORTHWEST, 4, 4 + 16*col++, 73, 12, gridSelectBrushPanel,
             []()
     {
         gameScreen->setBrushProgramTeam(1);
@@ -751,7 +774,7 @@ GameScreen::GameScreen()
     dataContainer->editorTeamComputer,
     dataContainer->editorTeamComputer,
     dataContainer->editorTeamComputer);
-    GUIButton* brushTeamViewButton = new GUIButton(ANCHOR_TOP_LEFT, 4, 4 + 16*col++, 73, 12, gridSelectBrushPanel,
+    GUIButton* brushTeamViewButton = new GUIButton(ANCHOR_NORTHWEST, 4, 4 + 16*col++, 73, 12, gridSelectBrushPanel,
             []()
     {
         gameScreen->toggleViewTeams();
@@ -759,7 +782,7 @@ GameScreen::GameScreen()
     dataContainer->editorTeamViewToggle,
     dataContainer->editorTeamViewToggle,
     dataContainer->editorTeamViewToggle);
-    GUIButton* brushClearGridButton = new GUIButton(ANCHOR_TOP_LEFT, 4, 4 + 16*col++, 44, 12, gridSelectBrushPanel,
+    GUIButton* brushClearGridButton = new GUIButton(ANCHOR_NORTHWEST, 4, 4 + 16*col++, 44, 12, gridSelectBrushPanel,
             []()
     {
         gameScreen->clearLevel();
@@ -779,8 +802,8 @@ GameScreen::GameScreen()
     gridSelectBrushPanel->addObject(brushClearGridButton);
 
     col = 0;
-    gridBkgPanel = new GUIContainer(ANCHOR_TOP_LEFT, 124, 240, 100, 200, this, NULL);
-    GUIButton* bkgDonutButton = new GUIButton(ANCHOR_TOP_LEFT, 4, 4 + 16*col++, 60, 12, gridBkgPanel,
+    gridBkgPanel = new GUIContainer(ANCHOR_NORTHWEST, 124, 240, 100, 200, this, NULL);
+    GUIButton* bkgDonutButton = new GUIButton(ANCHOR_NORTHWEST, 4, 4 + 16*col++, 60, 12, gridBkgPanel,
             []()
     {
         gameScreen->setBackground(BKG_DONUT);
@@ -789,7 +812,7 @@ GameScreen::GameScreen()
     dataContainer->level_bkg_buttons[BKG_DONUT],
     dataContainer->level_bkg_buttons[BKG_DONUT]);
     gridBkgPanel->addObject(bkgDonutButton);
-    GUIButton* bkgPharmButton = new GUIButton(ANCHOR_TOP_LEFT, 4, 4 + 16*col++, 60, 12, gridBkgPanel,
+    GUIButton* bkgPharmButton = new GUIButton(ANCHOR_NORTHWEST, 4, 4 + 16*col++, 60, 12, gridBkgPanel,
             []()
     {
         gameScreen->setBackground(BKG_PHARM);
@@ -798,7 +821,7 @@ GameScreen::GameScreen()
     dataContainer->level_bkg_buttons[BKG_PHARM],
     dataContainer->level_bkg_buttons[BKG_PHARM]);
     gridBkgPanel->addObject(bkgPharmButton);
-    GUIButton* bkgPedButton = new GUIButton(ANCHOR_TOP_LEFT, 4, 4 + 16*col++, 60, 12, gridBkgPanel,
+    GUIButton* bkgPedButton = new GUIButton(ANCHOR_NORTHWEST, 4, 4 + 16*col++, 60, 12, gridBkgPanel,
                                             []()
     {
         gameScreen->setBackground(BKG_PED);
@@ -807,7 +830,7 @@ GameScreen::GameScreen()
     dataContainer->level_bkg_buttons[BKG_PED],
     dataContainer->level_bkg_buttons[BKG_PED]);
     gridBkgPanel->addObject(bkgPedButton);
-    GUIButton* bkgMonkeyButton = new GUIButton(ANCHOR_TOP_LEFT, 4, 4 + 16*col++, 60, 12, gridBkgPanel,
+    GUIButton* bkgMonkeyButton = new GUIButton(ANCHOR_NORTHWEST, 4, 4 + 16*col++, 60, 12, gridBkgPanel,
             []()
     {
         gameScreen->setBackground(BKG_MONKEY);
@@ -816,7 +839,7 @@ GameScreen::GameScreen()
     dataContainer->level_bkg_buttons[BKG_MONKEY],
     dataContainer->level_bkg_buttons[BKG_MONKEY]);
     gridBkgPanel->addObject(bkgMonkeyButton);
-    GUIButton* bkgCellButton = new GUIButton(ANCHOR_TOP_LEFT, 4, 4 + 16*col++, 60, 12, gridBkgPanel,
+    GUIButton* bkgCellButton = new GUIButton(ANCHOR_NORTHWEST, 4, 4 + 16*col++, 60, 12, gridBkgPanel,
             []()
     {
         gameScreen->setBackground(BKG_CELL);
@@ -826,22 +849,19 @@ GameScreen::GameScreen()
     dataContainer->level_bkg_buttons[BKG_CELL]);
     gridBkgPanel->addObject(bkgCellButton);
 
-    brushMode = BRUSH_NONE;
-    brushTileType = TILE_NONE;
-    brushProgramType = PROGRAM_BALLISTA;
-    brushProgramTeam = 0;
-    brushItemType = ITEM_NONE;
-    programViewTeams = false;
-    selectedProgram = NULL;
-    selectedTileX = 100;
-    selectedTileY = 100;
-    bkgX = 0;
-    bkgY = 0;
+    progDisp = new ProgramDisplayContainer(ANCHOR_SOUTHEAST, -220, -120, 200, 100, this);
+    addObject(progDisp);
 }
 
-GameScreen::~GameScreen()
+void GameScreen::resetBounds()
 {
-    //dtor
+    GUIContainer::resetBounds();
+    checkShiftable();
+    if (!canPanScreen)
+    {
+        bkgX = (gridRightBound + gridLeftBound)*32/2 - SCREEN_WIDTH/2;
+        bkgY = (gridBottomBound + gridTopBound)*32/2 - SCREEN_HEIGHT/2;
+    }
 }
 
 bool GameScreen::mouseDown()
@@ -879,7 +899,7 @@ bool GameScreen::mouseDown()
             int currTileY = (bkgY + mousePosY)/32;
             if (brushMode == BRUSH_PROGRAMS)
             {
-                if (grid[currTileX][currTileY] == TILE_NONE)
+                if (gridTiles[currTileX][currTileY] == TILE_NONE)
                 {
                     return false;
                 }
@@ -925,7 +945,7 @@ bool GameScreen::mouseDown()
             }
             else if (brushMode == BRUSH_ITEMS)
             {
-                if (grid[currTileX][currTileY] != TILE_NONE)
+                if (gridTiles[currTileX][currTileY] != TILE_NONE)
                 {
                     gridItems[currTileX][currTileY] = brushItemType;
                 }
@@ -944,11 +964,7 @@ bool GameScreen::mouseDown()
 
         selectedTileX = currTileX;
         selectedTileY = currTileY;
-
-        if (gridPrograms[selectedTileX][selectedTileY] != NULL)
-        {
-            selectedProgram = gridPrograms[selectedTileX][selectedTileY];
-        }
+        setSelectedProgram(gridPrograms[currTileX][currTileY]);
 
         return false;
     }
@@ -991,7 +1007,7 @@ void GameScreen::drawContents()
     {
         for (int y = topLeftTileY; y < bottomRightTileY; y++)
         {
-            if (grid[x][y] == TILE_NONE && !debug)
+            if (gridTiles[x][y] == TILE_NONE && !debug)
             {
                 continue;
             }
@@ -1034,7 +1050,7 @@ void GameScreen::drawContents()
                 SDL_RenderCopy(gRenderer, dataContainer->program_core, NULL, &tileRect);
 
                 // if this is part of the selected program, indicate it
-                if (gridPrograms[x][y] == selectedProgram)
+                if (gridPrograms[x][y] == selectedProgram && debug)
                 {
                     SDL_SetRenderDrawColor(gRenderer, 255, 0, 0, 0);
                     SDL_RenderDrawLine(gRenderer, tileRect.x, tileRect.y, tileRect.x + tileRect.w, tileRect.y + tileRect.h);
@@ -1102,8 +1118,8 @@ void GameScreen::drawContents()
             }
             else
             {
-                SDL_Texture* tileImg = dataContainer->tile_images[grid[x][y]];
-                if (grid[x][y] == TILE_NONE && !debug)
+                SDL_Texture* tileImg = dataContainer->tile_images[gridTiles[x][y]];
+                if (gridTiles[x][y] == TILE_NONE && !debug)
                 {
                     continue;
                 }
@@ -1144,6 +1160,40 @@ void GameScreen::drawContents()
                 tileRect.h = 32;
                 SDL_RenderCopy(gRenderer, dataContainer->tile_selected, NULL, &tileRect);
             }
+
+            if (gridProgramDist[x][y] != -1)
+            {
+                tileRect.x = xDefault;
+                tileRect.y = yDefault;
+                tileRect.w = sizeDefault;
+                tileRect.w = sizeDefault;
+
+                switch (gridProgramDist[x][y])
+                {
+                case 0:
+                    SDL_SetRenderDrawColor(gRenderer, 255, 255, 255, 255);
+                    break;
+                case 1:
+                    SDL_SetRenderDrawColor(gRenderer, 255, 0, 0, 255);
+                    break;
+                case 2:
+                    SDL_SetRenderDrawColor(gRenderer, 255, 128, 0, 255);
+                    break;
+                case 3:
+                    SDL_SetRenderDrawColor(gRenderer, 128, 255, 0, 255);
+                    break;
+                case 4:
+                    SDL_SetRenderDrawColor(gRenderer, 0, 255, 0, 255);
+                    break;
+                case 5:
+                    SDL_SetRenderDrawColor(gRenderer, 0, 255, 128, 255);
+                    break;
+                default:
+                    SDL_SetRenderDrawColor(gRenderer, 0, 0, 0, 255);
+                    break;
+                }
+                SDL_RenderFillRect(gRenderer, &tileRect);
+            }
         }
     }
 
@@ -1172,6 +1222,7 @@ void GameScreen::draw()
 {
     drawBkg();
     drawContents();
+    GUIContainer::drawContents();
 
     if (debug)
     {
@@ -1185,6 +1236,8 @@ void GameScreen::draw()
 
 void GameScreen::shiftBkg(int x, int y)
 {
+    if (!canPanScreen) return;
+
     if (bkgX + x + SCREEN_WIDTH/2 < gridLeftBound*32)
     {
         bkgX = gridLeftBound*32 - SCREEN_WIDTH/2;
@@ -1288,9 +1341,10 @@ void GameScreen::initBoard()
     {
         for (int y = 0; y < 200; y++)
         {
-            grid[x][y] = TILE_NONE;
+            gridTiles[x][y] = TILE_NONE;
             gridItems[x][y] = ITEM_NONE;
             gridPrograms[x][y] = NULL;
+            gridProgramDist[x][y] = -1;
         }
     }
 
@@ -1306,7 +1360,7 @@ void GameScreen::clearLevel()
     {
         for (int y = 0; y < 200; y++)
         {
-            grid[x][y] = TILE_NONE;
+            gridTiles[x][y] = TILE_NONE;
             gridItems[x][y] = ITEM_NONE;
             if (gridPrograms[x][y] != NULL)
             {
@@ -1315,6 +1369,8 @@ void GameScreen::clearLevel()
             }
         }
     }
+
+    selectedProgram = NULL;
 
     gridLeftBound = 100;
     gridRightBound = 100;
@@ -1357,7 +1413,7 @@ void GameScreen::saveLevel()
 
         // collect all the programs in a linked list
         if (debug) printf("gathering program list...\n");
-        LinkedList<Program*>* progs = new LinkedList<Program*>(NULL);
+        LinkedList<Program*> progs = LinkedList<Program*>();
         for (int x = gridLeftBound; x < gridRightBound; x++)
         {
             for (int y = gridTopBound; y < gridBottomBound; y++)
@@ -1366,36 +1422,35 @@ void GameScreen::saveLevel()
                 {
                     continue;
                 }
-                if (LL_getIndexOf(progs, gridPrograms[x][y]) == -1)
+                if (progs.contains(gridPrograms[x][y]))
                 {
                     if (debug) printf("saving program\n");
-                    LL_addObject(progs, gridPrograms[x][y]);
+                    progs.addLast(gridPrograms[x][y]);
                 }
             }
         }
-        LinkedList<Program*>* toDel = progs;
-        progs = progs->getNext();
-        delete toDel;
 
         // write all programs to the file
-        int numPrograms = LL_getLength(progs);
+        int numPrograms = progs.getLength();
         if (debug) printf("saving %i programs...\n", numPrograms);
         lvl.write((char*)(&numPrograms), sizeOfInt);
-        for (int i = 0; i < LL_getLength(progs); i++)
+        for (int i = 0; i < progs.getLength(); i++)
         {
-            int xHead = ((Program*)LL_getObjectAt(progs, i))->getCoreX();
+            Program* currProg = progs.getObjectAt(i);
+
+            int xHead = currProg->getCoreX();
             lvl.write((char*)(&xHead), sizeOfInt);
-            int yHead = ((Program*)LL_getObjectAt(progs, i))->getCoreY();
+            int yHead = currProg->getCoreY();
             lvl.write((char*)(&yHead), sizeOfInt);
-            int type = ((Program*)LL_getObjectAt(progs, i))->getType();
+            int type = currProg->getType();
             lvl.write((char*)(&type), sizeOfInt);
-            int health = ((Program*)LL_getObjectAt(progs, i))->getHealth();
+            int health = currProg->getHealth();
             lvl.write((char*)(&health), sizeOfInt);
-            int maxHealth = ((Program*)LL_getObjectAt(progs, i))->getMaxHealth();
+            int maxHealth = currProg->getMaxHealth();
             lvl.write((char*)(&maxHealth), sizeOfInt);
-            int speed = ((Program*)LL_getObjectAt(progs, i))->getSpeed();
+            int speed = currProg->getSpeed();
             lvl.write((char*)(&speed), sizeOfInt);
-            int team = ((Program*)LL_getObjectAt(progs, i))->getTeam();
+            int team = currProg->getTeam();
             lvl.write((char*)(&team), sizeOfInt);
         }
 
@@ -1405,12 +1460,14 @@ void GameScreen::saveLevel()
         {
             for (int y = gridTopBound; y < gridBottomBound; y++)
             {
-                lvl.write((char*)(&(grid[x][y])), sizeOfInt);
+                lvl.write((char*)(&(gridTiles[x][y])), sizeOfInt);
                 lvl.write((char*)(&(gridItems[x][y])), sizeOfInt);
-                int index = LL_getIndexOf(progs, gridPrograms[x][y]);
+                int index = progs.getIndexOf(gridPrograms[x][y]);
                 lvl.write((char*)(&index), sizeOfInt);
             }
         }
+
+        //TODO: DELETE PROGRAM LISTNODES
 
         // flush and close the file
         if (debug) printf("flushing and closing save file... ");
@@ -1470,7 +1527,7 @@ void GameScreen::loadLevel(std::string str)
         int numPrograms;
         lvl.read((char*)(&numPrograms), sizeOfInt);
         if (debug) printf("loading %i programs...\n", numPrograms);
-        LinkedList<Program*>* progs = new LinkedList<Program*>(NULL);
+        LinkedList<Program*> progs = LinkedList<Program*>();
         for (int i = 0; i < numPrograms; i++)
         {
             int xHead, yHead, type, health, maxHealth, speed, team;
@@ -1485,11 +1542,8 @@ void GameScreen::loadLevel(std::string str)
             p->setHealth(health);
             p->setMaxHealth(maxHealth);
             p->setSpeed(speed);
-            LL_addObject(progs, p);
+            progs.addLast(p);
         }
-        LinkedList<Program*>* toDel = progs;
-        progs = progs->getNext();
-        delete toDel;
 
         // load the grid from the file
         if (debug) printf("loading tiles, items, and program pointers...\n");
@@ -1510,9 +1564,16 @@ void GameScreen::loadLevel(std::string str)
                 // programs
                 int indx;
                 lvl.read((char*)(&indx), sizeOfInt);
-                gridPrograms[x][y] = (Program*)LL_getObjectAt(progs, indx);
+                gridPrograms[x][y] = progs.getObjectAt(indx);
             }
         }
+
+        // set background position
+        bkgX = ((gridRightBound + gridLeftBound)*32)/2 - SCREEN_WIDTH/2;
+        bkgY = ((gridBottomBound + gridTopBound)*32)/2 - SCREEN_HEIGHT/2;
+        checkShiftable();
+
+        //TODO: DELETE PROGRAM LISTNODES
 
         // close the file
         lvl.close();
@@ -1534,7 +1595,7 @@ void GameScreen::setTileAt(int x, int y, TILE t)
     }
 
     // set the tile
-    grid[x][y] = t;
+    gridTiles[x][y] = t;
 
     // try increasing bounds
     if (t != TILE_NONE)
@@ -1566,7 +1627,7 @@ void GameScreen::setTileAt(int x, int y, TILE t)
             {
                 for (int i = 0; i < 200; i++)
                 {
-                    if (grid[gridLeftBound][i] != TILE_NONE)
+                    if (gridTiles[gridLeftBound][i] != TILE_NONE)
                     {
                         b = false;
                     }
@@ -1584,7 +1645,7 @@ void GameScreen::setTileAt(int x, int y, TILE t)
             {
                 for (int i = 0; i < 200; i++)
                 {
-                    if (grid[gridRightBound - 1][i] != TILE_NONE)
+                    if (gridTiles[gridRightBound - 1][i] != TILE_NONE)
                     {
                         b = false;
                     }
@@ -1603,7 +1664,7 @@ void GameScreen::setTileAt(int x, int y, TILE t)
             {
                 for (int i = 0; i < 200; i++)
                 {
-                    if (grid[i][gridTopBound] != TILE_NONE)
+                    if (gridTiles[i][gridTopBound] != TILE_NONE)
                     {
                         b = false;
                     }
@@ -1621,7 +1682,7 @@ void GameScreen::setTileAt(int x, int y, TILE t)
             {
                 for (int i = 0; i < 200; i++)
                 {
-                    if (grid[i][gridBottomBound - 1] != TILE_NONE)
+                    if (gridTiles[i][gridBottomBound - 1] != TILE_NONE)
                     {
                         b = false;
                     }
@@ -1639,6 +1700,8 @@ void GameScreen::setTileAt(int x, int y, TILE t)
             clearLevel();
         }
     }
+
+    checkShiftable();
 }
 
 void GameScreen::setBrushProgramType(PROGRAM p)
@@ -1655,7 +1718,11 @@ void GameScreen::setSelectedTile(int x, int y)
 
 void GameScreen::setSelectedProgram(Program* p)
 {
+    if (p == selectedProgram) return;
     selectedProgram = p;
+    for (int x = 0; x < 200; x++) for (int y = 0; y < 200; y++) gridProgramDist[x][y] = -1;
+    if (p == NULL) return;
+    else calculateProgramDist(p);
 }
 
 void GameScreen::setBrushMode(BRUSH b)
@@ -1698,4 +1765,82 @@ void GameScreen::setBackground(BACKGROUND b)
 {
     bkgImg = dataContainer->level_backgrounds[b];
     bkgTex = b;
+}
+
+void GameScreen::checkShiftable()
+{
+    if ((gridRightBound - gridLeftBound)*32 < SCREEN_WIDTH - 200 &&
+            (gridBottomBound - gridTopBound)*32 < SCREEN_HEIGHT - 200)
+        canPanScreen = false;
+    else canPanScreen = true;
+}
+
+Program* GameScreen::getSelectedProgram()
+{
+    return selectedProgram;
+}
+
+void GameScreen::calculateProgramDist(Program* p)
+{
+    int xH = p->getCoreX();
+    int yH = p->getCoreY();
+
+    gridProgramDist[xH][yH] = 0;
+    LinkedList<Pair<int>*> ll = LinkedList<Pair<int>*>();
+    ll.addFirst(new Pair<int>(xH, yH));
+
+    // for each pair in the list
+    while (ll.getLength() > 0)
+    {
+        Pair<int>* currPair = ll.poll();
+
+        int xCurr = currPair->a;
+        int yCurr = currPair->b;
+        int dCurr = gridProgramDist[xCurr][yCurr];
+
+        // if this pair is the edge of the program's range
+        if (dCurr < p->getSpeed())
+        {
+            // check tile to the right
+            if (xCurr + 1 < 200 &&
+                    gridTiles[xCurr+1][yCurr] != TILE_NONE &&
+                    (gridPrograms[xCurr+1][yCurr] == NULL || gridPrograms[xCurr+1][yCurr] == p) &&
+                    gridProgramDist[xCurr+1][yCurr] == -1)
+            {
+                gridProgramDist[xCurr+1][yCurr] = dCurr + 1;
+                ll.addLast(new Pair<int>(xCurr + 1, yCurr));
+            }
+
+            // check tile to the left
+            if (xCurr - 1 >= 0 &&
+                    gridTiles[xCurr-1][yCurr] != TILE_NONE &&
+                    (gridPrograms[xCurr-1][yCurr] == NULL || gridPrograms[xCurr-1][yCurr] == p) &&
+                    gridProgramDist[xCurr-1][yCurr] == -1)
+            {
+                gridProgramDist[xCurr-1][yCurr] = dCurr + 1;
+                ll.addLast(new Pair<int>(xCurr - 1, yCurr));
+            }
+
+            // check tile below
+            if (yCurr + 1 < 200 &&
+                    gridTiles[xCurr][yCurr+1] != TILE_NONE &&
+                    (gridPrograms[xCurr][yCurr+1] == NULL || gridPrograms[xCurr][yCurr+1] == p) &&
+                    gridProgramDist[xCurr][yCurr+1] == -1)
+            {
+                gridProgramDist[xCurr][yCurr+1] = dCurr + 1;
+                ll.addLast(new Pair<int>(xCurr, yCurr + 1));
+            }
+
+            // check tile above
+            if (yCurr - 1 >= 0 &&
+                    gridTiles[xCurr][yCurr-1] != TILE_NONE &&
+                    (gridPrograms[xCurr][yCurr-1] == NULL || gridPrograms[xCurr][yCurr-1] == p) &&
+                    gridProgramDist[xCurr][yCurr-1] == -1)
+            {
+                gridProgramDist[xCurr][yCurr-1] = dCurr + 1;
+                ll.addLast(new Pair<int>(xCurr, yCurr - 1));
+            }
+        }
+        delete currPair;
+    }
 }

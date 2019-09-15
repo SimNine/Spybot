@@ -3,7 +3,7 @@
 
 #include "DataContainer.h"
 #include "Global.h"
-#include "Main.h"
+#include "ResourceLoader.h"
 
 DataContainer::DataContainer()
 {
@@ -126,6 +126,8 @@ void initData()
 
     // initialize program core graphics
     dataContainer->program_core = loadTexture("resources/board/programs/program_core.png");
+    dataContainer->program_core_50px = loadTexture("resources/board/programs/program_core_50px.png");
+    dataContainer->program_core_100px = loadTexture("resources/board/programs/program_core_100px.png");
     dataContainer->program_core_vertical = loadTexture("resources/board/programs/program_core_vertical.png");
     dataContainer->program_core_horizontal = loadTexture("resources/board/programs/program_core_horizontal.png");
 
@@ -231,8 +233,8 @@ void initData()
     dataContainer->color_white->a = 0;
 
     // SDL_Mixer sounds
-    dataContainer->music_title = loadMusic("resources/sounds/title_music.ogg");
-    dataContainer->music_map_ambient = loadMusic("resources/sounds/map_ambient.ogg");
-    dataContainer->music_beep = loadSound("resources/sounds/move_player.wav");
-    dataContainer->music_boop = loadSound("resources/sounds/move_computer.wav");
+    dataContainer->music_title = loadMusic("resources/sounds/title_music.flac");
+    dataContainer->music_map_ambient = loadMusic("resources/sounds/map_ambient.flac");
+    dataContainer->music_beep = loadSound("resources/sounds/move_player.flac");
+    dataContainer->music_boop = loadSound("resources/sounds/move_computer.flac");
 }

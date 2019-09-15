@@ -1,6 +1,7 @@
 #include <SDL.h>
 #include <SDL_image.h>
 #include <SDL_mixer.h>
+#include <SDL_TTF.h>
 #include <stdio.h>
 #include <string>
 #include <cmath>
@@ -9,54 +10,6 @@
 #include "Global.h"
 #include "TitleScreen.h"
 #include "Timer.h"
-
-// returns a pointer to a new SDL_Texture
-SDL_Texture* loadTexture( std::string path )
-{
-    //The final texture
-    SDL_Texture* newTexture = NULL;
-
-    //Load image at specified path
-    SDL_Surface* loadedSurface = IMG_Load( path.c_str() );
-    if( loadedSurface == NULL )
-    {
-        printf( "Unable to load image %s! SDL_image Error: %s\n", path.c_str(), IMG_GetError() );
-    }
-    else
-    {
-        //Create texture from surface pixels
-        newTexture = SDL_CreateTextureFromSurface( gRenderer, loadedSurface );
-        if( newTexture == NULL )
-        {
-            printf( "Unable to create texture from %s! SDL Error: %s\n", path.c_str(), SDL_GetError() );
-        }
-
-        //Get rid of old loaded surface
-        SDL_FreeSurface( loadedSurface );
-    }
-
-    return newTexture;
-}
-
-Mix_Music* loadMusic(std::string path)
-{
-    Mix_Music* gMusic = Mix_LoadMUS(path.c_str());
-    if( gMusic == NULL )
-    {
-        printf( "Failed to load music at %s! SDL_mixer Error: %s\n", path.c_str(), Mix_GetError() );
-    }
-    return gMusic;
-}
-
-Mix_Chunk* loadSound(std::string path)
-{
-    Mix_Chunk* gChunk = Mix_LoadWAV(path.c_str());
-    if( gChunk == NULL )
-    {
-        printf( "Failed to load sound at %s! SDL_mixer Error: %s\n", path.c_str(), Mix_GetError() );
-    }
-    return gChunk;
-}
 
 // closes SDL and SDL_image
 void closeSDL()
@@ -69,6 +22,7 @@ void closeSDL()
 
     //Quit SDL subsystems
     Mix_Quit();
+    TTF_Quit();
     IMG_Quit();
     SDL_Quit();
 }
@@ -147,6 +101,13 @@ bool initSDL()
     if( Mix_OpenAudio( 44100, MIX_DEFAULT_FORMAT, 2, 2048 ) < 0 )
     {
         printf( "SDL_mixer could not initialize! SDL_mixer Error: %s\n", Mix_GetError() );
+        return false;
+    }
+
+    // initialize TTF
+    if ( TTF_Init() != 0 )
+    {
+        printf("SDL_TTF could not initialize! SDL_TTF error: %s\n", TTF_GetError());
         return false;
     }
 
@@ -380,7 +341,7 @@ int main( int argc, char* args[] )
     while( !quit )
     {
         // handle ticks
-        if (tickTimer.getTicks() >= 20)
+        if (tickTimer.getTicks() >= 20) // tick whenever 20+ ms have gone by
         {
             tick(); // tick whatever needs to be ticked
             if (acceptingInput) handleEvents();
@@ -389,12 +350,12 @@ int main( int argc, char* args[] )
         }
 
         // handle drawing
-        if (fpsCap == 0)
+        if (fpsCap == 0) // if there is no fps cap
         {
             draw(); // render the window
             frameCount++;
         }
-        else if (renderTimerB.getTicks() >= msPerFrame)
+        else if (renderTimerB.getTicks() >= msPerFrame) // if there is an fps cap and enough ms have gone
         {
             draw();
             frameCount++;

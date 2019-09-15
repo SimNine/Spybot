@@ -2,7 +2,7 @@
 #include "Global.h"
 #include <stdio.h>
 
-GUIObject::GUIObject(Anch anchorPoint, int xRel, int yRel, int width, int height, GUIContainer* parent)
+GUIObject::GUIObject(ANCHOR anchorPoint, int xRel, int yRel, int width, int height, GUIContainer* parent)
 {
     anchor = anchorPoint;
     xDisplacement = xRel;
@@ -35,16 +35,18 @@ int GUIObject::getXAnchor()
 
     switch (anchor)
     {
-    case ANCHOR_TOP_LEFT:
-        return parent->getBounds()->x;
-    case ANCHOR_TOP_RIGHT:
+    case ANCHOR_NORTHEAST:
+    case ANCHOR_EAST:
+    case ANCHOR_SOUTHEAST:
         return parent->getBounds()->x + parent->getBounds()->w;
-    case ANCHOR_BOTTOM_LEFT:
-        return parent->getBounds()->x;
-    case ANCHOR_BOTTOM_RIGHT:
-        return parent->getBounds()->x + parent->getBounds()->w;
+    case ANCHOR_NORTH:
     case ANCHOR_CENTER:
+    case ANCHOR_SOUTH:
         return parent->getBounds()->x + parent->getBounds()->w/2;
+    case ANCHOR_NORTHWEST:
+    case ANCHOR_WEST:
+    case ANCHOR_SOUTHWEST:
+        return parent->getBounds()->x;
     }
 
     return -1;
@@ -59,16 +61,18 @@ int GUIObject::getYAnchor()
 
     switch (anchor)
     {
-    case ANCHOR_TOP_LEFT:
+    case ANCHOR_NORTHWEST:
+    case ANCHOR_NORTH:
+    case ANCHOR_NORTHEAST:
         return parent->getBounds()->y;
-    case ANCHOR_TOP_RIGHT:
-        return parent->getBounds()->y;
-    case ANCHOR_BOTTOM_LEFT:
-        return parent->getBounds()->y + parent->getBounds()->h;
-    case ANCHOR_BOTTOM_RIGHT:
-        return parent->getBounds()->y + parent->getBounds()->h;
+    case ANCHOR_WEST:
     case ANCHOR_CENTER:
+    case ANCHOR_EAST:
         return parent->getBounds()->y + parent->getBounds()->h/2;
+    case ANCHOR_SOUTHEAST:
+    case ANCHOR_SOUTH:
+    case ANCHOR_SOUTHWEST:
+        return parent->getBounds()->y + parent->getBounds()->h;
     }
 
     return -1;

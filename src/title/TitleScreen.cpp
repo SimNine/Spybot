@@ -3,7 +3,7 @@
 #include "GUITexture.h"
 
 TitleScreen::TitleScreen()
-    : GUIContainer(ANCHOR_TOP_LEFT, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, NULL, NULL)
+    : GUIContainer(ANCHOR_NORTHWEST, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, NULL, NULL)
 {
     int w;
     int h;

@@ -5,7 +5,7 @@
 #include "LinkedList.h"
 #include "Global.h"
 
-GUIContainer::GUIContainer(Anch anchorPoint, int xRel, int yRel, int width, int height,
+GUIContainer::GUIContainer(ANCHOR anchorPoint, int xRel, int yRel, int width, int height,
                            GUIContainer* parent, SDL_Texture* bkg)
     : GUIObject(anchorPoint, xRel, yRel, width, height, parent)
 {
@@ -37,16 +37,15 @@ LinkedList<GUIObject*>* GUIContainer::getContents()
 bool GUIContainer::mouseDown()
 {
     bool ret = false;
-    LinkedList<GUIObject*>* currNode = contents;
-    while (currNode != NULL)
+    Iterator<GUIObject*> it = contents->getIterator();
+    while (it.hasNext())
     {
-        GUIObject* curr = currNode->getContents();
+        GUIObject* curr = it.next();
         if (curr->isVisible() && curr->isMouseOver())
         {
             ret = true;
             curr->mouseDown();
         }
-        currNode = currNode->getNext();
     }
     return ret;
 }
@@ -54,17 +53,16 @@ bool GUIContainer::mouseDown()
 bool GUIContainer::mouseUp()
 {
     bool ret = false;
-    LinkedList<GUIObject*>* currNode = contents;
-    while (currNode != NULL)
+    Iterator<GUIObject*> it = contents->getIterator();
+    while (it.hasNext())
     {
-        GUIObject* curr = currNode->getContents();
+        GUIObject* curr = it.next();
         if (curr->isVisible() && curr->isMouseOver())
         {
             ret = true;
             curr->mouseUp();
         }
         curr->setPressed(false);
-        currNode = currNode->getNext();
     }
     return ret;
 }
@@ -78,24 +76,17 @@ void GUIContainer::resetBounds()
         setBounds(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
     }
 
-    LinkedList<GUIObject*>* currNode = contents;
-    while (currNode != NULL)
-    {
-        currNode->getContents()->resetBounds();
-        currNode = currNode->getNext();
-    }
+    contents->forEach([](GUIObject* g){g->resetBounds();});
 }
 
 void GUIContainer::addObject(GUIObject* obj)
 {
     if (contents == NULL)
     {
-        contents = new LinkedList<GUIObject*>(obj);
+        contents = new LinkedList<GUIObject*>();
     }
-    else
-    {
-        LL_addObject(contents, obj);
-    }
+
+    contents->addLast(obj);
 }
 
 void GUIContainer::addAllObjects(LinkedList<GUIObject*>* objList)
@@ -106,7 +97,7 @@ void GUIContainer::addAllObjects(LinkedList<GUIObject*>* objList)
     }
     else
     {
-        LL_addAllObjects(contents, objList);
+        contents->addAllLast(objList);
     }
 }
 
@@ -129,12 +120,7 @@ void GUIContainer::drawBkg()
 
 void GUIContainer::drawContents()
 {
-    LinkedList<GUIObject*>* currNode = contents;
-    while (currNode != NULL)
-    {
-        if (currNode->getContents()->isVisible()) currNode->getContents()->draw();
-        currNode = currNode->getNext();
-    }
+    contents->forEach([](GUIObject* g){if (g->isVisible()) g->draw();});
 }
 
 void GUIContainer::draw()
@@ -147,20 +133,18 @@ void GUIContainer::draw()
 
 void GUIContainer::setTransparency(int a)
 {
-    LinkedList<GUIObject*>* currNode = contents;
-    while (currNode != NULL)
+    Iterator<GUIObject*> it = contents->getIterator();
+    while (it.hasNext())
     {
-        currNode->getContents()->setTransparency(a);
-        currNode = currNode->getNext();
+        it.next()->setTransparency(a);
     }
 }
 
 void GUIContainer::tick()
 {
-    LinkedList<GUIObject*>* currNode = contents;
-    while (currNode != NULL)
+    Iterator<GUIObject*> it = contents->getIterator();
+    while (it.hasNext())
     {
-        currNode->getContents()->tick();
-        currNode = currNode->getNext();
+        it.next()->tick();
     }
 }

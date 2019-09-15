@@ -1,7 +1,7 @@
 #include "GUISlider.h"
 #include "Global.h"
 
-GUISlider::GUISlider(Anch a, int xD, int yD, int w, int h, GUIContainer* p, void (*func) (float))
+GUISlider::GUISlider(ANCHOR a, int xD, int yD, int w, int h, GUIContainer* p, void (*func) (float))
     : GUIObject(a, xD, yD, w, h, p)
 {
     sliderBounds.x = bounds.x;

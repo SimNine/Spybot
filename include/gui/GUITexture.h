@@ -7,7 +7,7 @@
 class GUITexture : public GUIObject
 {
     public:
-        GUITexture(Anch, int, int, SDL_Texture*, int, int, GUIContainer*);
+        GUITexture(ANCHOR, int, int, SDL_Texture*, int, int, GUIContainer*);
         virtual ~GUITexture();
         void draw();
         bool mouseDown();

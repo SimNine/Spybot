@@ -163,12 +163,9 @@ void Node::addChild(Node* child)
 {
     if (children == NULL)
     {
-        children = new LinkedList<Node*>(child);
+        children = new LinkedList<Node*>();
     }
-    else
-    {
-        LL_addObject(children, child);
-    }
+    children->addLast(child);
 }
 
 void Node::setNodeStatus(NODESTATUS ns)
@@ -201,11 +198,13 @@ NODESTATUS Node::getNodeStatus()
 void Node::winNode()
 {
     nodeStatus = NODESTATUS_OWNED;
-    LinkedList<Node*>* curr = children;
-    while (curr != NULL)
+    if (children != NULL)
     {
-        curr->getContents()->setNodeStatus(NODESTATUS_UNOWNED);
-        curr = curr->getNext();
+        Iterator<Node*> it = children->getIterator();
+        while (it.hasNext())
+        {
+            it.next()->setNodeStatus(NODESTATUS_UNOWNED);
+        }
     }
 }
 

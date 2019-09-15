@@ -2,7 +2,7 @@
 #include "Global.h"
 #include <stdio.h>
 
-GUIButton::GUIButton(Anch a, int xDisp, int yDisp, int width, int height, GUIContainer* parent,
+GUIButton::GUIButton(ANCHOR a, int xDisp, int yDisp, int width, int height, GUIContainer* parent,
                      void (*func) (void), SDL_Texture* bkgN, SDL_Texture* bkgO, SDL_Texture* bkgP)
     : GUIObject(a, xDisp, yDisp, width, height, parent)
 {
@@ -12,7 +12,7 @@ GUIButton::GUIButton(Anch a, int xDisp, int yDisp, int width, int height, GUICon
     this->bkgPressed = bkgP;
 }
 
-GUIButton::GUIButton(Anch a, int xDisp, int yDisp, int width, int height, GUIContainer* parent,
+GUIButton::GUIButton(ANCHOR a, int xDisp, int yDisp, int width, int height, GUIContainer* parent,
                      void (*func) (void), SDL_Texture* bkgN, SDL_Texture* bkgO)
     : GUIObject(a, xDisp, yDisp, width, height, parent)
 {
@@ -22,7 +22,7 @@ GUIButton::GUIButton(Anch a, int xDisp, int yDisp, int width, int height, GUICon
     this->bkgPressed = bkgO;
 }
 
-GUIButton::GUIButton(Anch a, int xDisp, int yDisp, int width, int height, GUIContainer* parent,
+GUIButton::GUIButton(ANCHOR a, int xDisp, int yDisp, int width, int height, GUIContainer* parent,
                      void (*func) (void), SDL_Texture* bkgN)
     : GUIObject(a, xDisp, yDisp, width, height, parent)
 {
@@ -32,7 +32,7 @@ GUIButton::GUIButton(Anch a, int xDisp, int yDisp, int width, int height, GUICon
     this->bkgPressed = bkgN;
 }
 
-GUIButton::GUIButton(Anch a, int xDisp, int yDisp, int width, int height, GUIContainer* parent,
+GUIButton::GUIButton(ANCHOR a, int xDisp, int yDisp, int width, int height, GUIContainer* parent,
                      void (*func) (void))
     : GUIObject(a, xDisp, yDisp, width, height, parent)
 {

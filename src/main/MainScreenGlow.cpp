@@ -16,8 +16,6 @@ MainScreenGlow::MainScreenGlow(int x, int y)
     aPos = 1;
     aVel = 0;
     aAcc = rand()/(float)RAND_MAX;
-
-    //printf("%4f,%4f,%4f\n", xAcc, yAcc, aAcc);
 }
 
 MainScreenGlow::~MainScreenGlow()

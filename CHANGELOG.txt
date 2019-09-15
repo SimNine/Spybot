@@ -18,3 +18,18 @@
 -Began implementing sound engine using "SDL_mixer"
 --Must remember to include application extensions
 -Added icon
+
+0.2.0 - 7/13/17
+-----
+-Bugfix: after loading level, level is centered in window
+-Levels that are small enough to fit entirely onscreen cannot be shifted
+-Added a program display window; displays details of the selected program
+-Added four more anchor points; one in the center of each side
+-Added generic "Pair" class for use in pathfinding
+-Added rudimentary pathfinding/distancefinding algorithm for programs
+-Rebuilt the linked list:
+--LinkedList is now a wrapper class for a chain of doubly-linked ListNodes
+--Each ListNode is just a container with a forward pointer, backward pointer, and content pointer
+--LinkedLists now cache length and are initialized with a length of zero
+-Added an "Iterator" class that can only be instatiated through a linkedlist
+-Added higher-resolution program core graphics

@@ -14,7 +14,7 @@ Program::Program(PROGRAM type, int team, int xHead, int yHead)
     color[0] = rand()%255;
     color[1] = rand()%255;
     color[2] = rand()%255;
-    moveList = NULL;
+    moveList = new LinkedList<ProgramMove*>();
 
     if (this->type == PROGRAM_CUSTOM)
     {
@@ -503,14 +503,12 @@ Program::Program(PROGRAM type, int team, int xHead, int yHead)
 
 Program::~Program()
 {
-    while (moveList != NULL)
+    while (moveList->getLength() > 0)
     {
-        ProgramMove* m = moveList->getContents();
+        ProgramMove* m = moveList->poll();
         delete m;
-        LinkedList<ProgramMove*>* tempNode = moveList;
-        moveList = moveList->getNext();
-        delete tempNode;
     }
+    delete moveList;
 
     if (debug)
     {
@@ -624,10 +622,8 @@ void Program::addMove(ProgramMove* m)
 {
     if (moveList == NULL)
     {
-        moveList = new LinkedList<ProgramMove*>(m);
+        moveList = new LinkedList<ProgramMove*>();
     }
-    else
-    {
-        LL_addObject(moveList, m);
-    }
+
+    moveList->addLast(m);
 }

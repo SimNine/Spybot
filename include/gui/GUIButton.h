@@ -7,13 +7,13 @@
 class GUIButton : public GUIObject
 {
     public:
-        GUIButton(Anch, int, int, int, int, GUIContainer*,
+        GUIButton(ANCHOR, int, int, int, int, GUIContainer*,
                   void (*func) (void), SDL_Texture*, SDL_Texture*, SDL_Texture*);
-        GUIButton(Anch, int, int, int, int, GUIContainer*,
+        GUIButton(ANCHOR, int, int, int, int, GUIContainer*,
                   void (*func) (void), SDL_Texture*, SDL_Texture*);
-        GUIButton(Anch, int, int, int, int, GUIContainer*,
+        GUIButton(ANCHOR, int, int, int, int, GUIContainer*,
                   void (*func) (void), SDL_Texture*);
-        GUIButton(Anch, int, int, int, int, GUIContainer*,
+        GUIButton(ANCHOR, int, int, int, int, GUIContainer*,
                   void (*func) (void));
         virtual ~GUIButton();
         void draw();
