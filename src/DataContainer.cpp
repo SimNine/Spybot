@@ -1,0 +1,195 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+#include "DataContainer.h"
+#include "Global.h"
+#include "Main.h"
+
+DataContainer::DataContainer()
+{
+    //ctor
+}
+
+DataContainer::~DataContainer()
+{
+    //dtor
+}
+
+void initData()
+{
+    dataContainer = new DataContainer();
+
+    //dataContainer->node_normal[0] = loadTexture("resources/map/node0_normal.png");
+    dataContainer->node_normal[1] = loadTexture("resources/map/node1_normal.png");
+    dataContainer->node_normal[2] = loadTexture("resources/map/node2_normal.png");
+    dataContainer->node_normal[3] = loadTexture("resources/map/node3_normal.png");
+    dataContainer->node_normal[4] = loadTexture("resources/map/node4_normal.png");
+    dataContainer->node_normal[5] = loadTexture("resources/map/node5_normal.png");
+    dataContainer->node_normal[6] = loadTexture("resources/map/node6_normal.png");
+    dataContainer->node_normal[7] = loadTexture("resources/map/node7_normal.png");
+
+    //dataContainer->node_normal_over[0] = loadTexture("resources/map/node0_normal_over.png");
+    dataContainer->node_normal_over[1] = loadTexture("resources/map/node1_normal_over.png");
+    dataContainer->node_normal_over[2] = loadTexture("resources/map/node2_normal_over.png");
+    dataContainer->node_normal_over[3] = loadTexture("resources/map/node3_normal_over.png");
+    dataContainer->node_normal_over[4] = loadTexture("resources/map/node4_normal_over.png");
+    dataContainer->node_normal_over[5] = loadTexture("resources/map/node5_normal_over.png");
+    dataContainer->node_normal_over[6] = loadTexture("resources/map/node6_normal_over.png");
+    dataContainer->node_normal_over[7] = loadTexture("resources/map/node7_normal_over.png");
+
+    dataContainer->node_normal_selected[0] = loadTexture("resources/map/node0_normal_selected.png");
+    dataContainer->node_normal_selected[1] = loadTexture("resources/map/node1_normal_selected.png");
+    dataContainer->node_normal_selected[2] = loadTexture("resources/map/node2_normal_selected.png");
+    dataContainer->node_normal_selected[3] = loadTexture("resources/map/node3_normal_selected.png");
+    dataContainer->node_normal_selected[4] = loadTexture("resources/map/node4_normal_selected.png");
+    dataContainer->node_normal_selected[5] = loadTexture("resources/map/node5_normal_selected.png");
+    dataContainer->node_normal_selected[6] = loadTexture("resources/map/node6_normal_selected.png");
+    dataContainer->node_normal_selected[7] = loadTexture("resources/map/node7_normal_selected.png");
+
+    dataContainer->node_owned[0] = loadTexture("resources/map/node0_owned.png");
+    dataContainer->node_owned[1] = loadTexture("resources/map/node1_owned.png");
+    dataContainer->node_owned[2] = loadTexture("resources/map/node2_owned.png");
+    dataContainer->node_owned[3] = loadTexture("resources/map/node3_owned.png");
+    dataContainer->node_owned[4] = loadTexture("resources/map/node4_owned.png");
+    dataContainer->node_owned[5] = loadTexture("resources/map/node5_owned.png");
+    dataContainer->node_owned[6] = loadTexture("resources/map/node6_owned.png");
+    dataContainer->node_owned[7] = loadTexture("resources/map/node7_owned.png");
+
+    dataContainer->node_owned_over[0] = loadTexture("resources/map/node0_owned_over.png");
+    dataContainer->node_owned_over[1] = loadTexture("resources/map/node1_owned_over.png");
+    dataContainer->node_owned_over[2] = loadTexture("resources/map/node2_owned_over.png");
+    dataContainer->node_owned_over[3] = loadTexture("resources/map/node3_owned_over.png");
+    dataContainer->node_owned_over[4] = loadTexture("resources/map/node4_owned_over.png");
+    dataContainer->node_owned_over[5] = loadTexture("resources/map/node5_owned_over.png");
+    dataContainer->node_owned_over[6] = loadTexture("resources/map/node6_owned_over.png");
+    dataContainer->node_owned_over[7] = loadTexture("resources/map/node7_owned_over.png");
+
+    dataContainer->node_owned_selected[0] = loadTexture("resources/map/node0_owned_selected.png");
+    dataContainer->node_owned_selected[1] = loadTexture("resources/map/node1_owned_selected.png");
+    dataContainer->node_owned_selected[2] = loadTexture("resources/map/node2_owned_selected.png");
+    dataContainer->node_owned_selected[3] = loadTexture("resources/map/node3_owned_selected.png");
+    dataContainer->node_owned_selected[4] = loadTexture("resources/map/node4_owned_selected.png");
+    dataContainer->node_owned_selected[5] = loadTexture("resources/map/node5_owned_selected.png");
+    dataContainer->node_owned_selected[6] = loadTexture("resources/map/node6_owned_selected.png");
+    dataContainer->node_owned_selected[7] = loadTexture("resources/map/node7_owned_selected.png");
+
+    dataContainer->node_yoffset[0] = 73;
+    dataContainer->node_yoffset[1] = 68;
+    dataContainer->node_yoffset[2] = 90;
+    dataContainer->node_yoffset[3] = 63;
+    dataContainer->node_yoffset[4] = 103;
+    dataContainer->node_yoffset[5] = 48;
+    dataContainer->node_yoffset[6] = 98;
+    dataContainer->node_yoffset[7] = 49;
+
+    dataContainer->level_confirm_window = loadTexture("resources/level_confirm.png");
+    dataContainer->level_cancel_window = loadTexture("resources/level_cancel.png");
+
+    dataContainer->begin_databattle_button_normal = loadTexture("resources/begin_databattle_button_normal.png");
+    dataContainer->begin_databattle_button_over = loadTexture("resources/begin_databattle_button_over.png");
+    dataContainer->cancel_button_normal = loadTexture("resources/cancel_button_normal.png");
+    dataContainer->cancel_button_over = loadTexture("resources/cancel_button_over.png");
+
+    // gameScreen resources
+    dataContainer->level_backgrounds[BKG_DONUT] = loadTexture("resources/company_0.png");
+    dataContainer->level_backgrounds[BKG_CELL] = loadTexture("resources/company_1.png");
+    dataContainer->level_backgrounds[BKG_MONKEY] = loadTexture("resources/company_2.png");
+    dataContainer->level_backgrounds[BKG_PHARM] = loadTexture("resources/company_3.png");
+    dataContainer->level_backgrounds[BKG_PED] = loadTexture("resources/company_4.png");
+    dataContainer->level_bkg_buttons[BKG_DONUT] = loadTexture("resources/board/editor/bkg_donut.png");
+    dataContainer->level_bkg_buttons[BKG_CELL] = loadTexture("resources/board/editor/bkg_cellular.png");
+    dataContainer->level_bkg_buttons[BKG_MONKEY] = loadTexture("resources/board/editor/bkg_monkey.png");
+    dataContainer->level_bkg_buttons[BKG_PHARM] = loadTexture("resources/board/editor/bkg_pharmhaus.png");
+    dataContainer->level_bkg_buttons[BKG_PED] = loadTexture("resources/board/editor/bkg_ped.png");
+
+    dataContainer->tile_over = loadTexture("resources/board/tile_empty.png");
+    dataContainer->tile_selected = loadTexture("resources/board/tile_selected.png");
+    dataContainer->tile_images[TILE_PLAIN] = loadTexture("resources/board/tile_empty_transparent.png");
+    dataContainer->tile_images[TILE_PLAIN2] = loadTexture("resources/board/tile_empty2_transparent.png");
+    dataContainer->tile_images[TILE_PLAIN3] = loadTexture("resources/board/tile_empty3_transparent.png");
+    dataContainer->tile_images[TILE_PLAIN4] = loadTexture("resources/board/tile_empty4_transparent.png");
+    dataContainer->tile_images[TILE_PLAIN5] = loadTexture("resources/board/tile_empty5_transparent.png");
+    dataContainer->tile_images[TILE_PLAIN6] = loadTexture("resources/board/tile_empty6_transparent.png");
+    dataContainer->tile_images[TILE_PLAIN7] = loadTexture("resources/board/tile_empty7_transparent.png");
+    dataContainer->tile_images[TILE_PLAIN8] = loadTexture("resources/board/tile_empty8_transparent.png");
+    dataContainer->tile_images[TILE_PLAIN9] = loadTexture("resources/board/tile_empty9_transparent.png");
+    dataContainer->tile_images[TILE_SPAWN] = loadTexture("resources/board/spawn_transparency.png");
+    dataContainer->tile_images[TILE_SPAWN2] = loadTexture("resources/board/spawn2_transparency.png");
+    dataContainer->tile_images[TILE_NONE] = loadTexture("resources/board/tile_null.png");
+
+    dataContainer->program_core = loadTexture("resources/board/programs/program_core.png");
+    dataContainer->program_core_vertical = loadTexture("resources/board/programs/program_core_vertical.png");
+    dataContainer->program_core_horizontal = loadTexture("resources/board/programs/program_core_horizontal.png");
+
+    dataContainer->program_icons[PROGRAM_BALLISTA] = loadTexture("resources/board/programs/program_icon_ballista.png");
+    dataContainer->program_icons[PROGRAM_BITMAN] = loadTexture("resources/board/programs/program_icon_bitman.png");
+    dataContainer->program_icons[PROGRAM_BITMAN2] = loadTexture("resources/board/programs/program_icon_bitman2.png");
+    dataContainer->program_icons[PROGRAM_BLACKWIDOW] = loadTexture("resources/board/programs/program_icon_blackwidow.png");
+    dataContainer->program_icons[PROGRAM_BUG] = loadTexture("resources/board/programs/program_icon_bug.png");
+    dataContainer->program_icons[PROGRAM_BUG2] = loadTexture("resources/board/programs/program_icon_bug2.png");
+    dataContainer->program_icons[PROGRAM_BUG3] = loadTexture("resources/board/programs/program_icon_bug3.png");
+    dataContainer->program_icons[PROGRAM_CATAPULT] = loadTexture("resources/board/programs/program_icon_catapult.png");
+    dataContainer->program_icons[PROGRAM_CLOG] = loadTexture("resources/board/programs/program_icon_clog.png");
+    dataContainer->program_icons[PROGRAM_CLOG2] = loadTexture("resources/board/programs/program_icon_clog2.png");
+    dataContainer->program_icons[PROGRAM_CLOG3] = loadTexture("resources/board/programs/program_icon_clog3.png");
+    dataContainer->program_icons[PROGRAM_DATABOMB] = loadTexture("resources/board/programs/program_icon_databomb.png");
+    dataContainer->program_icons[PROGRAM_DATADOCTOR] = loadTexture("resources/board/programs/program_icon_datadoctor.png");
+    dataContainer->program_icons[PROGRAM_DATADOCTOR2] = loadTexture("resources/board/programs/program_icon_datadoctor2.png");
+    dataContainer->program_icons[PROGRAM_FIDDLE] = loadTexture("resources/board/programs/program_icon_fiddle.png");
+    dataContainer->program_icons[PROGRAM_GOLEM] = loadTexture("resources/board/programs/program_icon_golem.png");
+    dataContainer->program_icons[PROGRAM_GOLEM2] = loadTexture("resources/board/programs/program_icon_golem2.png");
+    dataContainer->program_icons[PROGRAM_GOLEM3] = loadTexture("resources/board/programs/program_icon_golem3.png");
+    dataContainer->program_icons[PROGRAM_HACK] = loadTexture("resources/board/programs/program_icon_hack.png");
+    dataContainer->program_icons[PROGRAM_HACK2] = loadTexture("resources/board/programs/program_icon_hack2.png");
+    dataContainer->program_icons[PROGRAM_HACK3] = loadTexture("resources/board/programs/program_icon_hack3.png");
+    dataContainer->program_icons[PROGRAM_KAMIKAZEE] = loadTexture("resources/board/programs/program_icon_kamikazee.png");
+    dataContainer->program_icons[PROGRAM_MEDIC] = loadTexture("resources/board/programs/program_icon_medic.png");
+    dataContainer->program_icons[PROGRAM_MEMHOG] = loadTexture("resources/board/programs/program_icon_memhog.png");
+    dataContainer->program_icons[PROGRAM_MOBILETOWER] = loadTexture("resources/board/programs/program_icon_mobiletower.png");
+    dataContainer->program_icons[PROGRAM_SATELLITE] = loadTexture("resources/board/programs/program_icon_satellite.png");
+    dataContainer->program_icons[PROGRAM_SATELLITE2] = loadTexture("resources/board/programs/program_icon_satellite2.png");
+    dataContainer->program_icons[PROGRAM_SEEKER] = loadTexture("resources/board/programs/program_icon_seeker.png");
+    dataContainer->program_icons[PROGRAM_SEEKER2] = loadTexture("resources/board/programs/program_icon_seeker2.png");
+    dataContainer->program_icons[PROGRAM_SEEKER3] = loadTexture("resources/board/programs/program_icon_seeker3.png");
+    dataContainer->program_icons[PROGRAM_SLINGSHOT] = loadTexture("resources/board/programs/program_icon_slingshot.png");
+    dataContainer->program_icons[PROGRAM_SPECS] = loadTexture("resources/board/programs/program_icon_specs.png");
+    dataContainer->program_icons[PROGRAM_SUMO] = loadTexture("resources/board/programs/program_icon_sumo.png");
+    dataContainer->program_icons[PROGRAM_TARANTULA] = loadTexture("resources/board/programs/program_icon_tarantula.png");
+    dataContainer->program_icons[PROGRAM_TOWER] = loadTexture("resources/board/programs/program_icon_tower.png");
+    dataContainer->program_icons[PROGRAM_TURBO] = loadTexture("resources/board/programs/program_icon_turbo.png");
+    dataContainer->program_icons[PROGRAM_TURBO2] = loadTexture("resources/board/programs/program_icon_turbo2.png");
+    dataContainer->program_icons[PROGRAM_TURBO3] = loadTexture("resources/board/programs/program_icon_turbo3.png");
+    dataContainer->program_icons[PROGRAM_WIZARD] = loadTexture("resources/board/programs/program_icon_wizard.png");
+    dataContainer->program_icons[PROGRAM_WOLFSPIDER] = loadTexture("resources/board/programs/program_icon_wolfspider.png");
+    dataContainer->program_icons[PROGRAM_BOSS] = loadTexture("resources/board/programs/program_icon_boss.png");
+    dataContainer->program_icons[PROGRAM_DOG] = loadTexture("resources/board/programs/program_icon_dog.png");
+    dataContainer->program_icons[PROGRAM_DOG2] = loadTexture("resources/board/programs/program_icon_dog2.png");
+    dataContainer->program_icons[PROGRAM_DOG3] = loadTexture("resources/board/programs/program_icon_dog3.png");
+    dataContainer->program_icons[PROGRAM_FIREWALL] = loadTexture("resources/board/programs/program_icon_firewall.png");
+    dataContainer->program_icons[PROGRAM_SONAR] = loadTexture("resources/board/programs/program_icon_sonar.png");
+    dataContainer->program_icons[PROGRAM_SONAR2] = loadTexture("resources/board/programs/program_icon_sonar2.png");
+    dataContainer->program_icons[PROGRAM_SONAR3] = loadTexture("resources/board/programs/program_icon_sonar3.png");
+    dataContainer->program_icons[PROGRAM_WALKER] = loadTexture("resources/board/programs/program_icon_walker.png");
+    dataContainer->program_icons[PROGRAM_WALKER2] = loadTexture("resources/board/programs/program_icon_walker2.png");
+    dataContainer->program_icons[PROGRAM_WALKER3] = loadTexture("resources/board/programs/program_icon_walker3.png");
+    dataContainer->program_icons[PROGRAM_WARDEN] = loadTexture("resources/board/programs/program_icon_warden.png");
+    dataContainer->program_icons[PROGRAM_WARDEN2] = loadTexture("resources/board/programs/program_icon_warden2.png");
+    dataContainer->program_icons[PROGRAM_WARDEN3] = loadTexture("resources/board/programs/program_icon_warden3.png");
+    dataContainer->program_icons[PROGRAM_WATCHMAN] = loadTexture("resources/board/programs/program_icon_watchman.png");
+    dataContainer->program_icons[PROGRAM_WATCHMAN2] = loadTexture("resources/board/programs/program_icon_watchman2.png");
+    dataContainer->program_icons[PROGRAM_WATCHMAN3] = loadTexture("resources/board/programs/program_icon_watchman3.png");
+
+    dataContainer->editorBrushNone = loadTexture("resources/board/editor/brush_none.png");
+    dataContainer->editorBrushTiles = loadTexture("resources/board/editor/brush_tile.png");
+    dataContainer->editorBrushPrograms = loadTexture("resources/board/editor/brush_program.png");
+    dataContainer->editorBrushDeletePrograms = loadTexture("resources/board/editor/brush_clearprogram.png");
+    dataContainer->editorBrushItems = loadTexture("resources/board/editor/brush_item.png");
+    dataContainer->editorTeamViewToggle = loadTexture("resources/board/editor/team_view.png");
+    dataContainer->editorTeamPlayer = loadTexture("resources/board/editor/team_player.png");
+    dataContainer->editorTeamComputer = loadTexture("resources/board/editor/team_computer.png");
+    dataContainer->editorClearGrid = loadTexture("resources/board/editor/clear_grid.png");
+
+    dataContainer->item_icons[ITEM_CREDIT] = loadTexture("resources/board/items/item_credit.png");
+    dataContainer->item_icons[ITEM_BIGCREDIT] = loadTexture("resources/board/items/item_coin.png");
+    dataContainer->item_icons[ITEM_FILES] = loadTexture("resources/board/items/item_files.png");
+}

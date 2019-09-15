@@ -1,0 +1,10 @@
+0.0.0 - 6/22/17
+-----
+-First go at making a game in c++ as opposed to java
+-Three main screens (MENU, MAP, GAME)
+-Levels are represented as a grid with three layers
+--Tile layer
+--Program layer
+--Item layer
+-Programs have the same characteristics as in the original game
+-Not all program moves have been ported yet

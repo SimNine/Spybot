@@ -1,0 +1,2 @@
+Font: Agency FB, 40px, standard
+To make "over" format, boost brightness by 50 points

@@ -1,0 +1,3 @@
+shadows under icons:
+-should be totally black (255 all colors)
+-should have an opacity of 150
