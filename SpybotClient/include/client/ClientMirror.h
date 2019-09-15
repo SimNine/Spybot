@@ -3,7 +3,7 @@
 #include "Standard.h"
 #include "LinkedList.h"
 
-class Player;
+class PlayerMirror;
 
 class ClientMirror {
 public:
@@ -11,7 +11,7 @@ public:
 	virtual ~ClientMirror();
 
 	int clientID_;
-	Player* player_;
+	PlayerMirror* player_;
 	std::string name_;
 
 	int ownedProgs_[PROGRAM_NUM_PROGTYPES];

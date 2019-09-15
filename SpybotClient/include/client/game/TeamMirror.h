@@ -3,19 +3,19 @@
 #include "Standard.h"
 #include "LinkedList.h"
 
-class Player;
+class PlayerMirror;
 
-class Team {
+class TeamMirror {
 public:
-	Team(int teamNum);
-	virtual ~Team();
+	TeamMirror(int teamNum);
+	virtual ~TeamMirror();
 
-	LinkedList<Player*>* getAllPlayers();
-	Player* getPlayerByID(int playerID);
+	LinkedList<PlayerMirror*>* getAllPlayers();
+	PlayerMirror* getPlayerByID(int playerID);
 	int getTeamNum();
 protected:
 
 private:
-	LinkedList<Player*>* players_;
+	LinkedList<PlayerMirror*>* players_;
 	int teamNum_;
 };

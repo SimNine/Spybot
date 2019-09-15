@@ -1,40 +1,20 @@
 #include "Standard.h"
-#include "Game.h"
+#include "GameMirror.h"
 
 #include "Global.h"
-#include "AIBasic.h"
-#include "Program.h"
-#include "Message.h"
-#include "Server.h"
-#include "Player.h"
 #include "MiscUtil.h"
-#include "Team.h"
-#include "User.h"
-#include "Pipe.h"
+#include "PlayerMirror.h"
+#include "ProgramMirror.h"
+#include "ProgramActionMirror.h"
+#include "TeamMirror.h"
+#include "GameOverlay.h"
+#include "AnimationAttack.h"
+#include "AnimationTileFade.h"
 
-Game::Game(bool serverSide) {
-	serverSide_ = serverSide;
-	teamList_ = new LinkedList<Team*>();
-	initBoard();
+GameMirror::GameMirror() {
+	teamList_ = new LinkedList<TeamMirror*>();
 	status_ = GAMESTATUS_PREGAME;
-}
 
-Game::Game(bool serverSide, std::string lvlStr) {
-	serverSide_ = serverSide;
-	teamList_ = new LinkedList<Team*>();
-	initBoard();
-	loadLevel(lvlStr);
-	status_ = GAMESTATUS_PREGAME;
-}
-
-Game::~Game() {
-	while (teamList_->getLength() > 0)
-		delete teamList_->poll();
-	delete teamList_;
-}
-
-void Game::initBoard() {
-	// initialize the board
 	for (int x = 0; x < 200; x++) {
 		for (int y = 0; y < 200; y++) {
 			gridTiles_[x][y] = TILE_NONE;
@@ -49,11 +29,13 @@ void Game::initBoard() {
 	gridBottomBound_ = 100;
 }
 
-void Game::setTileAt(Coord pos, TILE t) {
-	// check for OOB
-	if (isOOB(pos))
-		return;
+GameMirror::~GameMirror() {
+	while (teamList_->getLength() > 0)
+		delete teamList_->poll();
+	delete teamList_;
+}
 
+void GameMirror::setTileAt(Coord pos, TILE t) {
 	// set the tile
 	gridTiles_[pos.x][pos.y] = t;
 
@@ -111,251 +93,7 @@ void Game::setTileAt(Coord pos, TILE t) {
 	}
 }
 
-bool Game::isDrawValid(Coord pos, Coord dims) {
-	if (pos.x < 0 || pos.x + dims.x > 200 ||
-		pos.y < 0 || pos.y + dims.y > 200)
-		return false;
-	else
-		return true;
-}
-
-void Game::drawRectInBoard(TILE tileType, Coord pos, Coord dims) {
-	if (!isDrawValid(pos, dims))
-		return;
-
-	for (int xx = pos.x; xx < pos.x + dims.x; xx++) {
-		setTileAt({ xx, pos.y }, tileType);
-		setTileAt({ xx, pos.y + dims.y - 1 }, tileType);
-	}
-	for (int yy = pos.y; yy < pos.y + dims.y; yy++) {
-		setTileAt({ pos.x, yy }, tileType);
-		setTileAt({ pos.x + dims.x - 1, yy }, tileType);
-	}
-}
-
-void Game::fillRectInBoard(TILE tileType, Coord pos, Coord dims) {
-	if (!isDrawValid(pos, dims)) return;
-
-	for (int i = pos.x; i < pos.x + dims.x; i++)
-		for (int j = pos.y; j < pos.y + dims.y; j++)
-			setTileAt({ i, j }, tileType);
-}
-
-void Game::drawOvalInBoard(TILE tileType, Coord pos, Coord dims) {
-
-}
-
-void Game::fillOvalInBoard(TILE tileType, Coord pos, Coord dims) {
-	Coord center = { pos.x + dims.x / 2, pos.y + dims.y / 2 };
-	for (int i = pos.x; i < pos.x + dims.x - 1; i++)
-		for (int j = pos.y; j < pos.y + dims.y - 1; j++)
-			if (((i - center.x)*(i - center.x)) / ((dims.x / 2)*(dims.x / 2)) &&
-				((j - center.y)*(j - center.y)) / ((dims.y / 2)*(dims.y / 2)))
-				setTileAt({ i, j }, tileType);
-}
-
-void Game::saveLevel(std::string fileName) {
-	std::ofstream lvl;
-	lvl.open("levels/" + fileName + ".urf", std::ios::out | std::ios::binary | std::ios::trunc);
-	if (!lvl.is_open()) {
-		if (_debug >= DEBUG_MINIMAL) printf("err opening file for saving\n");
-	} else {
-		if (_debug >= DEBUG_MINIMAL) printf("saving level...\n");
-
-		// begin by writing the sizes of various data types
-		int8_t sizeOfInt = sizeof(int);
-		int8_t sizeOfChar = sizeof(char);
-		int8_t sizeOfDouble = sizeof(double);
-		int8_t sizeOfBool = sizeof(bool);
-		if (_debug >= DEBUG_NORMAL) printf("saving constants... int:%i, char:%i, double:%i, bool:%i\n", sizeOfInt, sizeOfChar, sizeOfDouble, sizeOfBool);
-		lvl.write((char*)&sizeOfInt, 1);
-		lvl.write((char*)&sizeOfChar, 1);
-		lvl.write((char*)&sizeOfDouble, 1);
-		lvl.write((char*)&sizeOfBool, 1);
-
-		// write the size of the game grid to the file
-		if (_debug >= DEBUG_NORMAL) printf("saving grid bounds... left:%i, right:%i, top:%i, bottom:%i\n", gridLeftBound_, gridRightBound_, gridTopBound_, gridBottomBound_);
-		lvl.write((char*)&gridLeftBound_, sizeOfInt);
-		lvl.write((char*)&gridRightBound_, sizeOfInt);
-		lvl.write((char*)&gridTopBound_, sizeOfInt);
-		lvl.write((char*)&gridBottomBound_, sizeOfInt);
-
-		// write the enum of the level's background
-		lvl.write((char*)&bkg_, sizeOfInt);
-
-		// collect all the programs in a linked list
-		if (_debug >= DEBUG_NORMAL) printf("gathering program list...\n");
-		LinkedList<Program*> progs = LinkedList<Program*>();
-		for (int x = gridLeftBound_; x < gridRightBound_; x++) {
-			for (int y = gridTopBound_; y < gridBottomBound_; y++) {
-				if (gridPrograms_[x][y] == NULL) {
-					continue;
-				}
-				if (progs.contains(gridPrograms_[x][y])) {
-					if (_debug >= DEBUG_NORMAL) printf("saving program\n");
-					progs.addLast(gridPrograms_[x][y]);
-				}
-			}
-		}
-
-		// write all programs to the file
-		int numPrograms = progs.getLength();
-		if (_debug >= DEBUG_NORMAL) printf("saving %i programs...\n", numPrograms);
-		lvl.write((char*)(&numPrograms), sizeOfInt);
-		for (int i = 0; i < progs.getLength(); i++) {
-			Program* currProg = progs.getObjectAt(i);
-
-			int xHead = currProg->getCore().x;
-			lvl.write((char*)(&xHead), sizeOfInt);
-			int yHead = currProg->getCore().y;
-			lvl.write((char*)(&yHead), sizeOfInt);
-			int type = currProg->getType();
-			lvl.write((char*)(&type), sizeOfInt);
-			int health = currProg->getHealth();
-			lvl.write((char*)(&health), sizeOfInt);
-			int maxHealth = currProg->getMaxHealth();
-			lvl.write((char*)(&maxHealth), sizeOfInt);
-			int maxMoves = currProg->getMaxMoves();
-			lvl.write((char*)(&maxMoves), sizeOfInt);
-			int team = currProg->getTeam();
-			lvl.write((char*)(&team), sizeOfInt);
-		}
-
-		// write the grid to the file
-		if (_debug >= DEBUG_NORMAL) printf("saving tiles, items, and program pointers...\n");
-		for (int x = gridLeftBound_; x < gridRightBound_; x++) {
-			for (int y = gridTopBound_; y < gridBottomBound_; y++) {
-				lvl.write((char*)(&(gridTiles_[x][y])), sizeOfInt);
-				lvl.write((char*)(&(gridItems_[x][y])), sizeOfInt);
-				int index = progs.getIndexOf(gridPrograms_[x][y]);
-				lvl.write((char*)(&index), sizeOfInt);
-			}
-		}
-
-		// flush and close the file
-		if (_debug >= DEBUG_MINIMAL)
-			printf("flushing and closing save file... ");
-		lvl.flush();
-		lvl.close();
-		if (_debug >= DEBUG_MINIMAL)
-			printf("done\n");
-	}
-}
-
-void Game::loadLevel(std::string str) {
-	std::ifstream lvl;
-	if (str.size() == 0) {
-		lvl.open("levels/default.urf", std::ios::in | std::ios::binary);
-	} else {
-		lvl.open(str, std::ios::in | std::ios::binary);
-	}
-
-	if (!lvl.is_open()) {
-		if (_debug >= DEBUG_MINIMAL)
-			printf("err opening level %s\n", str.c_str());
-	} else {
-		if (_debug >= DEBUG_MINIMAL)
-			printf("loading level %s...\n", str.c_str());
-
-		// read the sizes of various data types
-		if (_debug >= DEBUG_NORMAL) printf("loading constants...\n");
-		int8_t sizeOfInt;
-		lvl.read((char*)&sizeOfInt, 1);
-		int8_t sizeOfChar;
-		lvl.read((char*)&sizeOfChar, 1);
-		int8_t sizeOfDouble;
-		lvl.read((char*)&sizeOfDouble, 1);
-		int8_t sizeOfBool;
-		lvl.read((char*)&sizeOfBool, 1);
-
-		// load the size of the game grid
-		if (_debug >= DEBUG_NORMAL) printf("loading grid bounds...\n");
-		int left, right, top, bottom;
-		lvl.read((char*)&left, sizeOfInt);
-		lvl.read((char*)&right, sizeOfInt);
-		lvl.read((char*)&top, sizeOfInt);
-		lvl.read((char*)&bottom, sizeOfInt);
-
-		// load the enum of the level's background
-		lvl.read((char*)&bkg_, sizeOfInt);
-		setBackground(bkg_);
-
-		// load the list of programs
-		int numPrograms;
-		lvl.read((char*)(&numPrograms), sizeOfInt);
-		if (_debug >= DEBUG_NORMAL) printf("loading %i programs...\n", numPrograms);
-		LinkedList<Program*> progs = LinkedList<Program*>();
-		for (int i = 0; i < numPrograms; i++) {
-			int xHead, yHead, type, health, maxHealth, maxMoves, team;
-			lvl.read((char*)(&xHead), sizeOfInt);
-			lvl.read((char*)(&yHead), sizeOfInt);
-			lvl.read((char*)(&type), sizeOfInt);
-			lvl.read((char*)(&health), sizeOfInt);
-			lvl.read((char*)(&maxHealth), sizeOfInt);
-			lvl.read((char*)(&maxMoves), sizeOfInt);
-			lvl.read((char*)(&team), sizeOfInt);
-			Program* p = new Program((PROGRAM)type, team, { xHead, yHead });
-			p->setProgramID(i);
-
-			p->setMaxHealth(maxHealth);
-			p->setMaxMoves(maxMoves);
-
-			// create this program's team if it doesn't exist
-			Team* t = getTeamByNum(team);
-			if (t == NULL) {
-				t = new Team(team);
-				teamList_->addFirst(t);
-			}
-
-			// create this program's player if it doesn't exist
-			Player* pl = t->getAllPlayers()->getFirst();
-			if (pl == NULL) {
-				pl = new Player(this, team);
-				pl->setPlayerID(randInt());
-				t->getAllPlayers()->addFirst(pl);
-
-				// for now, the default AI team is team 1, so add a mind if team == 1
-				if (team == 1)
-					pl->setMind(new AIBasic(pl));
-			}
-
-			// add this program to this player
-			pl->addProgram(p);
-
-			progs.addLast(p);
-		}
-
-		// load the grid from the file
-		if (_debug >= DEBUG_NORMAL) printf("loading tiles, items, and program pointers...\n");
-		for (int x = left; x < right; x++) {
-			for (int y = top; y < bottom; y++) {
-				// tiles
-				TILE typ;
-				lvl.read((char*)(&typ), sizeOfInt);
-				setTileAt({ x, y }, typ);
-
-				// items
-				ITEM itm;
-				lvl.read((char*)(&itm), sizeOfInt);
-				gridItems_[x][y] = itm;
-
-				// programs
-				int indx;
-				lvl.read((char*)(&indx), sizeOfInt);
-				gridPrograms_[x][y] = progs.getObjectAt(indx);
-				if (gridPrograms_[x][y] != NULL)
-					gridPrograms_[x][y]->addTail({ x, y });
-			}
-		}
-
-		// close the file
-		lvl.close();
-		if (_debug >= DEBUG_MINIMAL)
-			printf("done\n");
-	}
-}
-
-void Game::removeReferencesToProgram(Program* p) {
+void GameMirror::removeReferencesToProgram(ProgramMirror* p) {
 	if (p == NULL)
 		return;
 
@@ -365,81 +103,63 @@ void Game::removeReferencesToProgram(Program* p) {
 				gridPrograms_[i][j] = NULL;
 }
 
-int Game::getLeftBound() {
+int GameMirror::getLeftBound() {
 	return gridLeftBound_;
 }
 
-int Game::getRightBound() {
+int GameMirror::getRightBound() {
 	return gridRightBound_;
 }
 
-int Game::getTopBound() {
+int GameMirror::getTopBound() {
 	return gridTopBound_;
 }
 
-int Game::getBottomBound() {
+int GameMirror::getBottomBound() {
 	return gridBottomBound_;
 }
 
-void Game::setBackground(BACKGROUND b) {
-	bkg_ = b;
-}
-
-BACKGROUND Game::getBackground() {
-	return bkg_;
-}
-
-void Game::setProgramAt(Coord pos, Program* p) {
-	// sanity check
-	if (isOOB(pos))
-		return;
-
-	// place the program
+void GameMirror::setProgramAt(Coord pos, ProgramMirror* p) {
 	gridPrograms_[pos.x][pos.y] = p;
 }
 
-void Game::setItemAt(Coord pos, ITEM i) {
-	// don't place an item if there's no tile here
-	if (!isTiled(pos))
-		return;
-
-	// place the item here
+void GameMirror::setItemAt(Coord pos, ITEM i) {
 	gridItems_[pos.x][pos.y] = i;
 }
 
-TILE Game::getTileAt(Coord pos) {
+TILE GameMirror::getTileAt(Coord pos) {
 	if (pos.x >= 200 || pos.x < 0 || pos.y >= 200 || pos.y < 0)
 		return TILE_NONE;
 	return gridTiles_[pos.x][pos.y];
 }
 
-Program* Game::getProgramAt(Coord pos) {
+ProgramMirror* GameMirror::getProgramAt(Coord pos) {
 	return gridPrograms_[pos.x][pos.y];
 }
 
-ITEM Game::getItemAt(Coord pos) {
+ITEM GameMirror::getItemAt(Coord pos) {
 	return gridItems_[pos.x][pos.y];
 }
 
-bool Game::isOOB(Coord pos) {
+bool GameMirror::isOOB(Coord pos) {
 	if (pos.x < 0 || pos.x >= 200 || pos.y < 0 || pos.y >= 200)
 		return true;
 	else
 		return false;
 }
 
-bool Game::isTiled(Coord pos) {
+bool GameMirror::isTiled(Coord pos) {
 	if (isOOB(pos) || gridTiles_[pos.x][pos.y] == TILE_NONE)
 		return false;
 	else
 		return true;
 }
 
-Player* Game::getPlayerByID(int playerID) {
-	Iterator<Team*> itTeams = teamList_->getIterator();
+PlayerMirror* GameMirror::getPlayerByID(int playerID) {
+	Iterator<TeamMirror*> itTeams = teamList_->getIterator();
 	while (itTeams.hasNext()) {
-		Team* currTeam = itTeams.next();
-		Player* p = currTeam->getPlayerByID(playerID);
+		TeamMirror* currTeam = itTeams.next();
+		PlayerMirror* p = currTeam->getPlayerByID(playerID);
 		if (p != NULL)
 			return p;
 	}
@@ -447,84 +167,42 @@ Player* Game::getPlayerByID(int playerID) {
 	return NULL;
 }
 
-GAMESTATUS Game::getStatus() {
+GAMESTATUS GameMirror::getStatus() {
 	return status_;
 }
 
-void Game::setStatus(GAMESTATUS g) {
-	switch (g) {
-	case GAMESTATUS_PREGAME:
-		break;
-	case GAMESTATUS_PLAYING:
-		for (int x = 0; x < 200; x++) for (int y = 0; y < 200; y++)
-			if (getTileAt({ x, y }) == TILE_SPAWN || getTileAt({ x, y }) == TILE_SPAWN2) {
-				setTileAt({ x, y }, TILE_PLAIN);
-
-				if (serverSide_) {
-					// convert all spawntiles to plain tiles
-					Message msg;
-					msg.type = MSGTYPE_INFO;
-					msg.infoType = MSGINFOTYPE_TILE;
-					msg.tileType = TILE_PLAIN;
-					msg.pos = Coord{ x, y };
-					_server->sendMessageToAllClients(msg);
-
-					// send the current player turn to each client
-					msg.type = MSGTYPE_NEXTTURN;
-					msg.clientID = 0;
-					msg.playerID = teamList_->getFirst()->getAllPlayers()->getFirst()->getPlayerID();
-					_server->sendMessageToAllClients(msg);
-
-					// set the turn to be the first player
-					currTurnPlayer_ = getPlayerByID(msg.playerID);
-				}
-			}
-		break;
-	case GAMESTATUS_END:
-		break;
-	}
-
+void GameMirror::setStatus(GAMESTATUS g) {
 	status_ = g;
+}
 
-	if (serverSide_) {
-		Message m;
-		m.type = MSGTYPE_INFO;
-		m.infoType = MSGINFOTYPE_GAMESTATUS;
-		m.statusType = g;
-		_server->sendMessageToAllClients(m);
+void GameMirror::moveProgramTo(ProgramMirror* p, Coord c) {
+	// delete the tail of this program if it's at max health
+	if (p->getHealth() == p->getMaxHealth() && getProgramAt(c) != p) {
+		Coord temp = p->getTail();
+		gridPrograms_[temp.x][temp.y] = NULL;
 	}
-}
 
-void Game::moveProgramTo(Program* p, Coord c) {
+	// move the program
+	gridPrograms_[c.x][c.y] = p;
 	p->moveTo(c);
-	setProgramAt(c, p);
 }
 
-Player* Game::getCurrTurnPlayer() {
+PlayerMirror* GameMirror::getCurrTurnPlayer() {
 	return currTurnPlayer_;
 }
 
-void Game::setCurrTurnPlayer(Player* p) {
+void GameMirror::setCurrTurnPlayer(PlayerMirror* p) {
 	currTurnPlayer_ = p;
-
-	if (serverSide_) {
-		// send a message saying it's this player's turn
-		Message m;
-		m.type = MSGTYPE_NEXTTURN;
-		m.clientID = 0;
-		m.playerID = p->getPlayerID();
-		_server->sendMessageToAllClients(m);
-	}
 }
 
-LinkedList<Team*>* Game::getAllTeams() {
+LinkedList<TeamMirror*>* GameMirror::getAllTeams() {
 	return teamList_;
 }
 
-Team* Game::getTeamByNum(int teamNum) {
-	Iterator<Team*> it = teamList_->getIterator();
+TeamMirror* GameMirror::getTeamByNum(int teamNum) {
+	Iterator<TeamMirror*> it = teamList_->getIterator();
 	while (it.hasNext()) {
-		Team* curr = it.next();
+		TeamMirror* curr = it.next();
 		if (curr->getTeamNum() == teamNum)
 			return curr;
 	}
@@ -532,116 +210,67 @@ Team* Game::getTeamByNum(int teamNum) {
 	return NULL;
 }
 
-Player* Game::getFollowingPlayer(Player* currPlayer) {
-	Team* currTeam = getTeamByNum(currPlayer->getTeam());
+void GameMirror::useActionAt(PlayerMirror* userPlayer, ProgramMirror* userProgram, ProgramActionMirror* action, Coord pos) {
+	ProgramMirror* tgtProg = gridPrograms_[pos.x][pos.y];
 
-	int teamIndex = teamList_->getIndexOf(currTeam);
-	int playerIndex = currTeam->getAllPlayers()->getIndexOf(currPlayer);
+	switch (action->type_) {
+	case ACTIONTYPE_DAMAGE:
+		if (tgtProg->getTeam() != userPlayer->getTeam()) {
+			_gameOverlay->addAnimation(new AnimationAttack(tgtProg->getHead(), action->power_));
+			for (int i = 0; i < action->power_; i++) {
+				Coord* curr = tgtProg->popTail();
+				if (curr == NULL) {
+					break;
+				} else {
+					SDL_Color c = tgtProg->getOwner()->getColor();
+					_gameOverlay->addAnimation(new AnimationTileFade(*curr, i * 255 + 255, c.r, c.g, c.b));
+					gridPrograms_[curr->x][curr->y] = NULL;
+				}
+			}
+		}
 
-	// if this is the last player on the current team
-	if (currTeam->getAllPlayers()->getLast() == currPlayer) {
-		// if this is the last team
-		if (teamList_->getLast() == currTeam) {
-			return teamList_->getFirst()->getAllPlayers()->getFirst();
+		if (tgtProg->getHealth() <= 0) {
+			PlayerMirror* owner = tgtProg->getOwner();
+			owner->getProgList()->remove(tgtProg);
+			delete tgtProg;
+		}
+		break;
+	case ACTIONTYPE_SPEEDDOWN:
+		if (tgtProg->getMaxMoves() < action->power_) {
+			tgtProg->setMaxMoves(0);
 		} else {
-			return teamList_->getObjectAt(teamIndex + 1)->getAllPlayers()->getFirst();
-		}
-	} else { // if this is NOT the last player on the current team
-		return currTeam->getAllPlayers()->getObjectAt(playerIndex + 1);
-	}
-
-	return NULL;
-}
-
-bool Game::isServerSide() {
-	return serverSide_;
-}
-
-void Game::checkForWinCondition() {
-	int currTeamWinning = -1;
-
-	Iterator<Team*> itTeam = teamList_->getIterator();
-	while (itTeam.hasNext()) { // check each team
-		Team* currTeam = itTeam.next();
-		Iterator<Player*> itPlayer = currTeam->getAllPlayers()->getIterator();
-		while (itPlayer.hasNext()) { // check each player on this team to see if they are alive
-			Player* currPlayer = itPlayer.next();
-			if (currPlayer->getProgList()->getLength() > 0) { // if this player is alive
-				if (currTeamWinning == -1) { // if there is not yet a winning team
-					currTeamWinning = currTeam->getTeamNum();
-				} else { // if this team is alive, and is a different team than previously (no winning condition)
-					return;
-				}
-			}
-		}
-	}
-
-	// at this point, if currTeamWinning is -1, something went wrong
-	// otherwise, currTeamWinning is the number of the winning team
-	if (currTeamWinning != -1) {
-		Message m;
-		m.type = MSGTYPE_INFO;
-		m.infoType = MSGINFOTYPE_GAMESTATUS;
-		m.statusType = GAMESTATUS_END;
-		m.team = currTeamWinning;
-		_server->sendMessageToAllClients(m);
-		printf("SERVER: game detected winning condition for team %i\n", currTeamWinning);
-	}
-
-	// only do these things if serverside
-	if (serverSide_) {
-
-		// refund all players' programs
-		Iterator<Pipe*> it = _server->getClientList()->getIterator();
-		while (it.hasNext()) {
-			Pipe* curr = it.next();
-			User* currUser = _server->getUserByName(curr->getUser());
-			if (currUser != NULL) {
-				for (int i = 0; i < PROGRAM_NUM_PROGTYPES; i++) {
-					if (currUser->progsInPlay_[i] > 0) {
-						currUser->progsOwned_[i] += currUser->progsInPlay_[i];
-						currUser->progsInPlay_[i] = 0;
-
-						Message m;
-						m.type = MSGTYPE_PROGINVENTORY;
-						m.progType = (PROGRAM)i;
-						m.programID = currUser->progsOwned_[i];
-						_server->sendMessageToClient(m, curr->getClientID());
-					}
-				}
-			}
-			_server->saveUsers();
+			tgtProg->setMaxMoves(tgtProg->getMaxMoves() - action->power_);
 		}
 
-		// send all players on the winning team a winning message
-		if (_server->getSavePath() == "levels/classic" || _server->getSavePath() == "levels/nightfall") {
-			Team* t = this->getTeamByNum(currTeamWinning);
-			Iterator<Player*> itPlayers = t->getAllPlayers()->getIterator();
-			while (itPlayers.hasNext()) {
-				Player* currPlayer = itPlayers.next();
-				Iterator<Pipe*> itPipes = _server->getClientList()->getIterator();
-				while (itPipes.hasNext()) {
-					Pipe* currPipe = itPipes.next();
-					if (currPlayer->getPlayerID() == currPipe->getPlayer()) {
-						User* user = _server->getUserByName(currPipe->getUser());
-
-						// update this user's progress
-						if (_server->getSavePath() == "levels/classic") {
-							user->campaignClassic_[_server->getCurrentLevel()] = true;
-							_server->saveUsers();
-						} else if (_server->getSavePath() == "levels/nightfall") {
-							user->campaignNightfall_[_server->getCurrentLevel()] = true;
-							_server->saveUsers();
-						}
-
-						// send message letting client know of level unlock
-						Message m;
-						m.type = MSGTYPE_LEVELUNLOCK;
-						m.levelNum = _server->getCurrentLevel();
-						currPipe->sendData(m);
-					}
-				}
-			}
-		}
+		if (tgtProg->getMoves() > tgtProg->getMaxMoves())
+			tgtProg->setMoves(tgtProg->getMaxMoves());
+		break;
+	case ACTIONTYPE_SPEEDUP:
+		tgtProg->setMaxMoves(tgtProg->getMaxMoves() + action->power_);
+		tgtProg->setMoves(tgtProg->getMoves() + action->power_);
+		break;
+	case ACTIONTYPE_TILEDELETE:
+		setTileAt(pos, TILE_NONE);
+		break;
+	case ACTIONTYPE_TILEPLACE:
+		setTileAt(pos, TILE_PLAIN);
+		break;
+	case ACTIONTYPE_MAXHEALTHDOWN:
+		if (tgtProg->getMaxHealth() < action->power_ - 1)
+			tgtProg->setMaxHealth(0);
+		else
+			tgtProg->setMaxHealth(tgtProg->getMaxHealth() - action->power_);
+		break;
+	case ACTIONTYPE_MAXHEALTHUP:
+		tgtProg->setMaxHealth(tgtProg->getMaxHealth() + action->power_);
+		break;
+	case ACTIONTYPE_HEAL:
+		printf("CLIENT ERR: action type HEAL not implemented yet\n");
+	default:
+		break;
 	}
+
+	userProgram->setActionsLeft(userProgram->getActionsLeft() - 1);
+	userPlayer->setSelectedAction(NULL);
+	userPlayer->setSelectedProgram(userProgram);
 }

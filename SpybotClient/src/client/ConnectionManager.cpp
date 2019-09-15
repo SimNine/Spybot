@@ -6,7 +6,7 @@
 #include "MiscUtil.h"
 #include "Data.h"
 #include "ClientMirror.h"
-#include "Player.h"
+#include "PlayerMirror.h"
 #include "Server.h"
 #include "Client.h"
 

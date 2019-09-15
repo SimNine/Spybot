@@ -2,15 +2,15 @@
 #include "ProgramDisplayContainer.h"
 
 #include "Global.h"
-#include "Program.h"
+#include "ProgramMirror.h"
 #include "ResourceLoader.h"
 #include "GameOverlay.h"
 #include "Data.h"
 #include "MiscUtil.h"
-#include "ProgramAction.h"
+#include "ProgramActionMirror.h"
 #include "Client.h"
-#include "Player.h"
-#include "Game.h"
+#include "PlayerMirror.h"
+#include "GameMirror.h"
 #include "GUITexture.h"
 #include "Client.h"
 #include "ClientMirror.h"
@@ -104,7 +104,7 @@ bool ProgramDisplayContainer::mouseDown() {
 	return true;
 }
 
-void ProgramDisplayContainer::setCurrProg(Program* p) {
+void ProgramDisplayContainer::setCurrProg(ProgramMirror* p) {
 	// fade in / out
 	if (p == NULL) {
 		this->addEffect(new GUIEffectFade(0, 500, 255, 0));
@@ -143,9 +143,9 @@ void ProgramDisplayContainer::setCurrProg(Program* p) {
 	int yDisp = 10;
 	int index = 0;
 	int buttonHeight = 70;
-	Iterator<ProgramAction*> it = p->getActions()->getIterator();
+	Iterator<ProgramActionMirror*> it = p->getActions()->getIterator();
 	while (it.hasNext()) {
-		ProgramAction* curr = it.next();
+		ProgramActionMirror* curr = it.next();
 		ProgramDisplayActionButton* actionButton = new ProgramDisplayActionButton(actionButtonContainer_, ANCHOR_NORTHWEST, { 10, yDisp }, { actionButtonContainer_->getBounds().w - 20, buttonHeight }, *curr, index);
 		actionButtonContainer_->addObject(actionButton);
 		yDisp += buttonHeight + 10;
@@ -160,6 +160,6 @@ void ProgramDisplayContainer::setCurrProg(Program* p) {
 	resetBounds();
 }
 
-Program* ProgramDisplayContainer::getCurrProg() {
+ProgramMirror* ProgramDisplayContainer::getCurrProg() {
 	return currProg_;
 }

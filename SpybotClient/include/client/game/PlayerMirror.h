@@ -3,60 +3,48 @@
 #include "Standard.h"
 #include "LinkedList.h"
 
-class ProgramAction;
-class Game;
-class Program;
-class AICore;
+class ProgramActionMirror;
+class GameMirror;
+class ProgramMirror;
 
-class Player {
+class PlayerMirror {
 public:
-	Player(Game*, int);
-	virtual ~Player();
+	PlayerMirror(GameMirror*, int);
+	virtual ~PlayerMirror();
 
 	void endTurn();
-	bool getDoneTurn();
-	void setDoneTurn(bool b);
 
-	LinkedList<Program*>* getProgList();
-	Program* getProgramByID(int progID);
+	LinkedList<ProgramMirror*>* getProgList();
+	ProgramMirror* getProgramByID(int progID);
 	int getTeam();
 
-	void addProgram(Program*);
+	void addProgram(ProgramMirror*);
 
 	void setSelectedTile(Coord);
 	Coord getSelectedTile();
-	void setSelectedAction(ProgramAction*);
-	ProgramAction* getSelectedAction();
-	void useSelectedActionAt(Coord);
-	void setSelectedProgram(Program*);
-	Program* getSelectedProgram();
-	void moveSelectedProgram(Coord);
-	void moveSelectedProgramBy(Coord);
+	void setSelectedAction(ProgramActionMirror*);
+	ProgramActionMirror* getSelectedAction();
+	void setSelectedProgram(ProgramMirror*);
+	ProgramMirror* getSelectedProgram();
 	bool canSelectedProgramMoveTo(Coord);
-	bool canSelectedProgramMoveBy(Coord);
 	int getSelectedProgramDist(Coord);
 	int getSelectedProgramDistAll(Coord);
 	int getSelectedActionDist(Coord);
-	Coord getFarthestTile(Program*);
 
 	int getPlayerID();
 	void setPlayerID(int playerID);
 
-	void setMind(AICore* mind);
-	AICore* getMind();
-
 	SDL_Color getColor();
-	Game* getGame();
+	GameMirror* getGame();
 protected:
-	Game* game_;
+	GameMirror* game_;
 	int team_;
-	bool doneTurn_;
-	Program* selectedProgram_;
-	ProgramAction* selectedAction_;
-	LinkedList<Program*>* progsOwned_;
+	ProgramMirror* selectedProgram_;
+	ProgramActionMirror* selectedAction_;
+	LinkedList<ProgramMirror*>* progsOwned_;
 
 	// helper methods for AI subclasses
-	void calculateProgramDist(Program*);
+	void calculateProgramDist(ProgramMirror*);
 private:
 	Coord selectedTile_;
 	int selectedProgDist_[200][200];
@@ -66,6 +54,4 @@ private:
 	SDL_Color color_;
 
 	int playerID_;
-
-	AICore* brain_;
 };

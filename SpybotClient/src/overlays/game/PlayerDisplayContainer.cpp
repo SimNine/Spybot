@@ -2,16 +2,16 @@
 #include "PlayerDisplayContainer.h"
 
 #include "Global.h"
-#include "Player.h"
+#include "PlayerMirror.h"
 #include "GUIContainer.h"
 #include "Client.h"
-#include "Game.h"
+#include "GameMirror.h"
 #include "ResourceLoader.h"
 #include "MiscUtil.h"
 #include "Data.h"
 #include "GameOverlay.h"
 #include "ClientMirror.h"
-#include "Team.h"
+#include "TeamMirror.h"
 #include "ConnectionManager.h"
 
 PlayerDisplayContainer::PlayerDisplayContainer(ANCHOR a, Coord disp, Coord dims, GUIContainer* par)
@@ -30,7 +30,7 @@ void PlayerDisplayContainer::draw() {
 	// adjust the size of this container
 	int numTeams = _client->getGame()->getAllTeams()->getLength();
 	int numPlayers = 0;
-	Iterator<Team*> itTeams = _client->getGame()->getAllTeams()->getIterator();
+	Iterator<TeamMirror*> itTeams = _client->getGame()->getAllTeams()->getIterator();
 	while (itTeams.hasNext()) {
 		numPlayers += itTeams.next()->getAllPlayers()->getLength();
 	}
@@ -52,7 +52,7 @@ void PlayerDisplayContainer::draw() {
 	itTeams = _client->getGame()->getAllTeams()->getIterator();
 	while (itTeams.hasNext()) {
 		// get current team
-		Team* currTeam = itTeams.next();
+		TeamMirror* currTeam = itTeams.next();
 
 		// draw the human player section title
 		SDL_Texture* humanPTitle = loadString("Team " + to_string(currTeam->getTeamNum()) + ":", FONT_NORMAL, fontSize, { 255, 255, 255, 255 });
@@ -64,10 +64,10 @@ void PlayerDisplayContainer::draw() {
 		yOffset += objBounds.h + 5;
 
 		// draw each player's display box
-		Iterator<Player*> it = currTeam->getAllPlayers()->getIterator();
+		Iterator<PlayerMirror*> it = currTeam->getAllPlayers()->getIterator();
 		while (it.hasNext()) {
 			// draw background color box
-			Player* curr = it.next();
+			PlayerMirror* curr = it.next();
 			objBounds.x = bounds_.x + xOffset;
 			objBounds.y = bounds_.y + yOffset;
 			objBounds.w = 190;

@@ -1,7 +1,7 @@
 #include "Standard.h"
-#include "ProgramAction.h"
+#include "ProgramActionMirror.h"
 
-ProgramAction::ProgramAction() {
+ProgramActionMirror::ProgramActionMirror() {
 	this->type_ = ACTIONTYPE_NONE;
 	this->name_ = "";
 	this->description_ = "";
@@ -11,7 +11,7 @@ ProgramAction::ProgramAction() {
 	this->actionID_ = -1;
 }
 
-ProgramAction::ProgramAction(ACTIONTYPE t, std::string name, std::string description, int range, int power, int reqSize) {
+ProgramActionMirror::ProgramActionMirror(ACTIONTYPE t, std::string name, std::string description, int range, int power, int reqSize) {
 	this->type_ = t;
 	this->name_ = name;
 	this->description_ = description;
@@ -21,7 +21,7 @@ ProgramAction::ProgramAction(ACTIONTYPE t, std::string name, std::string descrip
 	this->actionID_ = -1;
 }
 
-ProgramAction::ProgramAction(MOVEPRESET p) {
+ProgramActionMirror::ProgramActionMirror(MOVEPRESET p) {
 	this->actionID_ = -1;
 
 	switch (p) {
@@ -211,28 +211,25 @@ ProgramAction::ProgramAction(MOVEPRESET p) {
 		setMove(ACTIONTYPE_TILEDELETE, "Zero", "Deletes one grid square", 1, 0, 0);
 		break;
 	case MOVEPRESET_CUSTOM:
-		printf("err: tried to initialize ProgramAction of invalid type\n");
+		printf("CLIENT ERR: tried to initialize ProgramActionMirror of invalid type\n");
 		exit(1);
 		break;
 	case MOVEPRESET_NUM_MOVEPRESETS:
-		printf("err: tried to initialize ProgramAction of invalid type\n");
+		printf("CLIENT ERR: tried to initialize ProgramActionMirror of invalid type\n");
 		exit(1);
 		break;
 	default:
-		printf("err: tried to initialize ProgramAction of invalid type\n");
+		printf("CLIENT ERR: tried to initialize ProgramActionMirror of invalid type\n");
 		exit(1);
 		break;
 	}
 }
 
-ProgramAction::~ProgramAction() {
-	//if (debug >= DEBUG_NORMAL)
-	{
-		printf("Move '%s' deleted\n", name_.c_str());
-	}
+ProgramActionMirror::~ProgramActionMirror() {
+	//printf("CLIENT: Move '%s' deleted\n", name_.c_str());
 }
 
-void ProgramAction::setMove(ACTIONTYPE t, std::string name, std::string description, int range, int power, int reqSize) {
+void ProgramActionMirror::setMove(ACTIONTYPE t, std::string name, std::string description, int range, int power, int reqSize) {
 	this->type_ = t;
 	this->name_ = name;
 	this->description_ = description;

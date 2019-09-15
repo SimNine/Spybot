@@ -2,13 +2,13 @@
 
 #include "Standard.h"
 #include "GUIObject.h"
-#include "ProgramAction.h"
+#include "ProgramActionMirror.h"
 
 class GUIContainer;
 
 class ProgramDisplayActionButton : public GUIObject {
 public:
-	ProgramDisplayActionButton(GUIContainer* parent, ANCHOR a, Coord disp, Coord dims, ProgramAction action, int actionNum);
+	ProgramDisplayActionButton(GUIContainer* parent, ANCHOR a, Coord disp, Coord dims, ProgramActionMirror action, int actionNum);
 	virtual ~ProgramDisplayActionButton();
 
 	void setTransparency(int);
@@ -19,6 +19,6 @@ public:
 	void resetBounds();
 protected:
 private:
-	ProgramAction action_;
+	ProgramActionMirror action_;
 	int actionNum_;
 };

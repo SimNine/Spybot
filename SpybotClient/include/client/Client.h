@@ -4,8 +4,8 @@
 #include "LinkedList.h"
 
 struct Message;
-class Game;
-class Player;
+class GameMirror;
+class PlayerMirror;
 class ClientMirror;
 
 class Client {
@@ -16,11 +16,11 @@ public:
 	void processMessage(Message* m);
 	void processAllMessages();
 
-	Player* getPlayer();
-	void setPlayer(Player* player);
+	PlayerMirror* getPlayer();
+	void setPlayer(PlayerMirror* player);
 
-	Game* getGame();
-	void setGame(Game* game);
+	GameMirror* getGame();
+	void setGame(GameMirror* game);
 
 	int getClientID();
 	void setClientID(int clientID);
@@ -34,8 +34,8 @@ private:
 	int myClientID_;
 
 	// game entity and player entity (both NULL when no game is being played)
-	Game* game_;
-	Player* player_;
+	GameMirror* game_;
+	PlayerMirror* player_;
 
 	// clientmirror entity
 	ClientMirror* myClientMirror_;

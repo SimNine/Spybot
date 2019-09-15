@@ -3,30 +3,23 @@
 #include "Standard.h"
 #include "LinkedList.h"
 
-class Player;
-class Program;
-class Team;
+class PlayerMirror;
+class ProgramMirror;
+class ProgramActionMirror;
+class TeamMirror;
 
-class Game {
+class GameMirror {
 public:
 	// constructors, destructor
-	Game(bool serverSide);
-	Game(bool serverSide, std::string levelString);
-	void initBoard();
-	virtual ~Game();
-
-	// level save method
-	void saveLevel(std::string fileName);
+	GameMirror();
+	virtual ~GameMirror();
 
 	//getters and setters
-	LinkedList<Team*>* getAllTeams();
-	Team* getTeamByNum(int teamNum);
-	Player* getPlayerByID(int playerID);
-	Player* getFollowingPlayer(Player* currPlayer);
-	void setCurrTurnPlayer(Player* p);
-	Player* getCurrTurnPlayer();
-
-	void checkForWinCondition();
+	LinkedList<TeamMirror*>* getAllTeams();
+	TeamMirror* getTeamByNum(int teamNum);
+	PlayerMirror* getPlayerByID(int playerID);
+	void setCurrTurnPlayer(PlayerMirror* p);
+	PlayerMirror* getCurrTurnPlayer();
 
 	int getLeftBound();
 	int getRightBound();
@@ -35,25 +28,22 @@ public:
 
 	void setTileAt(Coord, TILE);
 	TILE getTileAt(Coord);
-	void setProgramAt(Coord, Program*);
-	Program* getProgramAt(Coord);
-	void moveProgramTo(Program*, Coord);
+	void setProgramAt(Coord, ProgramMirror*);
+	ProgramMirror* getProgramAt(Coord);
+	void moveProgramTo(ProgramMirror*, Coord);
 	void setItemAt(Coord, ITEM);
 	ITEM getItemAt(Coord);
 	bool isOOB(Coord);
 	bool isTiled(Coord);
 
-	void setBackground(BACKGROUND);
-	BACKGROUND getBackground();
+	void useActionAt(PlayerMirror* userPlayer, ProgramMirror* userProgram, ProgramActionMirror* action, Coord coord);
 
 	GAMESTATUS getStatus();
 	void setStatus(GAMESTATUS gs);
-
-	bool isServerSide();
 protected:
 private:
 	// players
-	LinkedList<Team*>* teamList_;
+	LinkedList<TeamMirror*>* teamList_;
 
 	// effective grid bounds
 	int gridLeftBound_, gridRightBound_, gridTopBound_, gridBottomBound_;
@@ -61,22 +51,11 @@ private:
 	// grid contents
 	TILE gridTiles_[200][200];
 	ITEM gridItems_[200][200];
-	Program* gridPrograms_[200][200];
-	void removeReferencesToProgram(Program*);
+	ProgramMirror* gridPrograms_[200][200];
+	void removeReferencesToProgram(ProgramMirror* p);
 	BACKGROUND bkg_;
-
-	// helper methods
-	void loadLevel(std::string);
-	void drawRectInBoard(TILE, Coord, Coord);
-	void fillRectInBoard(TILE, Coord, Coord);
-	void drawOvalInBoard(TILE, Coord, Coord);
-	void fillOvalInBoard(TILE, Coord, Coord);
-	bool isDrawValid(Coord, Coord);
 
 	// game status
 	GAMESTATUS status_;
-	Player* currTurnPlayer_;
-
-	// boolean indicating whether this game is serverside (master) or clientside (slave)
-	bool serverSide_;
+	PlayerMirror* currTurnPlayer_;
 };

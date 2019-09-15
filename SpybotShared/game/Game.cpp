@@ -12,15 +12,7 @@
 #include "User.h"
 #include "Pipe.h"
 
-Game::Game(bool serverSide) {
-	serverSide_ = serverSide;
-	teamList_ = new LinkedList<Team*>();
-	initBoard();
-	status_ = GAMESTATUS_PREGAME;
-}
-
-Game::Game(bool serverSide, std::string lvlStr) {
-	serverSide_ = serverSide;
+Game::Game(std::string lvlStr) {
 	teamList_ = new LinkedList<Team*>();
 	initBoard();
 	loadLevel(lvlStr);
@@ -34,12 +26,12 @@ Game::~Game() {
 }
 
 void Game::initBoard() {
-	// initialize the board
 	for (int x = 0; x < 200; x++) {
 		for (int y = 0; y < 200; y++) {
 			gridTiles_[x][y] = TILE_NONE;
 			gridItems_[x][y] = ITEM_NONE;
 			gridPrograms_[x][y] = NULL;
+			gridSpawnGroups_[x][y] = -1;
 		}
 	}
 
@@ -47,6 +39,10 @@ void Game::initBoard() {
 	gridRightBound_ = 100;
 	gridTopBound_ = 100;
 	gridBottomBound_ = 100;
+}
+
+void Game::setSpawnGroup(Coord pos, int spawnGroup) {
+	// if (!isTiled(pos) || !gridTiles_[pos.x][pos.y] == TILE_SPAWN)
 }
 
 void Game::setTileAt(Coord pos, TILE t) {
@@ -458,27 +454,25 @@ void Game::setStatus(GAMESTATUS g) {
 	case GAMESTATUS_PLAYING:
 		for (int x = 0; x < 200; x++) for (int y = 0; y < 200; y++)
 			if (getTileAt({ x, y }) == TILE_SPAWN || getTileAt({ x, y }) == TILE_SPAWN2) {
+
+				// convert all spawntiles to plain tiles
 				setTileAt({ x, y }, TILE_PLAIN);
-
-				if (serverSide_) {
-					// convert all spawntiles to plain tiles
-					Message msg;
-					msg.type = MSGTYPE_INFO;
-					msg.infoType = MSGINFOTYPE_TILE;
-					msg.tileType = TILE_PLAIN;
-					msg.pos = Coord{ x, y };
-					_server->sendMessageToAllClients(msg);
-
-					// send the current player turn to each client
-					msg.type = MSGTYPE_NEXTTURN;
-					msg.clientID = 0;
-					msg.playerID = teamList_->getFirst()->getAllPlayers()->getFirst()->getPlayerID();
-					_server->sendMessageToAllClients(msg);
-
-					// set the turn to be the first player
-					currTurnPlayer_ = getPlayerByID(msg.playerID);
-				}
+				Message msg;
+				msg.type = MSGTYPE_INFO;
+				msg.infoType = MSGINFOTYPE_TILE;
+				msg.tileType = TILE_PLAIN;
+				msg.pos = Coord{ x, y };
+				_server->sendMessageToAllClients(msg);
 			}
+		{
+			// set the turn to be the first player
+			currTurnPlayer_ = teamList_->getFirst()->getAllPlayers()->getFirst();
+			Message msg;
+			msg.type = MSGTYPE_NEXTTURN;
+			msg.clientID = 0;
+			msg.playerID = currTurnPlayer_->getPlayerID();
+			_server->sendMessageToAllClients(msg);
+		}
 		break;
 	case GAMESTATUS_END:
 		break;
@@ -486,13 +480,11 @@ void Game::setStatus(GAMESTATUS g) {
 
 	status_ = g;
 
-	if (serverSide_) {
-		Message m;
-		m.type = MSGTYPE_INFO;
-		m.infoType = MSGINFOTYPE_GAMESTATUS;
-		m.statusType = g;
-		_server->sendMessageToAllClients(m);
-	}
+	Message m;
+	m.type = MSGTYPE_INFO;
+	m.infoType = MSGINFOTYPE_GAMESTATUS;
+	m.statusType = g;
+	_server->sendMessageToAllClients(m);
 }
 
 void Game::moveProgramTo(Program* p, Coord c) {
@@ -507,14 +499,12 @@ Player* Game::getCurrTurnPlayer() {
 void Game::setCurrTurnPlayer(Player* p) {
 	currTurnPlayer_ = p;
 
-	if (serverSide_) {
-		// send a message saying it's this player's turn
-		Message m;
-		m.type = MSGTYPE_NEXTTURN;
-		m.clientID = 0;
-		m.playerID = p->getPlayerID();
-		_server->sendMessageToAllClients(m);
-	}
+	// send a message saying it's this player's turn
+	Message m;
+	m.type = MSGTYPE_NEXTTURN;
+	m.clientID = 0;
+	m.playerID = p->getPlayerID();
+	_server->sendMessageToAllClients(m);
 }
 
 LinkedList<Team*>* Game::getAllTeams() {
@@ -553,10 +543,6 @@ Player* Game::getFollowingPlayer(Player* currPlayer) {
 	return NULL;
 }
 
-bool Game::isServerSide() {
-	return serverSide_;
-}
-
 void Game::checkForWinCondition() {
 	int currTeamWinning = -1;
 
@@ -588,58 +574,54 @@ void Game::checkForWinCondition() {
 		printf("SERVER: game detected winning condition for team %i\n", currTeamWinning);
 	}
 
-	// only do these things if serverside
-	if (serverSide_) {
+	// refund all players' programs
+	Iterator<Pipe*> it = _server->getClientList()->getIterator();
+	while (it.hasNext()) {
+		Pipe* curr = it.next();
+		User* currUser = _server->getUserByName(curr->getUser());
+		if (currUser != NULL) {
+			for (int i = 0; i < PROGRAM_NUM_PROGTYPES; i++) {
+				if (currUser->progsInPlay_[i] > 0) {
+					currUser->progsOwned_[i] += currUser->progsInPlay_[i];
+					currUser->progsInPlay_[i] = 0;
 
-		// refund all players' programs
-		Iterator<Pipe*> it = _server->getClientList()->getIterator();
-		while (it.hasNext()) {
-			Pipe* curr = it.next();
-			User* currUser = _server->getUserByName(curr->getUser());
-			if (currUser != NULL) {
-				for (int i = 0; i < PROGRAM_NUM_PROGTYPES; i++) {
-					if (currUser->progsInPlay_[i] > 0) {
-						currUser->progsOwned_[i] += currUser->progsInPlay_[i];
-						currUser->progsInPlay_[i] = 0;
-
-						Message m;
-						m.type = MSGTYPE_PROGINVENTORY;
-						m.progType = (PROGRAM)i;
-						m.programID = currUser->progsOwned_[i];
-						_server->sendMessageToClient(m, curr->getClientID());
-					}
+					Message m;
+					m.type = MSGTYPE_PROGINVENTORY;
+					m.progType = (PROGRAM)i;
+					m.programID = currUser->progsOwned_[i];
+					_server->sendMessageToClient(m, curr->getClientID());
 				}
 			}
-			_server->saveUsers();
 		}
+		_server->saveUsers();
+	}
 
-		// send all players on the winning team a winning message
-		if (_server->getSavePath() == "levels/classic" || _server->getSavePath() == "levels/nightfall") {
-			Team* t = this->getTeamByNum(currTeamWinning);
-			Iterator<Player*> itPlayers = t->getAllPlayers()->getIterator();
-			while (itPlayers.hasNext()) {
-				Player* currPlayer = itPlayers.next();
-				Iterator<Pipe*> itPipes = _server->getClientList()->getIterator();
-				while (itPipes.hasNext()) {
-					Pipe* currPipe = itPipes.next();
-					if (currPlayer->getPlayerID() == currPipe->getPlayer()) {
-						User* user = _server->getUserByName(currPipe->getUser());
+	// send all players on the winning team a winning message
+	if (_server->getSavePath() == "levels/classic" || _server->getSavePath() == "levels/nightfall") {
+		Team* t = this->getTeamByNum(currTeamWinning);
+		Iterator<Player*> itPlayers = t->getAllPlayers()->getIterator();
+		while (itPlayers.hasNext()) {
+			Player* currPlayer = itPlayers.next();
+			Iterator<Pipe*> itPipes = _server->getClientList()->getIterator();
+			while (itPipes.hasNext()) {
+				Pipe* currPipe = itPipes.next();
+				if (currPlayer->getPlayerID() == currPipe->getPlayer()) {
+					User* user = _server->getUserByName(currPipe->getUser());
 
-						// update this user's progress
-						if (_server->getSavePath() == "levels/classic") {
-							user->campaignClassic_[_server->getCurrentLevel()] = true;
-							_server->saveUsers();
-						} else if (_server->getSavePath() == "levels/nightfall") {
-							user->campaignNightfall_[_server->getCurrentLevel()] = true;
-							_server->saveUsers();
-						}
-
-						// send message letting client know of level unlock
-						Message m;
-						m.type = MSGTYPE_LEVELUNLOCK;
-						m.levelNum = _server->getCurrentLevel();
-						currPipe->sendData(m);
+					// update this user's progress
+					if (_server->getSavePath() == "levels/classic") {
+						user->campaignClassic_[_server->getCurrentLevel()] = true;
+						_server->saveUsers();
+					} else if (_server->getSavePath() == "levels/nightfall") {
+						user->campaignNightfall_[_server->getCurrentLevel()] = true;
+						_server->saveUsers();
 					}
+
+					// send message letting client know of level unlock
+					Message m;
+					m.type = MSGTYPE_LEVELUNLOCK;
+					m.levelNum = _server->getCurrentLevel();
+					currPipe->sendData(m);
 				}
 			}
 		}

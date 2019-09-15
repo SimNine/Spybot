@@ -2,12 +2,12 @@
 
 #include "Standard.h"
 
-class ProgramAction {
+class ProgramActionMirror {
 public:
-	ProgramAction();
-	ProgramAction(MOVEPRESET);
-	ProgramAction(ACTIONTYPE, std::string, std::string, int, int, int);
-	virtual ~ProgramAction();
+	ProgramActionMirror();
+	ProgramActionMirror(MOVEPRESET);
+	ProgramActionMirror(ACTIONTYPE, std::string, std::string, int, int, int);
+	virtual ~ProgramActionMirror();
 
 	ACTIONTYPE type_;
 	std::string name_;

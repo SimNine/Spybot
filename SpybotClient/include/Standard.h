@@ -22,8 +22,6 @@
 #define DEFAULT_BUFLEN 512
 #define DEFAULT_PORT "27015"
 
-#define CLIENTSIDE
-
 #include "Enums.h"
 #include "Coord.h"
 #include "Data.h"

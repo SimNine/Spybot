@@ -269,3 +269,13 @@ Serverside credits, level progress, stats, misc bugfixes, added commands
 -Fixed "say" command
 -Campaign levels now include the correct enemy programs
 -Sound sliders are now set to their appropriate values when prefs are loaded
+
+2.4.0 - 6/16/18
+Split serverside and clientside game state
+-----
+-The client no longer uses a "Game" class to represent the local state
+	-Classes "GameMirror", "PlayerMirror", "ProgramMirror", "ProgramActionMirror" and "TeamMirror" created to mirror server state
+	-Mirror classes perform no error or cheat checking, and send no messages out through the client
+	-Not fully optimized
+-Began implementing int array "gridSpawnGroups_" to Game class; represents clusters of spawn tiles in same areas
+	-Only used in multiplayer maps

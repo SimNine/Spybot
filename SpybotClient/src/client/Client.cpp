@@ -4,17 +4,13 @@
 #include "Message.h"
 #include "Global.h"
 #include "MiscUtil.h"
-#include "Game.h"
-#include "Program.h"
 #include "NotifyOverlay.h"
 #include "Data.h"
 #include "GameOverlay.h"
 #include "LobbyOverlay.h"
 #include "MainOverlay.h"
-#include "Player.h"
 #include "ClientMirror.h"
 #include "ChatDisplay.h"
-#include "Team.h"
 #include "AnimationAttack.h"
 #include "AnimationSelect.h"
 #include "ConnectionManager.h"
@@ -22,6 +18,10 @@
 #include "MapOverlay.h"
 #include "Server.h"
 #include "Main.h"
+#include "GameMirror.h"
+#include "PlayerMirror.h"
+#include "ProgramMirror.h"
+#include "TeamMirror.h"
 
 Client::Client() {
 	game_ = NULL;
@@ -48,22 +48,21 @@ void Client::processMessage(Message* msg) {
 	switch (msg->type) {
 	case MSGTYPE_ACTION:
 	{
-		// TODO: support more types of actions
-		Player* p = game_->getPlayerByID(msg->playerID);
-		p->useSelectedActionAt(msg->pos);
+		PlayerMirror* pl = game_->getPlayerByID(msg->playerID);
+		ProgramMirror* pr = pl->getProgramByID(msg->programID);
+		ProgramActionMirror* pa = pr->getActions()->getObjectAt(msg->actionID);
+		game_->useActionAt(pl, pr, pa, msg->pos);
 	}
 	break;
 	case MSGTYPE_MOVE:
-		if (game_->getStatus() != GAMESTATUS_PLAYING)
-			return;
-
-		{
-			Player* pl = game_->getPlayerByID(msg->playerID);
-			Program* pr = pl->getProgramByID(msg->programID);
-			pl->setSelectedProgram(pr);
-			pl->moveSelectedProgram(msg->pos);
-		}
-		break;
+	{
+		PlayerMirror* pl = game_->getPlayerByID(msg->playerID);
+		ProgramMirror* pr = pl->getProgramByID(msg->programID);
+		game_->moveProgramTo(pr, msg->pos);
+		pl->setSelectedProgram(pr);
+		pl->setSelectedTile(msg->pos);
+	}
+	break;
 	case MSGTYPE_LOAD:
 	{
 		if (msg->clientID != myClientID_)
@@ -72,7 +71,7 @@ void Client::processMessage(Message* msg) {
 		player_ = NULL;
 		delete game_;
 		game_ = NULL;
-		game_ = new Game(false);
+		game_ = new GameMirror();
 		_gameOverlay->resetScreen();
 
 		Iterator<ClientMirror*> clientIt = _connectionManager->getClientList()->getIterator();
@@ -118,30 +117,29 @@ void Client::processMessage(Message* msg) {
 		break;
 	case MSGTYPE_INFO:
 		if (msg->infoType == MSGINFOTYPE_BKG) {
-			game_->setBackground(msg->bkgType);
 			_gameOverlay->setBackgroundImg(msg->bkgType);
-		} else if (msg->infoType == MSGINFOTYPE_TILE)
+		} else if (msg->infoType == MSGINFOTYPE_TILE) {
 			game_->setTileAt(msg->pos, msg->tileType);
-		else if (msg->infoType == MSGINFOTYPE_PROGRAM) {
+		} else if (msg->infoType == MSGINFOTYPE_PROGRAM) {
 			// get team
-			Team* t = game_->getTeamByNum(msg->team);
+			TeamMirror* t = game_->getTeamByNum(msg->team);
 			if (t == NULL) {
-				t = new Team(msg->team);
+				t = new TeamMirror(msg->team);
 				game_->getAllTeams()->addFirst(t);
 			}
 
 			// get player
-			Player* p = t->getPlayerByID(msg->playerID);
+			PlayerMirror* p = t->getPlayerByID(msg->playerID);
 			if (p == NULL) {
-				p = new Player(game_, t->getTeamNum());
+				p = new PlayerMirror(game_, t->getTeamNum());
 				p->setPlayerID(msg->playerID);
 				t->getAllPlayers()->addFirst(p);
 			}
 
 			// get program
-			Program* pr = p->getProgramByID(msg->programID);
+			ProgramMirror* pr = p->getProgramByID(msg->programID);
 			if (pr == NULL) {
-				pr = new Program(msg->progType, t->getTeamNum(), msg->pos);
+				pr = new ProgramMirror(msg->progType, t->getTeamNum(), msg->pos);
 				pr->setProgramID(msg->programID);
 				p->addProgram(pr);
 			} else
@@ -149,7 +147,7 @@ void Client::processMessage(Message* msg) {
 
 			game_->setProgramAt(msg->pos, pr);
 		} else if (msg->infoType == MSGINFOTYPE_ACTION) {
-			// TOOD: have this support creating an arbitrary action
+			// TODO: have this support creating an arbitrary action
 		} else if (msg->infoType == MSGINFOTYPE_ITEM) {
 			game_->setItemAt(msg->pos, msg->itemType);
 		} else if (msg->infoType == MSGINFOTYPE_GAMESTATUS) {
@@ -187,16 +185,16 @@ void Client::processMessage(Message* msg) {
 		break;
 	case MSGTYPE_SELECT:
 		if (msg->selectType == MSGSELECTTYPE_TILE) {
-			Player* p = game_->getPlayerByID(msg->playerID);
-			_gameOverlay->addAnimation(new AnimationSelect(msg->pos, p->getColor().r, p->getColor().g, p->getColor().b));
+			PlayerMirror* p = game_->getPlayerByID(msg->playerID);
 			p->setSelectedTile(msg->pos);
+			_gameOverlay->addAnimation(new AnimationSelect(msg->pos, p->getColor().r, p->getColor().g, p->getColor().b));
 		} else if (msg->selectType == MSGSELECTTYPE_PROGRAM) {
-			Player* p = game_->getPlayerByID(msg->playerID);
+			PlayerMirror* p = game_->getPlayerByID(msg->playerID);
 			p->setSelectedProgram(p->getProgramByID(msg->programID));
 		} else if (msg->selectType == MSGSELECTTYPE_ACTION) {
-			Player* pl = game_->getPlayerByID(msg->playerID);
-			Program* p = pl->getProgramByID(msg->programID);
-			pl->setSelectedAction(p->getActions()->getObjectAt(msg->actionID));
+			PlayerMirror* pl = game_->getPlayerByID(msg->playerID);
+			ProgramMirror* pr = pl->getProgramByID(msg->programID);
+			pl->setSelectedAction(pr->getActions()->getObjectAt(msg->actionID));
 		}
 		break;
 	case MSGTYPE_JOIN:
@@ -205,14 +203,14 @@ void Client::processMessage(Message* msg) {
 		_notifyOverlay->addNotification("CLIENT: received player id " + to_string(msg->playerID));
 
 		// get or create team
-		Team* t = game_->getTeamByNum(msg->team);
+		TeamMirror* t = game_->getTeamByNum(msg->team);
 		if (t == NULL) {
-			t = new Team(msg->team);
+			t = new TeamMirror(msg->team);
 			game_->getAllTeams()->addFirst(t);
 		}
 
 		// create player
-		Player* newP = new Player(game_, msg->team);
+		PlayerMirror* newP = new PlayerMirror(game_, msg->team);
 		newP->setPlayerID(msg->playerID);
 		t->getAllPlayers()->addFirst(newP);
 
@@ -269,7 +267,7 @@ void Client::processMessage(Message* msg) {
 	case MSGTYPE_NEXTTURN:
 	{
 		// set the next player
-		Player* pNext = game_->getPlayerByID(msg->playerID);
+		PlayerMirror* pNext = game_->getPlayerByID(msg->playerID);
 		game_->setCurrTurnPlayer(pNext);
 		ClientMirror* cNext = _connectionManager->getClientMirrorByPlayerID(msg->playerID);
 		if (cNext != NULL)
@@ -281,9 +279,9 @@ void Client::processMessage(Message* msg) {
 		// if it's now my turn
 		if (msg->playerID == player_->getPlayerID()) {
 			// reset everyone's turns
-			Iterator<Team*> itTeams = game_->getAllTeams()->getIterator();
+			Iterator<TeamMirror*> itTeams = game_->getAllTeams()->getIterator();
 			while (itTeams.hasNext())
-				itTeams.next()->getAllPlayers()->forEach([] (Player* p) {p->endTurn(); });
+				itTeams.next()->getAllPlayers()->forEach([] (PlayerMirror* p) {p->endTurn(); });
 
 			// show the "end turn" button
 			_gameOverlay->toggleTurnButtonShown(true);
@@ -357,7 +355,7 @@ void Client::processMessage(Message* msg) {
 	case MSGTYPE_PLACEPROG:
 	{
 		// if a program was already here, remove and refund it
-		Program* currProg = game_->getProgramAt(msg->pos);
+		ProgramMirror* currProg = game_->getProgramAt(msg->pos);
 		if (currProg != NULL && currProg->getOwner() == player_) {
 			_client->getMyClientMirror()->ownedProgs_[currProg->getType()]++;
 			player_->getProgList()->remove(currProg);
@@ -367,22 +365,22 @@ void Client::processMessage(Message* msg) {
 		}
 
 		// get team
-		Team* t = game_->getTeamByNum(msg->team);
+		TeamMirror* t = game_->getTeamByNum(msg->team);
 		if (t == NULL) {
-			t = new Team(msg->team);
+			t = new TeamMirror(msg->team);
 			game_->getAllTeams()->addFirst(t);
 		}
 
 		// get player
-		Player* p = t->getPlayerByID(msg->playerID);
+		PlayerMirror* p = t->getPlayerByID(msg->playerID);
 		if (p == NULL) {
-			p = new Player(game_, t->getTeamNum());
+			p = new PlayerMirror(game_, t->getTeamNum());
 			p->setPlayerID(msg->playerID);
 			t->getAllPlayers()->addFirst(p);
 		}
 
 		// create program
-		Program* pr = new Program(msg->progType, t->getTeamNum(), msg->pos);
+		ProgramMirror* pr = new ProgramMirror(msg->progType, t->getTeamNum(), msg->pos);
 		_client->getMyClientMirror()->ownedProgs_[msg->progType]--;
 		pr->setProgramID(msg->programID);
 		p->addProgram(pr);
@@ -435,19 +433,19 @@ void Client::processMessage(Message* msg) {
 	}
 }
 
-Player* Client::getPlayer() {
+PlayerMirror* Client::getPlayer() {
 	return player_;
 }
 
-void Client::setPlayer(Player* player) {
+void Client::setPlayer(PlayerMirror* player) {
 	player_ = player;
 }
 
-Game* Client::getGame() {
+GameMirror* Client::getGame() {
 	return game_;
 }
 
-void Client::setGame(Game* game) {
+void Client::setGame(GameMirror* game) {
 	game_ = game;
 }
 

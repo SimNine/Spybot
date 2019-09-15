@@ -3,8 +3,6 @@
 #include "Standard.h"
 #include "GUIContainer.h"
 
-class Program;
-class Player;
 class ProgramDisplayContainer;
 class GUIButton;
 class GUITexture;

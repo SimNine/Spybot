@@ -11,13 +11,6 @@
 #include "Pipe.h"
 #include "User.h"
 
-#ifdef CLIENTSIDE
-#include "GameOverlay.h"
-#include "AnimationTileFade.h"
-#include "AnimationAttack.h"
-#endif // CLIENTSIDE
-
-
 Player::Player(Game* g, int t) {
 	game_ = g;
 	team_ = t;
@@ -48,18 +41,16 @@ void Player::setSelectedProgram(Program* p) {
 	setSelectedAction(NULL);
 	selectedProgram_ = p;
 
-	if (game_->isServerSide()) {
-		Message m;
-		m.type = MSGTYPE_SELECT;
-		m.selectType = MSGSELECTTYPE_PROGRAM;
-		m.clientID = 0;
-		m.playerID = playerID_;
-		if (p != NULL)
-			m.programID = p->getProgramID();
-		else
-			m.programID = -1;
-		_server->sendMessageToAllClients(m);
-	}
+	Message m;
+	m.type = MSGTYPE_SELECT;
+	m.selectType = MSGSELECTTYPE_PROGRAM;
+	m.clientID = 0;
+	m.playerID = playerID_;
+	if (p != NULL)
+		m.programID = p->getProgramID();
+	else
+		m.programID = -1;
+	_server->sendMessageToAllClients(m);
 }
 
 void Player::moveSelectedProgram(Coord pos) {
@@ -83,43 +74,39 @@ void Player::moveSelectedProgram(Coord pos) {
 		calculateProgramDist(selectedProgram_);
 
 		Message msg;
-		if (game_->isServerSide()) {
-			// move the program for the client
-			msg.type = MSGTYPE_MOVE;
-			msg.clientID = 0;
-			msg.playerID = playerID_;
-			msg.programID = selectedProgram_->getProgramID();
-			msg.pos = pos;
-			_server->sendMessageToAllClients(msg);
+		// move the program for the client
+		msg.type = MSGTYPE_MOVE;
+		msg.clientID = 0;
+		msg.playerID = playerID_;
+		msg.programID = selectedProgram_->getProgramID();
+		msg.pos = pos;
+		_server->sendMessageToAllClients(msg);
 
-			// send the move sound to the client
-			msg.type = MSGTYPE_SOUND;
-			msg.soundType = MSGSOUNDNAME_MOVE;
-			msg.numRepeats = 0;
-			_server->sendMessageToAllClients(msg);
-		}
+		// send the move sound to the client
+		msg.type = MSGTYPE_SOUND;
+		msg.soundType = MSGSOUNDNAME_MOVE;
+		msg.numRepeats = 0;
+		_server->sendMessageToAllClients(msg);
 
 		// if there is a credit here, pick it up
 		if (game_->getItemAt(pos) == ITEM_CREDIT && team_ == 0) {
 			game_->setItemAt(pos, ITEM_NONE);
 
-			if (!game_->isServerSide()) {
-				msg.soundType = MSGSOUNDNAME_PICKUPCREDIT;
-				_server->sendMessageToAllClients(msg);
+			msg.soundType = MSGSOUNDNAME_PICKUPCREDIT;
+			_server->sendMessageToAllClients(msg);
 
-				Pipe* recievingClient = NULL;
-				Iterator<Pipe*> it = _server->getClientList()->getIterator();
-				while (it.hasNext()) {
-					Pipe* curr = it.next();
-					if (curr->getPlayer() == playerID_) {
-						msg.type = MSGTYPE_CREDITPICKUP;
-						msg.pos = pos;
-						msg.actionID = rand() % 300;
-						_server->getUserByName(curr->getUser())->numCredits_ += msg.actionID;
-						_server->sendMessageToClient(msg, curr->getClientID());
-						_server->saveUsers();
-						break;
-					}
+			Pipe* recievingClient = NULL;
+			Iterator<Pipe*> it = _server->getClientList()->getIterator();
+			while (it.hasNext()) {
+				Pipe* curr = it.next();
+				if (curr->getPlayer() == playerID_) {
+					msg.type = MSGTYPE_CREDITPICKUP;
+					msg.pos = pos;
+					msg.actionID = rand() % 300;
+					_server->getUserByName(curr->getUser())->numCredits_ += msg.actionID;
+					_server->sendMessageToClient(msg, curr->getClientID());
+					_server->saveUsers();
+					break;
 				}
 			}
 		}
@@ -285,8 +272,7 @@ void Player::setSelectedTile(Coord pos) {
 		selectedTile_ = { -1, -1 };
 
 		m.pos = pos;
-		if (game_->isServerSide())
-			_server->sendMessageToAllClients(m);
+		_server->sendMessageToAllClients(m);
 		return;
 	}
 
@@ -295,13 +281,11 @@ void Player::setSelectedTile(Coord pos) {
 	if (selectedProgram_ == NULL) {
 		selectedTile_ = pos;
 		m.pos = pos;
-		if (game_->isServerSide())
-			_server->sendMessageToAllClients(m);
+		_server->sendMessageToAllClients(m);
 	} else {
 		selectedTile_ = selectedProgram_->getHead();
 		m.pos = selectedProgram_->getHead();
-		if (game_->isServerSide())
-			_server->sendMessageToAllClients(m);
+		_server->sendMessageToAllClients(m);
 	}
 }
 
@@ -352,16 +336,14 @@ void Player::setSelectedAction(ProgramAction* pa) {
 
 	selectedAction_ = pa;
 
-	if (game_->isServerSide()) {
-		Message m;
-		m.type = MSGTYPE_SELECT;
-		m.selectType = MSGSELECTTYPE_ACTION;
-		m.clientID = 0;
-		m.playerID = playerID_;
-		m.programID = selectedProgram_->getProgramID();
-		m.actionID = selectedProgram_->getActions()->getIndexOf(pa);
-		_server->sendMessageToAllClients(m);
-	}
+	Message m;
+	m.type = MSGTYPE_SELECT;
+	m.selectType = MSGSELECTTYPE_ACTION;
+	m.clientID = 0;
+	m.playerID = playerID_;
+	m.programID = selectedProgram_->getProgramID();
+	m.actionID = selectedProgram_->getActions()->getIndexOf(pa);
+	_server->sendMessageToAllClients(m);
 }
 
 ProgramAction* Player::getSelectedAction() {
@@ -384,20 +366,12 @@ void Player::useSelectedActionAt(Coord pos) {
 			return;
 
 		if (tgtProg->getTeam() != team_) {
-#ifdef CLIENTSIDE // if this is compiled on the client side and is slave, add an animation to the game overlays
-			if (!game_->isServerSide())
-				_gameOverlay->addAnimation(new AnimationAttack(tgtProg->getHead(), selectedAction_->power_));
-#endif // CLIENTSIDE
 			for (int i = 0; i < selectedAction_->power_; i++) {
 				Coord* curr = tgtProg->popTail();
 				if (curr == NULL)
 					break;
 				else {
 					SDL_Color c = tgtProg->getOwner()->getColor();
-#ifdef CLIENTSIDE // if this is compiled on the client side and is slave, add an animation to the game overlay
-					if (!game_->isServerSide())
-						_gameOverlay->addAnimation(new AnimationTileFade(*curr, i * 255 + 255, c.r, c.g, c.b));
-#endif // CLIENTSIDE
 					game_->setProgramAt(*curr, NULL);
 				}
 			}
@@ -416,12 +390,16 @@ void Player::useSelectedActionAt(Coord pos) {
 			tgtProg->setMaxMoves(0);
 		else
 			tgtProg->setMaxMoves(tgtProg->getMaxMoves() - selectedAction_->power_);
+
+		if (tgtProg->getMoves() > tgtProg->getMaxMoves())
+			tgtProg->setMoves(tgtProg->getMaxMoves());
 		break;
 	case ACTIONTYPE_SPEEDUP:
 		if (tgtProg == NULL)
 			return;
 
 		tgtProg->setMaxMoves(tgtProg->getMaxMoves() + selectedAction_->power_);
+		tgtProg->setMoves(tgtProg->getMoves() + selectedAction_->power_);
 		break;
 	case ACTIONTYPE_TILEDELETE:
 		if (game_->isTiled(pos) && game_->getProgramAt(pos) == NULL)
@@ -452,19 +430,21 @@ void Player::useSelectedActionAt(Coord pos) {
 		break;
 	}
 
+	Message m;
+	m.type = MSGTYPE_ACTION;
+	m.clientID = 0;
+	m.playerID = playerID_;
+	m.programID = selectedProgram_->getProgramID();
+	m.actionID = selectedProgram_->getActions()->getIndexOf(selectedAction_);
+	printf("SERVER: actionID %i\n", m.actionID);
+	m.pos = pos;
+	_server->sendMessageToAllClients(m);
+
 	selectedProgram_->setActionsLeft(selectedProgram_->getActionsLeft() - 1);
 	setSelectedAction(NULL);
+	setSelectedProgram(selectedProgram_);
 
-	if (game_->isServerSide()) {
-		Message m;
-		m.type = MSGTYPE_ACTION;
-		m.clientID = 0;
-		m.playerID = playerID_;
-		m.pos = pos;
-		_server->sendMessageToAllClients(m);
-
-		game_->checkForWinCondition();
-	}
+	game_->checkForWinCondition();
 }
 
 int Player::getPlayerID() {

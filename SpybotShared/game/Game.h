@@ -10,15 +10,14 @@ class Team;
 class Game {
 public:
 	// constructors, destructor
-	Game(bool serverSide);
-	Game(bool serverSide, std::string levelString);
+	Game(std::string levelString);
 	void initBoard();
 	virtual ~Game();
 
 	// level save method
 	void saveLevel(std::string fileName);
 
-	//getters and setters
+	// getters and setters
 	LinkedList<Team*>* getAllTeams();
 	Team* getTeamByNum(int teamNum);
 	Player* getPlayerByID(int playerID);
@@ -42,14 +41,13 @@ public:
 	ITEM getItemAt(Coord);
 	bool isOOB(Coord);
 	bool isTiled(Coord);
+	void setSpawnGroup(Coord pos, int group);
 
 	void setBackground(BACKGROUND);
 	BACKGROUND getBackground();
 
 	GAMESTATUS getStatus();
 	void setStatus(GAMESTATUS gs);
-
-	bool isServerSide();
 protected:
 private:
 	// players
@@ -62,6 +60,8 @@ private:
 	TILE gridTiles_[200][200];
 	ITEM gridItems_[200][200];
 	Program* gridPrograms_[200][200];
+	int gridSpawnGroups_[200][200];
+
 	void removeReferencesToProgram(Program*);
 	BACKGROUND bkg_;
 
@@ -76,7 +76,4 @@ private:
 	// game status
 	GAMESTATUS status_;
 	Player* currTurnPlayer_;
-
-	// boolean indicating whether this game is serverside (master) or clientside (slave)
-	bool serverSide_;
 };

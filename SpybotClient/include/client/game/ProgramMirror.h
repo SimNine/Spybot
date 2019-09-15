@@ -3,13 +3,13 @@
 #include "Standard.h"
 #include "LinkedList.h"
 
-class Player;
-class ProgramAction;
+class PlayerMirror;
+class ProgramActionMirror;
 
-class Program {
+class ProgramMirror {
 public:
-	Program(PROGRAM, int, Coord);
-	virtual ~Program();
+	ProgramMirror(PROGRAM, int, Coord);
+	virtual ~ProgramMirror();
 
 	int getColor(int);
 	void setColor(int, int, int);
@@ -24,8 +24,8 @@ public:
 	void setMoves(int);
 	int getMaxMoves();
 	void setMaxMoves(int);
-	Player* getOwner();
-	void setOwner(Player*);
+	PlayerMirror* getOwner();
+	void setOwner(PlayerMirror*);
 	int getTeam();
 	std::string getName();
 	void setName(std::string);
@@ -47,9 +47,9 @@ public:
 	bool isDone();
 
 	void addAction(MOVEPRESET);
-	void addAction(ProgramAction*);
-	LinkedList<ProgramAction*>* getActions();
-	ProgramAction* getActionByID(int actionID);
+	void addAction(ProgramActionMirror*);
+	LinkedList<ProgramActionMirror*>* getActions();
+	ProgramActionMirror* getActionByID(int actionID);
 
 	int getProgramID();
 	void setProgramID(int progID);
@@ -57,7 +57,7 @@ protected:
 private:
 	LinkedList<Coord*>* tiles_;
 
-	LinkedList<ProgramAction*>* actionList_;
+	LinkedList<ProgramActionMirror*>* actionList_;
 	int actionsLeft_;
 
 	PROGRAM type_;
@@ -65,7 +65,7 @@ private:
 	int moves_, maxMoves_;
 	int color_[3];
 	int team_;
-	Player* owner_;
+	PlayerMirror* owner_;
 	std::string name_;
 	std::string description_;
 	int cost_;

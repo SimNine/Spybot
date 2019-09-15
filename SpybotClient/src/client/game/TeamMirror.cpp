@@ -1,27 +1,27 @@
 #include "Standard.h"
-#include "Team.h"
+#include "TeamMirror.h"
 
-#include "Player.h"
+#include "PlayerMirror.h"
 
-Team::Team(int teamNum) {
-	players_ = new LinkedList<Player*>();
+TeamMirror::TeamMirror(int teamNum) {
+	players_ = new LinkedList<PlayerMirror*>();
 	teamNum_ = teamNum;
 }
 
-Team::~Team() {
+TeamMirror::~TeamMirror() {
 	while (players_->getLength() > 0)
 		delete players_->poll();
 	delete players_;
 }
 
-LinkedList<Player*>* Team::getAllPlayers() {
+LinkedList<PlayerMirror*>* TeamMirror::getAllPlayers() {
 	return players_;
 }
 
-Player* Team::getPlayerByID(int playerID) {
-	Iterator<Player*> it = players_->getIterator();
+PlayerMirror* TeamMirror::getPlayerByID(int playerID) {
+	Iterator<PlayerMirror*> it = players_->getIterator();
 	while (it.hasNext()) {
-		Player* curr = it.next();
+		PlayerMirror* curr = it.next();
 		if (curr->getPlayerID() == playerID)
 			return curr;
 	}
@@ -29,6 +29,6 @@ Player* Team::getPlayerByID(int playerID) {
 	return NULL;
 }
 
-int Team::getTeamNum() {
+int TeamMirror::getTeamNum() {
 	return teamNum_;
 }

@@ -5,16 +5,16 @@
 #include "Data.h"
 #include "GameOverlay.h"
 #include "Client.h"
-#include "Game.h"
-#include "Player.h"
+#include "GameMirror.h"
+#include "PlayerMirror.h"
 #include "Message.h"
-#include "ProgramAction.h"
-#include "Program.h"
+#include "ProgramActionMirror.h"
+#include "ProgramMirror.h"
 #include "ResourceLoader.h"
 #include "MiscUtil.h"
 #include "ConnectionManager.h"
 
-ProgramDisplayActionButton::ProgramDisplayActionButton(GUIContainer* p, ANCHOR a, Coord disp, Coord dims, ProgramAction action, int actionNum)
+ProgramDisplayActionButton::ProgramDisplayActionButton(GUIContainer* p, ANCHOR a, Coord disp, Coord dims, ProgramActionMirror action, int actionNum)
 	: GUIObject(p, a, disp, dims) {
 	action_ = action;
 	actionNum_ = actionNum;

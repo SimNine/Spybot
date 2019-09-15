@@ -3,7 +3,7 @@
 #include "Standard.h"
 #include "GUIContainer.h"
 
-class Program;
+class ProgramMirror;
 class GUITexture;
 class ProgramDisplayActionButton;
 
@@ -16,11 +16,11 @@ public:
 	void tick(int ms);
 	bool mouseDown();
 
-	void setCurrProg(Program* p);
-	Program* getCurrProg();
+	void setCurrProg(ProgramMirror* p);
+	ProgramMirror* getCurrProg();
 protected:
 private:
-	Program* currProg_;
+	ProgramMirror* currProg_;
 
 	GUITexture* iconBacking_;
 	GUITexture* icon_;

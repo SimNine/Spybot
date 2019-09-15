@@ -9,10 +9,8 @@ AnimationAttack::AnimationAttack(Coord pos, int damage)
 	int numParticles = damage * 10;
 	for (int i = 0; i < numParticles; i++)
 		particleList_->addFirst(new AnimationParticleSquareSpeck(rand() % 1000, { 0, 0 }, { rand() % 129 - 64, rand() % 129 - 64 }));
-
-	printf("NEW ANIMATTACK\n");
 }
 
 AnimationAttack::~AnimationAttack() {
-	printf("DELETED ANIMATTACK\n");
+	//dtor
 }

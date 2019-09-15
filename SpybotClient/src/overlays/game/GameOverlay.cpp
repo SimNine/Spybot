@@ -11,10 +11,10 @@
 #include "ProgramDisplayContainer.h"
 #include "ProgramInventoryDisplay.h"
 #include "PlayerDisplayContainer.h"
-#include "Game.h"
-#include "Player.h"
-#include "Program.h"
-#include "ProgramAction.h"
+#include "GameMirror.h"
+#include "PlayerMirror.h"
+#include "ProgramMirror.h"
+#include "ProgramActionMirror.h"
 #include "MapOverlay.h"
 #include "ChatDisplay.h"
 #include "ClientMirror.h"
@@ -310,7 +310,7 @@ void GameOverlay::drawGrid() {
 			// if there's a program at this tile
 			if (_client->getGame()->getProgramAt(curr) != NULL) {
 				// get this program
-				Program* prog = _client->getGame()->getProgramAt(curr);
+				ProgramMirror* prog = _client->getGame()->getProgramAt(curr);
 
 				// draw this program's tile
 				tileRect.x = xDefault - 1;
@@ -473,7 +473,7 @@ void GameOverlay::drawGrid() {
 			// if this is a selected tile
 			Iterator<ClientMirror*> playIt = _connectionManager->getClientList()->getIterator();
 			while (playIt.hasNext()) {
-				Player* pCurr = playIt.next()->player_;
+				PlayerMirror* pCurr = playIt.next()->player_;
 				if (curr == pCurr->getSelectedTile()) {
 					tileRect.x = xDefault - 2;
 					tileRect.y = yDefault - 2;

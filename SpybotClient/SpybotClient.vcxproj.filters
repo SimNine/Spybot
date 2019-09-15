@@ -115,6 +115,12 @@
     <Filter Include="Source Files\gui\GUIEffects">
       <UniqueIdentifier>{18a42207-a86d-4562-8bf5-789c2ff32ce0}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\client\game">
+      <UniqueIdentifier>{a47880fe-87ec-44fe-845f-0adb2b98a0e0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\client\game">
+      <UniqueIdentifier>{105cbfc8-0f65-497d-9a95-a721cb585999}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <Text Include="ReadMe.txt" />
@@ -327,6 +333,21 @@
     <ClInclude Include="include\gui\GUIEffects\GUIEffectTranslate.h">
       <Filter>Header Files\gui\GUIEffects</Filter>
     </ClInclude>
+    <ClInclude Include="include\client\game\GameMirror.h">
+      <Filter>Header Files\client\game</Filter>
+    </ClInclude>
+    <ClInclude Include="include\client\game\PlayerMirror.h">
+      <Filter>Header Files\client\game</Filter>
+    </ClInclude>
+    <ClInclude Include="include\client\game\ProgramActionMirror.h">
+      <Filter>Header Files\client\game</Filter>
+    </ClInclude>
+    <ClInclude Include="include\client\game\ProgramMirror.h">
+      <Filter>Header Files\client\game</Filter>
+    </ClInclude>
+    <ClInclude Include="include\client\game\TeamMirror.h">
+      <Filter>Header Files\client\game</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Global.cpp">
@@ -502,6 +523,21 @@
     </ClCompile>
     <ClCompile Include="src\gui\GUIEffects\GUIEffectTranslate.cpp">
       <Filter>Source Files\gui\GUIEffects</Filter>
+    </ClCompile>
+    <ClCompile Include="src\client\game\GameMirror.cpp">
+      <Filter>Source Files\client\game</Filter>
+    </ClCompile>
+    <ClCompile Include="src\client\game\PlayerMirror.cpp">
+      <Filter>Source Files\client\game</Filter>
+    </ClCompile>
+    <ClCompile Include="src\client\game\ProgramActionMirror.cpp">
+      <Filter>Source Files\client\game</Filter>
+    </ClCompile>
+    <ClCompile Include="src\client\game\ProgramMirror.cpp">
+      <Filter>Source Files\client\game</Filter>
+    </ClCompile>
+    <ClCompile Include="src\client\game\TeamMirror.cpp">
+      <Filter>Source Files\client\game</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

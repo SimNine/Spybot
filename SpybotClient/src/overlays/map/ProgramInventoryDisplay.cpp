@@ -10,7 +10,7 @@
 #include "GUIButtonParamaterized.h"
 #include "GameOverlay.h"
 #include "Message.h"
-#include "Player.h"
+#include "PlayerMirror.h"
 #include "ConnectionManager.h"
 
 ProgramInventoryDisplay::ProgramInventoryDisplay(ANCHOR a, Coord disp, Coord dims, GUIContainer* parent)

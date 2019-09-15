@@ -348,7 +348,7 @@ void Server::processMessage(Message* msg) {
 				delete game_;
 
 			currentLevel_ = msg->levelNum;
-			game_ = new Game(true, savePath_ + "/" + to_string(msg->levelNum) + ".urf");
+			game_ = new Game(savePath_ + "/" + to_string(msg->levelNum) + ".urf");
 			sendMessageToAllClients(*msg);
 
 			Iterator<Pipe*> it = clients_->getIterator();

@@ -1,17 +1,17 @@
 #include "Standard.h"
-#include "Program.h"
+#include "ProgramMirror.h"
 
 #include "Global.h"
-#include "Player.h"
-#include "ProgramAction.h"
+#include "PlayerMirror.h"
+#include "ProgramActionMirror.h"
 
-Program::Program(PROGRAM type, int team, Coord head) {
+ProgramMirror::ProgramMirror(PROGRAM type, int team, Coord head) {
 	this->team_ = team;
 	this->type_ = type;
 	color_[0] = rand() % 255;
 	color_[1] = rand() % 255;
 	color_[2] = rand() % 255;
-	actionList_ = new LinkedList<ProgramAction*>();
+	actionList_ = new LinkedList<ProgramActionMirror*>();
 	tiles_ = new LinkedList<Coord*>();
 	tiles_->addFirst(new Coord(head));
 
@@ -22,7 +22,7 @@ Program::Program(PROGRAM type, int team, Coord head) {
 	switch (this->type_) {
 	case PROGRAM_NONE:
 	case PROGRAM_NUM_PROGTYPES:
-		printf("ERROR: trying to instantiate an invalid program type");
+		printf("CLIENT ERR: trying to instantiate an invalid programmirror type");
 		exit(1);
 		break;
 	case PROGRAM_CUSTOM:
@@ -502,29 +502,23 @@ Program::Program(PROGRAM type, int team, Coord head) {
 	actionsLeft_ = 1;
 }
 
-Program::~Program() {
-	while (tiles_->getLength() > 0) {
-		Coord* c = tiles_->poll();
-		delete c;
-	}
+ProgramMirror::~ProgramMirror() {
+	printf("CLIENT: Program '%s' deleted\n", name_.c_str());
+
+	while (tiles_->getLength() > 0)
+		delete tiles_->poll();
 	delete tiles_;
 
-	while (actionList_->getLength() > 0) {
-		ProgramAction* m = actionList_->poll();
-		delete m;
-	}
+	while (actionList_->getLength() > 0)
+		delete actionList_->poll();
 	delete actionList_;
-
-	if (_debug >= DEBUG_NORMAL) {
-		printf("Program '%s' deleted\n", name_.c_str());
-	}
 }
 
-Coord Program::getCore() {
+Coord ProgramMirror::getCore() {
 	return *tiles_->getFirst();
 }
 
-int Program::getColor(int n) {
+int ProgramMirror::getColor(int n) {
 	if (n < 0 || n > 2) {
 		return 0;
 	}
@@ -532,83 +526,83 @@ int Program::getColor(int n) {
 	return color_[n];
 }
 
-void Program::setColor(int r, int g, int b) {
+void ProgramMirror::setColor(int r, int g, int b) {
 	color_[0] = r;
 	color_[1] = g;
 	color_[2] = b;
 }
 
-int Program::getTeam() {
+int ProgramMirror::getTeam() {
 	return owner_->getTeam();
 }
 
-int Program::getHealth() {
+int ProgramMirror::getHealth() {
 	return tiles_->getLength();
 }
 
-int Program::getMaxHealth() {
+int ProgramMirror::getMaxHealth() {
 	return maxHealth_;
 }
 
-PROGRAM Program::getType() {
+PROGRAM ProgramMirror::getType() {
 	return type_;
 }
 
-int Program::getMoves() {
+int ProgramMirror::getMoves() {
 	return moves_;
 }
 
-int Program::getMaxMoves() {
+int ProgramMirror::getMaxMoves() {
 	return maxMoves_;
 }
 
-void Program::setType(PROGRAM i) {
+void ProgramMirror::setType(PROGRAM i) {
 	type_ = i;
 }
 
-void Program::setMaxHealth(int i) {
+void ProgramMirror::setMaxHealth(int i) {
 	maxHealth_ = i;
 }
 
-void Program::setMoves(int i) {
+void ProgramMirror::setMoves(int i) {
 	if (i < 0) moves_ = 0;
 	else moves_ = i;
 }
 
-void Program::setMaxMoves(int i) {
+void ProgramMirror::setMaxMoves(int i) {
 	maxMoves_ = i;
 }
 
-std::string Program::getName() {
+std::string ProgramMirror::getName() {
 	return name_;
 }
 
-void Program::setName(std::string n) {
+void ProgramMirror::setName(std::string n) {
 	name_ = n;
 }
 
-void Program::addAction(MOVEPRESET p) {
-	actionList_->addLast(new ProgramAction(p));
+void ProgramMirror::addAction(MOVEPRESET p) {
+	actionList_->addLast(new ProgramActionMirror(p));
 }
 
-void Program::endTurn() {
+void ProgramMirror::endTurn() {
 	actionsLeft_ = 1;
 	moves_ = maxMoves_;
 }
 
-LinkedList<ProgramAction*>* Program::getActions() {
+LinkedList<ProgramActionMirror*>* ProgramMirror::getActions() {
 	return actionList_;
 }
 
-Coord Program::getHead() {
+Coord ProgramMirror::getHead() {
 	return *tiles_->getFirst();
 }
 
-Coord Program::getTail() {
+Coord ProgramMirror::getTail() {
 	return *tiles_->getLast();
 }
 
-void Program::moveTo(Coord pos) {
+void ProgramMirror::moveTo(Coord pos) {
 	// decrement number of moves left
 	moves_--;
 
@@ -623,17 +617,18 @@ void Program::moveTo(Coord pos) {
 	}
 
 	// if this program is at max health
-	if (tiles_->getLength() == maxHealth_) delete tiles_->removeLast();
+	if (tiles_->getLength() == maxHealth_)
+		delete tiles_->removeLast();
 
 	// add a new head
 	tiles_->addFirst(new Coord(pos));
 }
 
-void Program::setCore(Coord pos) {
+void ProgramMirror::setCore(Coord pos) {
 	moveTo(pos);
 }
 
-void Program::addTail(Coord pos) {
+void ProgramMirror::addTail(Coord pos) {
 	// check if the tail to add is already occupied by this program
 	for (int i = 0; i < tiles_->getLength(); i++) {
 		Coord curr = *tiles_->getObjectAt(i);
@@ -644,47 +639,49 @@ void Program::addTail(Coord pos) {
 	if (tiles_->getLength() < maxHealth_) tiles_->addLast(new Coord(pos));
 }
 
-int Program::getActionsLeft() {
+int ProgramMirror::getActionsLeft() {
 	return actionsLeft_;
 }
 
-void Program::setActionsLeft(int i) {
+void ProgramMirror::setActionsLeft(int i) {
 	actionsLeft_ = i;
 }
 
-bool Program::isDone() {
-	if (moves_ == 0 && actionsLeft_ == 0) return true;
-	else return false;
+bool ProgramMirror::isDone() {
+	if (moves_ == 0 && actionsLeft_ == 0)
+		return true;
+	else
+		return false;
 }
 
-Coord* Program::popTail() {
+Coord* ProgramMirror::popTail() {
 	return tiles_->removeLast();
 }
 
-LinkedList<Coord*>* Program::getTiles() {
+LinkedList<Coord*>* ProgramMirror::getTiles() {
 	return tiles_;
 }
 
-Player* Program::getOwner() {
+PlayerMirror* ProgramMirror::getOwner() {
 	return owner_;
 }
 
-void Program::setOwner(Player* p) {
+void ProgramMirror::setOwner(PlayerMirror* p) {
 	owner_ = p;
 }
 
-int Program::getProgramID() {
+int ProgramMirror::getProgramID() {
 	return programID_;
 }
 
-void Program::setProgramID(int progID) {
+void ProgramMirror::setProgramID(int progID) {
 	programID_ = progID;
 }
 
-ProgramAction* Program::getActionByID(int actionID) {
-	Iterator<ProgramAction*> it = actionList_->getIterator();
+ProgramActionMirror* ProgramMirror::getActionByID(int actionID) {
+	Iterator<ProgramActionMirror*> it = actionList_->getIterator();
 	while (it.hasNext()) {
-		ProgramAction* curr = it.next();
+		ProgramActionMirror* curr = it.next();
 		if (curr->actionID_ == actionID)
 			return curr;
 	}
