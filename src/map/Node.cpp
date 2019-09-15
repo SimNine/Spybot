@@ -11,7 +11,7 @@ Node::Node(int xp, int yp)
     y = yp;
     nodeType = (rand()%7 + 1);
     zone = 0;
-    nodeStatus = HIDDEN;
+    nodeStatus = NODESTATUS_HIDDEN;
     children = NULL;
     img = dataContainer->node_normal[nodeType];
     levelStr = "custom";
@@ -24,7 +24,7 @@ Node::Node(int xp, int yp, int type, int nodeZone)
     y = yp;
     nodeType = type;
     zone = nodeZone;
-    nodeStatus = HIDDEN;
+    nodeStatus = NODESTATUS_HIDDEN;
     children = NULL;
     img = dataContainer->node_normal[nodeType];
     levelStr = "undefined";
@@ -37,7 +37,7 @@ Node::Node(int xp, int yp, int type, int nodeZone, std::string lvlFileName)
     y = yp;
     nodeType = type;
     zone = nodeZone;
-    nodeStatus = HIDDEN;
+    nodeStatus = NODESTATUS_HIDDEN;
     children = NULL;
     img = dataContainer->node_normal[nodeType];
     levelStr = lvlFileName;
@@ -51,7 +51,7 @@ Node::~Node()
 void Node::draw(int mapRootX, int mapRootY)
 {
     // if this node is not available yet
-    if (nodeStatus == HIDDEN)
+    if (nodeStatus == NODESTATUS_HIDDEN)
     {
         return;
     }
@@ -59,7 +59,7 @@ void Node::draw(int mapRootX, int mapRootY)
     // if the mouse is over this node
     if (!isMouseOver(mapRootX, mapRootY))
     {
-        if (nodeStatus == OWNED)
+        if (nodeStatus == NODESTATUS_OWNED)
         {
             img = dataContainer->node_owned[nodeType];
         }
@@ -70,7 +70,7 @@ void Node::draw(int mapRootX, int mapRootY)
     }
     else
     {
-        if (nodeStatus == OWNED)
+        if (nodeStatus == NODESTATUS_OWNED)
         {
             img = dataContainer->node_owned_over[nodeType];
         }
@@ -81,11 +81,11 @@ void Node::draw(int mapRootX, int mapRootY)
     }
 
     // if this node is hightlighted
-    if (nodeStatus == NOT_OWNED_SELECTED)
+    if (nodeStatus == NODESTATUS_UNOWNED_SELECTED)
     {
         img = dataContainer->node_normal_selected[nodeType];
     }
-    else if (nodeStatus == OWNED_SELECTED)
+    else if (nodeStatus == NODESTATUS_OWNED_SELECTED)
     {
         img = dataContainer->node_owned_selected[nodeType];
     }
@@ -128,19 +128,19 @@ int Node::getY()
     return y;
 }
 
-bool Node::click()
+bool Node::mouseDown()
 {
-    if (nodeStatus == HIDDEN)
+    if (nodeStatus == NODESTATUS_HIDDEN)
     {
         return false;
     }
-    else if (nodeStatus == NOT_OWNED)
+    else if (nodeStatus == NODESTATUS_UNOWNED)
     {
-        nodeStatus = NOT_OWNED_SELECTED;
+        nodeStatus = NODESTATUS_UNOWNED_SELECTED;
     }
-    else if (nodeStatus == OWNED)
+    else if (nodeStatus == NODESTATUS_OWNED)
     {
-        nodeStatus = OWNED_SELECTED;
+        nodeStatus = NODESTATUS_OWNED_SELECTED;
     }
     return false;
 }
@@ -148,8 +148,8 @@ bool Node::click()
 bool Node::isMouseOver(int mapRootX, int mapRootY)
 {
     // get the width and height of the current node
-    int width, height;
-    SDL_QueryTexture(img, NULL, NULL, &width, &height);
+    int width = 0, height = 0;
+    SDL_QueryTexture(this->img, NULL, NULL, &width, &height);
     int widthOffset = width/2;
     int heightOffset = dataContainer->node_yoffset[this->nodeType];
 
@@ -171,23 +171,40 @@ void Node::addChild(Node* child)
     }
 }
 
-void Node::setNodeStatus(NodeStatus ns)
+void Node::setNodeStatus(NODESTATUS ns)
 {
     nodeStatus = ns;
+    switch (ns)
+    {
+    case NODESTATUS_OWNED:
+        img = dataContainer->node_owned[nodeType];
+        break;
+    case NODESTATUS_OWNED_SELECTED:
+        img = dataContainer->node_owned_selected[nodeType];
+        break;
+    case NODESTATUS_UNOWNED:
+        img = dataContainer->node_normal[nodeType];
+        break;
+    case NODESTATUS_UNOWNED_SELECTED:
+        img = dataContainer->node_normal_selected[nodeType];
+        break;
+    default:
+        break;
+    }
 }
 
-NodeStatus Node::getNodeStatus()
+NODESTATUS Node::getNodeStatus()
 {
     return nodeStatus;
 }
 
 void Node::winNode()
 {
-    nodeStatus = OWNED;
+    nodeStatus = NODESTATUS_OWNED;
     LinkedList<Node*>* curr = children;
     while (curr != NULL)
     {
-        curr->getContents()->setNodeStatus(NOT_OWNED);
+        curr->getContents()->setNodeStatus(NODESTATUS_UNOWNED);
         curr = curr->getNext();
     }
 }

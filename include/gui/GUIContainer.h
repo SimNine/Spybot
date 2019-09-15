@@ -18,9 +18,12 @@ class GUIContainer : public GUIObject
         void addObject(GUIObject*);
         void addAllObjects(LinkedList<GUIObject*>*);
         void draw();
-        bool click();
+        bool mouseDown();
+        bool mouseUp();
+        void tick();
+        void setTransparency(int);
     protected:
-        SDL_Texture* background;
+        SDL_Texture* bkgImg;
         LinkedList<GUIObject*>* contents;
         void drawBkg();
         void drawContents();

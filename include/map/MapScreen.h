@@ -11,7 +11,8 @@ class MapScreen : public GUIContainer
         virtual ~MapScreen();
         void shiftBkg(int, int);
         void draw();
-        bool click();
+        void tick();
+        bool mouseDown();
         bool isBusy();
         void shiftTo(Node*);
         Node* getSelectedNode();

@@ -9,7 +9,7 @@ GUIContainer::GUIContainer(Anch anchorPoint, int xRel, int yRel, int width, int 
                            GUIContainer* parent, SDL_Texture* bkg)
     : GUIObject(anchorPoint, xRel, yRel, width, height, parent)
 {
-    background = bkg;
+    bkgImg = bkg;
     contents = NULL;
 }
 
@@ -20,12 +20,12 @@ GUIContainer::~GUIContainer()
 
 SDL_Texture* GUIContainer::getBackground()
 {
-    return background;
+    return bkgImg;
 }
 
 void GUIContainer::setBackground(SDL_Texture* bkg)
 {
-    background = bkg;
+    bkgImg = bkg;
 }
 
 LinkedList<GUIObject*>* GUIContainer::getContents()
@@ -34,18 +34,36 @@ LinkedList<GUIObject*>* GUIContainer::getContents()
 }
 
 // looks for and attempts to click an objct within this container
-bool GUIContainer::click()
+bool GUIContainer::mouseDown()
 {
     bool ret = false;
     LinkedList<GUIObject*>* currNode = contents;
     while (currNode != NULL)
     {
         GUIObject* curr = currNode->getContents();
-        if (curr->isMouseOver())
+        if (curr->isVisible() && curr->isMouseOver())
         {
             ret = true;
-            curr->click();
+            curr->mouseDown();
         }
+        currNode = currNode->getNext();
+    }
+    return ret;
+}
+
+bool GUIContainer::mouseUp()
+{
+    bool ret = false;
+    LinkedList<GUIObject*>* currNode = contents;
+    while (currNode != NULL)
+    {
+        GUIObject* curr = currNode->getContents();
+        if (curr->isVisible() && curr->isMouseOver())
+        {
+            ret = true;
+            curr->mouseUp();
+        }
+        curr->setPressed(false);
         currNode = currNode->getNext();
     }
     return ret;
@@ -102,8 +120,11 @@ void GUIContainer::drawBkg()
         SDL_RenderClear( gRenderer );
     }
 
-    // draw background image
-    SDL_RenderCopy(gRenderer, background, NULL, bounds);
+    if (bkgImg != NULL)
+    {
+        // draw background image
+        SDL_RenderCopy(gRenderer, bkgImg, NULL, &bounds);
+    }
 }
 
 void GUIContainer::drawContents()
@@ -111,7 +132,7 @@ void GUIContainer::drawContents()
     LinkedList<GUIObject*>* currNode = contents;
     while (currNode != NULL)
     {
-        currNode->getContents()->draw();
+        if (currNode->getContents()->isVisible()) currNode->getContents()->draw();
         currNode = currNode->getNext();
     }
 }
@@ -121,16 +142,25 @@ void GUIContainer::draw()
     drawBkg();
     drawContents();
 
-    if (debug)
+    if (debug) drawBounds();
+}
+
+void GUIContainer::setTransparency(int a)
+{
+    LinkedList<GUIObject*>* currNode = contents;
+    while (currNode != NULL)
     {
-        if (!isMouseOver())
-        {
-            SDL_SetRenderDrawColor(gRenderer, 255, 255, 255, 0);
-        }
-        else
-        {
-            SDL_SetRenderDrawColor(gRenderer, 255, 0, 0, 0);
-        }
-        SDL_RenderDrawRect(gRenderer, bounds);
+        currNode->getContents()->setTransparency(a);
+        currNode = currNode->getNext();
+    }
+}
+
+void GUIContainer::tick()
+{
+    LinkedList<GUIObject*>* currNode = contents;
+    while (currNode != NULL)
+    {
+        currNode->getContents()->tick();
+        currNode = currNode->getNext();
     }
 }

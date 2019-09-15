@@ -54,7 +54,7 @@ Program::Program(PROGRAM type, int team, int xHead, int yHead)
         maxHealth = 2;
         cost = 1000;
         addMove(new ProgramMove(MOVE_TILEPLACE, "Constructor", "Repairs one grid square", 3, 0, 0));
-        addMove(new ProgramMove(MOVE_TILEPLACE, "Deconstructor", "Deletes one grid square", 3, 0, 0));
+        addMove(new ProgramMove(MOVE_TILEDELETE, "Deconstructor", "Deletes one grid square", 3, 0, 0));
         break;
     case PROGRAM_BLACKWIDOW:
         name = "Black Widow";

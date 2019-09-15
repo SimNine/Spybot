@@ -1,6 +1,14 @@
 #ifndef ENUMS_H
 #define ENUMS_H
 
+enum NODESTATUS {
+    NODESTATUS_HIDDEN = 0,
+    NODESTATUS_UNOWNED,
+    NODESTATUS_UNOWNED_SELECTED,
+    NODESTATUS_OWNED,
+    NODESTATUS_OWNED_SELECTED
+};
+
 enum PROGRAM
 {
     // special numerations

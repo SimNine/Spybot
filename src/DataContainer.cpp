@@ -17,7 +17,13 @@ DataContainer::~DataContainer()
 
 void initData()
 {
+    // create the datacontainer
     dataContainer = new DataContainer();
+
+    // titleScreen resources
+    dataContainer->title_title = loadTexture("resources/title_main.png");
+    dataContainer->title_subtitle = loadTexture("resources/title_subtitle.png");
+    dataContainer->title_company = loadTexture("resources/title/title_urfco_alt3.png");
 
     //dataContainer->node_normal[0] = loadTexture("resources/map/node0_normal.png");
     dataContainer->node_normal[1] = loadTexture("resources/map/node1_normal.png");
@@ -102,6 +108,7 @@ void initData()
     dataContainer->level_bkg_buttons[BKG_PHARM] = loadTexture("resources/board/editor/bkg_pharmhaus.png");
     dataContainer->level_bkg_buttons[BKG_PED] = loadTexture("resources/board/editor/bkg_ped.png");
 
+    // initialize tile graphics
     dataContainer->tile_over = loadTexture("resources/board/tile_empty.png");
     dataContainer->tile_selected = loadTexture("resources/board/tile_selected.png");
     dataContainer->tile_images[TILE_PLAIN] = loadTexture("resources/board/tile_empty_transparent.png");
@@ -117,10 +124,12 @@ void initData()
     dataContainer->tile_images[TILE_SPAWN2] = loadTexture("resources/board/spawn2_transparency.png");
     dataContainer->tile_images[TILE_NONE] = loadTexture("resources/board/tile_null.png");
 
+    // initialize program core graphics
     dataContainer->program_core = loadTexture("resources/board/programs/program_core.png");
     dataContainer->program_core_vertical = loadTexture("resources/board/programs/program_core_vertical.png");
     dataContainer->program_core_horizontal = loadTexture("resources/board/programs/program_core_horizontal.png");
 
+    // initialize program data
     dataContainer->program_icons[PROGRAM_BALLISTA] = loadTexture("resources/board/programs/program_icon_ballista.png");
     dataContainer->program_icons[PROGRAM_BITMAN] = loadTexture("resources/board/programs/program_icon_bitman.png");
     dataContainer->program_icons[PROGRAM_BITMAN2] = loadTexture("resources/board/programs/program_icon_bitman2.png");
@@ -192,4 +201,38 @@ void initData()
     dataContainer->item_icons[ITEM_CREDIT] = loadTexture("resources/board/items/item_credit.png");
     dataContainer->item_icons[ITEM_BIGCREDIT] = loadTexture("resources/board/items/item_coin.png");
     dataContainer->item_icons[ITEM_FILES] = loadTexture("resources/board/items/item_files.png");
+
+    // mainScreen resources
+    dataContainer->main_bkgdata = loadTexture("resources/main/menu_bkgdata.png");
+    dataContainer->main_bkgsplotch = loadTexture("resources/main/menu_bkgsplotch.png");
+    dataContainer->main_button_classic = loadTexture("resources/main/menu_button_classic.png");
+    dataContainer->main_button_classic_over = loadTexture("resources/main/menu_button_classic_over.png");
+    dataContainer->main_button_nightfall = loadTexture("resources/main/menu_button_nightfall.png");
+    dataContainer->main_button_nightfall_over = loadTexture("resources/main/menu_button_nightfall_over.png");
+    dataContainer->main_button_freeform = loadTexture("resources/main/menu_button_freeform.png");
+    dataContainer->main_button_freeform_over = loadTexture("resources/main/menu_button_freeform_over.png");
+    dataContainer->main_button_options = loadTexture("resources/main/menu_button_options.png");
+    dataContainer->main_button_options_over = loadTexture("resources/main/menu_button_options_over.png");
+    dataContainer->main_button_achievements = loadTexture("resources/main/menu_button_achievements.png");
+    dataContainer->main_button_achievements_over = loadTexture("resources/main/menu_button_achievements_over.png");
+    dataContainer->main_button_quit = loadTexture("resources/main/menu_button_quit.png");
+    dataContainer->main_button_quit_over = loadTexture("resources/main/menu_button_quit_over.png");
+
+    // SDL_color presets
+    dataContainer->color_black = new SDL_Color;
+    dataContainer->color_black->r = 255;
+    dataContainer->color_black->g = 255;
+    dataContainer->color_black->b = 255;
+    dataContainer->color_black->a = 0;
+    dataContainer->color_white = new SDL_Color;
+    dataContainer->color_white->r = 0;
+    dataContainer->color_white->g = 0;
+    dataContainer->color_white->b = 0;
+    dataContainer->color_white->a = 0;
+
+    // SDL_Mixer sounds
+    dataContainer->music_title = loadMusic("resources/sounds/title_music.ogg");
+    dataContainer->music_map_ambient = loadMusic("resources/sounds/map_ambient.ogg");
+    dataContainer->music_beep = loadSound("resources/sounds/move_player.wav");
+    dataContainer->music_boop = loadSound("resources/sounds/move_computer.wav");
 }

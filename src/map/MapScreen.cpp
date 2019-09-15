@@ -8,7 +8,7 @@
 #include <stdlib.h>
 
 MapScreen::MapScreen()
-    : GUIContainer(TOP_LEFT, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, NULL, loadTexture("resources/map/map.png"))
+    : GUIContainer(ANCHOR_TOP_LEFT, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, NULL, loadTexture("resources/map/map.png"))
 {
     // zone 1 nodes
     Node* baseNode = new Node(558, 881, 0, 1);
@@ -147,21 +147,22 @@ MapScreen::MapScreen()
     n36->addChild(n41);
 
     isAnimOccurring = false;
-    baseNode->setNodeStatus(OWNED);
+    selectedNode = NULL;
+    baseNode->setNodeStatus(NODESTATUS_OWNED);
 
     bkgX = 0;
     bkgY = 0;
 
-    levelConfirm = new GUIContainer(TOP_LEFT, 20, 20, 252, 194, this, dataContainer->level_confirm_window);
+    levelConfirm = new GUIContainer(ANCHOR_TOP_LEFT, 20, 20, 252, 194, this, dataContainer->level_confirm_window);
     levelConfirm->setVisible(false);
 
-    GUIButton* battleButton = new GUIButton(TOP_LEFT, 130, 169, 115, 14, levelConfirm,
+    GUIButton* battleButton = new GUIButton(ANCHOR_TOP_LEFT, 130, 169, 115, 14, levelConfirm,
                                             []()
     {
         if (mapScreen->getSelectedNode()->getLevelStr().compare("undefined") != 0)
         {
             gameScreen->loadLevel(mapScreen->getSelectedNode()->getLevelStr());
-            scrn = SCREEN_GAME;
+            currScreen = gameScreen;
         }
         mapScreen->getSelectedNode()->winNode();
         mapScreen->clearSelectedNode();
@@ -170,7 +171,7 @@ MapScreen::MapScreen()
     dataContainer->begin_databattle_button_over,
     NULL);
     levelConfirm->addObject(battleButton);
-    GUIButton* cancelButton = new GUIButton(TOP_LEFT, 7, 169, 115, 14, levelConfirm,
+    GUIButton* cancelButton = new GUIButton(ANCHOR_TOP_LEFT, 7, 169, 115, 14, levelConfirm,
                                             []()
     {
         mapScreen->clearSelectedNode();
@@ -179,6 +180,8 @@ MapScreen::MapScreen()
     dataContainer->cancel_button_over,
     NULL);
     levelConfirm->addObject(cancelButton);
+
+    addObject(levelConfirm);
 }
 
 MapScreen::~MapScreen()
@@ -188,11 +191,9 @@ MapScreen::~MapScreen()
 
 void MapScreen::shiftBkg(int x, int y)
 {
-    nextDraw = true;
-
     int bkgWidth;
     int bkgHeight;
-    SDL_QueryTexture(background, NULL, NULL, &bkgWidth, &bkgHeight);
+    SDL_QueryTexture(bkgImg, NULL, NULL, &bkgWidth, &bkgHeight);
 
     if (bkgX + x < 0)
     {
@@ -230,7 +231,7 @@ void MapScreen::drawBkg()
     bkgRect.h = SCREEN_HEIGHT;
 
     // draw background image
-    SDL_RenderCopy(gRenderer, background, &bkgRect, NULL);
+    SDL_RenderCopy(gRenderer, bkgImg, &bkgRect, NULL);
 }
 
 void MapScreen::drawNodes()
@@ -244,6 +245,7 @@ void MapScreen::drawNodes()
                 currIcon->getX() < bkgX + SCREEN_WIDTH + 200 &&
                 currIcon->getY() < bkgY + SCREEN_HEIGHT + 200)
         {
+            currIcon->getLevelStr();
             currIcon->draw(bkgX, bkgY);
         }
         currNode = currNode->getNext();
@@ -255,72 +257,11 @@ void MapScreen::draw()
     drawBkg();
     drawNodes();
     drawContents();
-
-    if (levelConfirm->getVisible())
-    {
-        levelConfirm->draw();
-    }
-
-    // if the mapscreen is currently animated, don't take shift input
-    if (isAnimOccurring)
-    {
-        // set the window to render again
-        nextDraw = true;
-
-        // get the width and height of the background
-        int bkgWidth;
-        int bkgHeight;
-        SDL_QueryTexture(background, NULL, NULL, &bkgWidth, &bkgHeight);
-
-        // variables representing if the map has shifted sufficiently
-        bool xShift = false;
-        bool yShift = false;
-
-        // if this node is left of center
-        if (selectedNode->getX() - bkgX < SCREEN_WIDTH/2 && bkgX > 0)
-        {
-            shiftBkg(-1, 0);
-        }
-        // if the node is right of center
-        else if (selectedNode->getX() - bkgX > SCREEN_WIDTH/2 && bkgX < bkgWidth - SCREEN_WIDTH)
-        {
-            shiftBkg(1, 0);
-        }
-        else
-        {
-            xShift = true;
-        }
-
-        // if this node is above center
-        if (selectedNode->getY() - bkgY < SCREEN_HEIGHT/2 && bkgY > 0)
-        {
-            shiftBkg(0, -1);
-        }
-        // if this node is below center
-        else if (selectedNode->getY() - bkgY > SCREEN_HEIGHT/2 && bkgY < bkgHeight - SCREEN_HEIGHT)
-        {
-            shiftBkg(0, 1);
-        }
-        else
-        {
-            yShift = true;
-        }
-
-        if (xShift && yShift)
-        {
-            isAnimOccurring = false;
-        }
-        return;
-    }
 }
 
-bool MapScreen::click()
+bool MapScreen::mouseDown()
 {
-    // try clicking on level confirm dialog
-    if (levelConfirm->getVisible() && levelConfirm->isMouseOver())
-    {
-        levelConfirm->click();
-    }
+    GUIContainer::mouseDown();
 
     // if mapscreen animation is occurring, don't take input
     if (selectedNode != NULL)
@@ -328,36 +269,17 @@ bool MapScreen::click()
         return false;
     }
 
-    // try clicking on other GUIObjects
-    bool ret = false;
-    LinkedList<GUIObject*>* currObject = contents;
-    while (currObject != NULL)
-    {
-        if (currObject->getContents()->isMouseOver())
-        {
-            ret = true;
-            currObject->getContents()->click();
-        }
-        currObject = currObject->getNext();
-    }
-    if (ret)
-    {
-        return true;
-    }
-
     // try clicking on node icons
-    levelConfirm->setVisible(false);
+    bool ret = false;
     LinkedList<Node*>* currNode = nodeList;
     while (currNode != NULL)
     {
         Node* n = currNode->getContents();
-        if (n->getNodeStatus() != HIDDEN && n->isMouseOver(bkgX, bkgY))
+        if (n->getNodeStatus() != NODESTATUS_HIDDEN && n->isMouseOver(bkgX, bkgY))
         {
             ret = true;
-            n->click();
+            n->mouseDown();
             shiftTo(n);
-
-            levelConfirm->setVisible(true);
         }
         currNode = currNode->getNext();
     }
@@ -391,13 +313,80 @@ Node* MapScreen::getSelectedNode()
 
 void MapScreen::clearSelectedNode()
 {
-    if (selectedNode->getNodeStatus() == NOT_OWNED_SELECTED)
+    if (selectedNode->getNodeStatus() == NODESTATUS_UNOWNED_SELECTED)
     {
-        selectedNode->setNodeStatus(NOT_OWNED);
+        selectedNode->setNodeStatus(NODESTATUS_UNOWNED);
     }
-    else if (selectedNode->getNodeStatus() == OWNED_SELECTED)
+    else if (selectedNode->getNodeStatus() == NODESTATUS_OWNED_SELECTED)
     {
-        selectedNode->setNodeStatus(OWNED);
+        selectedNode->setNodeStatus(NODESTATUS_OWNED);
     }
+    levelConfirm->setVisible(false);
     selectedNode = NULL;
+}
+
+void MapScreen::tick()
+{
+    // tick all GUIObjects
+    GUIContainer::tick();
+
+    // if the mapscreen is currently animated, don't take shift input
+    if (isAnimOccurring)
+    {
+        // get the width and height of the background
+        int bkgWidth;
+        int bkgHeight;
+        SDL_QueryTexture(bkgImg, NULL, NULL, &bkgWidth, &bkgHeight);
+
+        // variables representing if the map has shifted sufficiently
+        bool xShift = false;
+        bool yShift = false;
+        int shiftSpeed = 2;
+
+        // shift on the x-axis
+        int xDis = selectedNode->getX() - bkgX - SCREEN_WIDTH/2;
+        // if this node is left of center
+        if (xDis < 0 && bkgX > 0)
+        {
+            if (xDis < -shiftSpeed) shiftBkg(-shiftSpeed, 0);
+            else bkgX = selectedNode->getX() - SCREEN_WIDTH/2;
+        }
+        // if the node is right of center
+        else if (xDis > 0 && bkgX < bkgWidth - SCREEN_WIDTH)
+        {
+            if (xDis > shiftSpeed) shiftBkg(shiftSpeed, 0);
+            else bkgX = selectedNode->getX() - SCREEN_WIDTH/2;
+        }
+        else
+        {
+            xShift = true;
+        }
+
+        // shift on the y-axis
+        int yDis = selectedNode->getY() - bkgY - SCREEN_HEIGHT/2;
+        // if this node is above center
+        if (yDis < 0 && bkgY > 0)
+        {
+            if (yDis < -shiftSpeed) shiftBkg(0, -shiftSpeed);
+            else bkgY = selectedNode->getY() - SCREEN_HEIGHT/2;
+        }
+        // if this node is below center
+        else if (yDis > 0 && bkgY < bkgHeight - SCREEN_HEIGHT)
+        {
+            if (yDis > shiftSpeed) shiftBkg(0, shiftSpeed);
+            else bkgY = selectedNode->getY() - SCREEN_HEIGHT/2;
+        }
+        else
+        {
+            yShift = true;
+        }
+
+        // if done shifting
+        if (xShift && yShift)
+        {
+            isAnimOccurring = false;
+            levelConfirm->setVisible(true);
+        }
+        return;
+    }
 }

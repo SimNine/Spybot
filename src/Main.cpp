@@ -1,11 +1,14 @@
 #include <SDL.h>
 #include <SDL_image.h>
+#include <SDL_mixer.h>
 #include <stdio.h>
 #include <string>
 #include <cmath>
 
 #include "GUIContainer.h"
 #include "Global.h"
+#include "TitleScreen.h"
+#include "Timer.h"
 
 // returns a pointer to a new SDL_Texture
 SDL_Texture* loadTexture( std::string path )
@@ -35,6 +38,26 @@ SDL_Texture* loadTexture( std::string path )
     return newTexture;
 }
 
+Mix_Music* loadMusic(std::string path)
+{
+    Mix_Music* gMusic = Mix_LoadMUS(path.c_str());
+    if( gMusic == NULL )
+    {
+        printf( "Failed to load music at %s! SDL_mixer Error: %s\n", path.c_str(), Mix_GetError() );
+    }
+    return gMusic;
+}
+
+Mix_Chunk* loadSound(std::string path)
+{
+    Mix_Chunk* gChunk = Mix_LoadWAV(path.c_str());
+    if( gChunk == NULL )
+    {
+        printf( "Failed to load sound at %s! SDL_mixer Error: %s\n", path.c_str(), Mix_GetError() );
+    }
+    return gChunk;
+}
+
 // closes SDL and SDL_image
 void closeSDL()
 {
@@ -45,6 +68,7 @@ void closeSDL()
     gRenderer = NULL;
 
     //Quit SDL subsystems
+    Mix_Quit();
     IMG_Quit();
     SDL_Quit();
 }
@@ -52,24 +76,32 @@ void closeSDL()
 void resetBounds()
 {
     titleScreen->resetBounds();
+    mainScreen->resetBounds();
     mapScreen->resetBounds();
     gameScreen->resetBounds();
 }
 
 void initGUIs()
 {
-    SDL_Texture* titleBKG = loadTexture("resources/title_bkg.png");
-    titleScreen = new GUIContainer(TOP_LEFT, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, NULL, titleBKG);
-
+    titleScreen = new TitleScreen();
+    mainScreen = new MainScreen();
     mapScreen = new MapScreen();
     gameScreen = new GameScreen();
+
+    currScreen = titleScreen;
 }
 
 // initializes SDL and SDL_image
 bool initSDL()
 {
+    // set non-thread-naming hint
+    if( !SDL_SetHint( SDL_HINT_WINDOWS_DISABLE_THREAD_NAMING, "1" ) )
+    {
+        printf( "Warning: thread non-naming failed to enable!" );
+    }
+
     //Initialize SDL
-    if( SDL_Init( SDL_INIT_VIDEO ) < 0 )
+    if( SDL_Init( SDL_INIT_VIDEO | SDL_INIT_AUDIO ) < 0 )
     {
         printf( "SDL could not initialize! SDL Error: %s\n", SDL_GetError() );
         return false;
@@ -82,7 +114,7 @@ bool initSDL()
     }
 
     //Create window
-    int flags = SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE;
+    int flags = SDL_WINDOW_RESIZABLE | SDL_WINDOW_HIDDEN;
     gWindow = SDL_CreateWindow( "Spybot: The Nightfall Incident", 50, 50, SCREEN_WIDTH, SCREEN_HEIGHT, flags );
     if( gWindow == NULL )
     {
@@ -90,6 +122,7 @@ bool initSDL()
         return false;
     }
     SDL_SetWindowMinimumSize(gWindow, SCREEN_WIDTH, SCREEN_HEIGHT);
+    SDL_ShowCursor(SDL_DISABLE);
 
     //Create renderer for window
     gRenderer = SDL_CreateRenderer( gWindow, -1, SDL_RENDERER_ACCELERATED );
@@ -110,6 +143,13 @@ bool initSDL()
         return false;
     }
 
+    //Initialize SDL_mixer
+    if( Mix_OpenAudio( 44100, MIX_DEFAULT_FORMAT, 2, 2048 ) < 0 )
+    {
+        printf( "SDL_mixer could not initialize! SDL_mixer Error: %s\n", Mix_GetError() );
+        return false;
+    }
+
     initData();
     initGUIs(); // initialize GUIContainers
     resetBounds();
@@ -119,19 +159,7 @@ bool initSDL()
 
 void draw()
 {
-    if (scrn == SCREEN_TITLE)
-    {
-        titleScreen->draw();
-    }
-    else if (scrn == SCREEN_MAP)
-    {
-        mapScreen->draw();
-    }
-    else if (scrn == SCREEN_GAME)
-    {
-        gameScreen->draw();
-    }
-
+    currScreen->draw();
     SDL_RenderPresent( gRenderer ); // update the screen
 }
 
@@ -173,15 +201,19 @@ void handleEvents()
             }
             else if (e.key.keysym.sym == SDLK_q)
             {
-                scrn = SCREEN_TITLE;
+                currScreen = mainScreen;
             }
             else if (e.key.keysym.sym == SDLK_w)
             {
-                scrn = SCREEN_MAP;
+                currScreen = mapScreen;
             }
             else if (e.key.keysym.sym == SDLK_e)
             {
-                scrn = SCREEN_GAME;
+                currScreen = gameScreen;
+            }
+            else if (e.key.keysym.sym == SDLK_r)
+            {
+                currScreen = titleScreen;
             }
             else if (e.key.keysym.sym == SDLK_F2)
             {
@@ -196,34 +228,18 @@ void handleEvents()
         else if (e.type == SDL_MOUSEBUTTONDOWN)
         {
             mousePressed = true;
+            currScreen->mouseDown();
         }
         else if (e.type == SDL_MOUSEBUTTONUP)
         {
             mousePressed = false;
+            currScreen->mouseUp();
         }
 
         // screen-specific input
-        if (scrn == SCREEN_MAP)
+        if (currScreen == gameScreen)
         {
-            if (e.type == SDL_MOUSEBUTTONDOWN)
-            {
-                mapScreen->click();
-            }
-        }
-        else if (scrn == SCREEN_TITLE)
-        {
-            if (e.type == SDL_MOUSEBUTTONDOWN)
-            {
-                titleScreen->click();
-            }
-        }
-        else if (scrn == SCREEN_GAME)
-        {
-            if (e.type == SDL_MOUSEBUTTONDOWN)
-            {
-                gameScreen->click();
-            }
-            else if (e.type == SDL_KEYDOWN && e.key.keysym.sym == SDLK_s)
+            if (e.type == SDL_KEYDOWN && e.key.keysym.sym == SDLK_s)
             {
                 gameScreen->saveLevel();
             }
@@ -232,13 +248,10 @@ void handleEvents()
                 gameScreen->loadLevel("");
             }
         }
-
-        // there was an event, so redraw the window
-        nextDraw = true;
     }
 
     // handle in-progress events
-    if (scrn == SCREEN_MAP)
+    if (currScreen == mapScreen)
     {
         // if the mapscreen is animating, don't take input
         if (mapScreen->isBusy())
@@ -248,89 +261,91 @@ void handleEvents()
 
         // scan for keys currently pressed
         const Uint8* currentKeyStates = SDL_GetKeyboardState( NULL );
+        int shiftSpeed = 5;
         if( currentKeyStates[ SDL_SCANCODE_UP ] )
         {
-            mapScreen->shiftBkg(0, -2);
+            mapScreen->shiftBkg(0, -shiftSpeed);
         }
         else if( currentKeyStates[ SDL_SCANCODE_DOWN ] )
         {
-            mapScreen->shiftBkg(0, 2);
+            mapScreen->shiftBkg(0, shiftSpeed);
         }
 
         if( currentKeyStates[ SDL_SCANCODE_LEFT ] )
         {
-            mapScreen->shiftBkg(-2, 0);
+            mapScreen->shiftBkg(-shiftSpeed, 0);
         }
         else if( currentKeyStates[ SDL_SCANCODE_RIGHT ] )
         {
-            mapScreen->shiftBkg(2, 0);
+            mapScreen->shiftBkg(shiftSpeed, 0);
         }
 
         // if the mouse is at an edge, try to shift the background
         if (mousePosX < 20)
         {
-            mapScreen->shiftBkg(-1, 0);
+            mapScreen->shiftBkg(-shiftSpeed, 0);
         }
         else if (mousePosX > SCREEN_WIDTH - 20)
         {
-            mapScreen->shiftBkg(1, 0);
+            mapScreen->shiftBkg(shiftSpeed, 0);
         }
 
         if (mousePosY < 20)
         {
-            mapScreen->shiftBkg(0, -1);
+            mapScreen->shiftBkg(0, -shiftSpeed);
         }
         else if (mousePosY > SCREEN_HEIGHT - 20)
         {
-            mapScreen->shiftBkg(0, 1);
+            mapScreen->shiftBkg(0, shiftSpeed);
         }
     }
-    else if (scrn == SCREEN_GAME)
+    else if (currScreen == gameScreen)
     {
         // scan for keys currently pressed
         const Uint8* currentKeyStates = SDL_GetKeyboardState( NULL );
+        int shiftSpeed = 3;
         if( currentKeyStates[ SDL_SCANCODE_UP ] )
         {
-            gameScreen->shiftBkg(0, -2);
+            gameScreen->shiftBkg(0, -shiftSpeed);
         }
         else if( currentKeyStates[ SDL_SCANCODE_DOWN ] )
         {
-            gameScreen->shiftBkg(0, 2);
+            gameScreen->shiftBkg(0, shiftSpeed);
         }
 
         if( currentKeyStates[ SDL_SCANCODE_LEFT ] )
         {
-            gameScreen->shiftBkg(-2, 0);
+            gameScreen->shiftBkg(-shiftSpeed, 0);
         }
         else if( currentKeyStates[ SDL_SCANCODE_RIGHT ] )
         {
-            gameScreen->shiftBkg(2, 0);
+            gameScreen->shiftBkg(shiftSpeed, 0);
         }
 
         // if the mouse is at an edge, try to shift the background
         if (mousePosX < 20)
         {
-            gameScreen->shiftBkg(-1, 0);
+            gameScreen->shiftBkg(-shiftSpeed, 0);
         }
         else if (mousePosX > SCREEN_WIDTH - 20)
         {
-            gameScreen->shiftBkg(1, 0);
+            gameScreen->shiftBkg(shiftSpeed, 0);
         }
 
         if (mousePosY < 20)
         {
-            gameScreen->shiftBkg(0, -1);
+            gameScreen->shiftBkg(0, -shiftSpeed);
         }
         else if (mousePosY > SCREEN_HEIGHT - 20)
         {
-            gameScreen->shiftBkg(0, 1);
+            gameScreen->shiftBkg(0, shiftSpeed);
         }
     }
 }
 
 void tick()
 {
-
+    currScreen->tick();
 }
 
 // main function
@@ -343,15 +358,62 @@ int main( int argc, char* args[] )
         return 1;
     }
 
-    //Main loop
+    // timers
+    Timer tickTimer;
+    tickTimer.start();
+
+    Timer renderTimer;
+    renderTimer.start();
+
+    unsigned int fpsCap = 60;
+    unsigned int frameCount = 0;
+    unsigned int msPerFrame;
+    Timer renderTimerB;
+    if (fpsCap != 0)
+    {
+        renderTimerB.start();
+        msPerFrame = 1000/fpsCap;
+    }
+
+    // main loop
+    SDL_ShowWindow(gWindow);
     while( !quit )
     {
-        if (nextInput) handleEvents(); // handle input events
-        if (nextTick) tick(); // tick whatever needs to be ticked
-        if (nextDraw)
+        // handle ticks
+        if (tickTimer.getTicks() >= 20)
         {
-            nextDraw = false; // set the window not to render again
+            tick(); // tick whatever needs to be ticked
+            if (acceptingInput) handleEvents();
+            tickTimer.stop();
+            tickTimer.start();
+        }
+
+        // handle drawing
+        if (fpsCap == 0)
+        {
             draw(); // render the window
+            frameCount++;
+        }
+        else if (renderTimerB.getTicks() >= msPerFrame)
+        {
+            draw();
+            frameCount++;
+            renderTimerB.stop();
+            renderTimerB.start();
+        }
+
+        if (debug)
+        {
+            unsigned int numTicks = renderTimer.getTicks();
+            if (numTicks >= 1000)
+            {
+                float fps = frameCount / (numTicks/1000.0);
+                renderTimer.stop();
+                printf("avg fps: %f\n", fps);
+                printf("num frames: %i\n\n", frameCount);
+                frameCount = 0;
+                renderTimer.start();
+            }
         }
     }
 

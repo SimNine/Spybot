@@ -1,19 +1,20 @@
 #include "Global.h"
 #include "MapScreen.h"
 
-//Screen dimension constants
-int SCREEN_WIDTH = 650;
-int SCREEN_HEIGHT = 420;
+// initial screen dimension constants
+int SCREEN_WIDTH = 800;
+int SCREEN_HEIGHT = 600;
 
-//The window we'll be rendering to
+// window to render to
 SDL_Window* gWindow = NULL;
 
 // designate the renderer
 SDL_Renderer* gRenderer = NULL;
 
 // designate the GUI_containers
-screen scrn = SCREEN_MAP;
-GUIContainer* titleScreen = NULL;
+GUIContainer* currScreen = NULL;
+TitleScreen* titleScreen = NULL;
+MainScreen* mainScreen = NULL;
 MapScreen* mapScreen = NULL;
 GameScreen* gameScreen = NULL;
 
@@ -25,10 +26,8 @@ int mousePosX = 0;
 int mousePosY = 0;
 bool mousePressed = false;
 
-// draw flag
-bool nextDraw = false;
-bool nextInput = true;
-bool nextTick = true;
+// update flags
+bool acceptingInput = true;
 
 // quit flag
 bool quit = false;

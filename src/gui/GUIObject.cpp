@@ -8,7 +8,8 @@ GUIObject::GUIObject(Anch anchorPoint, int xRel, int yRel, int width, int height
     xDisplacement = xRel;
     yDisplacement = yRel;
     this->parent = parent;
-    bounds = new SDL_Rect();
+    pressed = false;
+    visible = true;
     setBounds(xRel, yRel, width, height);
 }
 
@@ -19,10 +20,10 @@ GUIObject::~GUIObject()
 
 void GUIObject::setBounds(int xRel, int yRel, int width, int height)
 {
-    bounds->x = getXAnchor() + xRel;
-    bounds->y = getYAnchor() + yRel;
-    bounds->w = width;
-    bounds->h = height;
+    bounds.x = getXAnchor() + xRel;
+    bounds.y = getYAnchor() + yRel;
+    bounds.w = width;
+    bounds.h = height;
 }
 
 int GUIObject::getXAnchor()
@@ -34,15 +35,15 @@ int GUIObject::getXAnchor()
 
     switch (anchor)
     {
-    case TOP_LEFT:
+    case ANCHOR_TOP_LEFT:
         return parent->getBounds()->x;
-    case TOP_RIGHT:
+    case ANCHOR_TOP_RIGHT:
         return parent->getBounds()->x + parent->getBounds()->w;
-    case BOTTOM_LEFT:
+    case ANCHOR_BOTTOM_LEFT:
         return parent->getBounds()->x;
-    case BOTTOM_RIGHT:
+    case ANCHOR_BOTTOM_RIGHT:
         return parent->getBounds()->x + parent->getBounds()->w;
-    case CENTER:
+    case ANCHOR_CENTER:
         return parent->getBounds()->x + parent->getBounds()->w/2;
     }
 
@@ -58,15 +59,15 @@ int GUIObject::getYAnchor()
 
     switch (anchor)
     {
-    case TOP_LEFT:
+    case ANCHOR_TOP_LEFT:
         return parent->getBounds()->y;
-    case TOP_RIGHT:
+    case ANCHOR_TOP_RIGHT:
         return parent->getBounds()->y;
-    case BOTTOM_LEFT:
+    case ANCHOR_BOTTOM_LEFT:
         return parent->getBounds()->y + parent->getBounds()->h;
-    case BOTTOM_RIGHT:
+    case ANCHOR_BOTTOM_RIGHT:
         return parent->getBounds()->y + parent->getBounds()->h;
-    case CENTER:
+    case ANCHOR_CENTER:
         return parent->getBounds()->y + parent->getBounds()->h/2;
     }
 
@@ -75,21 +76,21 @@ int GUIObject::getYAnchor()
 
 SDL_Rect* GUIObject::getBounds()
 {
-    return bounds;
+    return &bounds;
 }
 
 void GUIObject::resetBounds()
 {
-    bounds->x = getXAnchor() + xDisplacement;
-    bounds->y = getYAnchor() + yDisplacement;
+    bounds.x = getXAnchor() + xDisplacement;
+    bounds.y = getYAnchor() + yDisplacement;
 }
 
 bool GUIObject::isMouseOver()
 {
-    if (mousePosX >= bounds->x &&
-        mousePosX < bounds->x + bounds->w &&
-        mousePosY >= bounds->y &&
-        mousePosY < bounds->y + bounds->h)
+    if (mousePosX >= bounds.x &&
+            mousePosX < bounds.x + bounds.w &&
+            mousePosY >= bounds.y &&
+            mousePosY < bounds.y + bounds.h)
     {
         return true;
     }
@@ -99,7 +100,7 @@ bool GUIObject::isMouseOver()
     }
 }
 
-bool GUIObject::getVisible()
+bool GUIObject::isVisible()
 {
     return visible;
 }
@@ -107,4 +108,39 @@ bool GUIObject::getVisible()
 void GUIObject::setVisible(bool b)
 {
     visible = b;
+}
+
+void GUIObject::setPressed(bool b)
+{
+    pressed = b;
+}
+
+void GUIObject::drawBounds()
+{
+    if (debug)
+    {
+        if (isMouseOver())
+        {
+            if (pressed)
+            {
+                SDL_SetRenderDrawColor(gRenderer, 0, 255, 0, 0);
+            }
+            else
+            {
+                SDL_SetRenderDrawColor(gRenderer, 255, 0, 0, 0);
+            }
+        }
+        else
+        {
+            if (pressed)
+            {
+                SDL_SetRenderDrawColor(gRenderer, 255, 255, 0, 0);
+            }
+            else
+            {
+                SDL_SetRenderDrawColor(gRenderer, 255, 255, 255, 0);
+            }
+        }
+        SDL_RenderDrawRect(gRenderer, &bounds);
+    }
 }

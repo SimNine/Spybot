@@ -5,8 +5,7 @@
 #include <string>
 
 #include "LinkedList.h"
-
-enum NodeStatus { HIDDEN, NOT_OWNED, NOT_OWNED_SELECTED, OWNED, OWNED_SELECTED };
+#include "Enums.h"
 
 class Node
 {
@@ -18,11 +17,11 @@ class Node
         void draw(int, int);
         int getX();
         int getY();
-        bool click();
+        bool mouseDown();
         bool isMouseOver(int, int);
         void addChild(Node*);
-        void setNodeStatus(NodeStatus);
-        NodeStatus getNodeStatus();
+        void setNodeStatus(NODESTATUS);
+        NODESTATUS getNodeStatus();
         void winNode();
         std::string getLevelStr();
     protected:
@@ -30,7 +29,7 @@ class Node
         int x;
         int y;
         int nodeType;
-        NodeStatus nodeStatus;
+        NODESTATUS nodeStatus;
         SDL_Texture* img;
         LinkedList<Node*>* children;
         int zone;

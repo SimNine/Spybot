@@ -16,7 +16,7 @@ public:
 
     void shiftBkg(int, int);
     void draw();
-    bool click();
+    bool mouseDown();
     void saveLevel();
     void loadLevel(std::string);
     void setSelectedTile(int, int);
@@ -44,6 +44,7 @@ private:
     Program* gridPrograms[200][200];
     ITEM gridItems[200][200];
 
+    void initBoard();
     void clearLevel();
     void deleteProgram(Program*);
     void setTileAt(int, int, TILE);

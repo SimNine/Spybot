@@ -9,9 +9,18 @@ class GUIButton : public GUIObject
     public:
         GUIButton(Anch, int, int, int, int, GUIContainer*,
                   void (*func) (void), SDL_Texture*, SDL_Texture*, SDL_Texture*);
+        GUIButton(Anch, int, int, int, int, GUIContainer*,
+                  void (*func) (void), SDL_Texture*, SDL_Texture*);
+        GUIButton(Anch, int, int, int, int, GUIContainer*,
+                  void (*func) (void), SDL_Texture*);
+        GUIButton(Anch, int, int, int, int, GUIContainer*,
+                  void (*func) (void));
         virtual ~GUIButton();
         void draw();
-        bool click();
+        bool mouseDown();
+        bool mouseUp();
+        void tick();
+        void setTransparency(int);
     protected:
     private:
         SDL_Texture* bkgNormal;

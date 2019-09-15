@@ -4,6 +4,8 @@
 #include "DataContainer.h"
 #include "MapScreen.h"
 #include "GameScreen.h"
+#include "TitleScreen.h"
+#include "MainScreen.h"
 
 // screen dimensions
 extern int SCREEN_WIDTH;
@@ -16,9 +18,9 @@ extern SDL_Window* gWindow;
 extern SDL_Renderer* gRenderer;
 
 // designate the GUI_containers
-enum screen { SCREEN_TITLE, SCREEN_MAP, SCREEN_GAME };
-extern screen scrn;
-extern GUIContainer* titleScreen;
+extern GUIContainer* currScreen;
+extern TitleScreen* titleScreen;
+extern MainScreen* mainScreen;
 extern MapScreen* mapScreen;
 extern GameScreen* gameScreen;
 
@@ -31,9 +33,7 @@ extern int mousePosY;
 extern bool mousePressed;
 
 // action flags
-extern bool nextDraw;
-extern bool nextInput;
-extern bool nextTick;
+extern bool acceptingInput;
 
 // quit flag
 extern bool quit;

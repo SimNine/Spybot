@@ -139,4 +139,44 @@ template <class T> T LL_getObjectAt(LinkedList<T>* l, int i)
     return l->getContents();
 }
 
+// removes a node from a list, returning the first node in this list
+//template <class T> LinkedList<T>* LL_removeNodeFromList(LinkedList<T>* startNode, LinkedList<T>* nodeToRemove)
+//{
+//    if (startNode == NULL)
+//    {
+//        return NULL;
+//    }
+//
+//    if (nodeToRemove == NULL)
+//    {
+//        return startNode;
+//    }
+//
+//    if (startNode == nodeToRemove)
+//    {
+//        LinkedList<T>* tempNode = startNode->getNext();
+//        delete startNode;
+//        return tempNode;
+//    }
+//
+//    LinkedList<T>* currNode = startNode;
+//    while (currNode != NULL)
+//    {
+//        if (currNode->getNext() == nodeToRemove)
+//        {
+//            LinkedList<T>* tempNode = startNode->getNext();
+//            currNode->setNext(currNode->getNext()->getNext());
+//            delete tempNode;
+//            return startNode;
+//        }
+//
+//        if (currNode->getNext() == NULL)
+//        {
+//            return startNode;
+//        }
+//
+//        currNode = currNode->getNext();
+//    }
+//}
+
 #endif // LINKEDLIST_H
