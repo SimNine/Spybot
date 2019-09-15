@@ -2,7 +2,7 @@
 #include "Program.h"
 
 #include "Global.h"
-#include "DataContainer.h"
+#include "Data.h"
 #include "Player.h"
 #include "ProgramAction.h"
 
@@ -10,7 +10,7 @@ Program::Program(PROGRAM type, int team, Coord head)
 {
     this->team = team;
     this->type = type;
-    icon = dataContainer->program_icons[type];
+    icon = _program_icons[type];
     color[0] = rand()%255;
     color[1] = rand()%255;
     color[2] = rand()%255;
@@ -523,7 +523,7 @@ Program::~Program()
     }
     delete actionList;
 
-    if (debug >= DEBUG_NORMAL)
+    if (_debug >= DEBUG_NORMAL)
     {
         printf("Program '%s' deleted\n", name.c_str());
     }

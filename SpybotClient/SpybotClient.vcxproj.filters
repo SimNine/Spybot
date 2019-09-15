@@ -81,9 +81,6 @@
     <ClInclude Include="targetver.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\DataContainer.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="include\Enums.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -201,17 +198,23 @@
     <ClInclude Include="include\ClientMirror.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="TextEntryBox.h">
-      <Filter>Header Files\main</Filter>
-    </ClInclude>
     <ClInclude Include="include\lobby\ChatDisplay.h">
       <Filter>Header Files\lobby</Filter>
     </ClInclude>
+    <ClInclude Include="include\game\server\Team.h">
+      <Filter>Header Files\game\client</Filter>
+    </ClInclude>
+    <ClInclude Include="include\main\PromptBox.h">
+      <Filter>Header Files\main</Filter>
+    </ClInclude>
+    <ClInclude Include="include\gui\GUITextbox.h">
+      <Filter>Header Files\gui</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Data.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\DataContainer.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\Global.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -302,8 +305,17 @@
     <ClCompile Include="src\lobby\ChatDisplay.cpp">
       <Filter>Source Files\lobby</Filter>
     </ClCompile>
-    <ClCompile Include="src\main\TextEntryBox.cpp">
+    <ClCompile Include="src\game\server\Team.cpp">
+      <Filter>Source Files\game\server</Filter>
+    </ClCompile>
+    <ClCompile Include="src\main\PromptBox.cpp">
       <Filter>Source Files\main</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gui\GUITextbox.cpp">
+      <Filter>Source Files\gui</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Data.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

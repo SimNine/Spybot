@@ -9,10 +9,10 @@ class GUIContainer;
 class GUITexture : public GUIObject
 {
     public:
-        GUITexture(ANCHOR, Coord, SDL_Texture*, Coord, GUIContainer*);
-        GUITexture(ANCHOR, Coord, SDL_Texture*, Coord, bool, GUIContainer*);
-        GUITexture(ANCHOR, Coord, std::string, Coord, GUIContainer*);
-        GUITexture(ANCHOR, Coord, std::string, GUIContainer*);
+        GUITexture(ANCHOR a, Coord disp, SDL_Texture* tex, Coord, GUIContainer* parent);
+        GUITexture(ANCHOR a, Coord disp, SDL_Texture* tex, Coord, bool, GUIContainer* parent);
+        GUITexture(ANCHOR a, Coord disp, std::string addrOfTex, Coord dims, GUIContainer* parent);
+        GUITexture(ANCHOR a, Coord disp, std::string strToTexturize, int fontSize, GUIContainer* parent);
         virtual ~GUITexture();
 
         SDL_Texture* swapTexture(SDL_Texture*);
@@ -20,8 +20,8 @@ class GUITexture : public GUIObject
         void draw();
         bool mouseDown();
         bool mouseUp();
-        void setTransparency(int);
-        void tick(int);
+        void setTransparency(int opacity);
+        void tick(int ms);
         void resetBounds();
     protected:
     private:

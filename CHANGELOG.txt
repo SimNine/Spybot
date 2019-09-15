@@ -156,3 +156,20 @@ Multiplayer chat, new GUI features
 -Genericized Player class; a Player may have a "mind" (AICore) or not - if not, it is a human player
 -PlayerID is now equal to ClientID in the case of human players
 -Popup showing next player's turn shows up on all screens
+
+1.2.0 - 1/5/18
+Server-side users, internal quality rehash
+-----
+-Added Team class, generalized team system
+--Players are now grouped into teams
+--AIs are always assigned by default to team 1
+-Added server-side user system
+--Users can be created on server-side
+--Name is no longer prompted on startup
+--Added login prompt after connecting to server
+-Separated text entry field into GUITextbox class and PromptBox class
+--GUITextbox incorporates a cursor
+--One GUITextbox is active at any time
+-Eliminated DataContainer class, all global variables now prefixed with an underscore
+-Began adding LobbyScreen buttons and controls
+--Added buttons for gamemodes: Free-for-All, Team Deathmatch, Co-op

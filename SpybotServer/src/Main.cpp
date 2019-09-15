@@ -7,7 +7,7 @@
 #include "MiscUtil.h"
 
 Server* server;
-DEBUG debug = DEBUG_NORMAL;
+DEBUG _debug = DEBUG_NORMAL;
 
 // main loop to recieve new sockets
 void masterSocketFunc()

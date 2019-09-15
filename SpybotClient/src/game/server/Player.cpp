@@ -66,7 +66,7 @@ void Player::moveSelectedProgram(Coord pos)
         msg.type = MSGTYPE_SOUND;
         msg.soundType = MSGSOUNDNAME_MOVE;
         msg.numRepeats = 0;
-        client->sendMessage(msg);
+        _client->sendMessage(msg);
 
         // if there is a credit here, pick it up
         if (game->getItemAt(pos) == ITEM_CREDIT && team == 0)
@@ -74,7 +74,7 @@ void Player::moveSelectedProgram(Coord pos)
             game->setItemAt(pos, ITEM_NONE);
 
             msg.soundType = MSGSOUNDNAME_PICKUPCREDIT;
-			client->sendMessage(msg);
+			_client->sendMessage(msg);
         }
     }
 }

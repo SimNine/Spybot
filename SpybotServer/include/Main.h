@@ -6,6 +6,6 @@
 class Server;
 
 extern Server* server;
-extern DEBUG debug;
+extern DEBUG _debug;
 
 #endif

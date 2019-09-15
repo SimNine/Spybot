@@ -65,6 +65,10 @@ void serializeMessage(char* buffer, Message m) {
 	serializeInt(&buffer[currByte], m.actionID);
 	currByte += 4;
 
+	// write gameselect
+	buffer[currByte] = m.gameConfigType;
+	currByte++;
+
 	// write text
 	m.text[DEFAULT_MSG_TEXTSIZE - 1] = '\0';
 	strcpy_s(&buffer[currByte], DEFAULT_MSG_TEXTSIZE, m.text);
@@ -134,6 +138,10 @@ Message deserializeMessage(char* in) {
 	currByte += 4;
 	deserializeInt(&in[currByte], &m.actionID);
 	currByte += 4;
+
+	// read gameconfig
+	m.gameConfigType = (MSGGAMECONFIGTYPE)in[currByte];
+	currByte++;
 
 	// read text
 	strcpy_s(m.text, DEFAULT_MSG_TEXTSIZE, &in[currByte]);
@@ -212,13 +220,25 @@ void printMessage(Message m) {
 		printf("MSGTYPE_SOUND\n");
 		break;
 	case MSGTYPE_CONNECT:
-		printf("MSGTYPE_CONNECT - User %s\n", m.text);
+		printf("MSGTYPE_CONNECT\n");
 		break;
 	case MSGTYPE_DISCONNECT:
 		printf("MSGTYPE_DISCONNECT\n");
 		break;
 	case MSGTYPE_TEXT:
 		printf("MSGTYPE_TEXT - %s\n", m.text);
+		break;
+	case MSGTYPE_GAMECONFIG:
+		printf("MSGTYPE_GAMECONFIG\n");
+		break;
+	case MSGTYPE_LOGIN:
+		printf("MSGTYPE_LOGIN\n");
+		break;
+	case MSGTYPE_CREATEUSER:
+		printf("MSGTYPE_CREATEUSER\n");
+		break;
+	case MSGTYPE_ERROR:
+		printf("MSGTYPE_ERROR - %s\n", m.text);
 		break;
 	}
 }

@@ -8,30 +8,28 @@
 #include "Server.h"
 #include "Player.h"
 #include "MiscUtil.h"
+#include "Team.h"
 
 Game::Game()
 {
-    playerCompList = NULL;
-    playerHumanList = NULL;
+	teamList = new LinkedList<Team*>();
     initBoard();
+	status_ = GAMESTATUS_NO_GAME;
 }
 
 Game::Game(std::string lvlStr)
 {
-    playerCompList = NULL;
-    playerHumanList = NULL;
+	teamList = new LinkedList<Team*>();
     initBoard();
     loadLevel(lvlStr);
+	status_ = GAMESTATUS_PLACING_PROGRAMS;
 }
 
 Game::~Game()
 {
-    while (playerHumanList->getLength() > 0)
-        delete playerHumanList->poll();
-    delete playerHumanList;
-    while (playerCompList->getLength() > 0)
-        delete playerCompList->poll();
-    delete playerCompList;
+	while (teamList->getLength() > 0)
+		delete teamList->poll();
+	delete teamList;
 }
 
 void Game::initBoard()
@@ -51,28 +49,6 @@ void Game::initBoard()
     gridRightBound = 100;
     gridTopBound = 100;
     gridBottomBound = 100;
-
-    if (playerHumanList == NULL)
-        playerHumanList = new LinkedList<Player*>();
-    while (playerHumanList->getLength() > 0)
-        delete playerHumanList->poll();
-	// TODO: fix this. remove any need for an initial player.
-	// Currently, game will crash if a level has a program already on the board for a human player
-	//PlayerHuman* ph = new PlayerHuman(this, 0);
-	//ph->setPlayerID(rand());
-    //playerHumanList->addFirst(ph);
-
-    if (playerCompList == NULL)
-        playerCompList = new LinkedList<Player*>();
-    while (playerCompList->getLength() > 0)
-        delete playerCompList->poll();
-	Player* pc = new Player(this, 1);
-	AIBasic* pcm = new AIBasic(pc);
-	pc->setMind(pcm);
-	pc->setPlayerID(randInt());
-	playerCompList->addFirst(pc);
-
-	status_ = GAMESTATUS_PLACING_PROGRAMS;
 }
 
 void Game::setTileAt(Coord pos, TILE t)
@@ -207,25 +183,25 @@ void Game::saveLevel()
     lvl.open("levels/default.urf", std::ios::out | std::ios::binary | std::ios::trunc);
     if (!lvl.is_open())
     {
-        if (debug >= DEBUG_MINIMAL) printf("err opening file for saving\n");
+        if (_debug >= DEBUG_MINIMAL) printf("err opening file for saving\n");
     }
     else
     {
-        if (debug >= DEBUG_MINIMAL) printf("saving level...\n");
+        if (_debug >= DEBUG_MINIMAL) printf("saving level...\n");
 
         // begin by writing the sizes of various data types
         int8_t sizeOfInt = sizeof(int);
         int8_t sizeOfChar = sizeof(char);
         int8_t sizeOfDouble = sizeof(double);
         int8_t sizeOfBool = sizeof(bool);
-        if (debug >= DEBUG_NORMAL) printf("saving constants... int:%i, char:%i, double:%i, bool:%i\n", sizeOfInt, sizeOfChar, sizeOfDouble, sizeOfBool);
+        if (_debug >= DEBUG_NORMAL) printf("saving constants... int:%i, char:%i, double:%i, bool:%i\n", sizeOfInt, sizeOfChar, sizeOfDouble, sizeOfBool);
         lvl.write((char*) &sizeOfInt, 1);
         lvl.write((char*) &sizeOfChar, 1);
         lvl.write((char*) &sizeOfDouble, 1);
         lvl.write((char*) &sizeOfBool, 1);
 
         // write the size of the game grid to the file
-        if (debug >= DEBUG_NORMAL) printf("saving grid bounds... left:%i, right:%i, top:%i, bottom:%i\n", gridLeftBound, gridRightBound, gridTopBound, gridBottomBound);
+        if (_debug >= DEBUG_NORMAL) printf("saving grid bounds... left:%i, right:%i, top:%i, bottom:%i\n", gridLeftBound, gridRightBound, gridTopBound, gridBottomBound);
         lvl.write((char*) &gridLeftBound, sizeOfInt);
         lvl.write((char*) &gridRightBound, sizeOfInt);
         lvl.write((char*) &gridTopBound, sizeOfInt);
@@ -235,7 +211,7 @@ void Game::saveLevel()
         lvl.write((char*) &bkg_, sizeOfInt);
 
         // collect all the programs in a linked list
-        if (debug >= DEBUG_NORMAL) printf("gathering program list...\n");
+        if (_debug >= DEBUG_NORMAL) printf("gathering program list...\n");
         LinkedList<Program*> progs = LinkedList<Program*>();
         for (int x = gridLeftBound; x < gridRightBound; x++)
         {
@@ -247,7 +223,7 @@ void Game::saveLevel()
                 }
                 if (progs.contains(gridPrograms[x][y]))
                 {
-                    if (debug >= DEBUG_NORMAL) printf("saving program\n");
+                    if (_debug >= DEBUG_NORMAL) printf("saving program\n");
                     progs.addLast(gridPrograms[x][y]);
                 }
             }
@@ -255,7 +231,7 @@ void Game::saveLevel()
 
         // write all programs to the file
         int numPrograms = progs.getLength();
-        if (debug >= DEBUG_NORMAL) printf("saving %i programs...\n", numPrograms);
+        if (_debug >= DEBUG_NORMAL) printf("saving %i programs...\n", numPrograms);
         lvl.write((char*)(&numPrograms), sizeOfInt);
         for (int i = 0; i < progs.getLength(); i++)
         {
@@ -278,7 +254,7 @@ void Game::saveLevel()
         }
 
         // write the grid to the file
-        if (debug >= DEBUG_NORMAL) printf("saving tiles, items, and program pointers...\n");
+        if (_debug >= DEBUG_NORMAL) printf("saving tiles, items, and program pointers...\n");
         for (int x = gridLeftBound; x < gridRightBound; x++)
         {
             for (int y = gridTopBound; y < gridBottomBound; y++)
@@ -291,10 +267,10 @@ void Game::saveLevel()
         }
 
         // flush and close the file
-        if (debug >= DEBUG_MINIMAL) printf("flushing and closing save file... ");
+        if (_debug >= DEBUG_MINIMAL) printf("flushing and closing save file... ");
         lvl.flush();
         lvl.close();
-        if (debug >= DEBUG_MINIMAL) printf("done\n");
+        if (_debug >= DEBUG_MINIMAL) printf("done\n");
     }
 }
 
@@ -312,14 +288,14 @@ void Game::loadLevel(std::string str)
 
     if (!lvl.is_open())
     {
-        if (debug >= DEBUG_MINIMAL) printf("err opening level %s\n", str.c_str());
+        if (_debug >= DEBUG_MINIMAL) printf("err opening level %s\n", str.c_str());
     }
     else
     {
-        if (debug >= DEBUG_MINIMAL) printf("loading level %s...\n", str.c_str());
+        if (_debug >= DEBUG_MINIMAL) printf("loading level %s...\n", str.c_str());
 
         // read the sizes of various data types
-        if (debug >= DEBUG_NORMAL) printf("loading constants...\n");
+        if (_debug >= DEBUG_NORMAL) printf("loading constants...\n");
         int8_t sizeOfInt;
         lvl.read((char*) &sizeOfInt, 1);
         int8_t sizeOfChar;
@@ -330,7 +306,7 @@ void Game::loadLevel(std::string str)
         lvl.read((char*) &sizeOfBool, 1);
 
         // load the size of the game grid
-        if (debug >= DEBUG_NORMAL) printf("loading grid bounds...\n");
+        if (_debug >= DEBUG_NORMAL) printf("loading grid bounds...\n");
         int left, right, top, bottom;
         lvl.read((char*) &left, sizeOfInt);
         lvl.read((char*) &right, sizeOfInt);
@@ -344,7 +320,7 @@ void Game::loadLevel(std::string str)
         // load the list of programs
         int numPrograms;
         lvl.read((char*)(&numPrograms), sizeOfInt);
-        if (debug >= DEBUG_NORMAL) printf("loading %i programs...\n", numPrograms);
+        if (_debug >= DEBUG_NORMAL) printf("loading %i programs...\n", numPrograms);
         LinkedList<Program*> progs = LinkedList<Program*>();
         for (int i = 0; i < numPrograms; i++)
         {
@@ -362,19 +338,35 @@ void Game::loadLevel(std::string str)
             p->setMaxHealth(maxHealth);
             p->setMaxMoves(maxMoves);
 
-            if (team == 0)
-                //playerHumanList->getFirst()->addProgram(p);
-                playerHumanList->getFirst()->addProgram(p);
-            else if (team == 1)
-                playerCompList->getFirst()->addProgram(p);
-            else
-                printf("err: a program was loaded with an invalid team\n");
+			// create this program's team if it doesn't exist
+			Team* t = getTeamByNum(team);
+			if (t == NULL)
+			{
+				t = new Team(team);
+				teamList->addFirst(t);
+			}
+
+			// create this program's player if it doesn't exist
+			Player* pl = t->getAllPlayers()->getFirst();
+			if (pl == NULL)
+			{
+				pl = new Player(this, team);
+				pl->setPlayerID(randInt());
+				t->getAllPlayers()->addFirst(pl);
+
+				// for now, the default AI team is team 1, so add a mind if team == 1
+				if (team == 1)
+					pl->setMind(new AIBasic(pl));
+			}
+
+			// add this program to this player
+			pl->addProgram(p);
 
             progs.addLast(p);
         }
 
         // load the grid from the file
-        if (debug >= DEBUG_NORMAL) printf("loading tiles, items, and program pointers...\n");
+        if (_debug >= DEBUG_NORMAL) printf("loading tiles, items, and program pointers...\n");
         for (int x = left; x < right; x++)
         {
             for (int y = top; y < bottom; y++)
@@ -399,7 +391,7 @@ void Game::loadLevel(std::string str)
 
         // close the file
         lvl.close();
-        if (debug >= DEBUG_MINIMAL) printf("done\n");
+        if (_debug >= DEBUG_MINIMAL) printf("done\n");
     }
 }
 
@@ -497,32 +489,15 @@ bool Game::isTiled(Coord pos)
         return true;
 }
 
-LinkedList<Player*>* Game::getHumanPlayers()
-{
-    return playerHumanList;
-}
-
-LinkedList<Player*>* Game::getAIPlayers()
-{
-    return playerCompList;
-}
-
 Player* Game::getPlayerByID(int playerID)
 {
-	Iterator<Player*> itHuman = playerHumanList->getIterator();
-	while (itHuman.hasNext())
+	Iterator<Team*> itTeams = teamList->getIterator();
+	while (itTeams.hasNext())
 	{
-		Player* curr = itHuman.next();
-		if (curr->getPlayerID() == playerID)
-			return curr;
-	}
-
-	Iterator<Player*> itComp = playerCompList->getIterator();
-	while (itComp.hasNext())
-	{
-		Player* curr = itComp.next();
-		if (curr->getPlayerID() == playerID)
-			return curr;
+		Team* currTeam = itTeams.next();
+		Player* p = currTeam->getPlayerByID(playerID);
+		if (p != NULL)
+			return p;
 	}
 
 	return NULL;
@@ -558,7 +533,7 @@ void Game::setStatus(GAMESTATUS g)
 				// send the current player turn to each client
 				msg.type = MSGTYPE_NEXTTURN;
 				msg.clientID = 0;
-				msg.playerID = playerHumanList->getFirst()->getPlayerID();
+				msg.playerID = teamList->getFirst()->getAllPlayers()->getFirst()->getPlayerID();
 				server->sendMessageToAllClients(msg);
 
 				// set the turn to be the first player
@@ -601,4 +576,50 @@ void Game::setCurrTurnPlayer(Player* p)
 	m.clientID = 0;
 	m.playerID = p->getPlayerID();
 	server->sendMessageToAllClients(m);
+}
+
+LinkedList<Team*>* Game::getAllTeams()
+{
+	return teamList;
+}
+
+Team* Game::getTeamByNum(int teamNum)
+{
+	Iterator<Team*> it = teamList->getIterator();
+	while (it.hasNext())
+	{
+		Team* curr = it.next();
+		if (curr->getTeamNum() == teamNum)
+			return curr;
+	}
+
+	return NULL;
+}
+
+Player* Game::getFollowingPlayer(Player* currPlayer)
+{
+	Team* currTeam = getTeamByNum(currPlayer->getTeam());
+
+	int teamIndex = teamList->getIndexOf(currTeam);
+	int playerIndex = currTeam->getAllPlayers()->getIndexOf(currPlayer);
+
+	// if this is the last player on the current team
+	if (currTeam->getAllPlayers()->getLast() == currPlayer)
+	{
+		// if this is the last team
+		if (teamList->getLast() == currTeam)
+		{
+			return teamList->getFirst()->getAllPlayers()->getFirst();
+		}
+		else
+		{
+			return teamList->getObjectAt(teamIndex + 1)->getAllPlayers()->getFirst();
+		}
+	}
+	else // if this is NOT the last player on the current team
+	{
+		return currTeam->getAllPlayers()->getObjectAt(playerIndex + 1);
+	}
+
+	return NULL;
 }

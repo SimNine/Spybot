@@ -6,7 +6,9 @@
 #include "LinkedList.h"
 
 class MainScreenGlow;
-class TextEntryBox;
+class PromptBox;
+class GUIButton;
+class GUITextbox;
 
 class MainScreen : public GUIContainer
 {
@@ -19,27 +21,38 @@ class MainScreen : public GUIContainer
 
         void toggleOptions();
 
-		void showNameEntry();
-		void cancelNameEntry();
-		void submitNameEntry();
-
 		void showIPEntry();
-		void cancelIPEntry();
+		void hideIPEntry();
 		void submitIPEntry();
+
+		void loginShow();
+		void loginHide();
+		void loginCreate();
+		void loginSubmit();
+		void loginClear();
+
+		void hideMainContainer();
+		void showMainContainer();
 
 		void keyPress(char c);
     protected:
     private:
-        int textBkgDisplacement;
+        int textBkgDisplacement_;
 
-        LinkedList<MainScreenGlow*>* glowList;
+        LinkedList<MainScreenGlow*>* glowList_;
 
-        GUIContainer* optionsContainer;
-        GUIContainer* mainContainer;
-		GUIContainer* nameEntryContainer;
-		TextEntryBox* nameEntryBox;
-		GUIContainer* IPEntryContainer;
-		TextEntryBox* IPEntryBox;
+        GUIContainer* optionsContainer_;
+        GUIContainer* mainContainer_;
+
+		GUIContainer* IPEntryContainer_;
+		PromptBox* IPEntryBox_;
+
+		GUIContainer* loginEntryContainer_;
+		GUIButton* loginCancelButton_;
+		GUIButton* loginCreateButton_;
+		GUIButton* loginSubmitButton_;
+		GUITextbox* loginUsername_;
+		GUITextbox* loginPassword_;
 };
 
 #endif // MAINSCREEN_H

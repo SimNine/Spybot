@@ -8,67 +8,65 @@
 #include "GameScreen.h"
 #include "LobbyScreen.h"
 #include "NotifyScreen.h"
-#include "DataContainer.h"
+#include "Data.h"
 #include "Client.h"
+#include "GUITextbox.h"
 
 // initial screen dimension constants
-int SCREEN_WIDTH = 800;
-int SCREEN_HEIGHT = 600;
+int _SCREEN_WIDTH = 800;
+int _SCREEN_HEIGHT = 600;
 
 // default tile width
-int TILE_WIDTH = 32;
+int _TILE_WIDTH = 32;
 
 // window to render to
-SDL_Window* gWindow = NULL;
+SDL_Window* _window = NULL;
 
 // designate the renderer
-SDL_Renderer* gRenderer = NULL;
+SDL_Renderer* _renderer = NULL;
 
 // designate the GUI_containers
-GUIContainer* currScreen = NULL;
-TitleScreen* titleScreen = NULL;
-MainScreen* mainScreen = NULL;
-MapScreen* mapScreen = NULL;
-GameScreen* gameScreen = NULL;
-LobbyScreen* lobbyScreen = NULL;
-NotifyScreen* notifyScreen = NULL;
-
-// designate texture container
-DataContainer* dataContainer = NULL;
+GUIContainer* _currScreen = NULL;
+TitleScreen* _titleScreen = NULL;
+MainScreen* _mainScreen = NULL;
+MapScreen* _mapScreen = NULL;
+GameScreen* _gameScreen = NULL;
+LobbyScreen* _lobbyScreen = NULL;
+NotifyScreen* _notifyScreen = NULL;
 
 // mouse position
-Coord mousePos = {0, 0};
-bool mousePressed = false;
+Coord _mousePos = {0, 0};
+bool _mousePressed = false;
 
 // update flags
-bool acceptingInput = true;
+bool _acceptingInput = true;
 
 // quit flag
-bool quit = false;
+bool _quit = false;
 
 // debug flag
-DEBUG debug = DEBUG_NONE;
+DEBUG _debug = DEBUG_NONE;
 
 // owned programs per campaign
-int progListClassic[PROGRAM_NUM_PROGTYPES];
-int progListNightfall[PROGRAM_NUM_PROGTYPES];
-int progListCustom[PROGRAM_NUM_PROGTYPES];
-int* progListCurrent = progListClassic;
+int _progListClassic[PROGRAM_NUM_PROGTYPES];
+int _progListNightfall[PROGRAM_NUM_PROGTYPES];
+int _progListCustom[PROGRAM_NUM_PROGTYPES];
+int* _progListCurrent = _progListClassic;
 
 // programs currently in play
-int usedPrograms[PROGRAM_NUM_PROGTYPES];
+int _usedPrograms[PROGRAM_NUM_PROGTYPES];
 
 // program ID currently selected (to be placed)
-PROGRAM currProgram = PROGRAM_NONE;
+PROGRAM _currProgram = PROGRAM_NONE;
 
 // GUIContainer currently held by the mouse
-GUIContainer* heldContainer = NULL;
+GUIContainer* _heldContainer = NULL;
+
+// GUITextbox currently active
+GUITextbox* _activeTextbox = NULL;
 
 // credit counter
-int numCredits = 0;
+int _numCredits = 0;
 
 // client monolith
-Client* client;
-
-// username string
-std::string username;
+Client* _client;

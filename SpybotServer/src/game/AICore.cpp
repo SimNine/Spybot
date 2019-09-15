@@ -5,6 +5,7 @@
 #include "Program.h"
 #include "MiscUtil.h"
 #include "Player.h"
+#include "Team.h"
 
 AICore::AICore(Player* owner)
 {
@@ -109,21 +110,21 @@ Program* AICore::getNearestEnemyProgramAStarDist(Player* enemy)
 // on this AI's team) on the grid
 LinkedList<Program*>* AICore::getAllEnemyPrograms()
 {
-    LinkedList<Program*>* progs = new LinkedList<Program*>();
-    Iterator<Player*> itAI = owner_->getGame()->getAIPlayers()->getIterator();
-    while (itAI.hasNext())
-    {
-        Player* curr = itAI.next();
-        if (curr->getTeam() != owner_->getTeam())
-            progs->addAllFirst(curr->getProgList());
-    }
-    Iterator<Player*> itHuman = owner_->getGame()->getHumanPlayers()->getIterator();
-    while (itHuman.hasNext())
-    {
-        Player* curr = itHuman.next();
-        if (curr->getTeam() != owner_->getTeam())
-            progs->addAllFirst(curr->getProgList());
-    }
+	LinkedList<Program*>* progs = new LinkedList<Program*>();
+	Iterator<Team*> itTeam = owner_->getGame()->getAllTeams()->getIterator();
+	while (itTeam.hasNext())
+	{
+		Team* curr = itTeam.next();
+		if (curr->getTeamNum() != owner_->getTeam())
+		{
+			Iterator<Player*> itPlayer = curr->getAllPlayers()->getIterator();
+			while (itPlayer.hasNext())
+			{
+				Player* pCurr = itPlayer.next();
+				progs->addAllFirst(pCurr->getProgList());
+			}
+		}
+	}
 
     //printf("found %i enemy progs\n", progs.getLength());
     return progs;

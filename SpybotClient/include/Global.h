@@ -10,69 +10,66 @@ class MapScreen;
 class GameScreen;
 class LobbyScreen;
 class NotifyScreen;
-class DataContainer;
 class Client;
+class GUITextbox;
 
 // screen dimensions
-extern int SCREEN_WIDTH;
-extern int SCREEN_HEIGHT;
+extern int _SCREEN_WIDTH;
+extern int _SCREEN_HEIGHT;
 
 // tile default width
-extern int TILE_WIDTH;
+extern int _TILE_WIDTH;
 
 // window to render in
-extern SDL_Window* gWindow;
+extern SDL_Window* _window;
 
 // designate the renderer
-extern SDL_Renderer* gRenderer;
+extern SDL_Renderer* _renderer;
 
 // designate the GUI_containers
-extern GUIContainer* currScreen;
-extern TitleScreen* titleScreen;
-extern MainScreen* mainScreen;
-extern MapScreen* mapScreen;
-extern GameScreen* gameScreen;
-extern LobbyScreen* lobbyScreen;
-extern NotifyScreen* notifyScreen;
-
-// container to hold pointers to node textures
-extern DataContainer* dataContainer;
+extern GUIContainer* _currScreen;
+extern TitleScreen* _titleScreen;
+extern MainScreen* _mainScreen;
+extern MapScreen* _mapScreen;
+extern GameScreen* _gameScreen;
+extern LobbyScreen* _lobbyScreen;
+extern NotifyScreen* _notifyScreen;
 
 // mouse data
-extern Coord mousePos;
-extern bool mousePressed;
+extern Coord _mousePos;
+extern bool _mousePressed;
 
 // action flags
-extern bool acceptingInput;
+extern bool _acceptingInput;
 
 // quit flag
-extern bool quit;
+extern bool _quit;
 
 // debug level flag
-extern DEBUG debug;
+extern DEBUG _debug;
 
 // programs owned in each campaign
-extern int progListClassic[PROGRAM_NUM_PROGTYPES];
-extern int progListNightfall[PROGRAM_NUM_PROGTYPES];
-extern int progListCustom[PROGRAM_NUM_PROGTYPES];
-extern int* progListCurrent;
+extern int _progListClassic[PROGRAM_NUM_PROGTYPES];
+extern int _progListNightfall[PROGRAM_NUM_PROGTYPES];
+extern int _progListCustom[PROGRAM_NUM_PROGTYPES];
+extern int* _progListCurrent;
 
 // programs currently in play
-extern int usedPrograms[PROGRAM_NUM_PROGTYPES];
+extern int _usedPrograms[PROGRAM_NUM_PROGTYPES];
 
 // program ID currently selected (to be placed)
-extern PROGRAM currProgram;
+extern PROGRAM _currProgram;
 
 // GUIContainer currently held by the mouse
-extern GUIContainer* heldContainer;
+extern GUIContainer* _heldContainer;
+
+// GUITextbox currently active
+extern GUITextbox* _activeTextbox;
 
 // credit counter
-extern int numCredits;
-
-// current profile
-extern std::string username;
+extern int _numCredits;
 
 // client entity
-extern Client* client;
+extern Client* _client;
 
 #endif

@@ -4,6 +4,7 @@
 #include "Message.h"
 #include "Server.h"
 #include "MiscUtil.h"
+#include "User.h"
 
 Pipe::Pipe(SOCKET client, Server* server)
 {
@@ -11,7 +12,10 @@ Pipe::Pipe(SOCKET client, Server* server)
     socket_ = client;
     server_ = server;
 	player_ = NULL;
-	dead_ = false;
+	closed_ = false;
+	user_ = NULL;
+	tempUser_ = NULL;
+	newUser_ = NULL;
 
 	// set client ID
 	clientID_ = randInt();
@@ -26,7 +30,7 @@ Pipe::Pipe(SOCKET client, Server* server)
 
 Pipe::~Pipe()
 {
-	dead_ = true;
+	closed_ = true;
 }
 
 void Pipe::listenData()
@@ -44,27 +48,26 @@ void Pipe::listenData()
 		if (m.type != MSGTYPE_CONNECT)
 		{
 			printf("SERVER: first message from clientID %i wasn't CONNECT message; likely not a game client. disconnecting...\n", clientID_);
-			dead_ = true;
+			closed_ = true;
 		}
 		else
 		{
-			printf("SERVER: received initial CONNECT message from clientID %i - %s\n", clientID_, m.text);
-			server_->recieveMessage(m);
+			printf("SERVER: received confirmation CONNECT message from clientID %i\n", clientID_);
 		}
 	}
-	else if (bytesRead <= 0)
+	else if (bytesRead == 0)
 	{
-		dead_ = true;
+		closed_ = true;
 		printf("SERVER: received shutdown from clientID %u\n", clientID_);
 	}
-	else 
+	else
 	{
-		dead_ = true;
+		closed_ = true;
 		printf("SERVER ERR: recieve from clientID %u failed with error: %d\n", clientID_, WSAGetLastError());
 	}
 
 	// receive until the peer shuts down the connection
-	while (!dead_) {
+	while (!closed_) {
 		bytesRead = recv(socket_, readBuffer, readBufferLength, 0);
 		if (bytesRead > 0) 
 		{
@@ -73,12 +76,12 @@ void Pipe::listenData()
 		}
 		else if (bytesRead == 0)
 		{
-			dead_ = true;
+			closed_ = true;
 			printf("SERVER: received shutdown from clientID %u\n", clientID_);
 		}
 		else 
 		{
-			dead_ = true;
+			closed_ = true;
 			printf("SERVER ERR: recieve from clientID %u failed with error: %d\n", clientID_, WSAGetLastError());
 		}
 	}
@@ -123,24 +126,44 @@ void Pipe::setPlayer(Player* p)
 	player_ = p;
 }
 
-void Pipe::kill()
+void Pipe::close()
 {
-	dead_ = true;
+	closed_ = true;
 	shutdown(socket_, SD_SEND);
 	closesocket(socket_);
 }
 
-bool Pipe::isDead()
+bool Pipe::isClosed()
 {
-	return dead_;
+	return closed_;
 }
 
-std::string Pipe::getName()
+User* Pipe::getUser()
 {
-	return name_;
+	return user_;
 }
 
-void Pipe::setName(std::string name)
+void Pipe::setUser(User* user)
 {
-	name_ = name;
+	user_ = user;
+}
+
+User* Pipe::getTempUser()
+{
+	return tempUser_;
+}
+
+void Pipe::setTempUser(User* user)
+{
+	tempUser_ = user;
+}
+
+User* Pipe::getNewUser()
+{
+	return newUser_;
+}
+
+void Pipe::setNewUser(User* user)
+{
+	newUser_ = user;
 }

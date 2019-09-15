@@ -18,7 +18,7 @@ ChatDisplay::ChatDisplay(ANCHOR anchor, Coord disp, Coord dims, GUIContainer* pa
 
 ChatDisplay::~ChatDisplay()
 {
-
+	// dtor
 }
 
 void ChatDisplay::draw()
@@ -39,7 +39,7 @@ void ChatDisplay::draw()
 		yOffset -= strBounds.h;
 		strBounds.x = bounds.x + 5;
 		strBounds.y = bounds.y + bounds.h + yOffset;
-		SDL_RenderCopy(gRenderer, currStr, NULL, &strBounds);
+		SDL_RenderCopy(_renderer, currStr, NULL, &strBounds);
 		SDL_DestroyTexture(currStr);
 
 		// for each notification
@@ -53,7 +53,7 @@ void ChatDisplay::draw()
 			strBounds.y = bounds.y + bounds.h + yOffset;
 
 			// render and destroy
-			SDL_RenderCopy(gRenderer, currStr, NULL, &strBounds);
+			SDL_RenderCopy(_renderer, currStr, NULL, &strBounds);
 			SDL_DestroyTexture(currStr);
 		}
 	}
@@ -71,7 +71,7 @@ void ChatDisplay::draw()
 		yOffset -= strBounds.h;
 		strBounds.x = bounds.x + 5;
 		strBounds.y = bounds.y + bounds.h + yOffset;
-		SDL_RenderCopy(gRenderer, currStr, NULL, &strBounds);
+		SDL_RenderCopy(_renderer, currStr, NULL, &strBounds);
 		SDL_DestroyTexture(currStr);
 
 		// for each notification
@@ -92,7 +92,7 @@ void ChatDisplay::draw()
 				SDL_SetTextureAlphaMod(currStr, 0);
 
 			// render and destroy
-			SDL_RenderCopy(gRenderer, currStr, NULL, &strBounds);
+			SDL_RenderCopy(_renderer, currStr, NULL, &strBounds);
 			SDL_DestroyTexture(currStr);
 		}
 	}
@@ -131,7 +131,7 @@ void ChatDisplay::addInputChar(char c)
 				Message m;
 				m.type = MSGTYPE_TEXT;
 				strncpy_s(m.text, DEFAULT_MSG_TEXTSIZE, inputText_.c_str(), DEFAULT_MSG_TEXTSIZE);
-				client->sendMessage(m);
+				_client->sendMessage(m);
 			}
 
 			clearInput();

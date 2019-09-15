@@ -32,6 +32,7 @@ class Client
 		ClientMirror* getClientMirrorByClientID(int clientID);
 		ClientMirror* getClientMirrorByPlayerID(int playerID);
 		LinkedList<ClientMirror*>* getClientList();
+		ClientMirror* getServerOwner();
     protected:
 
     private:
@@ -48,6 +49,7 @@ class Client
 
 		// list of all clients connected to server (null if no connection)
 		LinkedList<ClientMirror*>* clientList_;
+		ClientMirror* serverOwner_;
 };
 
 #endif // SERVER_H

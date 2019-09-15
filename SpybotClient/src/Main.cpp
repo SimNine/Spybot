@@ -8,7 +8,7 @@
 #include "GameScreen.h"
 #include "LobbyScreen.h"
 #include "NotifyScreen.h"
-#include "DataContainer.h"
+#include "Data.h"
 #include "Client.h"
 #include "Timer.h"
 #include "ChatDisplay.h"
@@ -80,6 +80,8 @@ char convertSDLKeycodeToChar(SDL_Keycode keycode, bool shift)
 		return 13;
 	else if (keycode == SDLK_ESCAPE)
 		return 27;
+	else if (keycode == SDLK_TAB)
+		return 9;
 	else 
 		return 0;
 }
@@ -88,10 +90,10 @@ char convertSDLKeycodeToChar(SDL_Keycode keycode, bool shift)
 void closeSDL()
 {
     //Destroy window
-    SDL_DestroyRenderer( gRenderer );
-    SDL_DestroyWindow( gWindow );
-    gWindow = NULL;
-    gRenderer = NULL;
+    SDL_DestroyRenderer( _renderer );
+    SDL_DestroyWindow( _window );
+    _window = NULL;
+    _renderer = NULL;
 
     //Quit SDL subsystems
     Mix_Quit();
@@ -103,26 +105,26 @@ void closeSDL()
 // resets all GUI bounds
 void resetBounds()
 {
-    titleScreen->resetBounds();
-    mainScreen->resetBounds();
-    mapScreen->resetBounds();
-    gameScreen->resetBounds();
-	lobbyScreen->resetBounds();
-	notifyScreen->resetBounds();
+    _titleScreen->resetBounds();
+    _mainScreen->resetBounds();
+    _mapScreen->resetBounds();
+    _gameScreen->resetBounds();
+	_lobbyScreen->resetBounds();
+	_notifyScreen->resetBounds();
 }
 
 // initializes the GUIs and switches the screen to titleScreen
 void initGUIs()
 {
-    titleScreen = new TitleScreen();
-    mainScreen = new MainScreen();
-    mapScreen = new MapScreen();
-	mapScreen->switchMap(MAPPRESET_CLASSIC);
-    gameScreen = new GameScreen();
-	lobbyScreen = new LobbyScreen();
-	notifyScreen = new NotifyScreen();
+    _titleScreen = new TitleScreen();
+    _mainScreen = new MainScreen();
+    _mapScreen = new MapScreen();
+	_mapScreen->switchMap(MAPPRESET_CLASSIC);
+    _gameScreen = new GameScreen();
+	_lobbyScreen = new LobbyScreen();
+	_notifyScreen = new NotifyScreen();
 
-    currScreen = titleScreen;
+    _currScreen = _titleScreen;
 }
 
 // initializes SDL and SDL_image
@@ -149,26 +151,26 @@ bool initSDL()
 
     //Create window
     int flags = SDL_WINDOW_RESIZABLE | SDL_WINDOW_HIDDEN;
-    gWindow = SDL_CreateWindow( "Spybot: The Nightfall Incident", 50, 50, SCREEN_WIDTH, SCREEN_HEIGHT, flags );
-    if( gWindow == NULL )
+    _window = SDL_CreateWindow( "Spybot: The Nightfall Incident", 50, 50, _SCREEN_WIDTH, _SCREEN_HEIGHT, flags );
+    if( _window == NULL )
     {
         printf( "Window could not be created! SDL Error: %s\n", SDL_GetError() );
         return false;
     }
-    SDL_SetWindowMinimumSize(gWindow, SCREEN_WIDTH, SCREEN_HEIGHT);
+    SDL_SetWindowMinimumSize(_window, _SCREEN_WIDTH, _SCREEN_HEIGHT);
     SDL_ShowCursor(SDL_DISABLE);
 
     //Create renderer for window
-    gRenderer = SDL_CreateRenderer( gWindow, -1, SDL_RENDERER_ACCELERATED );
-    if( gRenderer == NULL )
+    _renderer = SDL_CreateRenderer( _window, -1, SDL_RENDERER_ACCELERATED );
+    if( _renderer == NULL )
     {
         printf( "Renderer could not be created! SDL Error: %s\n", SDL_GetError() );
         return false;
     }
 
     //Initialize renderer color
-    SDL_SetRenderDrawColor( gRenderer, 0xFF, 0xFF, 0xFF, 0xFF );
-    SDL_SetRenderDrawBlendMode(gRenderer, SDL_BLENDMODE_BLEND);
+    SDL_SetRenderDrawColor( _renderer, 0xFF, 0xFF, 0xFF, 0xFF );
+    SDL_SetRenderDrawBlendMode(_renderer, SDL_BLENDMODE_BLEND);
 
     //Initialize PNG loading
     int imgFlags = IMG_INIT_PNG;
@@ -194,7 +196,7 @@ bool initSDL()
 
     loadPrefs();
     loadProgs();
-    initData();
+	initData();
     initGUIs(); // initialize GUIContainers
     resetBounds();
 
@@ -213,7 +215,7 @@ bool initWinsock() {
 	}
 
 	// initialize the client entity
-	client = new Client();
+	_client = new Client();
 
 	return true;
 }
@@ -221,13 +223,13 @@ bool initWinsock() {
 // toggle fullscreen on or off
 void toggleFullscreen()
 {
-    if ((SDL_GetWindowFlags(gWindow) & SDL_WINDOW_FULLSCREEN) > 0)
+    if ((SDL_GetWindowFlags(_window) & SDL_WINDOW_FULLSCREEN) > 0)
     {
-        SDL_SetWindowFullscreen(gWindow, 0);
+        SDL_SetWindowFullscreen(_window, 0);
     }
     else
     {
-        SDL_SetWindowFullscreen(gWindow, SDL_WINDOW_FULLSCREEN_DESKTOP);
+        SDL_SetWindowFullscreen(_window, SDL_WINDOW_FULLSCREEN_DESKTOP);
     }
     resetBounds();
 }
@@ -239,18 +241,18 @@ void savePrefs()
     prefs.open("default.prefs", std::ios::out | std::ios::binary | std::ios::trunc);
     if (!prefs.is_open())
     {
-        if (debug >= DEBUG_MINIMAL) printf("err saving prefs\n");
+        if (_debug >= DEBUG_MINIMAL) printf("err saving prefs\n");
     }
     else
     {
-        if (debug >= DEBUG_MINIMAL) printf("saving prefs...\n");
+        if (_debug >= DEBUG_MINIMAL) printf("saving prefs...\n");
 
         // begin by writing the sizes of various data types
         int8_t sizeOfInt = sizeof(int);
         int8_t sizeOfChar = sizeof(char);
         int8_t sizeOfDouble = sizeof(double);
         int8_t sizeOfBool = sizeof(bool);
-        if (debug >= DEBUG_NORMAL) printf("saving constants... int:%i, char:%i, double:%i, bool:%i\n", sizeOfInt, sizeOfChar, sizeOfDouble, sizeOfBool);
+        if (_debug >= DEBUG_NORMAL) printf("saving constants... int:%i, char:%i, double:%i, bool:%i\n", sizeOfInt, sizeOfChar, sizeOfDouble, sizeOfBool);
         prefs.write((char*) &sizeOfInt, 1);
         prefs.write((char*) &sizeOfChar, 1);
         prefs.write((char*) &sizeOfDouble, 1);
@@ -259,20 +261,20 @@ void savePrefs()
         // save preferences
         int soundVol = Mix_Volume(-1, 0);
         int musicVol = Mix_VolumeMusic(0);
-        Uint32 windowFlags = SDL_GetWindowFlags(gWindow);
-        if (debug >= DEBUG_NORMAL) printf("saving preferences... soundVol:%i, musicVol:%i, SCRWIDTH:%i, SCRHEIGHT:%i\n",
-                          soundVol, musicVol, SCREEN_WIDTH, SCREEN_HEIGHT);
+        Uint32 windowFlags = SDL_GetWindowFlags(_window);
+        if (_debug >= DEBUG_NORMAL) printf("saving preferences... soundVol:%i, musicVol:%i, SCRWIDTH:%i, SCRHEIGHT:%i\n",
+                          soundVol, musicVol, _SCREEN_WIDTH, _SCREEN_HEIGHT);
         prefs.write((char*) &soundVol, sizeOfInt);
         prefs.write((char*) &musicVol, sizeOfInt);
         prefs.write((char*) &windowFlags, sizeof(Uint32));
-        prefs.write((char*) &SCREEN_WIDTH, sizeOfInt);
-        prefs.write((char*) &SCREEN_HEIGHT, sizeOfInt);
+        prefs.write((char*) &_SCREEN_WIDTH, sizeOfInt);
+        prefs.write((char*) &_SCREEN_HEIGHT, sizeOfInt);
 
         // flush and close
-        if (debug >= DEBUG_MINIMAL) printf("flushing and closing prefs file... ");
+        if (_debug >= DEBUG_MINIMAL) printf("flushing and closing prefs file... ");
         prefs.flush();
         prefs.close();
-        if (debug >= DEBUG_MINIMAL) printf("done\n");
+        if (_debug >= DEBUG_MINIMAL) printf("done\n");
     }
 }
 
@@ -284,14 +286,14 @@ void loadPrefs()
 
     if (!prefs.is_open())
     {
-        if (debug >= DEBUG_MINIMAL) printf("err reading prefs\n");
+        if (_debug >= DEBUG_MINIMAL) printf("err reading prefs\n");
     }
     else
     {
-        if (debug >= DEBUG_MINIMAL) printf("reading prefs...\n");
+        if (_debug >= DEBUG_MINIMAL) printf("reading prefs...\n");
 
         // read the sizes of various data types
-        if (debug >= DEBUG_NORMAL) printf("loading constants...\n");
+        if (_debug >= DEBUG_NORMAL) printf("loading constants...\n");
         int8_t sizeOfInt;
         prefs.read((char*) &sizeOfInt, 1);
         int8_t sizeOfChar;
@@ -300,10 +302,10 @@ void loadPrefs()
         prefs.read((char*) &sizeOfDouble, 1);
         int8_t sizeOfBool;
         prefs.read((char*) &sizeOfBool, 1);
-        if (debug >= DEBUG_NORMAL) printf("loaded constants: int:%i, char:%i, double:%i, bool:%i\n", sizeOfInt, sizeOfChar, sizeOfDouble, sizeOfBool);
+        if (_debug >= DEBUG_NORMAL) printf("loaded constants: int:%i, char:%i, double:%i, bool:%i\n", sizeOfInt, sizeOfChar, sizeOfDouble, sizeOfBool);
 
         // read prefs
-        if (debug >= DEBUG_NORMAL) printf("loading prefs...\n");
+        if (_debug >= DEBUG_NORMAL) printf("loading prefs...\n");
         int soundVol;
         prefs.read((char*) &soundVol, sizeOfInt);
         Mix_Volume(-1, soundVol);
@@ -312,16 +314,16 @@ void loadPrefs()
         Mix_VolumeMusic(musicVol);
         int windowFlags;
         prefs.read((char*) &windowFlags, sizeof(Uint32));
-        if (windowFlags & SDL_WINDOW_FULLSCREEN) SDL_SetWindowFullscreen(gWindow, SDL_WINDOW_FULLSCREEN_DESKTOP);
-        prefs.read((char*) &SCREEN_WIDTH, sizeOfInt);
-        prefs.read((char*) &SCREEN_HEIGHT, sizeOfInt);
-        SDL_SetWindowSize(gWindow, SCREEN_WIDTH, SCREEN_HEIGHT);
-        if (debug >= DEBUG_NORMAL) printf("loaded prefs: soundVol:%i, musicVol:%i, fullscreen:%i, SCRWIDTH:%i, SCRHEIGHT:%i\n",
-                          soundVol, musicVol, windowFlags, SCREEN_WIDTH, SCREEN_HEIGHT);
+        if (windowFlags & SDL_WINDOW_FULLSCREEN) SDL_SetWindowFullscreen(_window, SDL_WINDOW_FULLSCREEN_DESKTOP);
+        prefs.read((char*) &_SCREEN_WIDTH, sizeOfInt);
+        prefs.read((char*) &_SCREEN_HEIGHT, sizeOfInt);
+        SDL_SetWindowSize(_window, _SCREEN_WIDTH, _SCREEN_HEIGHT);
+        if (_debug >= DEBUG_NORMAL) printf("loaded prefs: soundVol:%i, musicVol:%i, fullscreen:%i, SCRWIDTH:%i, SCRHEIGHT:%i\n",
+                          soundVol, musicVol, windowFlags, _SCREEN_WIDTH, _SCREEN_HEIGHT);
 
         // close the file
         prefs.close();
-        if (debug >= DEBUG_MINIMAL) printf("done\n");
+        if (_debug >= DEBUG_MINIMAL) printf("done\n");
     }
 }
 
@@ -332,11 +334,11 @@ void saveProgs()
     progs.open("default.progs", std::ios::out | std::ios::binary | std::ios::trunc);
     if (!progs.is_open())
     {
-        if (debug >= DEBUG_MINIMAL) printf("err saving programs\n");
+        if (_debug >= DEBUG_MINIMAL) printf("err saving programs\n");
     }
     else
     {
-        if (debug >= DEBUG_MINIMAL) printf("saving programs...\n");
+        if (_debug >= DEBUG_MINIMAL) printf("saving programs...\n");
 
         // save constants
         int8_t sizeOfInt = sizeof(int);
@@ -345,16 +347,16 @@ void saveProgs()
         // save programs
         for (int i = 0; i < PROGRAM_NUM_PROGTYPES; i++)
         {
-            progs.write((char*) &progListClassic[i], sizeOfInt);
-            progs.write((char*) &progListNightfall[i], sizeOfInt);
-            progs.write((char*) &progListCustom[i], sizeOfInt);
+            progs.write((char*) &_progListClassic[i], sizeOfInt);
+            progs.write((char*) &_progListNightfall[i], sizeOfInt);
+            progs.write((char*) &_progListCustom[i], sizeOfInt);
         }
 
         // flush and close
-        if (debug >= DEBUG_MINIMAL) printf("flushing and closing programs file... ");
+        if (_debug >= DEBUG_MINIMAL) printf("flushing and closing programs file... ");
         progs.flush();
         progs.close();
-        if (debug >= DEBUG_MINIMAL) printf("done\n");
+        if (_debug >= DEBUG_MINIMAL) printf("done\n");
     }
 }
 
@@ -366,11 +368,11 @@ void loadProgs()
 
     if (!progs.is_open())
     {
-        if (debug >= DEBUG_MINIMAL) printf("err reading programs\n");
+        if (_debug >= DEBUG_MINIMAL) printf("err reading programs\n");
     }
     else
     {
-        if (debug >= DEBUG_MINIMAL) printf("reading programs...\n");
+        if (_debug >= DEBUG_MINIMAL) printf("reading programs...\n");
 
         // load constants
         int8_t sizeOfInt;
@@ -379,15 +381,15 @@ void loadProgs()
         // load programs
         for (int i = 0; i < PROGRAM_NUM_PROGTYPES; i++)
         {
-            progs.read((char*) &progListClassic[i], sizeOfInt);
-            progs.read((char*) &progListNightfall[i], sizeOfInt);
-            progs.read((char*) &progListCustom[i], sizeOfInt);
-            usedPrograms[i] = 0;
+            progs.read((char*) &_progListClassic[i], sizeOfInt);
+            progs.read((char*) &_progListNightfall[i], sizeOfInt);
+            progs.read((char*) &_progListCustom[i], sizeOfInt);
+            _usedPrograms[i] = 0;
         }
 
         // close the file
         progs.close();
-        if (debug >= DEBUG_MINIMAL) printf("done\n");
+        if (_debug >= DEBUG_MINIMAL) printf("done\n");
     }
 }
 
@@ -403,14 +405,14 @@ void handleEvents()
         // handle events not specific to a screen
         if( e.type == SDL_QUIT ) // window close
         {
-            quit = true;
+            _quit = true;
         }
         else if (e.type == SDL_WINDOWEVENT) // window resize
         {
             if (e.window.event == SDL_WINDOWEVENT_RESIZED)
             {
-                SCREEN_WIDTH = e.window.data1;
-                SCREEN_HEIGHT = e.window.data2;
+                _SCREEN_WIDTH = e.window.data1;
+                _SCREEN_HEIGHT = e.window.data2;
                 resetBounds();
             }
         }
@@ -422,54 +424,54 @@ void handleEvents()
             }
             else if (e.key.keysym.sym == SDLK_F2)
             {
-                if (debug == DEBUG_EXTRA) debug = DEBUG_NONE;
-                else debug = (DEBUG)(debug + 1);
+                if (_debug == DEBUG_EXTRA) _debug = DEBUG_NONE;
+                else _debug = (DEBUG)(_debug + 1);
             }
             else if (e.key.keysym.sym == SDLK_p)
             {
-                progListCurrent[rand()%PROGRAM_NUM_PROGTYPES]++;
-                mapScreen->resetProgramInvDisplay();
+                _progListCurrent[rand()%PROGRAM_NUM_PROGTYPES]++;
+                _mapScreen->resetProgramInvDisplay();
             }
         }
         else if (e.type == SDL_MOUSEMOTION)
         {
-            if (heldContainer != NULL)
+            if (_heldContainer != NULL)
             {
-                Coord delta = {e.motion.x - mousePos.x, e.motion.y - mousePos.y};
-                if (debug >= DEBUG_EXTRA) printf("%i,%i\n", delta.x, delta.y);
-                heldContainer->incDisplacement(delta);
+                Coord delta = {e.motion.x - _mousePos.x, e.motion.y - _mousePos.y};
+                if (_debug >= DEBUG_EXTRA) printf("%i,%i\n", delta.x, delta.y);
+                _heldContainer->incDisplacement(delta);
             }
 
-            mousePos.x = e.motion.x;
-            mousePos.y = e.motion.y;
+            _mousePos.x = e.motion.x;
+            _mousePos.y = e.motion.y;
         }
         else if (e.type == SDL_MOUSEBUTTONDOWN)
         {
-            mousePressed = true;
-            currScreen->mouseDown();
+            _mousePressed = true;
+            _currScreen->mouseDown();
         }
         else if (e.type == SDL_MOUSEBUTTONUP)
         {
-            mousePressed = false;
-            currScreen->mouseUp();
+            _mousePressed = false;
+            _currScreen->mouseUp();
         }
 
         // screen-specific input
-        if (currScreen == gameScreen)
+        if (_currScreen == _gameScreen)
         {
             if (e.type == SDL_KEYDOWN)
             {
                 if (e.key.keysym.sym == SDLK_s)
                 {
-                    gameScreen->saveGame();
+                    _gameScreen->saveGame();
                 }
                 else if (e.key.keysym.sym == SDLK_ESCAPE)
                 {
-                    gameScreen->togglePauseMenu();
+                    _gameScreen->togglePauseMenu();
                 }
                 else if (e.key.keysym.sym == SDLK_F3)
                 {
-                    gameScreen->toggleEditorMode();
+                    _gameScreen->toggleEditorMode();
                 }
 
 				// handle chat display
@@ -478,24 +480,24 @@ void handleEvents()
 
 				char out = convertSDLKeycodeToChar(keycode, isShiftPressed);
 				if (out != 0)
-					gameScreen->getChatDisplay()->addInputChar(out);
+					_gameScreen->getChatDisplay()->addInputChar(out);
             }
         }
-        else if (currScreen == mapScreen)
+        else if (_currScreen == _mapScreen)
         {
             if (e.type == SDL_KEYDOWN)
             {
                 if (e.key.keysym.sym == SDLK_l)
                 {
-                    mapScreen->unlockAllLevels();
+                    _mapScreen->unlockAllLevels();
                 }
                 else if (e.key.keysym.sym == SDLK_ESCAPE)
                 {
-                    mapScreen->togglePauseMenu();
+                    _mapScreen->togglePauseMenu();
                 }
             }
         }
-		else if (currScreen == mainScreen)
+		else if (_currScreen == _mainScreen)
 		{
 			if (e.type == SDL_KEYDOWN)
 			{
@@ -504,10 +506,10 @@ void handleEvents()
 
 				char out = convertSDLKeycodeToChar(keycode, isShiftPressed);
 				if (out != 0)
-					mainScreen->keyPress(out);
+					_mainScreen->keyPress(out);
 			}
 		}
-		else if (currScreen == lobbyScreen)
+		else if (_currScreen == _lobbyScreen)
 		{
 			if (e.type == SDL_KEYDOWN)
 			{
@@ -516,7 +518,7 @@ void handleEvents()
 
 				char out = convertSDLKeycodeToChar(keycode, isShiftPressed);
 				if (out != 0)
-					lobbyScreen->getChatDisplay()->addInputChar(out);
+					_lobbyScreen->getChatDisplay()->addInputChar(out);
 			}
 		}
 	}
@@ -525,16 +527,16 @@ void handleEvents()
 // draw the current screen
 void draw()
 {
-	currScreen->draw();
-	notifyScreen->draw();
-	SDL_RenderPresent(gRenderer); // update the screen
+	_currScreen->draw();
+	_notifyScreen->draw();
+	SDL_RenderPresent(_renderer); // update the screen
 }
 
 // tick the current screen
 void tick(int ms)
 {
-    currScreen->tick(ms);
-	notifyScreen->tick(ms);
+    _currScreen->tick(ms);
+	_notifyScreen->tick(ms);
 }
 
 // main function
@@ -579,11 +581,11 @@ int main( int argc, char* args[] )
     }
 
     // main loop
-    SDL_ShowWindow(gWindow);
-    while( !quit )
+    SDL_ShowWindow(_window);
+    while( !_quit )
     {
 		// process messages
-		client->processAllMessages();
+		_client->processAllMessages();
 
         // handle ticks
         unsigned int ticksPassed = tickTimer.getTicks();
@@ -592,7 +594,7 @@ int main( int argc, char* args[] )
             tickTimer.stop();
             tickTimer.start();
             tick(ticksPassed); // tick whatever needs to be ticked
-            if (acceptingInput) handleEvents();
+            if (_acceptingInput) handleEvents();
             tickCount++;
         }
         if (ticksPassed >= msPerTick) // tick whenever 20+ ms have gone by
@@ -600,7 +602,7 @@ int main( int argc, char* args[] )
             tickTimer.stop();
             tickTimer.start();
             tick(ticksPassed); // tick whatever needs to be ticked
-            if (acceptingInput) handleEvents();
+            if (_acceptingInput) handleEvents();
             tickCount++;
         }
 
@@ -618,7 +620,7 @@ int main( int argc, char* args[] )
             renderTimerB.start();
         }
 
-        if (debug >= DEBUG_EXTRA)
+        if (_debug >= DEBUG_EXTRA)
         {
             unsigned int numTicks = renderTimer.getTicks();
             if (numTicks >= 1000)

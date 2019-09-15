@@ -6,6 +6,7 @@
 
 class Player;
 class Program;
+class Team;
 
 class Game
 {
@@ -20,9 +21,10 @@ class Game
         void saveLevel();
 
         //getters and setters
-        LinkedList<Player*>* getHumanPlayers();
-        LinkedList<Player*>* getAIPlayers();
+		LinkedList<Team*>* getAllTeams();
+		Team* getTeamByNum(int teamNum);
 		Player* getPlayerByID(int playerID);
+		Player* getFollowingPlayer(Player* currPlayer);
 		void setCurrTurnPlayer(Player* p);
 		Player* getCurrTurnPlayer();
 
@@ -49,8 +51,7 @@ class Game
     protected:
     private:
         // players
-        LinkedList<Player*>* playerHumanList;
-        LinkedList<Player*>* playerCompList;
+		LinkedList<Team*>* teamList;
 
         // effective grid bounds
         int gridLeftBound;

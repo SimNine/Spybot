@@ -7,6 +7,8 @@
 class Pipe;
 struct Message;
 class Game;
+class Player;
+class User;
 
 class Server
 {
@@ -18,6 +20,7 @@ class Server
 
         void connect(SOCKET client);
         void disconnect(Pipe* client);
+		void login(Pipe* client, User* user);
 
 		void sendMessageToClient(Message message, int clientID);
         void sendMessageToAllClients(Message message);
@@ -25,7 +28,7 @@ class Server
         void recieveMessage(Message message);
 
 		LinkedList<Pipe*>* getClientList();
-		void processAITurns();
+		void processAITurn(Player* p);
 
 		void processCommandLoop();
 		void processCommand(std::string cmd);
@@ -34,11 +37,18 @@ class Server
     private:
         // game
         Game* game_;
+		GAMEMODE gameMode_;
 
         // clients
 		Pipe* ownerClient_;
         LinkedList<Pipe*>* clients_;
 		Pipe* getClientByID(int clientID);
+
+		// users
+		LinkedList<User*>* users_;
+		void loadUsers();
+		void saveUsers();
+		User* getUserByName(std::string name);
 
 		// message processing core
 		void processMessage(Message* msg);

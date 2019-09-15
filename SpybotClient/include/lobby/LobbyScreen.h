@@ -7,6 +7,7 @@
 #include "GUIContainer.h"
 
 class ChatDisplay;
+class GUIButton;
 
 class LobbyScreen : public GUIContainer
 {
@@ -15,12 +16,25 @@ class LobbyScreen : public GUIContainer
         virtual ~LobbyScreen();
 
 		void draw();
+		void tick(int ms);
+		void resetBounds();
+
 		void leaveLobby();
 
 		ChatDisplay* getChatDisplay();
+
+		void setGameMode(GAMEMODE gameMode);
     protected:
     private:
+		GAMEMODE gameMode_;
+
 		void buildGUI();
+
+		GUIContainer* gameConfigContainer_;
+		GUIButton* gameConfigButtonCoop_;
+		GUIButton* gameConfigButtonFFA_;
+		GUIButton* gameConfigButtonTeamDM_;
+		GUIButton* gameConfigButtonSelected_;
 
 		ChatDisplay* chatDisplay_;
 };

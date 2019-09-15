@@ -107,20 +107,20 @@ GUIButton::~GUIButton()
 
 void GUIButton::draw()
 {
-    if (mousePressed && isMouseOver() && bkgPressed != NULL)
+    if (_mousePressed && isMouseOver() && bkgPressed != NULL)
     {
-        SDL_RenderCopy(gRenderer, bkgPressed, NULL, &bounds);
+        SDL_RenderCopy(_renderer, bkgPressed, NULL, &bounds);
     }
-    else if (!mousePressed && isMouseOver() && bkgOver != NULL)
+    else if (!_mousePressed && isMouseOver() && bkgOver != NULL)
     {
-        SDL_RenderCopy(gRenderer, bkgOver, NULL, &bounds);
+        SDL_RenderCopy(_renderer, bkgOver, NULL, &bounds);
     }
     else if (bkgNormal != NULL)
     {
-        SDL_RenderCopy(gRenderer, bkgNormal, NULL, &bounds);
+        SDL_RenderCopy(_renderer, bkgNormal, NULL, &bounds);
     }
 
-    if (debug >= DEBUG_NORMAL) drawBounds();
+    if (_debug >= DEBUG_NORMAL) drawBounds();
 }
 
 bool GUIButton::mouseDown()

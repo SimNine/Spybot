@@ -25,5 +25,6 @@
 
 #include "Enums.h"
 #include "Coord.h"
+#include "Data.h"
 
 #endif // STANDARD_H_INCLUDED

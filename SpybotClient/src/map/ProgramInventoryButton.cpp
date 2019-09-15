@@ -2,13 +2,13 @@
 #include "ProgramInventoryButton.h"
 
 #include "Global.h"
-#include "DataContainer.h"
+#include "Data.h"
 #include "GameScreen.h"
 
 ProgramInventoryButton::ProgramInventoryButton(ANCHOR a, Coord disp, PROGRAM t, GUIContainer* p)
     : GUIObject(a, disp, {30, 30}, p)
 {
-    icon = dataContainer->program_icons[t];
+    icon = _program_icons[t];
     progType = t;
 }
 
@@ -26,8 +26,8 @@ void ProgramInventoryButton::setTransparency(int a)
 
 bool ProgramInventoryButton::mouseDown()
 {
-    currProgram = progType;
-    gameScreen->tryPlacingProgram(currProgram);
+    _currProgram = progType;
+    _gameScreen->tryPlacingProgram(_currProgram);
     return true;
 }
 
@@ -38,9 +38,9 @@ bool ProgramInventoryButton::mouseUp()
 
 void ProgramInventoryButton::draw()
 {
-    SDL_RenderCopy(gRenderer, icon, NULL, &bounds);
+    SDL_RenderCopy(_renderer, icon, NULL, &bounds);
 
-    if (debug >= DEBUG_NORMAL) drawBounds();
+    if (_debug >= DEBUG_NORMAL) drawBounds();
 }
 
 void ProgramInventoryButton::tick(int t)

@@ -15,7 +15,6 @@ class ClientMirror
 		int clientID_;
 		Player* player_;
 		std::string name_;
-		bool owner_;
     protected:
 
     private:

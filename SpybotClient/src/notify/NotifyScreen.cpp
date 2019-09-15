@@ -6,7 +6,7 @@
 #include "ResourceLoader.h"
 
 NotifyScreen::NotifyScreen()
-	: GUIContainer(ANCHOR_NORTHWEST, { 0, 0 }, { SCREEN_WIDTH, SCREEN_HEIGHT }, NULL, NULL)
+	: GUIContainer(ANCHOR_NORTHWEST, { 0, 0 }, { _SCREEN_WIDTH, _SCREEN_HEIGHT }, NULL, NULL)
 {
 	notificationList_ = new LinkedList<std::string*>();
 	notificationTiming_ = new LinkedList<int*>();
@@ -33,8 +33,8 @@ void NotifyScreen::draw()
 		currStr = loadString(*notificationList_->getObjectAt(i), FONT_BOLD, textSize, { 255, 255, 255, 255 });
 		SDL_QueryTexture(currStr, NULL, NULL, &strBounds.w, &strBounds.h);
 		yOffset -= strBounds.h;
-		strBounds.x = SCREEN_WIDTH - strBounds.w - 5;
-		strBounds.y = SCREEN_HEIGHT + yOffset + pushOffset;
+		strBounds.x = _SCREEN_WIDTH - strBounds.w - 5;
+		strBounds.y = _SCREEN_HEIGHT + yOffset + pushOffset;
 
 		// set fade
 		currTime = *notificationTiming_->getObjectAt(i);
@@ -42,7 +42,7 @@ void NotifyScreen::draw()
 			SDL_SetTextureAlphaMod(currStr, currTime / 4);
 
 		// render and destroy
-		SDL_RenderCopy(gRenderer, currStr, NULL, &strBounds);
+		SDL_RenderCopy(_renderer, currStr, NULL, &strBounds);
 		SDL_DestroyTexture(currStr);
 	}
 }

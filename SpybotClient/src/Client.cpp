@@ -7,18 +7,20 @@
 #include "Game.h"
 #include "Program.h"
 #include "NotifyScreen.h"
-#include "DataContainer.h"
+#include "Data.h"
 #include "GameScreen.h"
 #include "LobbyScreen.h"
 #include "MainScreen.h"
 #include "Player.h"
 #include "ClientMirror.h"
 #include "ChatDisplay.h"
+#include "Team.h"
 
 Client::Client()
 {
     msgQueue_ = new LinkedList<Message*>();
 	clientList_ = new LinkedList<ClientMirror*>();
+	serverOwner_ = NULL;
 	socket_ = INVALID_SOCKET;
 	myClientID_ = -1;
 	game_ = NULL;
@@ -77,13 +79,13 @@ void Client::processMessage(Message* msg)
 		break;
 	case MSGTYPE_LOAD:
 		if (msg->clientID != myClientID_)
-			notifyScreen->addNotification("client " + to_string(msg->clientID) + " has loaded level " + to_string(msg->levelNum));
+			_notifyScreen->addNotification("client " + to_string(msg->clientID) + " has loaded level " + to_string(msg->levelNum));
 
 		player_ = NULL;
 		delete game_;
 		game_ = NULL;
 		game_ = new Game();
-		gameScreen->resetScreen();
+		_gameScreen->resetScreen();
 
 		Message m;
 		m.type = MSGTYPE_JOIN;
@@ -94,25 +96,25 @@ void Client::processMessage(Message* msg)
 		switch (msg->soundType)
 		{
 		case MSGSOUNDNAME_MOVE:
-			Mix_PlayChannel(-1, dataContainer->sound_move_player, msg->numRepeats);
+			Mix_PlayChannel(-1, _sound_move_player, msg->numRepeats);
 			break;
 		case MSGSOUNDNAME_DAMAGE:
-			Mix_PlayChannel(-1, dataContainer->sound_action_attack, msg->numRepeats);
+			Mix_PlayChannel(-1, _sound_action_attack, msg->numRepeats);
 			break;
 		case MSGSOUNDNAME_HEAL:
-			Mix_PlayChannel(-1, dataContainer->sound_action_heal, msg->numRepeats);
+			Mix_PlayChannel(-1, _sound_action_heal, msg->numRepeats);
 			break;
 		case MSGSOUNDNAME_SIZEMOD:
-			Mix_PlayChannel(-1, dataContainer->sound_action_heal, msg->numRepeats);
+			Mix_PlayChannel(-1, _sound_action_heal, msg->numRepeats);
 			break;
 		case MSGSOUNDNAME_ZERO:
-			Mix_PlayChannel(-1, dataContainer->sound_action_grid_damage, msg->numRepeats);
+			Mix_PlayChannel(-1, _sound_action_grid_damage, msg->numRepeats);
 			break;
 		case MSGSOUNDNAME_ONE:
-			Mix_PlayChannel(-1, dataContainer->sound_action_grid_fix, msg->numRepeats);
+			Mix_PlayChannel(-1, _sound_action_grid_fix, msg->numRepeats);
 			break;
 		case MSGSOUNDNAME_PICKUPCREDIT:
-			Mix_PlayChannel(-1, dataContainer->sound_pickup_credit, msg->numRepeats);
+			Mix_PlayChannel(-1, _sound_pickup_credit, msg->numRepeats);
 			break;
 		default:
 			break;
@@ -122,57 +124,41 @@ void Client::processMessage(Message* msg)
 		if (msg->infoType == MSGINFOTYPE_BKG)
 		{
 			game_->setBackground(msg->bkgType);
-			gameScreen->setBackgroundImg(msg->bkgType);
+			_gameScreen->setBackgroundImg(msg->bkgType);
 		}
 		else if (msg->infoType == MSGINFOTYPE_TILE)
 			game_->setTileAt(msg->pos, msg->tileType);
 		else if (msg->infoType == MSGINFOTYPE_PROGRAM)
 		{
-			// TODO: refactor this to support an arbitrary number of teams
-			if (msg->team == 0)
+			// get team
+			Team* t = game_->getTeamByNum(msg->team);
+			if (t == NULL)
 			{
-				Player* player = game_->getPlayerByID(msg->playerID);
-				if (player == NULL)
-				{
-					player = new Player(game_, 0);
-					player->setPlayerID(msg->playerID);
-					game_->getHumanPlayers()->addLast(player);
-				}
-
-				Program* prog = player->getProgramByID(msg->programID);
-				if (prog == NULL)
-				{
-					prog = new Program(msg->progType, 0, msg->pos);
-					prog->setProgramID(msg->programID);
-					player->addProgram(prog);
-				}
-				else
-					prog->addTail(msg->pos);
-
-				game_->setProgramAt(msg->pos, prog);
+				t = new Team(msg->team);
+				game_->getAllTeams()->addFirst(t);
 			}
-			else if (msg->team == 1)
+
+			// get player
+			Player* p = t->getPlayerByID(msg->playerID);
+			if (p == NULL)
 			{
-				Player* player = game_->getPlayerByID(msg->playerID);
-				if (player == NULL)
-				{
-					player = new Player(game_, 1);
-					player->setPlayerID(msg->playerID);
-					game_->getAIPlayers()->addLast(player);
-				}
-
-				Program* prog = player->getProgramByID(msg->programID);
-				if (prog == NULL)
-				{
-					prog = new Program(msg->progType, 1, msg->pos);
-					prog->setProgramID(msg->programID);
-					player->addProgram(prog);
-				}
-				else
-					prog->addTail(msg->pos);
-
-				game_->setProgramAt(msg->pos, prog);
+				p = new Player(game_, t->getTeamNum());
+				p->setPlayerID(msg->playerID);
+				t->getAllPlayers()->addFirst(p);
 			}
+
+			// get program
+			Program* pr = p->getProgramByID(msg->programID);
+			if (pr == NULL)
+			{
+				pr = new Program(msg->progType, t->getTeamNum(), msg->pos);
+				pr->setProgramID(msg->programID);
+				p->addProgram(pr);
+			}
+			else
+				pr->addTail(msg->pos);
+
+			game_->setProgramAt(msg->pos, pr);
 		}
 		else if (msg->infoType == MSGINFOTYPE_ACTION)
 		{
@@ -183,10 +169,10 @@ void Client::processMessage(Message* msg)
 		else if (msg->infoType == MSGINFOTYPE_GAMESTATUS)
 		{
 			game_->setStatus(msg->statusType);
-			gameScreen->changeGameStatus(msg->statusType);
-			currScreen = gameScreen;
+			_gameScreen->changeGameStatus(msg->statusType);
+			_currScreen = _gameScreen;
 		}
-		gameScreen->centerScreen();
+		_gameScreen->centerScreen();
 		break;
 	case MSGTYPE_SELECT:
 		if (msg->selectType == MSGSELECTTYPE_TILE)
@@ -208,12 +194,20 @@ void Client::processMessage(Message* msg)
 	case MSGTYPE_JOIN:
 		{
 			// add notification
-			notifyScreen->addNotification("received player id " + to_string(msg->playerID));
+			_notifyScreen->addNotification("received player id " + to_string(msg->playerID));
+
+			// get or create team
+			Team* t = game_->getTeamByNum(msg->team);
+			if (t == NULL)
+			{
+				t = new Team(msg->team);
+				game_->getAllTeams()->addFirst(t);
+			}
 
 			// create player
-			Player* newP = new Player(game_, 0);
+			Player* newP = new Player(game_, msg->team);
 			newP->setPlayerID(msg->playerID);
-			game_->getHumanPlayers()->addLast(newP);
+			t->getAllPlayers()->addFirst(newP);
 
 			// if this is my client's player
 			if (msg->clientID == myClientID_)
@@ -236,20 +230,17 @@ void Client::processMessage(Message* msg)
 		break;
 	case MSGTYPE_CONNECT:
 		{
-			notifyScreen->addNotification(std::string(msg->text) + " has connected to the server");
-			ClientMirror* mirror = new ClientMirror();
-			mirror->clientID_ = msg->clientID;
-			if (msg->actionID == 9000)// arbitrary value
-				mirror->owner_ = true;
-			mirror->name_ = msg->text;
-			clientList_->addFirst(mirror);
+			_notifyScreen->addNotification("Connection to server confirmed");
+			_notifyScreen->addNotification("Assigned client ID " + to_string(myClientID_));
+			_mainScreen->hideIPEntry();
+			_mainScreen->loginShow();
 		}
 		break;
 	case MSGTYPE_DISCONNECT:
 		// TODO: have the pipe be destroyed
 		break;
 	case MSGTYPE_LEAVE:
-		if (currScreen == lobbyScreen)
+		if (_currScreen == _lobbyScreen)
 		{
 			// find the index of this clientID
 			int index = -1;
@@ -259,7 +250,7 @@ void Client::processMessage(Message* msg)
 					index = i;
 			}
 
-			notifyScreen->addNotification(clientList_->getObjectAt(index)->name_ + " has disconnected from the server");
+			_notifyScreen->addNotification(clientList_->getObjectAt(index)->name_ + " has disconnected from the server");
 			delete clientList_->removeObjectAt(index);
 		}
 
@@ -271,20 +262,21 @@ void Client::processMessage(Message* msg)
 			game_->setCurrTurnPlayer(pNext);
 			ClientMirror* cNext = getClientMirrorByPlayerID(msg->playerID);
 			if (cNext != NULL)
-				gameScreen->setPlayerTurnDisplay(cNext->name_);
+				_gameScreen->setPlayerTurnDisplay(cNext->name_);
 			else
-				gameScreen->setPlayerTurnDisplay("AI");
-			gameScreen->toggleTurnButtonShown(false);
+				_gameScreen->setPlayerTurnDisplay("AI");
+			_gameScreen->toggleTurnButtonShown(false);
 
 			// if it's now my turn
 			if (msg->playerID == player_->getPlayerID())
 			{
 				// reset everyone's turns
-				game_->getHumanPlayers()->forEach([](Player* ph) {ph->endTurn(); });
-				game_->getAIPlayers()->forEach([](Player* pc) {pc->endTurn(); });
+				Iterator<Team*> itTeams = game_->getAllTeams()->getIterator();
+				while (itTeams.hasNext())
+					itTeams.next()->getAllPlayers()->forEach([](Player* p) {p->endTurn(); });
 
 				// show the "end turn" button
-				gameScreen->toggleTurnButtonShown(true);
+				_gameScreen->toggleTurnButtonShown(true);
 			}
 		}
 		break;
@@ -298,11 +290,44 @@ void Client::processMessage(Message* msg)
 			}
 			text += "> " + std::string(msg->text);
 
-			if (currScreen == lobbyScreen)
-				lobbyScreen->getChatDisplay()->addMessage(text);
-			else if (currScreen == gameScreen)
-				gameScreen->getChatDisplay()->addMessage(text);
+			if (_currScreen == _lobbyScreen)
+				_lobbyScreen->getChatDisplay()->addMessage(text);
+			else if (_currScreen == _gameScreen)
+				_gameScreen->getChatDisplay()->addMessage(text);
 		}
+		break;
+	case MSGTYPE_LOGIN:
+		{
+			if (msg->clientID == myClientID_)
+				_notifyScreen->addNotification("Logged in as " + std::string(msg->text));
+			else
+				_notifyScreen->addNotification(std::string(msg->text) + " has joined the game");
+
+			ClientMirror* mirror = new ClientMirror();
+			mirror->clientID_ = msg->clientID;
+			if (msg->actionID == 9000)// arbitrary value
+				serverOwner_ = mirror;
+			mirror->name_ = msg->text;
+			clientList_->addFirst(mirror);
+			_mainScreen->loginHide();
+			_mainScreen->showMainContainer();
+			_currScreen = _lobbyScreen;
+		}
+		break;
+	case MSGTYPE_CREATEUSER:
+		_notifyScreen->addNotification(std::string(msg->text));
+		_mainScreen->loginClear();
+		break;
+	case MSGTYPE_ERROR:
+		_notifyScreen->addNotification(std::string(msg->text));
+		break;
+	case MSGTYPE_GAMECONFIG:
+		if (msg->gameConfigType == MSGGAMECONFIGTYPE_COOP)
+			_lobbyScreen->setGameMode(GAMEMODE_COOP);
+		else if (msg->gameConfigType == MSGGAMECONFIGTYPE_FFA)
+			_lobbyScreen->setGameMode(GAMEMODE_FFA);
+		else if (msg->gameConfigType == MSGGAMECONFIGTYPE_TEAMDM)
+			_lobbyScreen->setGameMode(GAMEMODE_TEAMDM);
 		break;
 	}
 }
@@ -362,8 +387,11 @@ void Client::connectIP(std::string IP)
 void Client::disconnect()
 {
 	// go back to the main screen
-	currScreen = mainScreen;
-	notifyScreen->addNotification("disconnected from server");
+	_currScreen = _mainScreen;
+	_mainScreen->hideIPEntry();
+	_mainScreen->loginHide();
+	_mainScreen->showMainContainer();
+	_notifyScreen->addNotification("Disconnected from server");
 
 	// shut down the connection and close the socket
 	if (shutdown(socket_, SD_SEND) == SOCKET_ERROR) {
@@ -382,6 +410,7 @@ void Client::disconnect()
 	while (clientList_->getLength() > 0)
 		delete clientList_->poll();
 	socket_ = INVALID_SOCKET;
+	serverOwner_ = NULL;
 	myClientID_ = -1;
 }
 
@@ -399,9 +428,9 @@ void Client::listen()
 		if (m.type == MSGTYPE_CONNECT)
 		{
 			myClientID_ = m.clientID;
-			strncpy_s(m.text, DEFAULT_MSG_TEXTSIZE, username.c_str(), DEFAULT_MSG_TEXTSIZE);
+			//strncpy_s(m.text, DEFAULT_MSG_TEXTSIZE, username.c_str(), DEFAULT_MSG_TEXTSIZE);
 			printf("CLIENT: received connection confirmation from server, acquired client ID %i\n", myClientID_);
-
+			this->recieveMessage(m);
 			this->sendMessage(m);
 		}
 		else
@@ -419,7 +448,7 @@ void Client::listen()
 		printf("CLIENT ERR: recieve from server failed with error: %d\n", WSAGetLastError());
 	}
 
-	// receive until the peer shuts down the connection or there's a read error
+	// receive messages until the peer shuts down the connection or there's a read error
 	do {
 		bytesRead = recv(socket_, readBuffer, readBufferLength, 0);
 		if (bytesRead > 0) {
@@ -499,4 +528,9 @@ ClientMirror* Client::getClientMirrorByPlayerID(int playerID)
 	}
 
 	return NULL;
+}
+
+ClientMirror* Client::getServerOwner()
+{
+	return serverOwner_;
 }

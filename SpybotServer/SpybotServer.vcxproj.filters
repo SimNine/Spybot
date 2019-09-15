@@ -19,11 +19,11 @@
     <Filter Include="Header Files\util">
       <UniqueIdentifier>{f38088ec-f043-4b1b-9067-c1f0332b1020}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\sockets">
-      <UniqueIdentifier>{b80d8dfd-ad3e-435d-8011-ef646fc12170}</UniqueIdentifier>
+    <Filter Include="Source Files\game">
+      <UniqueIdentifier>{38e5fc73-372a-4364-8bad-c4ee92b31af5}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\sockets">
-      <UniqueIdentifier>{b153cd13-5638-4a04-b927-b88972a91149}</UniqueIdentifier>
+    <Filter Include="Header Files\game">
+      <UniqueIdentifier>{c03d2ddb-f1bb-4f11-bcbe-fb22f21cbc10}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -33,26 +33,11 @@
     <ClInclude Include="targetver.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\Game.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\Player.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\Program.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\ProgramAction.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="include\Server.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\Enums.h">
       <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\sockets\Pipe.h">
-      <Filter>Header Files\sockets</Filter>
     </ClInclude>
     <ClInclude Include="include\Main.h">
       <Filter>Header Files</Filter>
@@ -87,37 +72,43 @@
     <ClInclude Include="include\Standard.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\AIBasic.h">
+    <ClInclude Include="include\game\Team.h">
+      <Filter>Header Files\game</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Pipe.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\AICore.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="include\game\AIBasic.h">
+      <Filter>Header Files\game</Filter>
     </ClInclude>
-    <ClInclude Include="include\AIModerate.h">
+    <ClInclude Include="include\game\AICore.h">
+      <Filter>Header Files\game</Filter>
+    </ClInclude>
+    <ClInclude Include="include\game\AIModerate.h">
+      <Filter>Header Files\game</Filter>
+    </ClInclude>
+    <ClInclude Include="include\game\Game.h">
+      <Filter>Header Files\game</Filter>
+    </ClInclude>
+    <ClInclude Include="include\game\Player.h">
+      <Filter>Header Files\game</Filter>
+    </ClInclude>
+    <ClInclude Include="include\game\Program.h">
+      <Filter>Header Files\game</Filter>
+    </ClInclude>
+    <ClInclude Include="include\game\ProgramAction.h">
+      <Filter>Header Files\game</Filter>
+    </ClInclude>
+    <ClInclude Include="include\User.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\Game.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Player.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Program.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\ProgramAction.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\Server.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\Main.cpp">
       <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\sockets\Pipe.cpp">
-      <Filter>Source Files\sockets</Filter>
     </ClCompile>
     <ClCompile Include="..\SpybotShared\Message.cpp">
       <Filter>Source Files</Filter>
@@ -125,13 +116,34 @@
     <ClCompile Include="..\SpybotShared\MiscUtil.cpp">
       <Filter>Source Files\util</Filter>
     </ClCompile>
-    <ClCompile Include="src\AIBasic.cpp">
+    <ClCompile Include="src\game\Team.cpp">
+      <Filter>Source Files\game</Filter>
+    </ClCompile>
+    <ClCompile Include="src\game\AIBasic.cpp">
+      <Filter>Source Files\game</Filter>
+    </ClCompile>
+    <ClCompile Include="src\game\AICore.cpp">
+      <Filter>Source Files\game</Filter>
+    </ClCompile>
+    <ClCompile Include="src\game\AIModerate.cpp">
+      <Filter>Source Files\game</Filter>
+    </ClCompile>
+    <ClCompile Include="src\game\Game.cpp">
+      <Filter>Source Files\game</Filter>
+    </ClCompile>
+    <ClCompile Include="src\game\Player.cpp">
+      <Filter>Source Files\game</Filter>
+    </ClCompile>
+    <ClCompile Include="src\game\Program.cpp">
+      <Filter>Source Files\game</Filter>
+    </ClCompile>
+    <ClCompile Include="src\game\ProgramAction.cpp">
+      <Filter>Source Files\game</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Pipe.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\AICore.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\AIModerate.cpp">
+    <ClCompile Include="src\User.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

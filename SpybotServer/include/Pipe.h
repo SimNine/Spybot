@@ -6,6 +6,7 @@
 class Server;
 struct Message;
 class Player;
+class User;
 
 class Pipe
 {
@@ -18,24 +19,39 @@ class Pipe
 
 		int getClientID();
 
-		std::string getName();
-		void setName(std::string name);
+		User* getUser();
+		void setUser(User* user);
+
+		User* getTempUser();
+		void setTempUser(User* user);
+
+		User* getNewUser();
+		void setNewUser(User* user);
 
 		Player* getPlayer();
 		void setPlayer(Player* p);
-		void kill();
-		bool isDead();
+
+		void close();
+		bool isClosed();
     protected:
 
     private:
 		SOCKET socket_;
         Server* server_;
 		int clientID_;
-		std::string name_;
+
+		// the user that the client is currently logged in as
+		User* user_;
+
+		// the user that the client is attempting to log in as
+		User* tempUser_;
+
+		// the user that the client is attempting to create
+		User* newUser_;
 
 		Player* player_;
 
-		bool dead_;
+		bool closed_;
 };
 
 #endif // PIPE_H

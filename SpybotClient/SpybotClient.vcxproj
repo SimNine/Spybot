@@ -167,7 +167,7 @@
     <ClInclude Include="..\SpybotShared\Timer.h" />
     <ClInclude Include="include\Client.h" />
     <ClInclude Include="include\ClientMirror.h" />
-    <ClInclude Include="include\DataContainer.h" />
+    <ClInclude Include="include\Data.h" />
     <ClInclude Include="include\Enums.h" />
     <ClInclude Include="include\game\client\GameScreen.h" />
     <ClInclude Include="include\game\client\PlayerDisplayContainer.h" />
@@ -177,17 +177,20 @@
     <ClInclude Include="include\game\server\Program.h" />
     <ClInclude Include="include\game\server\ProgramAction.h" />
     <ClInclude Include="include\game\server\Server.h" />
+    <ClInclude Include="include\game\server\Team.h" />
     <ClInclude Include="include\Global.h" />
     <ClInclude Include="include\gui\GUIButton.h" />
     <ClInclude Include="include\gui\GUIContainer.h" />
     <ClInclude Include="include\gui\GUIObject.h" />
     <ClInclude Include="include\gui\GUISlider.h" />
+    <ClInclude Include="include\gui\GUITextbox.h" />
     <ClInclude Include="include\gui\GUITexture.h" />
     <ClInclude Include="include\lobby\ChatDisplay.h" />
     <ClInclude Include="include\lobby\LobbyScreen.h" />
     <ClInclude Include="include\Main.h" />
     <ClInclude Include="include\main\MainScreen.h" />
     <ClInclude Include="include\main\MainScreenGlow.h" />
+    <ClInclude Include="include\main\PromptBox.h" />
     <ClInclude Include="include\map\MapScreen.h" />
     <ClInclude Include="include\map\Node.h" />
     <ClInclude Include="include\map\ProgramInventoryButton.h" />
@@ -197,7 +200,6 @@
     <ClInclude Include="include\Standard.h" />
     <ClInclude Include="include\title\TitleScreen.h" />
     <ClInclude Include="targetver.h" />
-    <ClInclude Include="TextEntryBox.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\SpybotShared\Message.cpp" />
@@ -205,7 +207,7 @@
     <ClCompile Include="..\SpybotShared\Timer.cpp" />
     <ClCompile Include="src\Client.cpp" />
     <ClCompile Include="src\ClientMirror.cpp" />
-    <ClCompile Include="src\DataContainer.cpp" />
+    <ClCompile Include="src\Data.cpp" />
     <ClCompile Include="src\game\client\GameScreen.cpp" />
     <ClCompile Include="src\game\client\PlayerDisplayContainer.cpp" />
     <ClCompile Include="src\game\client\ProgramDisplayContainer.cpp" />
@@ -213,18 +215,20 @@
     <ClCompile Include="src\game\server\Player.cpp" />
     <ClCompile Include="src\game\server\Program.cpp" />
     <ClCompile Include="src\game\server\ProgramAction.cpp" />
+    <ClCompile Include="src\game\server\Team.cpp" />
     <ClCompile Include="src\Global.cpp" />
     <ClCompile Include="src\gui\GUIButton.cpp" />
     <ClCompile Include="src\gui\GUIContainer.cpp" />
     <ClCompile Include="src\gui\GUIObject.cpp" />
     <ClCompile Include="src\gui\GUISlider.cpp" />
+    <ClCompile Include="src\gui\GUITextbox.cpp" />
     <ClCompile Include="src\gui\GUITexture.cpp" />
     <ClCompile Include="src\lobby\ChatDisplay.cpp" />
     <ClCompile Include="src\lobby\LobbyScreen.cpp" />
     <ClCompile Include="src\Main.cpp" />
     <ClCompile Include="src\main\MainScreen.cpp" />
     <ClCompile Include="src\main\MainScreenGlow.cpp" />
-    <ClCompile Include="src\main\TextEntryBox.cpp" />
+    <ClCompile Include="src\main\PromptBox.cpp" />
     <ClCompile Include="src\map\MapScreen.cpp" />
     <ClCompile Include="src\map\Node.cpp" />
     <ClCompile Include="src\map\ProgramInventoryButton.cpp" />

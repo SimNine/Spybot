@@ -83,7 +83,7 @@ bool GUIContainer::mouseDown()
 
     if (isMovable() && isMouseOver())
     {
-        heldContainer = this;
+        _heldContainer = this;
         parent->removeObject(this);
         parent->addObject(this);
         return true;
@@ -107,7 +107,7 @@ bool GUIContainer::mouseUp()
     }
 
     setPressed(false);
-    heldContainer = NULL;
+    _heldContainer = NULL;
     return ret;
 }
 
@@ -126,7 +126,7 @@ void GUIContainer::resetBounds()
 
     if (parent == NULL)
     {
-        setBounds({0, 0}, {SCREEN_WIDTH, SCREEN_HEIGHT});
+        setBounds({0, 0}, {_SCREEN_WIDTH, _SCREEN_HEIGHT});
     }
 
     contents->forEach([](GUIObject* g){g->resetBounds();});
@@ -148,21 +148,21 @@ void GUIContainer::drawBkg()
     if (parent == NULL)
     {
         //Clear screen
-        SDL_SetRenderDrawColor( gRenderer, 0xFF, 0xFF, 0xFF, 0xFF );
-        SDL_RenderClear( gRenderer );
+        SDL_SetRenderDrawColor( _renderer, 0xFF, 0xFF, 0xFF, 0xFF );
+        SDL_RenderClear( _renderer );
     }
 
     if (bkgCol != NULL)
     {
         // draw background color
-        SDL_SetRenderDrawColor(gRenderer, bkgCol->r, bkgCol->g, bkgCol->b, bkgCol->a);
-        SDL_SetRenderDrawBlendMode(gRenderer, SDL_BLENDMODE_BLEND);
-        SDL_RenderFillRect(gRenderer, &bounds);
+        SDL_SetRenderDrawColor(_renderer, bkgCol->r, bkgCol->g, bkgCol->b, bkgCol->a);
+        SDL_SetRenderDrawBlendMode(_renderer, SDL_BLENDMODE_BLEND);
+        SDL_RenderFillRect(_renderer, &bounds);
     }
     else if (bkgImg != NULL)
     {
         // draw background image
-        SDL_RenderCopy(gRenderer, bkgImg, NULL, &bounds);
+        SDL_RenderCopy(_renderer, bkgImg, NULL, &bounds);
     }
 }
 
@@ -176,7 +176,7 @@ void GUIContainer::draw()
     drawBkg();
     drawContents();
 
-    if (debug >= DEBUG_NORMAL) drawBounds();
+    if (_debug >= DEBUG_NORMAL) drawBounds();
 }
 
 void GUIContainer::setTransparency(int a)

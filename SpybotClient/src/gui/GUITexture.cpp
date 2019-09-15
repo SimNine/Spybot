@@ -25,10 +25,10 @@ GUITexture::GUITexture(ANCHOR a, Coord disp, std::string tex, Coord dims, GUICon
     willDestroyTexture_ = true;
 }
 
-GUITexture::GUITexture(ANCHOR a, Coord disp, std::string str, GUIContainer* parent)
+GUITexture::GUITexture(ANCHOR a, Coord disp, std::string str, int fontSize, GUIContainer* parent)
     : GUIObject(a, disp, {0, 0}, parent)
 {
-    texture_ = loadString(str, FONT_NORMAL, 50, {255, 255, 255, 255});
+    texture_ = loadString(str, FONT_NORMAL, fontSize, _color_white);
     int w, h;
     SDL_QueryTexture(texture_, NULL, NULL, &w, &h);
     setBounds(disp, {w, h});
@@ -53,9 +53,9 @@ bool GUITexture::mouseUp()
 
 void GUITexture::draw()
 {
-    SDL_RenderCopy(gRenderer, texture_, NULL, &bounds);
+    SDL_RenderCopy(_renderer, texture_, NULL, &bounds);
 
-    if (debug >= DEBUG_NORMAL) drawBounds();
+    if (_debug >= DEBUG_NORMAL) drawBounds();
 }
 
 void GUITexture::setTransparency(int a)

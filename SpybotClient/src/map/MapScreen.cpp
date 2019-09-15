@@ -2,7 +2,7 @@
 #include "MapScreen.h"
 
 #include "Global.h"
-#include "DataContainer.h"
+#include "Data.h"
 #include "GUIButton.h"
 #include "Message.h"
 #include "Node.h"
@@ -12,7 +12,7 @@
 #include "ResourceLoader.h"
 
 MapScreen::MapScreen()
-    : GUIContainer(ANCHOR_NORTHWEST, {0, 0}, {SCREEN_WIDTH, SCREEN_HEIGHT}, NULL, NULL)
+    : GUIContainer(ANCHOR_NORTHWEST, {0, 0}, {_SCREEN_WIDTH, _SCREEN_HEIGHT}, NULL, NULL)
 {
     // check to make sure default maps are generated
     nodeList = new LinkedList<Node*>();
@@ -27,30 +27,30 @@ MapScreen::MapScreen()
     shiftSpeed = 0.25;
 
     // create level confirm / cancel dialog box
-    levelConfirm = new GUIContainer(ANCHOR_NORTHWEST, {20, 20}, {252, 194}, this, dataContainer->map_window_levelConfirm);
+    levelConfirm = new GUIContainer(ANCHOR_NORTHWEST, {20, 20}, {252, 194}, this, _map_window_levelConfirm);
     levelConfirm->setTransparency(0);
     GUIButton* battleButton = new GUIButton(ANCHOR_NORTHWEST, {130, 169}, {115, 14}, levelConfirm,
                                             []()
     {
-        if (mapScreen->getSelectedNode()->getNodeType() != 7)
+        if (_mapScreen->getSelectedNode()->getNodeType() != 7)
         {
 			Message msg;
 			msg.type = MSGTYPE_LOAD;
-			msg.levelNum = mapScreen->getSelectedNode()->getLevelId();
-			client->sendMessage(msg);
+			msg.levelNum = _mapScreen->getSelectedNode()->getLevelId();
+			_client->sendMessage(msg);
         }
     },
-    dataContainer->map_button_beginDatabattle_normal,
-    dataContainer->map_button_beginDatabattle_over,
+    _map_button_beginDatabattle_normal,
+    _map_button_beginDatabattle_over,
     NULL);
     levelConfirm->addObject(battleButton);
     GUIButton* cancelButton = new GUIButton(ANCHOR_NORTHWEST, {7, 169}, {115, 14}, levelConfirm,
                                             []()
     {
-        mapScreen->clearSelectedNode();
+        _mapScreen->clearSelectedNode();
     },
-    dataContainer->map_button_cancel_normal,
-    dataContainer->map_button_cancel_over,
+    _map_button_cancel_normal,
+    _map_button_cancel_over,
     NULL);
     levelConfirm->addObject(cancelButton);
 
@@ -61,19 +61,19 @@ MapScreen::MapScreen()
     addObject(invDisplay);
 
     // add pause menu
-    pauseMenu = new GUIContainer(ANCHOR_CENTER, {-110, -95}, {220, 3*60 + 10}, this, {120, 120, 120, 140});
+    pauseMenu = new GUIContainer(ANCHOR_CENTER, {-110, -95}, {220, 3*60 + 10}, this, _color_bkg_standard);
     GUIButton* resumeButton = new GUIButton(ANCHOR_NORTHWEST, {10, 10}, {200, 50}, pauseMenu,
-                                                [](){mapScreen->togglePauseMenu();},
-                                                dataContainer->game_button_resume);
+                                                [](){_mapScreen->togglePauseMenu();},
+                                                _game_button_resume);
     pauseMenu->addObject(resumeButton);
     GUIButton* exitToMainButton = new GUIButton(ANCHOR_NORTHWEST, {10, 70}, {200, 50}, pauseMenu,
-                                                [](){currScreen = mainScreen;
-                                                     mapScreen->togglePauseMenu();},
-                                                dataContainer->game_button_quitToMain);
+                                                [](){_currScreen = _mainScreen;
+                                                     _mapScreen->togglePauseMenu();},
+                                                _game_button_quitToMain);
     pauseMenu->addObject(exitToMainButton);
     GUIButton* exitToDesktopButton = new GUIButton(ANCHOR_NORTHWEST, {10, 130}, {200, 50}, pauseMenu,
-                                                   [](){quit = true;},
-                                                   dataContainer->game_button_quitToDesktop);
+                                                   [](){_quit = true;},
+                                                   _game_button_quitToDesktop);
     pauseMenu->addObject(exitToDesktopButton);
     pauseMenu->setTransparency(0);
     pauseMenu->setMovable(false);
@@ -95,15 +95,15 @@ void MapScreen::shiftBkg(double x, double y)
 
     if (bkgX + x < 0)
         bkgX = 0;
-    else if (bkgX + x + SCREEN_WIDTH > bkgWidth)
-        bkgX = bkgWidth - SCREEN_WIDTH;
+    else if (bkgX + x + _SCREEN_WIDTH > bkgWidth)
+        bkgX = bkgWidth - _SCREEN_WIDTH;
     else
         bkgX += x;
 
     if (bkgY + y < 0)
         bkgY = 0;
-    else if (bkgY + y + SCREEN_HEIGHT > bkgHeight)
-        bkgY = bkgHeight - SCREEN_HEIGHT;
+    else if (bkgY + y + _SCREEN_HEIGHT > bkgHeight)
+        bkgY = bkgHeight - _SCREEN_HEIGHT;
     else
         bkgY += y;
 }
@@ -113,11 +113,11 @@ void MapScreen::drawBkg()
     SDL_Rect bkgRect;
     bkgRect.x = (int)bkgX;
     bkgRect.y = (int)bkgY;
-    bkgRect.w = SCREEN_WIDTH;
-    bkgRect.h = SCREEN_HEIGHT;
+    bkgRect.w = _SCREEN_WIDTH;
+    bkgRect.h = _SCREEN_HEIGHT;
 
     // draw background image
-    SDL_RenderCopy(gRenderer, bkgImg, &bkgRect, NULL);
+    SDL_RenderCopy(_renderer, bkgImg, &bkgRect, NULL);
 }
 
 void MapScreen::drawNodes()
@@ -128,8 +128,8 @@ void MapScreen::drawNodes()
         Node* currIcon = it.next();
         if (currIcon->getPos().x > bkgX - 200 &&
             currIcon->getPos().y > bkgY - 200 &&
-            currIcon->getPos().x < bkgX + SCREEN_WIDTH + 200 &&
-            currIcon->getPos().y < bkgY + SCREEN_HEIGHT + 200)
+            currIcon->getPos().x < bkgX + _SCREEN_WIDTH + 200 &&
+            currIcon->getPos().y < bkgY + _SCREEN_HEIGHT + 200)
         {
             currIcon->draw({(int)bkgX, (int)bkgY});
         }
@@ -144,13 +144,13 @@ void MapScreen::draw()
 
     if (pauseMenu->isVisible())
     {
-        SDL_SetRenderDrawColor(gRenderer, 0, 0, 0, 140);
-        SDL_RenderFillRect(gRenderer, &bounds);
+        SDL_SetRenderDrawColor(_renderer, 0, 0, 0, 140);
+        SDL_RenderFillRect(_renderer, &bounds);
 
         SDL_Texture* pause = loadString("PAUSED", FONT_NORMAL, 200, {255, 255, 255, 0});
         SDL_Rect pauseRect = {50, 50, 0, 0};
         SDL_QueryTexture(pause, NULL, NULL, &pauseRect.w, &pauseRect.h);
-        SDL_RenderCopy(gRenderer, pause, NULL, &pauseRect);
+        SDL_RenderCopy(_renderer, pause, NULL, &pauseRect);
         SDL_DestroyTexture(pause);
 
         pauseMenu->draw();
@@ -165,7 +165,7 @@ bool MapScreen::mouseDown()
     if (GUIContainer::mouseDown()) return true;
 
     // spits out the location (on the map bkg) of this click
-    if (debug >= DEBUG_NORMAL) printf("%i,%i\n", (int)bkgX + mousePos.x, (int)bkgY + mousePos.y);
+    if (_debug >= DEBUG_NORMAL) printf("%i,%i\n", (int)bkgX + _mousePos.x, (int)bkgY + _mousePos.y);
 
     // if mapscreen animation is occurring, don't take input
     if (selectedNode != NULL)
@@ -248,18 +248,18 @@ void MapScreen::tick(int ms)
         bool yShift = false;
 
         // shift on the x-axis
-        int xDis = (int)selectedNode->getPos().x - (int)bkgX - (int)(SCREEN_WIDTH/2);
+        int xDis = (int)selectedNode->getPos().x - (int)bkgX - (int)(_SCREEN_WIDTH/2);
         // if this node is left of center
         if (xDis < 0 && bkgX > 0)
         {
             if (xDis < -shiftAmt) shiftBkg(-shiftAmt, 0);
-            else bkgX = selectedNode->getPos().x - SCREEN_WIDTH/2;
+            else bkgX = selectedNode->getPos().x - _SCREEN_WIDTH/2;
         }
         // if the node is right of center
-        else if (xDis > 0 && bkgX < bkgWidth - SCREEN_WIDTH)
+        else if (xDis > 0 && bkgX < bkgWidth - _SCREEN_WIDTH)
         {
             if (xDis > shiftAmt) shiftBkg(shiftAmt, 0);
-            else bkgX = selectedNode->getPos().x - SCREEN_WIDTH/2;
+            else bkgX = selectedNode->getPos().x - _SCREEN_WIDTH/2;
         }
         else
         {
@@ -267,18 +267,18 @@ void MapScreen::tick(int ms)
         }
 
         // shift on the y-axis
-        int yDis = (int)selectedNode->getPos().y - (int)bkgY - (int)(SCREEN_HEIGHT/2);
+        int yDis = (int)selectedNode->getPos().y - (int)bkgY - (int)(_SCREEN_HEIGHT/2);
         // if this node is above center
         if (yDis < 0 && bkgY > 0)
         {
             if (yDis < -shiftAmt) shiftBkg(0, -shiftAmt);
-            else bkgY = selectedNode->getPos().y - SCREEN_HEIGHT/2;
+            else bkgY = selectedNode->getPos().y - _SCREEN_HEIGHT/2;
         }
         // if this node is below center
-        else if (yDis > 0 && bkgY < bkgHeight - SCREEN_HEIGHT)
+        else if (yDis > 0 && bkgY < bkgHeight - _SCREEN_HEIGHT)
         {
             if (yDis > shiftAmt) shiftBkg(0, shiftAmt);
-            else bkgY = selectedNode->getPos().y - SCREEN_HEIGHT/2;
+            else bkgY = selectedNode->getPos().y - _SCREEN_HEIGHT/2;
         }
         else
         {
@@ -316,20 +316,20 @@ void MapScreen::tick(int ms)
         }
 
         // if the mouse is at an edge, try to shift the background
-        if (mousePos.x < 20)
+        if (_mousePos.x < 20)
         {
             shiftBkg(-shiftAmt, 0);
         }
-        else if (mousePos.x > SCREEN_WIDTH - 20)
+        else if (_mousePos.x > _SCREEN_WIDTH - 20)
         {
             shiftBkg(shiftAmt, 0);
         }
 
-        if (mousePos.y < 20)
+        if (_mousePos.y < 20)
         {
             shiftBkg(0, -shiftAmt);
         }
-        else if (mousePos.y > SCREEN_HEIGHT - 20)
+        else if (_mousePos.y > _SCREEN_HEIGHT - 20)
         {
             shiftBkg(0, shiftAmt);
         }
@@ -506,18 +506,18 @@ void MapScreen::saveMap(std::string url)
     m.open(url, std::ios::out | std::ios::binary | std::ios::trunc);
     if (!m.is_open())
     {
-        if (debug >= DEBUG_MINIMAL) printf("err opening file for saving map\n");
+        if (_debug >= DEBUG_MINIMAL) printf("err opening file for saving map\n");
     }
     else
     {
-        if (debug >= DEBUG_MINIMAL) printf("saving map %s...\n", url.c_str());
+        if (_debug >= DEBUG_MINIMAL) printf("saving map %s...\n", url.c_str());
 
         // begin by writing the sizes of various data types
         int8_t sizeOfInt = sizeof(int);
         int8_t sizeOfChar = sizeof(char);
         int8_t sizeOfDouble = sizeof(double);
         int8_t sizeOfBool = sizeof(bool);
-        if (debug >= DEBUG_NORMAL) printf("saving constants... int:%i, char:%i, double:%i, bool:%i\n", sizeOfInt, sizeOfChar, sizeOfDouble, sizeOfBool);
+        if (_debug >= DEBUG_NORMAL) printf("saving constants... int:%i, char:%i, double:%i, bool:%i\n", sizeOfInt, sizeOfChar, sizeOfDouble, sizeOfBool);
         m.write((char*) &sizeOfInt, 1);
         m.write((char*) &sizeOfChar, 1);
         m.write((char*) &sizeOfDouble, 1);
@@ -526,7 +526,7 @@ void MapScreen::saveMap(std::string url)
         // begin writing the map to file
         int numNodes = nodeList->getLength();
         m.write((char*) &numNodes, sizeOfInt);
-        if (debug >= DEBUG_NORMAL) printf("saving %i nodes...\n", numNodes);
+        if (_debug >= DEBUG_NORMAL) printf("saving %i nodes...\n", numNodes);
 
         // save each node's data
         for (int i = 0; i < numNodes; i++)
@@ -545,7 +545,7 @@ void MapScreen::saveMap(std::string url)
         }
 
         // save each node's children
-        if (debug >= DEBUG_NORMAL) printf("saving nodes' children...\n");
+        if (_debug >= DEBUG_NORMAL) printf("saving nodes' children...\n");
         for (int i = 0; i < numNodes; i++)
         {
             Node* curr = nodeList->getObjectAt(i);
@@ -560,10 +560,10 @@ void MapScreen::saveMap(std::string url)
         }
 
         // flush and close the file
-        if (debug >= DEBUG_MINIMAL) printf("flushing and closing map file... ");
+        if (_debug >= DEBUG_MINIMAL) printf("flushing and closing map file... ");
         m.flush();
         m.close();
-        if (debug >= DEBUG_MINIMAL) printf("done\n");
+        if (_debug >= DEBUG_MINIMAL) printf("done\n");
     }
 }
 
@@ -573,14 +573,14 @@ void MapScreen::loadMap(std::string url)
     m.open(url, std::ios::in | std::ios::binary);
     if (!m.is_open())
     {
-        if (debug >= DEBUG_MINIMAL) printf("err opening map %s\n", url.c_str());
+        if (_debug >= DEBUG_MINIMAL) printf("err opening map %s\n", url.c_str());
     }
     else
     {
-        if (debug >= DEBUG_MINIMAL) printf("loading map %s...\n", url.c_str());
+        if (_debug >= DEBUG_MINIMAL) printf("loading map %s...\n", url.c_str());
 
         // read the sizes of various data types
-        if (debug >= DEBUG_NORMAL) printf("loading constants...\n");
+        if (_debug >= DEBUG_NORMAL) printf("loading constants...\n");
         int8_t sizeOfInt;
         m.read((char*) &sizeOfInt, 1);
         int8_t sizeOfChar;
@@ -635,7 +635,7 @@ void MapScreen::loadMap(std::string url)
 
         // close the file
         m.close();
-        if (debug >= DEBUG_MINIMAL) printf("done\n");
+        if (_debug >= DEBUG_MINIMAL) printf("done\n");
     }
 }
 
@@ -646,16 +646,16 @@ void MapScreen::switchMap(MAPPRESET pre)
     case MAPPRESET_CLASSIC:
         bkgImg = loadTexture("resources/map/map.png");
         loadMap("levels/classic.urf");
-        progListCurrent = progListClassic;
+        _progListCurrent = _progListClassic;
         break;
     case MAPPRESET_NIGHTFALL:
         bkgImg = loadTexture("resources/map/nightfall/map.png");
         loadMap("levels/nightfall.urf");
-        progListCurrent = progListNightfall;
+        _progListCurrent = _progListNightfall;
         break;
     case MAPPRESET_PROCEDURAL:
         printf("placeholder: load procedural map\n");
-        progListCurrent = progListCustom;
+        _progListCurrent = _progListCustom;
         break;
     default:
         break;

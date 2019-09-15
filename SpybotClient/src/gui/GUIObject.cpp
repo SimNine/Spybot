@@ -99,10 +99,10 @@ void GUIObject::recomputePosition()
 
 bool GUIObject::isMouseOver()
 {
-    if (mousePos.x >= bounds.x &&
-        mousePos.x < bounds.x + bounds.w &&
-        mousePos.y >= bounds.y &&
-        mousePos.y < bounds.y + bounds.h)
+    if (_mousePos.x >= bounds.x &&
+        _mousePos.x < bounds.x + bounds.w &&
+        _mousePos.y >= bounds.y &&
+        _mousePos.y < bounds.y + bounds.h)
     {
         return true;
     }
@@ -124,31 +124,31 @@ void GUIObject::setPressed(bool b)
 
 void GUIObject::drawBounds()
 {
-    if (debug >= DEBUG_NORMAL)
+    if (_debug >= DEBUG_NORMAL)
     {
         if (isMouseOver())
         {
             if (pressed)
             {
-                SDL_SetRenderDrawColor(gRenderer, 0, 255, 0, 255);
+                SDL_SetRenderDrawColor(_renderer, 0, 255, 0, 255);
             }
             else
             {
-                SDL_SetRenderDrawColor(gRenderer, 255, 0, 0, 255);
+                SDL_SetRenderDrawColor(_renderer, 255, 0, 0, 255);
             }
         }
         else
         {
             if (pressed)
             {
-                SDL_SetRenderDrawColor(gRenderer, 255, 255, 0, 255);
+                SDL_SetRenderDrawColor(_renderer, 255, 255, 0, 255);
             }
             else
             {
-                SDL_SetRenderDrawColor(gRenderer, 255, 255, 255, 255);
+                SDL_SetRenderDrawColor(_renderer, 255, 255, 255, 255);
             }
         }
-        SDL_RenderDrawRect(gRenderer, &bounds);
+        SDL_RenderDrawRect(_renderer, &bounds);
     }
 }
 

@@ -222,7 +222,7 @@ ProgramAction::ProgramAction(MOVEPRESET p)
 
 ProgramAction::~ProgramAction()
 {
-    if (debug >= DEBUG_NORMAL)
+    if (_debug >= DEBUG_NORMAL)
     {
         printf("Move '%s' deleted\n", name.c_str());
     }

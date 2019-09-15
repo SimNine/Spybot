@@ -1,7 +1,7 @@
 #include "Standard.h"
 #include "MainScreenGlow.h"
 
-#include "DataContainer.h"
+#include "Data.h"
 #include "Global.h"
 
 MainScreenGlow::MainScreenGlow(Coord p)
@@ -25,7 +25,7 @@ MainScreenGlow::~MainScreenGlow()
 
 void MainScreenGlow::draw()
 {
-    SDL_SetTextureAlphaMod(dataContainer->main_bkgsplotch, (Uint8)aPos);
+    SDL_SetTextureAlphaMod(_main_bkgsplotch, (Uint8)aPos);
 
     SDL_Rect destRect;
     destRect.x = (int)xPos;
@@ -33,7 +33,7 @@ void MainScreenGlow::draw()
     destRect.w = 200;
     destRect.h = 200;
 
-    SDL_RenderCopy(gRenderer, dataContainer->main_bkgsplotch, NULL, &destRect);
+    SDL_RenderCopy(_renderer, _main_bkgsplotch, NULL, &destRect);
 }
 
 void MainScreenGlow::tick(int ms)

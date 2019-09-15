@@ -3,20 +3,20 @@
 
 #include "Global.h"
 #include "GUITexture.h"
-#include "DataContainer.h"
+#include "Data.h"
 #include "MainScreen.h"
 
 TitleScreen::TitleScreen()
-    : GUIContainer(ANCHOR_NORTHWEST, {0, 0}, {SCREEN_WIDTH, SCREEN_HEIGHT}, NULL, NULL)
+    : GUIContainer(ANCHOR_NORTHWEST, {0, 0}, {_SCREEN_WIDTH, _SCREEN_HEIGHT}, NULL, NULL)
 {
     int w;
     int h;
-    SDL_QueryTexture(dataContainer->title_company, NULL, NULL, &w, &h);
-    addObject(new GUITexture(ANCHOR_CENTER, {-w/2, -h/2}, dataContainer->title_company, {w, h}, this));
-    SDL_QueryTexture(dataContainer->title_title, NULL, NULL, &w, &h);
-    addObject(new GUITexture(ANCHOR_CENTER, {-w/2, -h}, dataContainer->title_title, {w, h}, this));
-    SDL_QueryTexture(dataContainer->title_subtitle, NULL, NULL, &w, &h);
-    addObject(new GUITexture(ANCHOR_CENTER, {-w/2, 20}, dataContainer->title_subtitle, {w, h}, this));
+    SDL_QueryTexture(_title_company, NULL, NULL, &w, &h);
+    addObject(new GUITexture(ANCHOR_CENTER, {-w/2, -h/2}, _title_company, {w, h}, this));
+    SDL_QueryTexture(_title_title, NULL, NULL, &w, &h);
+    addObject(new GUITexture(ANCHOR_CENTER, {-w/2, -h}, _title_title, {w, h}, this));
+    SDL_QueryTexture(_title_subtitle, NULL, NULL, &w, &h);
+    addObject(new GUITexture(ANCHOR_CENTER, {-w/2, 20}, _title_subtitle, {w, h}, this));
 
     //sprites = new LinkedList<GUITexture*>();
 
@@ -36,8 +36,8 @@ TitleScreen::~TitleScreen()
 
 void TitleScreen::draw()
 {
-    SDL_SetRenderDrawColor(gRenderer, 0, 0, 0, 0);
-    SDL_RenderClear(gRenderer);
+    SDL_SetRenderDrawColor(_renderer, 0, 0, 0, 0);
+    SDL_RenderClear(_renderer);
 
     drawContents();
 }
@@ -49,53 +49,53 @@ void TitleScreen::tick(int ms)
 
     if (tickCount <= timingCompany - spanTiming)
     {
-        SDL_SetTextureAlphaMod(dataContainer->title_company, 0);
+        SDL_SetTextureAlphaMod(_title_company, 0);
     }
     else if (tickCount > timingCompany - spanTiming && tickCount <= timingCompany)
     {
-        SDL_SetTextureAlphaMod(dataContainer->title_company, (int)(((double)(tickCount - timingCompany + spanTiming)/spanTiming)*255.0));
+        SDL_SetTextureAlphaMod(_title_company, (int)(((double)(tickCount - timingCompany + spanTiming)/spanTiming)*255.0));
     }
     else if (tickCount > timingCompany && tickCount <= timingCompany + spanTiming)
     {
-        SDL_SetTextureAlphaMod(dataContainer->title_company, (int)(((double)(timingCompany - tickCount + spanTiming)/spanTiming)*255.0));
+        SDL_SetTextureAlphaMod(_title_company, (int)(((double)(timingCompany - tickCount + spanTiming)/spanTiming)*255.0));
     }
     else if (tickCount > timingCompany + spanTiming)
     {
-        SDL_SetTextureAlphaMod(dataContainer->title_company, 0);
+        SDL_SetTextureAlphaMod(_title_company, 0);
     }
 
     if (tickCount <= timingTitle - spanTiming)
     {
-        SDL_SetTextureAlphaMod(dataContainer->title_title, 0);
+        SDL_SetTextureAlphaMod(_title_title, 0);
     }
     else if (tickCount > timingTitle - spanTiming && tickCount <= timingTitle)
     {
-        SDL_SetTextureAlphaMod(dataContainer->title_title, (int)(((double)(tickCount - timingTitle + spanTiming)/spanTiming)*255.0));
+        SDL_SetTextureAlphaMod(_title_title, (int)(((double)(tickCount - timingTitle + spanTiming)/spanTiming)*255.0));
     }
     else if (tickCount > timingTitle && tickCount <= timingTitle + spanTiming)
     {
-        SDL_SetTextureAlphaMod(dataContainer->title_title, (int)(((double)(timingTitle - tickCount + spanTiming)/spanTiming)*255.0));
+        SDL_SetTextureAlphaMod(_title_title, (int)(((double)(timingTitle - tickCount + spanTiming)/spanTiming)*255.0));
     }
     else if (tickCount > timingTitle + spanTiming)
     {
-        SDL_SetTextureAlphaMod(dataContainer->title_title, 0);
+        SDL_SetTextureAlphaMod(_title_title, 0);
     }
 
     if (tickCount <= timingSubtitle - spanTiming) // before fade in
     {
-        SDL_SetTextureAlphaMod(dataContainer->title_subtitle, 0);
+        SDL_SetTextureAlphaMod(_title_subtitle, 0);
     }
     else if (tickCount > timingSubtitle - spanTiming && tickCount <= timingSubtitle) // fading in
     {
-        SDL_SetTextureAlphaMod(dataContainer->title_subtitle, (int)(((double)(tickCount - timingSubtitle + spanTiming)/spanTiming)*255.0));
+        SDL_SetTextureAlphaMod(_title_subtitle, (int)(((double)(tickCount - timingSubtitle + spanTiming)/spanTiming)*255.0));
     }
     else if (tickCount > timingSubtitle && tickCount <= timingSubtitle + spanTiming) // fading out
     {
-        SDL_SetTextureAlphaMod(dataContainer->title_subtitle, (int)(((double)(timingSubtitle - tickCount + spanTiming)/spanTiming)*255.0));
+        SDL_SetTextureAlphaMod(_title_subtitle, (int)(((double)(timingSubtitle - tickCount + spanTiming)/spanTiming)*255.0));
     }
     else if (tickCount > timingSubtitle + spanTiming)
     {
-        SDL_SetTextureAlphaMod(dataContainer->title_subtitle, 0);
+        SDL_SetTextureAlphaMod(_title_subtitle, 0);
     }
 
     if (tickCount > timingSubtitle + spanTiming + 500)
@@ -121,9 +121,9 @@ void TitleScreen::advance()
 
 void TitleScreen::endTitles()
 {
-    currScreen = mainScreen;
-    SDL_SetTextureAlphaMod(dataContainer->title_subtitle, 255);
-    SDL_SetTextureAlphaMod(dataContainer->title_title, 255);
+    _currScreen = _mainScreen;
+    SDL_SetTextureAlphaMod(_title_subtitle, 255);
+    SDL_SetTextureAlphaMod(_title_title, 255);
     SDL_ShowCursor(SDL_ENABLE);
-    Mix_PlayMusic(dataContainer->music_title, -1);
+    Mix_PlayMusic(_music_title, -1);
 }
