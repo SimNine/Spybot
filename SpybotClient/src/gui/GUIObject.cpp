@@ -165,6 +165,7 @@ void GUIObject::processEffects(int ms) {
 		effectList_->remove(curr);
 		delete curr;
 	}
+	delete effectsToRemove;
 }
 
 void GUIObject::addEffect(GUIEffect* e) {

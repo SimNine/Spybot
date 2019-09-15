@@ -301,3 +301,33 @@ Save format rebuild, control flow, "Mentalist" program, logging
 2.5.1 - 6/20/18
 -----
 -Fixed nasty message serialization and deserialization bug
+
+2.6.0 - 7/14/18
+Spawngroups, multiplayer levels, game configuration, general multiplayability
+-----
+-Added SpawnGroups to represent clusters of spawn tiles in close proximity which are assigned to different players in multiplayer games
+-Added corresponding MSGINFOTYPEs
+-Added commands "addspawngroup", "removespawngroup", "listspawngroups", etc to CommandProcessor
+-Reorganized CommandProcessor
+-Updated savefile format to include number and locations of SpawnGroups
+-Fixed backgrorund shifting on game screen with gameboards that are larger than the screen
+-Added title slides for original developer (Gamelab) and client (LEGO)
+-Created four new multiplayer levels:
+--"hash": four spawngroups, six tiles each
+--"showdown": four spawngroups, one tile each
+--"array": eight spawngroups, two tiles each
+--"empty": just a completely empty map
+--also renamed the default multiplayer map "cross"
+-Added a container in the lobby with buttons to configure which level to load upon start of multiplayer game
+-Added a class "GameConfig" to represent serverside the configuration of the game that will be loaded, including game mode, level name, and campaign
+-Removed MSGTYPE_LOAD and MSGTYPE_LOADCUSTOM - deprecated due to use of GameConfig container
+-Added MSGTYPE_STARTGAME to trigger beginning of game, initialization of teams, and creation of AI players based on gamemode
+-Fixed memory leak introduced between 2.1.0 and 2.2.0 due to not freeing local LinkedList of GUIEffects to remove
+-Removed MSGTYPE_JOIN, merged its functionality with MSGTYPE_STARTGAME
+-Added MSGTYPE_SETCLIENTPLAYER to associate a given client with a given player
+-Added MSGCONFIGTYPE_SETPLAYERMIND to tell clients whether a player has an AI mind or not
+-Added MSGTYPE_PING used to periodically tell clients that the server is alive
+-If a client is disconnected from the server for whatever reason during a multiplayer game, they are ejected to the main screen
+-If a level contains more spawngroups than human players, AI players are generated to populate them
+-Spawngroups controlled by AIs are automatically filled with simple offensive programs
+-Release configuration now builds SpybotClient on the Windows subsystem instead of the Console subsystem

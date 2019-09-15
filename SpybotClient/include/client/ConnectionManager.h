@@ -6,6 +6,7 @@
 class ClientMirror;
 struct Message;
 class Server;
+class Pipe;
 
 class ConnectionManager {
 public:
@@ -13,7 +14,7 @@ public:
 	virtual ~ConnectionManager();
 
 	void connectToExternalServer(std::string IP);
-	void connectToLocalServer(std::string savePath);
+	void connectToLocalServer(CAMPAIGN campaign);
 	void disconnect();
 	void listen();
 
@@ -27,11 +28,20 @@ public:
 	LinkedList<ClientMirror*>* getClientList();
 	ClientMirror* getServerOwner();
 	void setServerOwner(ClientMirror* clientMirror);
+	
+	void pingChecker();
+	void resetPingCount();
 protected:
 
 private:
+	// for keeping track of server survival
+	int pingCount_ = 0;
+
 	// for external server interation
 	SOCKET socket_;
+
+	// for internal server interaction
+	Pipe* serverPipe_;
 
 	// message passing utils
 	LinkedList<Message*>* msgQueue_;

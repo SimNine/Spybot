@@ -25,41 +25,118 @@ LobbyOverlay::~LobbyOverlay() {
 }
 
 void LobbyOverlay::buildGUI() {
-	GUIButton* leaveLobbyButton = new GUIButton(this, ANCHOR_NORTHEAST, { -10, 10 }, "Leave Lobby", 50, [] () {
-		_lobbyOverlay->leaveLobby();
-	});
-	this->addObject(leaveLobbyButton);
-
+	// establish config container
 	gameConfigContainer_ = new GUIContainer(this, ANCHOR_CENTER, { 0, 0 }, { 800, 400 }, _color_bkg_standard);
-	gameConnectedPlayerContainer_ = new GUIContainer(gameConfigContainer_, ANCHOR_NORTHWEST, { 5, 5 }, { 300, 390 }, _color_bkg_standard);
-	GUITexture* gameConfigLabel = new GUITexture(gameConnectedPlayerContainer_, ANCHOR_NORTH, { 0, 5 }, "Connected players:", 30);
-	gameConnectedPlayerContainer_->addObject(gameConfigLabel);
-	gameConfigContainer_->addObject(gameConnectedPlayerContainer_);
-	GUIContainer* gameConfigModeContainer = new GUIContainer(gameConfigContainer_, ANCHOR_NORTHEAST, { -5, 5 }, { 150, 390 }, _color_bkg_standard);
-	GUITexture* gameConfigModeLabel = new GUITexture(gameConfigModeContainer, ANCHOR_NORTH, { 0, 5 }, "Game Mode", 30);
-	gameConfigModeContainer->addObject(gameConfigModeLabel);
-	gameConfigButtonCoop_ = new GUIButton(gameConfigModeContainer, ANCHOR_NORTH, { 0, 40 }, { 83, 83 },
-		[] () { Message m; m.type = MSGTYPE_GAMECONFIG; m.gameConfigType = MSGGAMECONFIGTYPE_COOP; _connectionManager->sendMessage(m); },
-		_lobby_button_gamemode_coop,
-		_lobby_button_gamemode_coop_over);
-	gameConfigModeContainer->addObject(gameConfigButtonCoop_);
-	gameConfigButtonFFA_ = new GUIButton(gameConfigModeContainer, ANCHOR_NORTH, { 0, 128 }, { 83, 83 },
-		[] () { Message m; m.type = MSGTYPE_GAMECONFIG; m.gameConfigType = MSGGAMECONFIGTYPE_FFA; _connectionManager->sendMessage(m); },
-		_lobby_button_gamemode_ffa,
-		_lobby_button_gamemode_ffa_over);
-	gameConfigModeContainer->addObject(gameConfigButtonFFA_);
-	gameConfigButtonTeamDM_ = new GUIButton(gameConfigModeContainer, ANCHOR_NORTH, { 0, 216 }, { 83, 83 },
-		[] () { Message m; m.type = MSGTYPE_GAMECONFIG; m.gameConfigType = MSGGAMECONFIGTYPE_TEAMDM; _connectionManager->sendMessage(m); },
-		_lobby_button_gamemode_teamdm,
-		_lobby_button_gamemode_teamdm_over);
-	gameConfigModeContainer->addObject(gameConfigButtonTeamDM_);
-	gameConfigButtonSelected_ = gameConfigButtonFFA_;
-	gameConfigContainer_->addObject(gameConfigModeContainer);
 	gameConfigContainer_->setMovable(false);
 	this->addObject(gameConfigContainer_);
 
+	// connected player container
+	gameConnectedPlayerContainer_ = new GUIContainer(gameConfigContainer_, ANCHOR_NORTHWEST, { 5, 5 }, { 300, 340 }, _color_bkg_standard);
+	gameConfigContainer_->addObject(gameConnectedPlayerContainer_);
+
+	GUITexture* gameConfigLabel = new GUITexture(gameConnectedPlayerContainer_, ANCHOR_NORTH, { 0, 5 }, "Connected players:", 30);
+	gameConnectedPlayerContainer_->addObject(gameConfigLabel);
+
+	// level select container
+	GUIContainer* gameConfigLevelContainer = new GUIContainer(gameConfigContainer_, ANCHOR_NORTHWEST, { 310, 5 }, { 300, 340 }, _color_bkg_standard);
+	gameConfigContainer_->addObject(gameConfigLevelContainer);
+
+	GUITexture* gameConfigLevelLabel = new GUITexture(gameConfigLevelContainer, ANCHOR_NORTH, { 0, 5 }, "LEVELS:", 40);
+	gameConfigLevelContainer->addObject(gameConfigLevelLabel);
+
+	gameConfigLevelArray_ = new GUIButton(gameConfigLevelContainer, ANCHOR_NORTH, { 0, 45 }, "ARRAY", 40,
+		[] () {
+		Message m; 
+		m.type = MSGTYPE_GAMECONFIG; 
+		m.gameConfigType = MSGGAMECONFIGTYPE_LEVEL_ARRAY;
+		_connectionManager->sendMessage(m);
+	});
+	gameConfigLevelContainer->addObject(gameConfigLevelArray_);
+
+	gameConfigLevelHash_ = new GUIButton(gameConfigLevelContainer, ANCHOR_NORTH, { 0, 85 }, "HASH", 40,
+		[] () {
+		Message m;
+		m.type = MSGTYPE_GAMECONFIG;
+		m.gameConfigType = MSGGAMECONFIGTYPE_LEVEL_HASH;
+		_connectionManager->sendMessage(m);
+	});
+	gameConfigLevelContainer->addObject(gameConfigLevelHash_);
+
+	gameConfigLevelCross_ = new GUIButton(gameConfigLevelContainer, ANCHOR_NORTH, { 0, 125 }, "CROSS", 40,
+		[] () {
+		Message m;
+		m.type = MSGTYPE_GAMECONFIG;
+		m.gameConfigType = MSGGAMECONFIGTYPE_LEVEL_CROSS;
+		_connectionManager->sendMessage(m);
+	});
+	gameConfigLevelContainer->addObject(gameConfigLevelCross_);
+
+	gameConfigLevelShowdown_ = new GUIButton(gameConfigLevelContainer, ANCHOR_NORTH, { 0, 165 }, "SHOWDOWN", 40,
+		[] () {
+		Message m;
+		m.type = MSGTYPE_GAMECONFIG;
+		m.gameConfigType = MSGGAMECONFIGTYPE_LEVEL_SHOWDOWN;
+		_connectionManager->sendMessage(m);
+	});
+	gameConfigLevelContainer->addObject(gameConfigLevelShowdown_);
+
+	// game mode container
+	GUIContainer* gameConfigModeContainer = new GUIContainer(gameConfigContainer_, ANCHOR_NORTHWEST, { 615, 5 }, { 180, 340 }, _color_bkg_standard);
+	gameConfigContainer_->addObject(gameConfigModeContainer);
+
+	GUITexture* gameConfigModeLabel = new GUITexture(gameConfigModeContainer, ANCHOR_NORTH, { 0, 5 }, "Game Mode", 30);
+	gameConfigModeContainer->addObject(gameConfigModeLabel);
+
+	gameConfigButtonCoop_ = new GUIButton(gameConfigModeContainer, ANCHOR_NORTH, { 0, 40 }, { 83, 83 },
+		[] () { 
+		Message m; 
+		m.type = MSGTYPE_GAMECONFIG; 
+		m.gameConfigType = MSGGAMECONFIGTYPE_COOP; 
+		_connectionManager->sendMessage(m); },
+		_lobby_button_gamemode_coop,
+		_lobby_button_gamemode_coop_over);
+	gameConfigModeContainer->addObject(gameConfigButtonCoop_);
+
+	gameConfigButtonFFA_ = new GUIButton(gameConfigModeContainer, ANCHOR_NORTH, { 0, 128 }, { 83, 83 },
+		[] () { 
+		Message m; 
+		m.type = MSGTYPE_GAMECONFIG; 
+		m.gameConfigType = MSGGAMECONFIGTYPE_FFA; 
+		_connectionManager->sendMessage(m); },
+		_lobby_button_gamemode_ffa,
+		_lobby_button_gamemode_ffa_over);
+	gameConfigModeContainer->addObject(gameConfigButtonFFA_);
+
+	gameConfigButtonTeamDM_ = new GUIButton(gameConfigModeContainer, ANCHOR_NORTH, { 0, 216 }, { 83, 83 },
+		[] () { 
+		Message m; 
+		m.type = MSGTYPE_GAMECONFIG; 
+		m.gameConfigType = MSGGAMECONFIGTYPE_TEAMDM; 
+		_connectionManager->sendMessage(m); },
+		_lobby_button_gamemode_teamdm,
+		_lobby_button_gamemode_teamdm_over);
+	gameConfigModeContainer->addObject(gameConfigButtonTeamDM_);
+
+	gameConfigButtonSelected_ = gameConfigButtonFFA_;
+
+	// leave lobby button
+	GUIButton* leaveLobbyButton = new GUIButton(gameConfigContainer_, ANCHOR_SOUTHWEST, { 5, -5 }, "LEAVE LOBBY", 45, 
+		[] () {
+		_lobbyOverlay->leaveLobby();
+	});
+	gameConfigContainer_->addObject(leaveLobbyButton);
+
+	// start game button
+	GUIButton* startGameButton = new GUIButton(gameConfigContainer_, ANCHOR_SOUTHEAST, { -5, -5 }, "START GAME", 45,
+		[] () {
+		Message m;
+		m.type = MSGTYPE_STARTGAME;
+		_connectionManager->sendMessage(m);
+	});
+	gameConfigContainer_->addObject(startGameButton);
+
+	// chat display
 	chatDisplay_ = new ChatDisplay(this, ANCHOR_SOUTHWEST, { 0, 0 }, { 800, 500 }, 19);
-	//this->addObject(chatDisplay_);
 }
 
 void LobbyOverlay::draw() {
@@ -131,6 +208,4 @@ void LobbyOverlay::setGameMode(GAMEMODE gameMode) {
 		gameConfigButtonSelected_ = gameConfigButtonFFA_;
 	else if (gameMode == GAMEMODE_TEAMDM)
 		gameConfigButtonSelected_ = gameConfigButtonTeamDM_;
-
-	gameMode_ = gameMode;
 }

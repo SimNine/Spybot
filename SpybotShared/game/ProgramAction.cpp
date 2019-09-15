@@ -1,6 +1,8 @@
 #include "Standard.h"
 #include "ProgramAction.h"
 
+#include "Global.h"
+
 ProgramAction::ProgramAction() {
 	this->type_ = ACTIONTYPE_NONE;
 	this->name_ = "";
@@ -232,10 +234,8 @@ ProgramAction::ProgramAction(MOVEPRESET p) {
 }
 
 ProgramAction::~ProgramAction() {
-	//if (debug >= DEBUG_NORMAL)
-	{
+	if (_debug >= DEBUG_NORMAL)
 		log("SERVER: Move '" + name_ + "' deleted\n");
-	}
 }
 
 void ProgramAction::setMove(ACTIONTYPE t, std::string name, std::string description, int range, int power, int reqSize) {

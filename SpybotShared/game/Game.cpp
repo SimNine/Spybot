@@ -11,9 +11,11 @@
 #include "Team.h"
 #include "User.h"
 #include "Pipe.h"
+#include "SpawnGroup.h"
 
 Game::Game(std::string lvlStr) {
 	teamList_ = new LinkedList<Team*>();
+	spawnGroupList_ = new LinkedList<SpawnGroup*>();
 	initBoard();
 	loadLevel(lvlStr);
 	//status_ = GAMESTATUS_NONE;
@@ -23,6 +25,10 @@ Game::~Game() {
 	while (teamList_->getLength() > 0)
 		delete teamList_->poll();
 	delete teamList_;
+
+	while (spawnGroupList_->getLength() > 0)
+		delete spawnGroupList_->poll();
+	delete spawnGroupList_;
 }
 
 void Game::initBoard() {
@@ -31,7 +37,6 @@ void Game::initBoard() {
 			gridTiles_[x][y] = TILE_NONE;
 			gridItems_[x][y] = ITEM_NONE;
 			gridPrograms_[x][y] = NULL;
-			gridSpawnGroups_[x][y] = -1;
 		}
 	}
 
@@ -41,14 +46,62 @@ void Game::initBoard() {
 	gridBottomBound_ = 100;
 }
 
-void Game::setSpawnGroup(Coord pos, int spawnGroup) {
-	// if (!isTiled(pos) || !gridTiles_[pos.x][pos.y] == TILE_SPAWN)
+SpawnGroup* Game::getUnassignedSpawnGroup() {
+	if (spawnGroupList_->getLength() == 0)
+		return NULL;
+
+	Iterator<SpawnGroup*> it = spawnGroupList_->getIterator();
+	while (it.hasNext()) {
+		SpawnGroup* currGroup = it.next();
+		if (currGroup->getPlayerID() == -1)
+			return currGroup;
+	}
+
+	return NULL;
+}
+
+SpawnGroup* Game::getSpawnGroupByID(int groupID) {
+	Iterator<SpawnGroup*> it = spawnGroupList_->getIterator();
+	while (it.hasNext()) {
+		SpawnGroup* curr = it.next();
+		if (curr->getGroupID() == groupID) {
+			return curr;
+		}
+	}
+
+	return NULL;
+}
+
+SpawnGroup* Game::getSpawnGroupAt(Coord pos) {
+	Iterator<SpawnGroup*> it = spawnGroupList_->getIterator();
+	while (it.hasNext()) {
+		SpawnGroup* curr = it.next();
+		if (curr->containsTile(pos)) {
+			return curr;
+		}
+	}
+
+	return NULL;
+}
+
+LinkedList<SpawnGroup*>* Game::getSpawnGroups() {
+	return spawnGroupList_;
 }
 
 void Game::setTileAt(Coord pos, TILE t) {
 	// check for OOB
 	if (isOOB(pos))
 		return;
+
+	// check if this tile was being changed from a spawntile to something else
+	if ((gridTiles_[pos.x][pos.y] == TILE_SPAWN || gridTiles_[pos.x][pos.y] == TILE_SPAWN2) &&
+		t != TILE_SPAWN && 
+		t != TILE_SPAWN2) {
+		SpawnGroup* group = getSpawnGroupAt(pos);
+		if (group != NULL) {
+			group->removeTile(pos);
+		}
+	}
 
 	// set the tile
 	gridTiles_[pos.x][pos.y] = t;
@@ -269,6 +322,7 @@ void Game::setStatus(GAMESTATUS g) {
 		{
 			// set the turn to be the first player
 			currTurnPlayer_ = teamList_->getFirst()->getAllPlayers()->getFirst();
+
 			Message msg;
 			msg.type = MSGTYPE_NEXTTURN;
 			msg.clientID = 0;
@@ -429,17 +483,17 @@ void Game::checkForWinCondition() {
 
 					// update this user's progress
 					if (_server->getSavePath() == "levels/classic") {
-						user->campaignClassic_[_server->getCurrentLevel()] = true;
+						user->campaignClassic_[atoi(_server->getCurrentLevel().c_str())] = true;
 						_server->saveUsers();
 					} else if (_server->getSavePath() == "levels/nightfall") {
-						user->campaignNightfall_[_server->getCurrentLevel()] = true;
+						user->campaignNightfall_[atoi(_server->getCurrentLevel().c_str())] = true;
 						_server->saveUsers();
 					}
 
 					// send message letting client know of level unlock
 					Message m;
 					m.type = MSGTYPE_LEVELUNLOCK;
-					m.num = _server->getCurrentLevel();
+					m.num = atoi(_server->getCurrentLevel().c_str());
 					currPipe->sendData(m);
 				}
 			}
@@ -506,6 +560,19 @@ Program* Game::addProgram(PROGRAM type, int playerID, int teamID) {
 	_server->sendMessageToAllClients(m);
 
 	return pr;
+}
+
+SpawnGroup* Game::addSpawnGroup() {
+	SpawnGroup* g = new SpawnGroup();
+	spawnGroupList_->addFirst(g);
+
+	Message m;
+	m.type = MSGTYPE_INFO;
+	m.infoType = MSGINFOTYPE_SPAWNGROUP;
+	m.num = g->getGroupID();
+	_server->sendMessageToAllClients(m);
+
+	return g;
 }
 
 void Game::removeTeam(int teamID) {
@@ -592,6 +659,35 @@ void Game::removeProgram(int programID, int playerID, int teamID) {
 	_server->sendMessageToAllClients(m);
 }
 
+void Game::removeSpawnGroup(int groupID) {
+	SpawnGroup* g = NULL;
+	Iterator<SpawnGroup*> it = spawnGroupList_->getIterator();
+	while (it.hasNext()) {
+		SpawnGroup* curr = it.next();
+		if (curr->getGroupID() == groupID) {
+			g = curr;
+			break;
+		}
+	}
+
+	if (g == NULL) {
+		log("SERVER ERR: tried to remove nonexistent spawn group " + to_string(groupID) + "\n");
+		return;
+	}
+
+	while (g->getTiles()->getLength() > 0)
+		g->removeTile(*g->getTiles()->getFirst());
+
+	spawnGroupList_->remove(g);
+	delete g;
+
+	Message m;
+	m.type = MSGTYPE_INFO;
+	m.infoType = MSGINFOTYPE_SPAWNGROUPDELETE;
+	m.num = groupID;
+	_server->sendMessageToAllClients(m);
+}
+
 void Game::saveLevel(std::string fileName) {
 	std::ofstream lvl;
 	lvl.open("levels/" + fileName + ".urf", std::ios::out | std::ios::binary | std::ios::trunc);
@@ -647,6 +743,34 @@ void Game::saveLevel(std::string fileName) {
 			for (int y = gridTopBound_; y < gridBottomBound_; y++) {
 				lvl.write((char*)(&(gridTiles_[x][y])), sizeOfTile);
 				lvl.write((char*)(&(gridItems_[x][y])), sizeOfItem);
+			}
+		}
+
+		// write the number of spawn groups to file
+		int numSpawnGroups = spawnGroupList_->getLength();
+		lvl.write((char*)&numSpawnGroups, sizeOfInt);
+		if (_debug >= DEBUG_NORMAL)
+			log("saving " + to_string(numSpawnGroups) + " spawn groups...\n");
+
+		// for each spawn group
+		Iterator<SpawnGroup*> groupIt = spawnGroupList_->getIterator();
+		while (groupIt.hasNext()) {
+			SpawnGroup* currGroup = groupIt.next();
+
+			// write the number of coords in this spawngroup
+			int numSpawnTiles = currGroup->getTiles()->getLength();
+			lvl.write((char*)&numSpawnTiles, sizeOfInt);
+
+			// write each tile coord in this spawngroup
+			Iterator<Coord*> coordIt = currGroup->getTiles()->getIterator();
+			while (coordIt.hasNext()) {
+				Coord* currCoord = coordIt.next();
+
+				// write these coords
+				int xCoord = currCoord->x;
+				lvl.write((char*)&xCoord, sizeOfInt);
+				int yCoord = currCoord->y;
+				lvl.write((char*)&yCoord, sizeOfInt);
 			}
 		}
 
@@ -806,6 +930,30 @@ void Game::loadLevel(std::string str) {
 			}
 		}
 
+		// load the number of spawn groups from file
+		int numSpawnGroups;
+		lvl.read((char*)&numSpawnGroups, sizeOfInt);
+		if (_debug >= DEBUG_NORMAL)
+			log("loading " + to_string(numSpawnGroups) + " spawn groups...\n");
+
+		// for each spawn group
+		for (int groupCounter = 0; groupCounter < numSpawnGroups; groupCounter++) {
+			SpawnGroup* currGroup = addSpawnGroup();
+
+			// read the number of coords in this spawngroup
+			int numSpawnTiles;
+			lvl.read((char*)&numSpawnTiles, sizeOfInt);
+
+			// read each tile coord in this spawngroup
+			for (int coordCounter = 0; coordCounter < numSpawnTiles; coordCounter++) {
+				// read the coord
+				Coord c;
+				lvl.read((char*)&c.x, sizeOfInt);
+				lvl.read((char*)&c.y, sizeOfInt);
+				currGroup->addTile(c);
+			}
+		}
+
 		// load (waste) debug delineation
 		int delineator = -1; // 0xFFFFFFFF - easy to see in hexdump
 		lvl.read((char*)&delineator, sizeOfInt);
@@ -869,10 +1017,10 @@ void Game::loadLevel(std::string str) {
 					// for each owned tile
 					for (int tileCount = 0; tileCount < numOwnedTiles; tileCount++) {
 						// load coords
-						int xCoord, yCoord;
-						lvl.read((char*)&xCoord, sizeOfInt);
-						lvl.read((char*)&yCoord, sizeOfInt);
-						currProg->addTail({ xCoord, yCoord });
+						Coord c;
+						lvl.read((char*)&c.x, sizeOfInt);
+						lvl.read((char*)&c.y, sizeOfInt);
+						currProg->addTail(c);
 					}
 				}
 			}

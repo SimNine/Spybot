@@ -24,7 +24,7 @@ GlowSpeck::GlowSpeck() {
 }
 
 GlowSpeck::~GlowSpeck() {
-
+	// dtor
 }
 
 void GlowSpeck::draw() {

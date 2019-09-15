@@ -10,37 +10,73 @@
 
 TitleOverlay::TitleOverlay()
 	: GUIContainer(NULL, ANCHOR_NORTHWEST, { 0, 0 }, { _screenWidth, _screenHeight }, _color_clear) {
-	int w;
-	int h;
 
-	SDL_QueryTexture(_title_company, NULL, NULL, &w, &h);
-	GUITexture* companyTexture = new GUITexture(this, ANCHOR_CENTER, { 0, 0 }, { w, h }, _title_company);
-	companyTexture->setTransparency(0);
-	this->addObject(companyTexture);
-	companyTexture->addEffect(new GUIEffectFade(500, 2500, 0, 255));
-	companyTexture->addEffect(new GUIEffectFade(3000, 2500, 255, 0));
-
-	SDL_QueryTexture(_title_title, NULL, NULL, &w, &h);
-	GUITexture* titleTexture = new GUITexture(this, ANCHOR_CENTER, { 0, -h / 2 }, { w, h }, _title_title);
-	titleTexture->setTransparency(0);
-	this->addObject(titleTexture);
-	titleTexture->addEffect(new GUIEffectFade(5500, 2500, 0, 255));
-	titleTexture->addEffect(new GUIEffectFade(8000, 2500, 255, 0));
-
-	SDL_QueryTexture(_title_subtitle, NULL, NULL, &w, &h);
-	GUITexture* subtitleTexture = new GUITexture(this, ANCHOR_CENTER, { 0, h / 2 + 10 }, { w, h }, _title_subtitle);
-	subtitleTexture->setTransparency(0);
-	this->addObject(subtitleTexture);
-	subtitleTexture->addEffect(new GUIEffectFade(6500, 2500, 0, 255));
-	subtitleTexture->addEffect(new GUIEffectFade(9000, 2500, 255, 0));
-
-	tickCount_ = 0;
-
-	timingCompany_ = 3000;
-	timingTitle_ = 8000;
-	timingSubtitle_ = 9000;
+	timingUrf_ = 3000;
+	timingGamelab_ = 8000;
+	timingLego_ = 13000;
+	timingTitle_ = 18000;
+	timingSubtitle_ = 19000;
 
 	spanTiming_ = 2500;
+
+	// first slide ("URF Productions presents")
+	GUITexture* companyTexture = new GUITexture(this, ANCHOR_CENTER, { 0, 0 }, _title_urfco);
+	companyTexture->setTransparency(0);
+	this->addObject(companyTexture);
+	companyTexture->addEffect(new GUIEffectFade(timingUrf_ - spanTiming_, spanTiming_, 0, 255));
+	companyTexture->addEffect(new GUIEffectFade(timingUrf_, spanTiming_, 255, 0));
+
+	GUITexture* companySubtitle = new GUITexture(this, ANCHOR_CENTER, { 0, 0 }, "PRESENTS", 40);
+	companySubtitle->setDisplacement({ 0, companyTexture->getDimensions().y / 2 + 20 });
+	companySubtitle->setTransparency(0);
+	this->addObject(companySubtitle);
+	companySubtitle->addEffect(new GUIEffectFade(timingUrf_ - spanTiming_, spanTiming_, 0, 255));
+	companySubtitle->addEffect(new GUIEffectFade(timingUrf_, spanTiming_, 255, 0));
+
+	// second slide ("Originally created by GAMELAB")
+	GUITexture* gamelabTexture = new GUITexture(this, ANCHOR_CENTER, { 0, 0 }, _title_gamelab);
+	gamelabTexture->setTransparency(0);
+	this->addObject(gamelabTexture);
+	gamelabTexture->addEffect(new GUIEffectFade(timingGamelab_ - spanTiming_, spanTiming_, 0, 255));
+	gamelabTexture->addEffect(new GUIEffectFade(timingGamelab_, spanTiming_, 255, 0));
+
+	GUITexture* gamelabSubtitle = new GUITexture(this, ANCHOR_CENTER, { 0, 0 }, "ORIGINALLY CREATED BY", 40);
+	gamelabSubtitle->setDisplacement({ 0, -gamelabTexture->getDimensions().y / 2 - 20 });
+	gamelabSubtitle->setTransparency(0);
+	this->addObject(gamelabSubtitle);
+	gamelabSubtitle->addEffect(new GUIEffectFade(timingGamelab_ - spanTiming_, spanTiming_, 0, 255));
+	gamelabSubtitle->addEffect(new GUIEffectFade(timingGamelab_, spanTiming_, 255, 0));
+
+	// third slide ("for LEGO")
+	GUITexture* legoTexture = new GUITexture(this, ANCHOR_CENTER, { 0, 0 }, _title_lego);
+	legoTexture->setTransparency(0);
+	this->addObject(legoTexture);
+	legoTexture->addEffect(new GUIEffectFade(timingLego_ - spanTiming_, spanTiming_, 0, 255));
+	legoTexture->addEffect(new GUIEffectFade(timingLego_, spanTiming_, 255, 0));
+
+	GUITexture* legoSubtitle = new GUITexture(this, ANCHOR_CENTER, { 0, 0 }, "FOR", 40);
+	legoSubtitle->setDisplacement({ 0, -legoTexture->getDimensions().y / 2 - 20 });
+	legoSubtitle->setTransparency(0);
+	this->addObject(legoSubtitle);
+	legoSubtitle->addEffect(new GUIEffectFade(timingLego_ - spanTiming_, spanTiming_, 0, 255));
+	legoSubtitle->addEffect(new GUIEffectFade(timingLego_, spanTiming_, 255, 0));
+
+	// third slide ("SPYBOT: the Nightfall Incident")
+	GUITexture* titleTexture = new GUITexture(this, ANCHOR_CENTER, { 0, 0 }, _title_title);
+	titleTexture->setDisplacement({ 0, -titleTexture->getDimensions().y / 2 });
+	titleTexture->setTransparency(0);
+	this->addObject(titleTexture);
+	titleTexture->addEffect(new GUIEffectFade(timingTitle_ - spanTiming_, spanTiming_, 0, 255));
+	titleTexture->addEffect(new GUIEffectFade(timingTitle_, spanTiming_, 255, 0));
+
+	GUITexture* subtitleTexture = new GUITexture(this, ANCHOR_CENTER, { 0, 0 }, _title_sub);
+	subtitleTexture->setDisplacement({0, subtitleTexture->getDimensions().y / 2 + 10});
+	subtitleTexture->setTransparency(0);
+	this->addObject(subtitleTexture);
+	subtitleTexture->addEffect(new GUIEffectFade(timingSubtitle_ - spanTiming_, spanTiming_, 0, 255));
+	subtitleTexture->addEffect(new GUIEffectFade(timingSubtitle_, spanTiming_, 255, 0));
+
+	tickCount_ = 0;
 }
 
 TitleOverlay::~TitleOverlay() {
@@ -66,17 +102,8 @@ void TitleOverlay::tick(int ms) {
 }
 
 bool TitleOverlay::mouseDown() {
-	advance();
+	endTitles();
 	return true;
-}
-
-void TitleOverlay::advance() {
-	if (tickCount_ < timingCompany_)
-		tickCount_ = timingCompany_;
-	else if (tickCount_ < timingTitle_)
-		tickCount_ = timingTitle_;
-	else
-		endTitles();
 }
 
 void TitleOverlay::endTitles() {
@@ -84,8 +111,6 @@ void TitleOverlay::endTitles() {
 	_overlayStack->push(_backgroundOverlay);
 	_overlayStack->push(_mainOverlay);
 
-	SDL_SetTextureAlphaMod(_title_subtitle, 255);
-	SDL_SetTextureAlphaMod(_title_title, 255);
 	SDL_ShowCursor(SDL_ENABLE);
 	Mix_PlayMusic(_music_title, -1);
 }

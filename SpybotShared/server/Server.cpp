@@ -13,21 +13,33 @@
 #include "Team.h"
 #include "User.h"
 #include "Pipe.h"
+#include "SpawnGroup.h"
 #include "CommandProcessor.h"
+#include "AIBasic.h"
 
-Server::Server(bool isLocal, std::string savePath) {
+Server::Server(bool isLocal, CAMPAIGN campaign) {
 	game_ = NULL;
 	ownerClient_ = NULL;
 
-	isLocal_ = isLocal;
+	if (campaign == CAMPAIGN_CLASSIC)
+		config_.campaign_ = "levels/classic";
+	else if (campaign == CAMPAIGN_NIGHTFALL)
+		config_.campaign_ = "levels/nightfall";
+	else if (campaign == CAMPAIGN_CUSTOM)
+		config_.campaign_ = "levels/freeform";
+	else if (campaign == CAMPAIGN_MULTIPLAYER)
+		config_.campaign_ = "levels/multi";
 
-	savePath_ = savePath;
-	currentLevel_ = 0;
+	isLocal_ = isLocal;
 
 	clients_ = new LinkedList<Pipe*>();
 	msgQueue_ = new LinkedList<Message*>();
 	users_ = new LinkedList<User*>();
 	loadUsers();
+
+	std::thread pingThread(&Server::pingSender, this);
+	pingThread.detach();
+	log("SERVER: pinger set up and detached\n");
 }
 
 Server::~Server() {
@@ -61,6 +73,15 @@ void Server::sendMessageToAllClients(Message message) {
 		Pipe* curr = it.next();
 		if (curr->getUser() != "") // dont send messages to clients that aren't logged in
 			curr->sendData(message);
+	}
+}
+
+void Server::sendMessageToNonLoggedInClients(Message msg) {
+	Iterator<Pipe*> it = clients_->getIterator();
+	while (it.hasNext()) {
+		Pipe* curr = it.next();
+		if (curr->getUser() == "") // only send messages to clients that aren't logged in
+			curr->sendData(msg);
 	}
 }
 
@@ -100,6 +121,11 @@ void Server::recieveMessage(Message message) {
 
 // attempts to log a Client in
 void Server::tryLogin(Pipe* client, Message m) {
+	if (m.type != MSGTYPE_CREATEUSER && m.type != MSGTYPE_LOGIN) {
+		log("SERVER ERR: first message recieved from client " + to_string(m.clientID) + " was not a CREATEUSER or LOGIN");
+		return;
+	}
+
 	char* tokens[1024];
 	int numTokens = tokenize(tokens, (std::string(m.text) + "\n").c_str(), '\n');
 	std::string username = std::string(tokens[0]);
@@ -227,7 +253,6 @@ void Server::login(Pipe* client, User* user) {
 	m.type = MSGTYPE_INFO;
 	m.infoType = MSGINFOTYPE_CREDITS;
 	m.num = getUserByName(client->getUser())->numCredits_;
-	printf("credits: %i\n", m.num);
 	client->sendData(m);
 
 	// send the issuing client its program inventory contents
@@ -239,7 +264,7 @@ void Server::login(Pipe* client, User* user) {
 	}
 
 	// send the issuing client its progress
-	if (savePath_ == "levels/classic") {
+	if (config_.campaign_ == "levels/classic") {
 		for (int i = 0; i < NUM_LEVELS_CLASSIC; i++) {
 			if (user->campaignClassic_[i]) {
 				m.type = MSGTYPE_LEVELUNLOCK;
@@ -247,7 +272,7 @@ void Server::login(Pipe* client, User* user) {
 				client->sendData(m);
 			}
 		}
-	} else if (savePath_ == "levels/nightfall") {
+	} else if (config_.campaign_ == "levels/nightfall") {
 		for (int i = 0; i < NUM_LEVELS_NIGHTFALL; i++) {
 			if (user->campaignNightfall_[i]) {
 				m.type = MSGTYPE_LEVELUNLOCK;
@@ -259,18 +284,20 @@ void Server::login(Pipe* client, User* user) {
 
 	// send the issuing client the current gamemode
 	m.type = MSGTYPE_GAMECONFIG;
-	if (gameMode_ == GAMEMODE_COOP)
+	if (config_.gameMode_ == GAMEMODE_COOP)
 		m.gameConfigType = MSGGAMECONFIGTYPE_COOP;
-	else if (gameMode_ == GAMEMODE_FFA)
+	else if (config_.gameMode_ == GAMEMODE_FFA)
 		m.gameConfigType = MSGGAMECONFIGTYPE_FFA;
-	else if (gameMode_ == GAMEMODE_TEAMDM)
+	else if (config_.gameMode_ == GAMEMODE_TEAMDM)
 		m.gameConfigType = MSGGAMECONFIGTYPE_TEAMDM;
 	client->sendData(m);
 }
 
 void Server::processMessage(Message* msg) {
-	log("SERVER RECIEVED MSG: ");
-	_printMessage(*msg);
+	if (msg->type != MSGTYPE_PING) {
+		log("SERVER RECIEVED MSG: ");
+		_printMessage(*msg);
+	}
 
 	// get the client of the issuer
 	Pipe* issuingClient = getClientByID(msg->clientID);
@@ -342,57 +369,128 @@ void Server::processMessage(Message* msg) {
 			}
 		}
 		break;
-	case MSGTYPE_LOAD:
+	case MSGTYPE_STARTGAME:
 		if (issuingClient == ownerClient_ || issuingClient == NULL) {
 			if (game_ != NULL)
 				delete game_;
 
-			currentLevel_ = msg->num;
 			sendMessageToAllClients(*msg);
-			game_ = new Game(savePath_ + "/" + to_string(msg->num) + ".urf");
+			game_ = new Game(config_.campaign_ + "/" + config_.level_ + ".urf");
 
-			Iterator<Pipe*> it = clients_->getIterator();
-			while (it.hasNext()) {
-				it.next()->setPlayer(-1);
+			// generate teams and AI players based on gamemode
+			if (config_.gameMode_ == GAMEMODE_CAMPAIGN) {
+				// assign the ONLY player to the default human team, create one if it doesn't exist
+				Team* humanTeam = game_->getDefaultTeamHuman();
+				if (humanTeam == NULL) {
+					humanTeam = game_->addTeam();
+					humanTeam->setDefaultHuman(true);
+				}
+
+				// create the new player
+				Player* p = game_->addPlayer(humanTeam->getTeamID());
+				issuingClient->setPlayer(p->getPlayerID());
+			} else if (config_.gameMode_ == GAMEMODE_FFA) {
+				// create a player for each client and assign it a spawn group
+				Iterator<Pipe*> it = clients_->getIterator();
+				while (it.hasNext()) {
+					Team* t = game_->addTeam();
+					Player* p = game_->addPlayer(t->getTeamID());
+					it.next()->setPlayer(p->getPlayerID());
+					game_->getUnassignedSpawnGroup()->setPlayerID(p->getPlayerID());
+				}
+
+				// create AI players and assign them until all out of spawn groups
+				while (true) {
+					SpawnGroup* g = game_->getUnassignedSpawnGroup();
+					if (g == NULL)
+						break;
+					else {
+						Team* t = game_->addTeam();
+						Player* p = game_->addPlayer(t->getTeamID());
+						p->setMind(new AIBasic(p));
+						g->setPlayerID(p->getPlayerID());
+					}
+				}
+			} else if (config_.gameMode_ == GAMEMODE_TEAMDM) {
+				// make two teams
+				Team* t1 = game_->addTeam();
+				Team* t2 = game_->addTeam();
+
+				// assign half the clients to each
+				for (int i = 0; i < clients_->getLength(); i++) {
+					Player* p = NULL;
+					if (i % 2 == 0) {
+						p = game_->addPlayer(t1->getTeamID());
+					} else {
+						p = game_->addPlayer(t2->getTeamID());
+					}
+					clients_->getObjectAt(i)->setPlayer(p->getPlayerID());
+					game_->getUnassignedSpawnGroup()->setPlayerID(p->getPlayerID());
+				}
+
+				// fill remaining spawngroups with AIs, half on each team
+				while (true) {
+					SpawnGroup* g = game_->getUnassignedSpawnGroup();
+					if (g == NULL)
+						break;
+					else {
+						Player* p = NULL;
+						if (t1->getAllPlayers()->getLength() > t2->getAllPlayers()->getLength()) {
+							p = game_->addPlayer(t2->getTeamID());
+						} else {
+							p = game_->addPlayer(t1->getTeamID());
+						}
+						p->setMind(new AIBasic(p));
+						g->setPlayerID(p->getPlayerID());
+					}
+				}
+			} else if (config_.gameMode_ == GAMEMODE_COOP) {
+				// create a human team and assign each client a player on it
+				Team* humanTeam = game_->addTeam();
+				Iterator<Pipe*> it = clients_->getIterator();
+				while (it.hasNext()) {
+					Player* p = game_->addPlayer(humanTeam->getTeamID());
+					it.next()->setPlayer(p->getPlayerID());
+					game_->getUnassignedSpawnGroup()->setPlayerID(p->getPlayerID());
+				}
+
+				// create an AI team and assign each remaining spawngroup a player from it
+				Team* aiTeam = game_->addTeam();
+				while (true) {
+					SpawnGroup* g = game_->getUnassignedSpawnGroup();
+					if (g == NULL)
+						break;
+					else {
+						Player* p = game_->addPlayer(aiTeam->getTeamID());
+						p->setMind(new AIBasic(p));
+						g->setPlayerID(p->getPlayerID());
+					}
+				}
+			}
+
+			// assign each spawngroup controlled by an AI player programs
+			Iterator<SpawnGroup*> itSpawngroups = game_->getSpawnGroups()->getIterator();
+			while (itSpawngroups.hasNext()) {
+				SpawnGroup* currGroup = itSpawngroups.next();
+				Player* currPlayer = game_->getPlayerByID(currGroup->getPlayerID());
+				if (currPlayer != NULL && currPlayer->getMind() != NULL) {
+					Iterator<Coord*> itTiles = currGroup->getTiles()->getIterator();
+					while (itTiles.hasNext()) {
+						Coord* currTile = itTiles.next();
+						Program* currProg = game_->addProgram(PROGRAM_DOG, currPlayer->getPlayerID(), currPlayer->getTeam());
+						currProg->addTail(*currTile);
+					}
+				}
 			}
 		} else {
 			Message err;
 			err.type = MSGTYPE_ERROR;
-			strncpy_s(err.text, DEFAULT_MSG_TEXTSIZE, "ERR: cannot load a level if not the server owner", DEFAULT_MSG_TEXTSIZE);
+			strncpy_s(err.text, DEFAULT_MSG_TEXTSIZE, "ERR: only the owner can start the game", DEFAULT_MSG_TEXTSIZE);
 			issuingClient->sendData(err);
 		}
 		break;
 	case MSGTYPE_RESYNCGAME:
 		resyncClient(msg->clientID);
-		break;
-	case MSGTYPE_JOIN:
-		if (game_ == NULL) {
-			log("SERVER ERR: client " + to_string(msg->clientID) + " tried to join a game that doesn't exist\n");
-			return;
-		} else if (issuingClient->getPlayer() == -1) {
-			log("SERVER: client " + to_string(msg->clientID) + " has joined the current game\n");
-
-			// get the default human team, creating one if it doesn't exist
-			Team* humanTeam = game_->getDefaultTeamHuman();
-			if (humanTeam == NULL) {
-				humanTeam = game_->addTeam();
-				humanTeam->setDefaultHuman(true);
-			}
-
-			// create the new player
-			Player* p = game_->addPlayer(humanTeam->getTeamID());
-			issuingClient->setPlayer(p->getPlayerID());
-
-			Message m;
-			m.type = MSGTYPE_JOIN;
-			m.clientID = msg->clientID;
-			m.teamID = humanTeam->getTeamID();
-			m.playerID = p->getPlayerID();
-			sendMessageToAllClients(m);
-		} else {
-			log("SERVER ERR: client " + to_string(msg->clientID) + " trying to join an already-joined game\n");
-			return;
-		}
 		break;
 	case MSGTYPE_SELECT:
 	{
@@ -416,6 +514,14 @@ void Server::processMessage(Message* msg) {
 		if (msg->infoType == MSGINFOTYPE_GAMESTATUS) {
 			if (issuingClient == ownerClient_) {
 				game_->setStatus(msg->statusType);
+
+				if (msg->statusType == GAMESTATUS_PLAYING) {
+					// if the current player has a mind, process its turns
+					if (game_->getCurrTurnPlayer()->getMind() != NULL) {
+						std::thread aiTurn(&Server::processAITurn, this, game_->getCurrTurnPlayer());
+						aiTurn.detach();
+					}
+				}
 			} else {
 				Message err;
 				err.type = MSGTYPE_ERROR;
@@ -459,12 +565,27 @@ void Server::processMessage(Message* msg) {
 			break;
 		}
 
+		// gamemodes
 		if (msg->gameConfigType == MSGGAMECONFIGTYPE_COOP)
-			gameMode_ = GAMEMODE_COOP;
+			config_.gameMode_ = GAMEMODE_COOP;
 		else if (msg->gameConfigType == MSGGAMECONFIGTYPE_FFA)
-			gameMode_ = GAMEMODE_FFA;
+			config_.gameMode_ = GAMEMODE_FFA;
 		else if (msg->gameConfigType == MSGGAMECONFIGTYPE_TEAMDM)
-			gameMode_ = GAMEMODE_TEAMDM;
+			config_.gameMode_ = GAMEMODE_TEAMDM;
+
+		// standard levels
+		else if (msg->gameConfigType == MSGGAMECONFIGTYPE_LEVEL_ARRAY)
+			config_.level_ = "array";
+		else if (msg->gameConfigType == MSGGAMECONFIGTYPE_LEVEL_CROSS)
+			config_.level_ = "cross";
+		else if (msg->gameConfigType == MSGGAMECONFIGTYPE_LEVEL_HASH)
+			config_.level_ = "hash";
+		else if (msg->gameConfigType == MSGGAMECONFIGTYPE_LEVEL_SHOWDOWN)
+			config_.level_ = "showdown";
+
+		// numbered levels
+		else if (msg->gameConfigType == MSGGAMECONFIGTYPE_LEVEL_NUMBERED)
+			config_.level_ = to_string(msg->num);
 
 		sendMessageToAllClients(*msg);
 		break;
@@ -499,6 +620,18 @@ void Server::processMessage(Message* msg) {
 			Message err;
 			err.type = MSGTYPE_ERROR;
 			strncpy_s(err.text, DEFAULT_MSG_TEXTSIZE, "ERR: you may only place a program on a spawn tile", DEFAULT_MSG_TEXTSIZE);
+			issuingClient->sendData(err);
+			return;
+		}
+
+		// check for being part of spawn group
+		if (game_->getSpawnGroups()->getLength() > 0 &&
+			game_->getSpawnGroupAt(msg->pos) != NULL &&
+			game_->getSpawnGroupAt(msg->pos)->getPlayerID() != msg->playerID) {
+			log("SERVER ERR: can only place program on spawntile belonging to player's spawngroup\n");
+			Message err;
+			err.type = MSGTYPE_ERROR;
+			strncpy_s(err.text, DEFAULT_MSG_TEXTSIZE, "ERR: this spawn tile is not in your spawn group", DEFAULT_MSG_TEXTSIZE);
 			issuingClient->sendData(err);
 			return;
 		}
@@ -568,12 +701,14 @@ void Server::processMessage(Message* msg) {
 	}
 }
 
-void Server::connect(SOCKET client) {
+Pipe* Server::connect(SOCKET client) {
 	Pipe* newPipe = new Pipe(client);
 	clients_->addFirst(newPipe);
 
 	std::thread newThread(&Pipe::listenData, newPipe);
 	newThread.detach();
+
+	return newPipe;
 }
 
 void Server::disconnect(Pipe* client) {
@@ -718,7 +853,7 @@ void Server::processAITurn(Player* p) {
 
 void Server::loadUsers() {
 	std::ifstream userStream;
-	std::string filePath = savePath_ + "/users.dat";
+	std::string filePath = config_.campaign_ + "/users.dat";
 	userStream.open(filePath, std::ios::in | std::ios::binary);
 
 	if (!userStream.is_open()) {
@@ -775,7 +910,7 @@ void Server::loadUsers() {
 
 void Server::saveUsers() {
 	std::ofstream userStream;
-	std::string filePath = savePath_ + "/users.dat";
+	std::string filePath = config_.campaign_ + "/users.dat";
 	userStream.open(filePath, std::ios::out | std::ios::binary | std::ios::trunc);
 
 	if (!userStream.is_open()) {
@@ -848,10 +983,21 @@ bool Server::isLocal() {
 	return isLocal_;
 }
 
-int Server::getCurrentLevel() {
-	return currentLevel_;
+std::string Server::getCurrentLevel() {
+	return config_.level_;
 }
 
 std::string Server::getSavePath() {
-	return savePath_;
+	return config_.campaign_;
+}
+
+void Server::pingSender() {
+	while (true) {
+		Message m;
+		m.type = MSGTYPE_PING;
+		sendMessageToAllClients(m);
+		sendMessageToNonLoggedInClients(m);
+		Sleep(1000);
+	}
+	log("SERVER: pinger exited\n");
 }

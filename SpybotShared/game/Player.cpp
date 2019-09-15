@@ -24,11 +24,12 @@ Player::Player(Game* g, int teamID) {
 }
 
 Player::~Player() {
-	while (progsOwned_->getLength() > 0) {
-		Program* p = progsOwned_->poll();
-		delete p;
-	}
+	while (progsOwned_->getLength() > 0)
+		delete progsOwned_->poll();
 	delete progsOwned_;
+
+	if (brain_ != NULL)
+		delete brain_;
 }
 
 void Player::setSelectedProgram(Program* p) {
@@ -597,4 +598,11 @@ AICore* Player::getMind() {
 
 void Player::setMind(AICore* mind) {
 	brain_ = mind;
+
+	Message m;
+	m.type = MSGTYPE_INFO;
+	m.infoType = MSGINFOTYPE_PLAYERSETMIND;
+	m.playerID = playerID_;
+	m.num = (mind == NULL ? 0 : 1);
+	_server->sendMessageToAllClients(m);
 }

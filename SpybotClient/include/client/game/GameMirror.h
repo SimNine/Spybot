@@ -7,6 +7,7 @@ class PlayerMirror;
 class ProgramMirror;
 class ProgramActionMirror;
 class TeamMirror;
+class SpawnGroupMirror;
 
 class GameMirror {
 public:
@@ -34,6 +35,9 @@ public:
 	void setProgramAt(Coord, ProgramMirror*);
 	ProgramMirror* getProgramAt(Coord);
 
+	SpawnGroupMirror* getSpawnGroupAt(Coord pos);
+	SpawnGroupMirror* getSpawnGroupByID(int groupID);
+
 	bool isOOB(Coord);
 	bool isTiled(Coord);
 
@@ -45,13 +49,18 @@ public:
 	TeamMirror* addTeam(int teamID);
 	PlayerMirror* addPlayer(int playerID, int teamID);
 	ProgramMirror* addProgram(PROGRAM type, int programID, int playerID, int teamID);
+	SpawnGroupMirror* addSpawnGroup(int groupID);
 	void removeTeam(int teamID);
 	void removePlayer(int playerID, int teamID);
 	void removeProgram(int programID, int playerID, int teamID);
+	void removeSpawnGroup(int groupID);
 protected:
 private:
 	// players
 	LinkedList<TeamMirror*>* teamList_;
+
+	// spawn groups
+	LinkedList<SpawnGroupMirror*>* spawnGroupList_;
 
 	// effective grid bounds
 	int gridLeftBound_, gridRightBound_, gridTopBound_, gridBottomBound_;

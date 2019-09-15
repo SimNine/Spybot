@@ -25,9 +25,9 @@
 
 MainOverlay::MainOverlay()
 	: GUIContainer(NULL, ANCHOR_NORTHWEST, { 0, 0 }, { _screenWidth, _screenHeight }, _color_clear) {
-	GUITexture* main_title = new GUITexture(this, ANCHOR_NORTHWEST, { 20, 20 }, { 499, 42 }, _title_title);
+	GUITexture* main_title = new GUITexture(this, ANCHOR_NORTHWEST, { 20, 20 }, _title_title);
 	addObject(main_title);
-	GUITexture* main_subtitle = new GUITexture(this, ANCHOR_NORTHWEST, { 20, 82 }, { 390, 10 }, _title_subtitle, this);
+	GUITexture* main_subtitle = new GUITexture(this, ANCHOR_NORTHWEST, { 20, 82 }, _title_sub);
 	addObject(main_subtitle);
 
 	/*
@@ -84,7 +84,8 @@ MainOverlay::MainOverlay()
 	classicContainer->addObject(classicCampaignIcon);
 	GUIButton* classicCampaignButton = new GUIButton(classicContainer, ANCHOR_SOUTH, { 0, -10 }, "CLASSIC", 50,
 		[] () {
-		_connectionManager->connectToLocalServer("levels/classic");
+		_connectionManager->connectToLocalServer(CAMPAIGN_CLASSIC);
+
 		_mapOverlay->switchMap(MAPPRESET_CLASSIC);
 		_mainOverlay->hideCampaigns(1000);
 		_mainOverlay->showLocalLoginContainer(1000);
@@ -102,7 +103,8 @@ MainOverlay::MainOverlay()
 	nightfallContainer->addObject(nightfallCampaignIcon);
 	GUIButton* nightfallCampaignButton = new GUIButton(nightfallContainer, ANCHOR_SOUTH, { 0, -10 }, "NIGHTFALL", 50,
 		[] () {
-		_connectionManager->connectToLocalServer("levels/nightfall");
+		_connectionManager->connectToLocalServer(CAMPAIGN_NIGHTFALL);
+
 		_mapOverlay->switchMap(MAPPRESET_NIGHTFALL);
 		_mainOverlay->hideCampaigns(1000);
 		_mainOverlay->showLocalLoginContainer(1000);
@@ -397,9 +399,9 @@ void MainOverlay::hideAll(int fadeDuration) {
 }
 
 void MainOverlay::keyPress(char c) {
-	if (IPEntryBox_->isVisible())
+	if (IPEntryBox_->isClickable())
 		IPEntryBox_->addChar(c);
-	if (loginEntryContainer_->isVisible()) {
+	if (loginEntryContainer_->isClickable()) {
 		if (c == 13) { // return
 			loginSubmitButton_->mouseDown();
 			loginSubmitButton_->mouseUp();

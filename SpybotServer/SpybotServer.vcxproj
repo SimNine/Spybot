@@ -1,14 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
-    <ProjectConfiguration Include="Debug Client Only|Win32">
-      <Configuration>Debug Client Only</Configuration>
-      <Platform>Win32</Platform>
-    </ProjectConfiguration>
-    <ProjectConfiguration Include="Debug Client Only|x64">
-      <Configuration>Debug Client Only</Configuration>
-      <Platform>x64</Platform>
-    </ProjectConfiguration>
     <ProjectConfiguration Include="Debug|Win32">
       <Configuration>Debug</Configuration>
       <Platform>Win32</Platform>
@@ -59,12 +51,6 @@
     <PlatformToolset>v141</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
-  </PropertyGroup>
-  <PropertyGroup Label="Configuration" Condition="'$(Configuration)|$(Platform)'=='Debug Client Only|Win32'">
-    <PlatformToolset>v141</PlatformToolset>
-  </PropertyGroup>
-  <PropertyGroup Label="Configuration" Condition="'$(Configuration)|$(Platform)'=='Debug Client Only|x64'">
-    <PlatformToolset>v141</PlatformToolset>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
@@ -172,8 +158,10 @@
     <ClInclude Include="..\SpybotShared\game\Player.h" />
     <ClInclude Include="..\SpybotShared\game\Program.h" />
     <ClInclude Include="..\SpybotShared\game\ProgramAction.h" />
+    <ClInclude Include="..\SpybotShared\game\SpawnGroup.h" />
     <ClInclude Include="..\SpybotShared\game\Team.h" />
     <ClInclude Include="..\SpybotShared\server\CommandProcessor.h" />
+    <ClInclude Include="..\SpybotShared\server\GameConfig.h" />
     <ClInclude Include="..\SpybotShared\server\Message.h" />
     <ClInclude Include="..\SpybotShared\server\Server.h" />
     <ClInclude Include="..\SpybotShared\server\User.h" />
@@ -199,8 +187,10 @@
     <ClCompile Include="..\SpybotShared\game\Player.cpp" />
     <ClCompile Include="..\SpybotShared\game\Program.cpp" />
     <ClCompile Include="..\SpybotShared\game\ProgramAction.cpp" />
+    <ClCompile Include="..\SpybotShared\game\SpawnGroup.cpp" />
     <ClCompile Include="..\SpybotShared\game\Team.cpp" />
     <ClCompile Include="..\SpybotShared\server\CommandProcessor.cpp" />
+    <ClCompile Include="..\SpybotShared\server\GameConfig.cpp" />
     <ClCompile Include="..\SpybotShared\server\Message.cpp" />
     <ClCompile Include="..\SpybotShared\server\Server.cpp" />
     <ClCompile Include="..\SpybotShared\server\User.cpp" />

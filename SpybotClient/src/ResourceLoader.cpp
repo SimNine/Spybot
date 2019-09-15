@@ -11,15 +11,15 @@ SDL_Texture* loadTexture(std::string path) {
 	//Load image at specified path
 	SDL_Surface* loadedSurface = IMG_Load(path.c_str());
 	if (loadedSurface == NULL) {
-		log("Unable to load image " + path + "! SDL_image Error: " + std::string(IMG_GetError()) + "\n");
+		log("Unable to load image \"" + path + "\"! SDL_image Error: " + std::string(IMG_GetError()) + "\n");
 	} else {
 		//Create texture from surface pixels
 		newTexture = SDL_CreateTextureFromSurface(_renderer, loadedSurface);
 		if (newTexture == NULL) {
-			log("Unable to create texture from " + path + "! SDL Error: " + std::string(SDL_GetError()) + "\n");
+			log("Unable to create texture from \"" + path + "\"! SDL Error: " + std::string(SDL_GetError()) + "\n");
 		}
 
-		//Get rid of old loaded surface
+		// Get rid of old loaded surface
 		SDL_FreeSurface(loadedSurface);
 	}
 

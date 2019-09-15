@@ -27,6 +27,9 @@ public:
 	ProgramMirror* getSelectedProgram();
 	bool canSelectedProgramMoveTo(Coord);
 
+	bool getAI();
+	void setAI(bool);
+
 	int getSelectedProgramDist(Coord);
 	int getSelectedProgramDistAll(Coord);
 
@@ -50,8 +53,9 @@ private:
 	ProgramActionMirror* selectedAction_;
 	LinkedList<ProgramMirror*>* progsOwned_;
 
-	// helper methods for AI subclasses
 	void calculateProgramDist(ProgramMirror*);
+
+	bool isAI_;
 
 	SDL_Color color_;
 

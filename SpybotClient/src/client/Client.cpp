@@ -23,6 +23,7 @@
 #include "ProgramMirror.h"
 #include "TeamMirror.h"
 #include "AnimationTileFade.h"
+#include "SpawnGroupMirror.h"
 
 Client::Client() {
 	game_ = NULL;
@@ -43,34 +44,37 @@ void Client::processAllMessages() {
 }
 
 void Client::processMessage(Message* msg) {
-	log("CLIENT RECIEVED MSG: ");
-	_printMessage(*msg);
+	if (msg->type != MSGTYPE_PING) {
+		log("CLIENT RECIEVED MSG: ");
+		_printMessage(*msg);
+	}
 
 	switch (msg->type) {
-	case MSGTYPE_LOAD:
+	case MSGTYPE_STARTGAME:
 	{
 		if (msg->clientID != myClientID_)
-			_notifyOverlay->addNotification("Client " + to_string(msg->clientID) + " has loaded level " + to_string(msg->num));
+			_notifyOverlay->addNotification("Client " + to_string(msg->clientID) + " has started the game");
 
 		// reset the game
 		player_ = NULL;
 		delete game_;
 		game_ = NULL;
 		game_ = new GameMirror();
-		_gameOverlay->resetScreen();
+		_gameOverlay->centerScreen();
 
+		// reset all clientmirrors' players
 		Iterator<ClientMirror*> clientIt = _connectionManager->getClientList()->getIterator();
 		while (clientIt.hasNext()) {
 			clientIt.next()->player_ = NULL;
 		}
 
-		// tell the server to let this client join the game
-		Message m;
-		m.type = MSGTYPE_JOIN;
-		_connectionManager->sendMessage(m);
-
+		// try unlocking achievement
 		if (_server != NULL && !_progressAchievements[ACHIEVEMENT_FIRSTATTEMPTEDCYBERCRIME])
 			unlockAchievement(ACHIEVEMENT_FIRSTATTEMPTEDCYBERCRIME);
+
+		// switch to the game overlay
+		_overlayStack->removeAll();
+		_overlayStack->addFirst(_gameOverlay);
 	}
 	break;
 	case MSGTYPE_SOUND:
@@ -114,12 +118,22 @@ void Client::processMessage(Message* msg) {
 			game_->addPlayer(msg->playerID, msg->teamID);
 		} else if (msg->infoType == MSGINFOTYPE_PROGRAM) {
 			game_->addProgram(msg->progType, msg->programID, msg->playerID, msg->teamID);
+		} else if (msg->infoType == MSGINFOTYPE_SPAWNGROUP) {
+			game_->addSpawnGroup(msg->num);
 		} else if (msg->infoType == MSGINFOTYPE_TEAMDELETE) {
 			game_->removeTeam(msg->teamID);
 		} else if (msg->infoType == MSGINFOTYPE_PLAYERDELETE) {
 			game_->removePlayer(msg->playerID, msg->teamID);
 		} else if (msg->infoType == MSGINFOTYPE_PROGRAMDELETE) {
 			game_->removeProgram(msg->programID, msg->playerID, msg->teamID);
+		} else if (msg->infoType == MSGINFOTYPE_SPAWNGROUPDELETE) {
+			game_->removeSpawnGroup(msg->num);
+		} else if (msg->infoType == MSGINFOTYPE_PLAYERSETMIND) {
+			PlayerMirror* p = game_->getPlayerByID(msg->playerID);
+			if (msg->num == 0)
+				p->setAI(false);
+			else if (msg->num == 1)
+				p->setAI(true);
 		} else if (msg->infoType == MSGINFOTYPE_PROGRAMCHANGEMAXACTIONS) {
 			game_->getPlayerByID(msg->playerID)->getProgramByID(msg->programID)->setMaxActions(msg->num);
 		} else if (msg->infoType == MSGINFOTYPE_PROGRAMCHANGEMAXMOVES) {
@@ -139,6 +153,12 @@ void Client::processMessage(Message* msg) {
 		} else if (msg->infoType == MSGINFOTYPE_PROGRAMREMOVETILE) {
 			ProgramMirror* pMirr = game_->getTeamByID(msg->teamID)->getPlayerByID(msg->playerID)->getProgramByID(msg->programID);
 			pMirr->removeTile(msg->pos);
+		} else if (msg->infoType == MSGINFOTYPE_SPAWNGROUPADDTILE) {
+			game_->getSpawnGroupByID(msg->num)->addTile(msg->pos);
+		} else if (msg->infoType == MSGINFOTYPE_SPAWNGROUPREMOVETILE) {
+			game_->getSpawnGroupByID(msg->num)->removeTile(msg->pos);
+		} else if (msg->infoType == MSGINFOTYPE_SPAWNGROUPSETPLAYER) {
+			game_->getSpawnGroupByID(msg->num)->setPlayerID(msg->playerID);
 		} else if (msg->infoType == MSGINFOTYPE_ACTION) {
 			// TODO: have this support creating an arbitrary action
 		} else if (msg->infoType == MSGINFOTYPE_ITEM) {
@@ -190,7 +210,6 @@ void Client::processMessage(Message* msg) {
 		} else if (msg->infoType == MSGINFOTYPE_CREDITS) {
 			_client->getMyClientMirror()->credits_ = msg->num;
 		}
-		_gameOverlay->centerScreen();
 		break;
 	case MSGTYPE_SELECT:
 		if (msg->selectType == MSGSELECTTYPE_TILE) {
@@ -206,35 +225,15 @@ void Client::processMessage(Message* msg) {
 			pl->setSelectedAction(pr->getActions()->getObjectAt(msg->actionID));
 		}
 		break;
-	case MSGTYPE_JOIN:
+	case MSGTYPE_SETCLIENTPLAYER:
 	{
-		// add notification
-		_notifyOverlay->addNotification("Player " + to_string(msg->playerID) + " has connected to the game");
-
-		// get or create team
-		TeamMirror* t = game_->getTeamByID(msg->teamID);
-		if (t == NULL)
-			game_->addTeam(msg->teamID);
-
-		// get or create player
-		PlayerMirror* p = game_->getPlayerByID(msg->playerID);
-		if (p == NULL)
-			game_->addPlayer(msg->playerID, msg->teamID);
-
 		// if this is my client's player
 		if (msg->clientID == myClientID_)
-			player_ = p;
+			player_ = game_->getPlayerByID(msg->playerID);
 
 		// set this clientMirror's player
-		for (int i = 0; i < _connectionManager->getClientList()->getLength(); i++) {
-			ClientMirror* cm = _connectionManager->getClientList()->getObjectAt(i);
-			if (cm->clientID_ == msg->clientID)
-				cm->player_ = p;
-		}
-
-		// switch to the game overlay
-		_overlayStack->removeAll();
-		_overlayStack->addFirst(_gameOverlay);
+		ClientMirror* mirr = _connectionManager->getClientMirrorByClientID(msg->clientID);
+		mirr->player_ = game_->getPlayerByID(msg->playerID);
 	}
 	break;
 	case MSGTYPE_CONNECT:
@@ -399,6 +398,9 @@ void Client::processMessage(Message* msg) {
 		break;
 	case MSGTYPE_LEVELUNLOCK:
 		_mapOverlay->winNode(msg->num);
+		break;
+	case MSGTYPE_PING:
+		_connectionManager->resetPingCount();
 		break;
 	}
 }

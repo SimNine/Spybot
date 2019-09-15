@@ -515,21 +515,16 @@ Program::Program(PROGRAM type) {
 }
 
 Program::~Program() {
-	while (tiles_->getLength() > 0) {
-		Coord* c = tiles_->poll();
-		delete c;
-	}
+	while (tiles_->getLength() > 0)
+		delete tiles_->poll();
 	delete tiles_;
 
-	while (actionList_->getLength() > 0) {
-		ProgramAction* m = actionList_->poll();
-		delete m;
-	}
+	while (actionList_->getLength() > 0)
+		delete actionList_->poll();
 	delete actionList_;
 
-	if (_debug >= DEBUG_NORMAL) {
+	if (_debug >= DEBUG_NORMAL)
 		log("SERVER: program '" + name_ + "' deleted\n");
-	}
 }
 
 int Program::getColor(int n) {

@@ -22,6 +22,7 @@
 #include "ConnectionManager.h"
 #include "MiscUtil.h"
 #include "GUIEffectFade.h"
+#include "SpawnGroupMirror.h"
 
 GameOverlay::GameOverlay()
 	: GUIContainer(NULL, ANCHOR_NORTHWEST, { 0, 0 }, { _screenWidth, _screenHeight }, _color_black) {
@@ -32,8 +33,7 @@ GameOverlay::GameOverlay()
 	programViewPlayers_ = true;
 	textureTickCount_ = 0;
 	bkgPos_ = { 0, 0 };
-	shiftSpeed_ = 0.1;
-	canShiftScreen_ = true;
+	shiftSpeed_ = 0.15;
 
 	animList_ = new LinkedList<Animation*>();
 }
@@ -202,9 +202,7 @@ void GameOverlay::resetBounds() {
 	GUIContainer::resetBounds();
 	chatDisplay_->resetBounds();
 
-	// TODO: refactor. have client set display
-	checkShiftable();
-	if (!canShiftScreen_)
+	if (!canShift())
 		centerScreen();
 }
 
@@ -236,9 +234,9 @@ bool GameOverlay::mouseDown() {
 				msg.playerID = _client->getPlayer()->getPlayerID();
 				msg.programID = _client->getPlayer()->getSelectedProgram()->getProgramID();
 				_connectionManager->sendMessage(msg);
-			} else if (((_client->getPlayer()->getSelectedAction()->type_ == ACTIONTYPE_TILEPLACE && !_client->getGame()->isTiled(click) &&	_client->getPlayer()->getSelectedActionDistAll(click) > 0) || 
-						(_client->getPlayer()->getSelectedActionDist(click) > 0 && _client->getPlayer()->getSelectedAction()->type_ != ACTIONTYPE_TILEPLACE)) &&
-						_client->getPlayer()->getSelectedProgram()->getActionsLeft() > 0) {
+			} else if (((_client->getPlayer()->getSelectedAction()->type_ == ACTIONTYPE_TILEPLACE && !_client->getGame()->isTiled(click) && _client->getPlayer()->getSelectedActionDistAll(click) > 0) ||
+				(_client->getPlayer()->getSelectedActionDist(click) > 0 && _client->getPlayer()->getSelectedAction()->type_ != ACTIONTYPE_TILEPLACE)) &&
+				_client->getPlayer()->getSelectedProgram()->getActionsLeft() > 0) {
 				Message msg;
 				msg.type = MSGTYPE_ACTION;
 				msg.pos = click;
@@ -250,7 +248,7 @@ bool GameOverlay::mouseDown() {
 
 		return false;
 	}
-	
+
 	return true;
 }
 
@@ -310,8 +308,6 @@ void GameOverlay::drawGrid() {
 			tileRect.y = yDefault;
 			tileRect.w = sizeDefault;
 			tileRect.h = sizeDefault;
-
-			//log("check 2\n");
 
 			// if there's a program at this tile
 			if (g->getProgramAt(curr) != NULL) {
@@ -444,17 +440,28 @@ void GameOverlay::drawGrid() {
 					}
 				}
 			} else { // if there is no program on this tile
-				SDL_Texture* tileImg = _tile_images[g->getTileAt(curr)];
-				if (g->getTileAt(curr) == TILE_NONE)
+				TILE tile = g->getTileAt(curr);
+				SDL_Texture* tileImg = _tile_images[tile];
+				if (tile == TILE_NONE)
 					continue;
+
+				if (tile == TILE_SPAWN || tile == TILE_SPAWN2) {
+					SpawnGroupMirror* group = g->getSpawnGroupAt(curr);
+					if (group == NULL) {
+						SDL_SetTextureColorMod(tileImg, 255, 255, 255);
+					} else if (group->getPlayerID() != -1) {
+						PlayerMirror* sp = g->getPlayerByID(group->getPlayerID());
+						SDL_SetTextureColorMod(tileImg, sp->getColor().r, sp->getColor().g, sp->getColor().b);
+					} else {
+						SDL_SetTextureColorMod(tileImg, 50, 50, 50);
+					}
+				}
 
 				SDL_QueryTexture(tileImg, NULL, NULL, &tileRect.w, &tileRect.h);
 				tileRect.x = xDefault - (tileRect.w - 28) / 2;
 				tileRect.y = yDefault - (tileRect.h - 28) / 2;
 				SDL_RenderCopy(_renderer, tileImg, NULL, &tileRect);
 			}
-
-			//log("check 3\n");
 
 			// if the mouse is over this tile
 			if (_mousePos.x - tileRect.x > 0 &&
@@ -470,18 +477,13 @@ void GameOverlay::drawGrid() {
 				SDL_RenderCopy(_renderer, _tile_over, NULL, &tileRect);
 			}
 
-			//log("check 4\n");
-
 			// if there is an item on this tile
 			if (g->getItemAt(curr) != ITEM_NONE) {
-				//log("ITEM\n");
 				SDL_QueryTexture(_item_icons[g->getItemAt(curr)], NULL, NULL, &tileRect.w, &tileRect.h);
 				tileRect.x = xDefault - (tileRect.w - 28) / 2;
 				tileRect.y = yDefault - (tileRect.h - 28) / 2;
 				SDL_RenderCopy(_renderer, _item_icons[g->getItemAt(curr)], NULL, &tileRect);
 			}
-
-			//log("check 5\n");
 
 			// if this is a selected tile
 			Iterator<ClientMirror*> playIt = _connectionManager->getClientList()->getIterator();
@@ -497,8 +499,6 @@ void GameOverlay::drawGrid() {
 					SDL_RenderCopy(_renderer, _tile_selected, NULL, &tileRect);
 				}
 			}
-
-			//log("check 6\n");
 
 			// if this tile is movable-to by the current player
 			if (g->getCurrTurnPlayer() != NULL &&
@@ -522,8 +522,6 @@ void GameOverlay::drawGrid() {
 					SDL_RenderCopy(_renderer, _tile_movePossible, NULL, &tileRect);
 			}
 
-			//log("check 7\n");
-
 			// if this tile is in the range of a programAction
 			if (g->getCurrTurnPlayer() != NULL &&
 				g->getProgramAt(curr) != g->getCurrTurnPlayer()->getSelectedProgram() &&
@@ -532,13 +530,13 @@ void GameOverlay::drawGrid() {
 				tileRect.y = yDefault - 2;
 				tileRect.w = sizeDefault + 4;
 				tileRect.h = sizeDefault + 4;
-				
-				if (g->getCurrTurnPlayer()->getSelectedAction()->type_ == ACTIONTYPE_TILEPLACE && 
-					!g->isTiled(curr) && 
+
+				if (g->getCurrTurnPlayer()->getSelectedAction()->type_ == ACTIONTYPE_TILEPLACE &&
+					!g->isTiled(curr) &&
 					g->getCurrTurnPlayer()->getSelectedActionDistAll(curr) > 0) {
 					SDL_RenderCopy(_renderer, _tile_actionHeal, NULL, &tileRect);
-				} else if (g->getCurrTurnPlayer()->getSelectedActionDist(curr) > 0 && 
-						   g->getCurrTurnPlayer()->getSelectedAction()->type_ != ACTIONTYPE_TILEPLACE) {
+				} else if (g->getCurrTurnPlayer()->getSelectedActionDist(curr) > 0 &&
+					g->getCurrTurnPlayer()->getSelectedAction()->type_ != ACTIONTYPE_TILEPLACE) {
 					switch (g->getCurrTurnPlayer()->getSelectedAction()->type_) {
 					case ACTIONTYPE_DAMAGE:
 						SDL_RenderCopy(_renderer, _tile_actionDamage, NULL, &tileRect);
@@ -578,8 +576,6 @@ void GameOverlay::drawGrid() {
 		}
 	}
 
-	//log("check X\n");
-
 	// draw all animation effects
 	Iterator<Animation*> it = animList_->getIterator();
 	while (it.hasNext()) {
@@ -617,7 +613,8 @@ void GameOverlay::draw() {
 }
 
 void GameOverlay::shiftBkg(Coord disp) {
-	if (!canShiftScreen_) return;
+	if (!canShift())
+		return;
 
 	if (bkgPos_.x + disp.x + _screenWidth / 2 < _client->getGame()->getLeftBound()*_tileWidth)
 		bkgPos_.x = _client->getGame()->getLeftBound()*_tileWidth - _screenWidth / 2;
@@ -642,14 +639,14 @@ void GameOverlay::setBackgroundImg(BACKGROUND b) {
 	bkgImg_ = _game_backgrounds[b];
 }
 
-void GameOverlay::checkShiftable() {
+bool GameOverlay::canShift() {
 	if (_client->getGame() == NULL)
-		canShiftScreen_ = false;
+		return false;
 	else if ((_client->getGame()->getRightBound() - _client->getGame()->getLeftBound())*_tileWidth < _screenWidth - 200 &&
 		(_client->getGame()->getBottomBound() - _client->getGame()->getTopBound())*_tileWidth < _screenHeight - 200)
-		canShiftScreen_ = false;
+		return false;
 	else
-		canShiftScreen_ = true;
+		return true;
 }
 
 void GameOverlay::tick(int ms) {
@@ -716,7 +713,7 @@ void GameOverlay::tick(int ms) {
 
 	// scan for keys currently pressed
 	const Uint8* currentKeyStates = SDL_GetKeyboardState(NULL);
-	int shiftAmt = ((int)shiftSpeed_)*ms;
+	int shiftAmt = (int)(shiftSpeed_* (double)ms);
 	if (currentKeyStates[SDL_SCANCODE_UP])
 		shiftBkg({ 0, -shiftAmt });
 	else if (currentKeyStates[SDL_SCANCODE_DOWN])
@@ -737,11 +734,6 @@ void GameOverlay::tick(int ms) {
 		shiftBkg({ 0, -shiftAmt });
 	else if (_mousePos.y > _screenHeight - 20)
 		shiftBkg({ 0, shiftAmt });
-}
-
-void GameOverlay::resetScreen() {
-	canShiftScreen_ = false;
-	centerScreen();
 }
 
 void GameOverlay::centerScreen() {

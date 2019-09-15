@@ -15,11 +15,12 @@ protected:
 private:
 	int tickCount_;
 
-	int timingCompany_;
+	int timingUrf_;
+	int timingGamelab_;
+	int timingLego_;
 	int timingTitle_;
 	int timingSubtitle_;
 	int spanTiming_;
 
-	void advance();
 	void endTitles();
 };

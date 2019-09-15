@@ -24,12 +24,16 @@ public:
 	void setGameMode(GAMEMODE gameMode);
 protected:
 private:
-	// currently configured gamemode to launch
-	GAMEMODE gameMode_;
-
 	void buildGUI();
 
 	GUIContainer* gameConfigContainer_;
+
+	GUIContainer* gameConfigLevelSelected_;
+	GUIButton* gameConfigLevelArray_;
+	GUIButton* gameConfigLevelHash_;
+	GUIButton* gameConfigLevelCross_;
+	GUIButton* gameConfigLevelShowdown_;
+
 	GUIContainer* gameConnectedPlayerContainer_;
 	GUIButton* gameConfigButtonCoop_;
 	GUIButton* gameConfigButtonFFA_;

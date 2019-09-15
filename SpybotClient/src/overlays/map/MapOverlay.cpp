@@ -36,8 +36,12 @@ MapOverlay::MapOverlay()
 		[] () {
 		if (_mapOverlay->getSelectedNode()->getNodeType() != 7) {
 			Message msg;
-			msg.type = MSGTYPE_LOAD;
+			msg.type = MSGTYPE_GAMECONFIG;
+			msg.gameConfigType = MSGGAMECONFIGTYPE_LEVEL_NUMBERED;
 			msg.num = _mapOverlay->getSelectedNode()->getLevelId();
+			_connectionManager->sendMessage(msg);
+
+			msg.type = MSGTYPE_STARTGAME;
 			_connectionManager->sendMessage(msg);
 		}
 		_mapOverlay->clearSelectedNode();

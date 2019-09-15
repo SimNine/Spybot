@@ -1,2 +1,25 @@
 
 -----SpybotClient-----
+reading progress...
+done
+reading prefs...
+done
+loading map levels/classic.urf...
+done
+loading map levels/classic.urf...
+done
+SERVER: reading levels/classic/users.dat
+SERVER: reading constants
+SERVER: read constants: int:4 char:1 double:8 bool:1
+SERVER: reading 1 users
+SERVER: successfully read user table
+SERVER: pinger set up and detached
+SERVER: new client attempting to connect, assigning clientID 1
+loading map levels/classic.urf...
+done
+CLIENT RECIEVED MSG: 1 - MSGTYPE_CONNECT
+SERVER ERROR: could not open levels/nightfall/users.dat
+SERVER: pinger set up and detached
+SERVER: new client attempting to connect, assigning clientID 2
+err opening map levels/nightfall.urf
+CLIENT RECIEVED MSG: 2 - MSGTYPE_CONNECT

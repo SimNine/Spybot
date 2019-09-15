@@ -22,6 +22,15 @@ GUITexture::GUITexture(GUIContainer* par, ANCHOR a, Coord disp, Coord dims, std:
 	willDestroyTexture_ = true;
 }
 
+GUITexture::GUITexture(GUIContainer* par, ANCHOR a, Coord disp, std::string tex)
+	: GUIObject(par, a, disp, { 0,0 }) {
+	texture_ = loadTexture(tex);
+	int w, h;
+	SDL_QueryTexture(texture_, NULL, NULL, &w, &h);
+	setDimensions({ w, h });
+	willDestroyTexture_ = true;
+}
+
 GUITexture::GUITexture(GUIContainer* parent, ANCHOR a, Coord disp, std::string str, int fontSize)
 	: GUIObject(parent, a, disp, { 0, 0 }) {
 	texture_ = loadString(str, FONT_NORMAL, fontSize, _color_white);

@@ -6,9 +6,11 @@
 void initData();
 
 // titleScreen resources
-extern SDL_Texture* _title_title;
-extern SDL_Texture* _title_subtitle;
-extern SDL_Texture* _title_company;
+extern std::string _title_title;
+extern std::string _title_sub;
+extern std::string _title_urfco;
+extern std::string _title_gamelab;
+extern std::string _title_lego;
 
 // mapScreen resources
 extern SDL_Texture* _node_normal[8];

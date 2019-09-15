@@ -10,9 +10,11 @@
 #include "GameOverlay.h"
 #include "AnimationAttack.h"
 #include "AnimationTileFade.h"
+#include "SpawnGroupMirror.h"
 
 GameMirror::GameMirror() {
 	teamList_ = new LinkedList<TeamMirror*>();
+	spawnGroupList_ = new LinkedList<SpawnGroupMirror*>();
 	status_ = GAMESTATUS_PREGAME;
 
 	for (int x = 0; x < 200; x++) {
@@ -288,10 +290,17 @@ ProgramMirror* GameMirror::addProgram(PROGRAM type, int programID, int playerID,
 	return pr;
 }
 
+SpawnGroupMirror* GameMirror::addSpawnGroup(int groupID) {
+	SpawnGroupMirror* g = new SpawnGroupMirror(groupID);
+	spawnGroupList_->addFirst(g);
+
+	return g;
+}
+
 void GameMirror::removeTeam(int teamID) {
 	TeamMirror* t = getTeamByID(teamID);
 	if (t == NULL) {
-		log("SERVER ERR: tried to remove nonexistent team " + to_string(teamID) + "\n");
+		log("CLIENT ERR: tried to remove nonexistent team " + to_string(teamID) + "\n");
 		return;
 	}
 
@@ -306,13 +315,13 @@ void GameMirror::removeTeam(int teamID) {
 void GameMirror::removePlayer(int playerID, int teamID) {
 	TeamMirror* t = getTeamByID(teamID);
 	if (t == NULL) {
-		log("SERVER ERR: tried to remove player " + to_string(playerID) + " on nonexistent team " + to_string(teamID) + "\n");
+		log("CLIENT ERR: tried to remove player " + to_string(playerID) + " on nonexistent team " + to_string(teamID) + "\n");
 		return;
 	}
 
 	PlayerMirror* p = t->getPlayerByID(playerID);
 	if (p == NULL) {
-		log("SERVER ERR: tried to remove nonexistent player " + to_string(playerID) + " on team " + to_string(teamID) + "\n");
+		log("CLIENT ERR: tried to remove nonexistent player " + to_string(playerID) + " on team " + to_string(teamID) + "\n");
 		return;
 	}
 
@@ -327,19 +336,19 @@ void GameMirror::removePlayer(int playerID, int teamID) {
 void GameMirror::removeProgram(int programID, int playerID, int teamID) {
 	TeamMirror* t = getTeamByID(teamID);
 	if (t == NULL) {
-		log("SERVER ERR: tried to remove program " + to_string(programID) + " on player " + to_string(playerID) + " on nonexistent team " + to_string(teamID) + "\n");
+		log("CLIENT ERR: tried to remove program mirror " + to_string(programID) + " on player " + to_string(playerID) + " on nonexistent team " + to_string(teamID) + "\n");
 		return;
 	}
 
 	PlayerMirror* p = t->getPlayerByID(playerID);
 	if (p == NULL) {
-		log("SERVER ERR: tried to remove program " + to_string(programID) + " on nonexistent player " + to_string(playerID) + " on team " + to_string(teamID) + "\n");
+		log("CLIENT ERR: tried to remove program mirror " + to_string(programID) + " on nonexistent player " + to_string(playerID) + " on team " + to_string(teamID) + "\n");
 		return;
 	}
 
 	ProgramMirror* pr = p->getProgramByID(programID);
 	if (pr == NULL) {
-		log("SERVER ERR: tried to remove nonexistent program " + to_string(programID) + " on player " + to_string(playerID) + " on team " + to_string(teamID) + "\n");
+		log("CLIENT ERR: tried to remove nonexistent program mirror " + to_string(programID) + " on player " + to_string(playerID) + " on team " + to_string(teamID) + "\n");
 		return;
 	}
 
@@ -349,4 +358,51 @@ void GameMirror::removeProgram(int programID, int playerID, int teamID) {
 
 	p->getProgList()->remove(pr);
 	delete pr;
+}
+
+void GameMirror::removeSpawnGroup(int groupID) {
+	SpawnGroupMirror* g = NULL;
+	Iterator<SpawnGroupMirror*> it = spawnGroupList_->getIterator();
+	while (it.hasNext()) {
+		SpawnGroupMirror* curr = it.next();
+		if (curr->getGroupID() == groupID) {
+			g = curr;
+			break;
+		}
+	}
+
+	if (g == NULL) {
+		log("CLIENT ERR: tried to remove nonexistent spawn group mirror " + to_string(groupID) + "\n");
+		return;
+	}
+
+	while (g->getTiles()->getLength() > 0)
+		g->removeTile(*g->getTiles()->getFirst());
+
+	spawnGroupList_->remove(g);
+	delete g;
+}
+
+SpawnGroupMirror* GameMirror::getSpawnGroupByID(int groupID) {
+	Iterator<SpawnGroupMirror*> it = spawnGroupList_->getIterator();
+	while (it.hasNext()) {
+		SpawnGroupMirror* curr = it.next();
+		if (curr->getGroupID() == groupID) {
+			return curr;
+		}
+	}
+
+	return NULL;
+}
+
+SpawnGroupMirror* GameMirror::getSpawnGroupAt(Coord pos) {
+	Iterator<SpawnGroupMirror*> it = spawnGroupList_->getIterator();
+	while (it.hasNext()) {
+		SpawnGroupMirror* curr = it.next();
+		if (curr->containsTile(pos)) {
+			return curr;
+		}
+	}
+
+	return NULL;
 }

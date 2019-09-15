@@ -41,6 +41,11 @@ void Pipe::listenData() {
 	// this purposefully does nothing for local servers
 }
 
+void Pipe::recieveData(Message m) {
+	m.clientID = clientID_;
+	_server->recieveMessage(m);
+}
+
 int Pipe::getClientID() {
 	return clientID_;
 }
@@ -51,6 +56,12 @@ int Pipe::getPlayer() {
 
 void Pipe::setPlayer(int playerID) {
 	playerID_ = playerID;
+
+	Message m;
+	m.type = MSGTYPE_SETCLIENTPLAYER;
+	m.clientID = clientID_;
+	m.playerID = playerID;
+	_connectionManager->recieveMessage(m);
 }
 
 void Pipe::close() {

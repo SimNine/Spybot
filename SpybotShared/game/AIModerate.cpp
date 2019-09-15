@@ -22,4 +22,6 @@ bool AIModerate::actStep() {
 
 	// get the nearest enemy program to this program
 
+	// TODO
+	return false;
 }

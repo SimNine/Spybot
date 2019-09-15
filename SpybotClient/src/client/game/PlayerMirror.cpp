@@ -235,3 +235,11 @@ ProgramMirror* PlayerMirror::getProgramByID(int progID) {
 GameMirror* PlayerMirror::getGame() {
 	return game_;
 }
+
+bool PlayerMirror::getAI() {
+	return isAI_;
+}
+
+void PlayerMirror::setAI(bool isAI) {
+	isAI_ = isAI;
+}

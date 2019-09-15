@@ -9,6 +9,10 @@
 #include "PlayerMirror.h"
 #include "Server.h"
 #include "Client.h"
+#include "Pipe.h"
+#include "NotifyOverlay.h"
+#include "BackgroundOverlay.h"
+#include "MainOverlay.h"
 
 ConnectionManager::ConnectionManager() {
 	msgQueue_ = new LinkedList<Message*>();
@@ -38,12 +42,13 @@ bool ConnectionManager::hasMessage() {
 	return (msgQueue_->getLength() > 0);
 }
 
-void ConnectionManager::connectToLocalServer(std::string savePath) {
+void ConnectionManager::connectToLocalServer(CAMPAIGN campaign) {
 	// disconnect in case there is still some connection
 	disconnect();
 
-	_server = new Server(true, savePath);
-	_server->connect(NULL);
+	// create a new local server and connect to it
+	_server = new Server(true, campaign);
+	serverPipe_  = _server->connect(NULL);
 }
 
 void ConnectionManager::connectToExternalServer(std::string IP) {
@@ -94,6 +99,10 @@ void ConnectionManager::connectToExternalServer(std::string IP) {
 	log("CLIENT: attempting to connect to server \"" + IP + "\"\n");
 	std::thread newThread(&ConnectionManager::listen, this);
 	newThread.detach();
+
+	// start ping checker
+	std::thread pingChecker(&ConnectionManager::pingChecker, this);
+	pingChecker.detach();
 }
 
 void ConnectionManager::disconnect() {
@@ -112,8 +121,14 @@ void ConnectionManager::disconnect() {
 		delete _server;
 		_server = NULL;
 	}
+
+	// clean up
 	serverOwner_ = NULL;
 	_client->setClientID(-1);
+	_notifyOverlay->addNotification("disconnected from server");
+	_overlayStack->removeAll();
+	_overlayStack->push(_backgroundOverlay);
+	_overlayStack->push(_mainOverlay);
 }
 
 void ConnectionManager::listen() {
@@ -172,7 +187,7 @@ void ConnectionManager::sendMessage(Message m) {
 			closesocket(socket_);
 		}
 	} else if (_server != NULL) {
-		_server->recieveMessage(m);
+		serverPipe_->recieveData(m);
 	}
 }
 
@@ -208,4 +223,24 @@ ClientMirror* ConnectionManager::getServerOwner() {
 
 void ConnectionManager::setServerOwner(ClientMirror* serverOwner) {
 	serverOwner_ = serverOwner;
+}
+
+void ConnectionManager::pingChecker() {
+	log("CLIENT: pingChecker launched\n");
+
+	while (_server != NULL || socket_ != INVALID_SOCKET) {
+		pingCount_++;
+
+		if (pingCount_ > 5) {
+			log("CLIENT WARNING: ping count is " + to_string(pingCount_) + "\n");
+		}
+
+		Sleep(1000);
+	}
+
+	log("CLIENT: pingChecker exited\n");
+}
+
+void ConnectionManager::resetPingCount() {
+	pingCount_ = 0;
 }

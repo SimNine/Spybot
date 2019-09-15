@@ -1,5 +1,4 @@
-#ifndef LINKEDLIST_H
-#define LINKEDLIST_H
+#pragma once
 
 #include "ListNode.h"
 #include "Iterator.h"
@@ -255,5 +254,3 @@ private:
 	ListNode<T>* firstNode;
 	ListNode<T>* lastNode;
 };
-
-#endif // LINKEDLIST_H

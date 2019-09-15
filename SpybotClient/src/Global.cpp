@@ -52,7 +52,7 @@ bool _acceptingInput = true;
 bool _quit = false;
 
 // debug flag
-DEBUG _debug = DEBUG_NONE;
+DEBUG _debug = DEBUG_MINIMAL;
 
 // GUIContainer currently held by the mouse, if any
 GUIContainer* _heldContainer = NULL;

@@ -13,6 +13,7 @@ public:
 
 	void sendData(Message m);
 	void listenData();
+	void recieveData(Message m);
 
 	int getClientID();
 

@@ -459,6 +459,7 @@ void handleEvents() {
 		// screen-specific input
 		if (_overlayStack->getFirst() == _gameOverlay) {
 			if (e.type == SDL_KEYDOWN) {
+				// show or hide pause menu
 				if (e.key.keysym.sym == SDLK_ESCAPE) {
 					_gameOverlay->pauseMenuShow();
 				}
@@ -508,7 +509,7 @@ void handleEvents() {
 	}
 }
 
-// draw the current screen
+// draw each overlay in the stack
 void draw() {
 	for (int i = _overlayStack->getLength() - 1; i >= 0; i--) {
 		_overlayStack->getObjectAt(i)->draw();
@@ -517,7 +518,7 @@ void draw() {
 	SDL_RenderPresent(_renderer); // update the screen
 }
 
-// tick the current screen and check for time-related achievements
+// tick each screen in the stack and check for time-related achievements
 void tick(int ms) {
 	for (int i = _overlayStack->getLength() - 1; i >= 0; i--) {
 		_overlayStack->getObjectAt(i)->tick(ms);
@@ -584,6 +585,7 @@ int main(int argc, char* args[]) {
 	// start up winsock
 	if (!initWinsock()) {
 		log("Failed to initialize Winsock\n");
+		return 1;
 	}
 
 	// start up SDL and create window
@@ -669,7 +671,7 @@ int main(int argc, char* args[]) {
 			if (numTicks >= 1000) {
 				float fps = (float)(frameCount / (numTicks / 1000.0));
 				renderTimer.stop();
-				log("avg fps: " + to_string(fps) + "\n");
+				log("avg fps: " + to_string((int)fps) + "\n");
 				log("num frames: " + to_string(frameCount) + "\n\n");
 				frameCount = 0;
 				renderTimer.start();

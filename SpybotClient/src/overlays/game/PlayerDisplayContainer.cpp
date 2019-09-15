@@ -35,6 +35,7 @@ void PlayerDisplayContainer::draw() {
 		numPlayers += itTeams.next()->getAllPlayers()->getLength();
 	}
 	int height = 5 + (fontSize + 5) * (numTeams + numPlayers);
+	this->setDimensions({ this->getDimensions().x, height });
 
 	// draw the container itself
 	GUIContainer::drawBkg();
@@ -54,14 +55,14 @@ void PlayerDisplayContainer::draw() {
 		// get current team
 		TeamMirror* currTeam = itTeams.next();
 
-		// draw the human player section title
+		// draw this team's number
 		SDL_Texture* humanPTitle = loadString("Team " + to_string(currTeam->getTeamID()) + ":", FONT_NORMAL, fontSize, { 255, 255, 255, 255 });
 		SDL_QueryTexture(humanPTitle, NULL, NULL, &objBounds.w, &objBounds.h);
 		objBounds.x = bounds_.x + xOffset;
 		objBounds.y = bounds_.y + yOffset;
 		SDL_RenderCopy(_renderer, humanPTitle, NULL, &objBounds);
 		SDL_DestroyTexture(humanPTitle);
-		yOffset += objBounds.h + 5;
+		yOffset += fontSize + 5;
 
 		// draw each player's display box
 		Iterator<PlayerMirror*> it = currTeam->getAllPlayers()->getIterator();
@@ -91,6 +92,30 @@ void PlayerDisplayContainer::draw() {
 
 			// draw icons representing current state
 
+			// draw icon if this player is an AI or a human
+			SDL_Texture* playerType = NULL;
+			if (curr->getAI()) {
+				playerType = _game_icon_ai;
+			} else {
+				playerType = _game_icon_human;
+			}
+			SDL_QueryTexture(playerType, NULL, NULL, &objBounds.w, &objBounds.h);
+			objBounds.x = bounds_.x + xOffset;
+			objBounds.y = bounds_.y + yOffset;
+			SDL_RenderCopy(_renderer, playerType, NULL, &objBounds);
+			xOffset += objBounds.w + 5;
+
+			// draw icon if this player is the current owner of the server
+			if (_connectionManager->getServerOwner() == NULL) {
+				// log("no server owner, for some reason\n");
+			} else if (curr == _connectionManager->getServerOwner()->player_) {
+				SDL_QueryTexture(_game_icon_owner, NULL, NULL, &objBounds.w, &objBounds.h);
+				objBounds.x = bounds_.x + xOffset;
+				objBounds.y = bounds_.y + yOffset;
+				SDL_RenderCopy(_renderer, _game_icon_owner, NULL, &objBounds);
+				xOffset += objBounds.w + 5;
+			}
+
 			// draw icon if player has no programs on the board
 			if (curr->getProgList()->getLength() <= 0) {
 				SDL_QueryTexture(_game_icon_dead, NULL, NULL, &objBounds.w, &objBounds.h);
@@ -106,17 +131,6 @@ void PlayerDisplayContainer::draw() {
 				objBounds.x = bounds_.x + xOffset;
 				objBounds.y = bounds_.y + yOffset;
 				SDL_RenderCopy(_renderer, _game_icon_currTurn, NULL, &objBounds);
-				xOffset += objBounds.w + 5;
-			}
-
-			// draw icon if this player is the current owner of the server
-			if (_connectionManager->getServerOwner() == NULL) {
-				log("no server owner, for some reason\n");
-			} else if (curr == _connectionManager->getServerOwner()->player_) {
-				SDL_QueryTexture(_game_icon_owner, NULL, NULL, &objBounds.w, &objBounds.h);
-				objBounds.x = bounds_.x + xOffset;
-				objBounds.y = bounds_.y + yOffset;
-				SDL_RenderCopy(_renderer, _game_icon_owner, NULL, &objBounds);
 				xOffset += objBounds.w + 5;
 			}
 

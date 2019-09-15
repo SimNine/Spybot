@@ -5,9 +5,11 @@
 #include "ResourceLoader.h"
 
 // titleScreen resources
-SDL_Texture* _title_title;
-SDL_Texture* _title_subtitle;
-SDL_Texture* _title_company;
+std::string _title_title;
+std::string _title_sub;
+std::string _title_urfco;
+std::string _title_gamelab;
+std::string _title_lego;
 
 // mapScreen resources
 SDL_Texture* _node_normal[8];
@@ -166,9 +168,11 @@ std::string _achievement_description[ACHIEVEMENT_NUM_ACHIEVEMENTS];
 // initialize all data
 void initData() {
 	// titleScreen resources
-	_title_title = loadTexture("resources/title_main.png");
-	_title_subtitle = loadTexture("resources/title_subtitle.png");
-	_title_company = loadTexture("resources/title/title_urfco_alt3.png");
+	_title_title = "resources/title_main.png";
+	_title_sub = "resources/title_subtitle.png";
+	_title_urfco = "resources/title/title_urfco_alt3.png";
+	_title_gamelab = "resources/title/title_gamelab.png";
+	_title_lego = "resources/title/title_lego.png";
 
 	_node_normal[0] = NULL; //loadTexture("resources/map/node0_normal.png");
 	_node_normal[1] = loadTexture("resources/map/node1_normal.png");

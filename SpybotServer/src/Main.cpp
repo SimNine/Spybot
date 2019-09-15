@@ -91,18 +91,18 @@ int main(int argc, char* args[]) {
 	log("-----SpybotServer-----\n");
 
 	// initialize the server
-	_server = new Server(false, "levels/multi");
-	log("Server initialized\n");
+	_server = new Server(false, CAMPAIGN_MULTIPLAYER);
+	log("SERVER MAIN: Server initialized\n");
 
 	// start up the master listener thread
 	std::thread masterListener(masterSocketFunc);
 	masterListener.detach();
-	log("Master listener set up and detached\n");
+	log("SERVER MAIN: Master listener set up and detached\n");
 
 	// start up the command line thread
 	std::thread commandLine(processCommandLoop);
 	commandLine.detach();
-	log("Command line parser set up and detached\n");
+	log("SERVER MAIN: Command line parser set up and detached\n");
 
 	// tick the server continuously
 	while (!_quit)

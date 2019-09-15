@@ -6,6 +6,7 @@
 class Player;
 class Program;
 class Team;
+class SpawnGroup;
 
 class Game {
 public:
@@ -18,9 +19,11 @@ public:
 	Team* addTeam();
 	Player* addPlayer(int teamID);
 	Program* addProgram(PROGRAM type, int playerID, int teamID);
+	SpawnGroup* addSpawnGroup();
 	void removeTeam(int teamID);
 	void removePlayer(int playerID, int teamID);
 	void removeProgram(int programID, int playerID, int teamID);
+	void removeSpawnGroup(int groupID);
 
 	// getters and setters
 	LinkedList<Team*>* getAllTeams();
@@ -40,8 +43,13 @@ public:
 	int getTopBound();
 	int getBottomBound();
 
-	void setTileAt(Coord, TILE);
-	TILE getTileAt(Coord);
+	void setTileAt(Coord pos, TILE tiletype);
+	TILE getTileAt(Coord pos);
+	void drawRectInBoard(TILE type, Coord pos, Coord dims);
+	void fillRectInBoard(TILE type, Coord pos, Coord dims);
+	void drawOvalInBoard(TILE type, Coord pos, Coord dims);
+	void fillOvalInBoard(TILE type, Coord pos, Coord dims);
+
 	void setItemAt(Coord, ITEM);
 	ITEM getItemAt(Coord);
 
@@ -51,7 +59,11 @@ public:
 
 	bool isOOB(Coord);
 	bool isTiled(Coord);
-	void setSpawnGroup(Coord pos, int group);
+
+	SpawnGroup* getUnassignedSpawnGroup();
+	SpawnGroup* getSpawnGroupByID(int groupID);
+	SpawnGroup* getSpawnGroupAt(Coord pos);
+	LinkedList<SpawnGroup*>* getSpawnGroups();
 
 	void setBackground(BACKGROUND);
 	BACKGROUND getBackground();
@@ -66,6 +78,9 @@ private:
 	// players
 	LinkedList<Team*>* teamList_;
 
+	// spawn groups
+	LinkedList<SpawnGroup*>* spawnGroupList_;
+
 	// effective grid bounds
 	int gridLeftBound_, gridRightBound_, gridTopBound_, gridBottomBound_;
 
@@ -73,15 +88,10 @@ private:
 	TILE gridTiles_[200][200];
 	ITEM gridItems_[200][200];
 	Program* gridPrograms_[200][200];
-	int gridSpawnGroups_[200][200];
 
 	BACKGROUND bkg_;
 
-	// helper methods
-	void drawRectInBoard(TILE, Coord, Coord);
-	void fillRectInBoard(TILE, Coord, Coord);
-	void drawOvalInBoard(TILE, Coord, Coord);
-	void fillOvalInBoard(TILE, Coord, Coord);
+	// helper method
 	bool isDrawValid(Coord, Coord);
 
 	// game status

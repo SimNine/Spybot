@@ -2,6 +2,7 @@
 
 #include "Standard.h"
 #include "LinkedList.h"
+#include "GameConfig.h"
 
 class Pipe;
 struct Message;
@@ -11,16 +12,17 @@ class User;
 
 class Server {
 public:
-	Server(bool isLocal, std::string savePath);
+	Server(bool isLocal, CAMPAIGN campaign);
 	virtual ~Server();
 
 	void processAllMessages();
 
-	void connect(SOCKET client);
+	Pipe* connect(SOCKET client);
 	void disconnect(Pipe* client);
 	void login(Pipe* client, User* user);
 	void tryLogin(Pipe* client, Message message);
 
+	void sendMessageToNonLoggedInClients(Message message);
 	void sendMessageToClient(Message message, int clientID);
 	void sendMessageToAllClients(Message message);
 	void sendMessageToAllClientsExcept(Message message, int clientID);
@@ -35,7 +37,9 @@ public:
 	Pipe* getOwner();
 	bool isLocal();
 
-	int getCurrentLevel();
+	void pingSender();
+
+	std::string getCurrentLevel();
 	std::string getSavePath();
 
 	void loadUsers();
@@ -43,16 +47,14 @@ public:
 protected:
 
 private:
-	// level and userdata path
-	std::string savePath_;
-	int currentLevel_;
+	// game configuration
+	GameConfig config_;
 
 	// locality modifier
 	bool isLocal_;
 
 	// game
 	Game* game_;
-	GAMEMODE gameMode_;
 
 	// clients
 	Pipe* ownerClient_;

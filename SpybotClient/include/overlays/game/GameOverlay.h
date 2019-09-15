@@ -22,17 +22,15 @@ public:
 	bool mouseDown();
 	bool mouseUp();
 	void resetBounds();
-	void shiftBkg(Coord);
 	void toggleViewTeams();
+
+	void shiftBkg(Coord disp);
 	void centerScreen();
 
-	// gameplay methods
 	void setPlayerTurnDisplay(std::string name);
-
 	void setBackgroundImg(BACKGROUND);
 
 	// game loading/saving methods
-	void resetScreen();
 	void changeGameStatus(GAMESTATUS gs);
 
 	// misc
@@ -56,11 +54,10 @@ private:
 	SDL_Texture* bkgImg_;
 	Coord bkgPos_;
 	int textureTickCount_;
-	bool canShiftScreen_;
 	double shiftSpeed_;
 	void drawBkg();
 	void drawGrid();
-	void checkShiftable();
+	bool canShift();
 
 	void buildGUI();
 

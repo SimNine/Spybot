@@ -27,7 +27,7 @@ Pipe::Pipe(SOCKET client) {
 
 Pipe::~Pipe() {
 	closed_ = true;
-	if (user_ == "")
+	if (user_ != "")
 		_server->getUserByName(user_)->loggedIn_ = false;
 }
 
@@ -110,6 +110,12 @@ int Pipe::getPlayer() {
 
 void Pipe::setPlayer(int p) {
 	playerID_ = p;
+
+	Message m;
+	m.type = MSGTYPE_SETCLIENTPLAYER;
+	m.clientID = clientID_;
+	m.playerID = p;
+	_server->sendMessageToAllClients(m);
 }
 
 void Pipe::close() {

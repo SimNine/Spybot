@@ -173,6 +173,7 @@ Message _deserializeMessage(char* in) {
 
 void _printMessage(Message m) {
 	log(to_string(m.clientID) + " - ");
+
 	switch (m.type) {
 	case MSGTYPE_ACTION:
 		log("MSGTYPE_ACTION\n");
@@ -188,6 +189,7 @@ void _printMessage(Message m) {
 		break;
 	case MSGTYPE_INFO:
 		log("MSGTYPE_INFO - ");
+
 		switch (m.infoType) {
 		case MSGINFOTYPE_ACTION:
 			log("MSGINFOTYPE_ACTION\n");
@@ -199,10 +201,10 @@ void _printMessage(Message m) {
 			log("MSGINFOTYPE_GAMESTATUS\n");
 			break;
 		case MSGINFOTYPE_ITEM:
-			log("MSGINFOTYPE_ITEM - ITEM " + to_string(m.itemType) + "\n");
+			log("MSGINFOTYPE_ITEM - ITEM " + to_string(m.itemType) + " at (" + to_string(m.pos.x) + ", " + to_string(m.pos.y) + ")\n");
 			break;
 		case MSGINFOTYPE_TILE:
-			log("MSGINFOTYPE_TILE - TILE " + to_string(m.tileType) + "\n");
+			log("MSGINFOTYPE_TILE - TYPE " + to_string(m.tileType) + " at (" + to_string(m.pos.x) + "," + to_string(m.pos.y) + ")\n");
 			break;
 		case MSGINFOTYPE_PROGINVENTORY:
 			log("MSGINFOTYPE_PROGINVENTORY\n");
@@ -223,6 +225,9 @@ void _printMessage(Message m) {
 		case MSGINFOTYPE_PROGRAM:
 			log("MSGINFOTYPE_PROGRAM - PROGRAM " + to_string(m.programID) + "\n");
 			break;
+		case MSGINFOTYPE_SPAWNGROUP:
+			log("MSGINFOTYPE_SPAWNGROUP - SPAWNGROUP " + to_string(m.num) + "\n");
+			break;
 		case MSGINFOTYPE_TEAMDELETE:
 			log("MSGINFOTYPE_TEAMDELETE - TEAM " + to_string(m.teamID) + "\n");
 			break;
@@ -232,15 +237,22 @@ void _printMessage(Message m) {
 		case MSGINFOTYPE_PROGRAMDELETE:
 			log("MSGINFOTYPE_PROGRAMDELETE - PROGRAM " + to_string(m.programID) + "\n");
 			break;
+		case MSGINFOTYPE_SPAWNGROUPDELETE:
+			log("MSGINFOTYPE_SPAWNGROUPDELETE - SPAWNGROUP " + to_string(m.num) + "\n");
+			break;
+
+		case MSGINFOTYPE_PLAYERSETMIND:
+			log("MSGINFOTYPE_PLAYERSETMIND - PLAYER " + to_string(m.playerID) + " : " + (m.num == 0 ? "false" : "true"));
+			break;
 
 		case MSGINFOTYPE_PROGRAMADDHEAD:
-			log("MSGINFOTYPE_PROGRAMADDHEAD - PROGRAM " + to_string(m.programID) + ", TILE " + to_string(m.pos.x) + "," + to_string(m.pos.y) + "\n");
+			log("MSGINFOTYPE_PROGRAMADDHEAD - PROGRAM " + to_string(m.programID) + ", TILE (" + to_string(m.pos.x) + "," + to_string(m.pos.y) + ")\n");
 			break;
 		case MSGINFOTYPE_PROGRAMADDTAIL:
-			log("MSGINFOTYPE_PROGRAMADDTAIL - PROGRAM " + to_string(m.programID) + ", TILE " + to_string(m.pos.x) + "," + to_string(m.pos.y) + "\n");
+			log("MSGINFOTYPE_PROGRAMADDTAIL - PROGRAM " + to_string(m.programID) + ", TILE (" + to_string(m.pos.x) + "," + to_string(m.pos.y) + ")\n");
 			break;
 		case MSGINFOTYPE_PROGRAMREMOVETILE:
-			log("MSGINFOTYPE_PROGRAMREMOVETILE - PROGRAM " + to_string(m.programID) + ", TILE " + to_string(m.pos.x) + "," + to_string(m.pos.y) + "\n");
+			log("MSGINFOTYPE_PROGRAMREMOVETILE - PROGRAM " + to_string(m.programID) + ", TILE (" + to_string(m.pos.x) + "," + to_string(m.pos.y) + ")\n");
 			break;
 		case MSGINFOTYPE_PROGRAMCHANGENUMMOVES:
 			log("MSGINFOTYPE_PROGRAMCHANGENUMMOVES - PROGRAM " + to_string(m.programID) + ", NUMMOVES " + to_string(m.num) + "\n");
@@ -257,19 +269,30 @@ void _printMessage(Message m) {
 		case MSGINFOTYPE_PROGRAMCHANGEMAXACTIONS:
 			log("MSGINFOTYPE_PROGRAMCHANGEMAXACTIONS - PROGRAM " + to_string(m.programID) + ", MAXACTIONS " + to_string(m.num) + "\n");
 			break;
+
+		case MSGINFOTYPE_SPAWNGROUPADDTILE:
+			log("MSGINFOTYPE_SPAWNGROUPADDTILE - GROUP " + to_string(m.num) + " - TILE (" + to_string(m.pos.x) + "," + to_string(m.pos.y) + ")\n");
+			break;
+		case MSGINFOTYPE_SPAWNGROUPREMOVETILE:
+			log("MSGINFOTYPE_SPAWNGROUPREMOVETILE - GROUP " + to_string(m.num) + " - TILE (" + to_string(m.pos.x) + "," + to_string(m.pos.y) + ")\n");
+			break;
+		case MSGINFOTYPE_SPAWNGROUPSETPLAYER:
+			log("MSGINFOTYPE_SPAWNGROUPSETPLAYER - GROUP " + to_string(m.num) + " - PLAYER " + to_string(m.playerID) + "\n");
+			break;
 		}
+
 		break;
 	case MSGTYPE_INQUIRY:
 		log("MSGTYPE_INQUIRY\n");
 		break;
-	case MSGTYPE_JOIN:
-		log("MSGTYPE_JOIN\n");
+	case MSGTYPE_SETCLIENTPLAYER:
+		log("MSGTYPE_SETCLIENTPLAYER - CLIENT " + to_string(m.clientID) + " - PLAYER " + to_string(m.playerID) + "\n");
 		break;
 	case MSGTYPE_LEAVE:
 		log("MSGTYPE_LEAVE\n");
 		break;
-	case MSGTYPE_LOAD:
-		log("MSGTYPE_LOAD - LEVEL " + to_string(m.num) + "\n");
+	case MSGTYPE_STARTGAME:
+		log("MSGTYPE_STARTGAME\n");
 		break;
 	case MSGTYPE_DONELOAD:
 		log("MSGTYPE_DONELOAD\n");
@@ -287,7 +310,7 @@ void _printMessage(Message m) {
 		log("MSGTYPE_SELECT - ");
 		switch (m.selectType) {
 		case MSGSELECTTYPE_TILE:
-			log("TILE " + to_string(m.pos.x) + "," + to_string(m.pos.y) + "\n");
+			log("TILE (" + to_string(m.pos.x) + "," + to_string(m.pos.y) + ")\n");
 			break;
 		case MSGSELECTTYPE_PROGRAM:
 			log("PROGRAM " + to_string(m.programID) + "\n");
@@ -310,7 +333,33 @@ void _printMessage(Message m) {
 		log("MSGTYPE_TEXT - " + std::string(m.text) + "\n");
 		break;
 	case MSGTYPE_GAMECONFIG:
-		log("MSGTYPE_GAMECONFIG\n");
+		log("MSGTYPE_GAMECONFIG - ");
+		switch (m.gameConfigType) {
+		case MSGGAMECONFIGTYPE_COOP:
+			log("MSGGAMECONFIGTYPE_COOP\n");
+			break;
+		case MSGGAMECONFIGTYPE_FFA:
+			log("MSGGAMECONFIGTYPE_FFA\n");
+			break;
+		case MSGGAMECONFIGTYPE_TEAMDM:
+			log("MSGGAMECONFIGTYPE_TEAMDM\n");
+			break;
+		case MSGGAMECONFIGTYPE_LEVEL_ARRAY:
+			log("MSGGAMECONFIGTYPE_LEVEL_ARRAY\n");
+			break;
+		case MSGGAMECONFIGTYPE_LEVEL_CROSS:
+			log("MSGGAMECONFIGTYPE_LEVEL_CROSS\n");
+			break;
+		case MSGGAMECONFIGTYPE_LEVEL_HASH:
+			log("MSGGAMECONFIGTYPE_LEVEL_HASH\n");
+			break;
+		case MSGGAMECONFIGTYPE_LEVEL_SHOWDOWN:
+			log("MSGGAMECONFIGTYPE_LEVEL_SHOWDOWN\n");
+			break;
+		case MSGGAMECONFIGTYPE_LEVEL_NUMBERED:
+			log("MSGGAMECONFIGTYPE_LEVEL_NUMBERED - " + to_string(m.num));
+			break;
+		}
 		break;
 	case MSGTYPE_LOGIN:
 		log("MSGTYPE_LOGIN - " + std::string(m.text) + "\n");
@@ -332,6 +381,9 @@ void _printMessage(Message m) {
 		break;
 	case MSGTYPE_LEVELUNLOCK:
 		log("MSGTYPE_LEVELUNLOCK - LEVEL " + to_string(m.num) + "\n");
+		break;
+	case MSGTYPE_PING:
+		log("MSGTYPE_PING\n");
 		break;
 	}
 }

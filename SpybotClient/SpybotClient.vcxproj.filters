@@ -351,6 +351,15 @@
     <ClInclude Include="..\SpybotShared\utils\Logger.h">
       <Filter>Header Files\shared\util</Filter>
     </ClInclude>
+    <ClInclude Include="include\client\game\SpawnGroupMirror.h">
+      <Filter>Header Files\client\game</Filter>
+    </ClInclude>
+    <ClInclude Include="..\SpybotShared\game\SpawnGroup.h">
+      <Filter>Header Files\shared\game</Filter>
+    </ClInclude>
+    <ClInclude Include="..\SpybotShared\server\GameConfig.h">
+      <Filter>Header Files\shared\server</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Global.cpp">
@@ -544,6 +553,15 @@
     </ClCompile>
     <ClCompile Include="..\SpybotShared\utils\Logger.cpp">
       <Filter>Source Files\shared\utils</Filter>
+    </ClCompile>
+    <ClCompile Include="src\client\game\SpawnGroupMirror.cpp">
+      <Filter>Source Files\client\game</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SpybotShared\game\SpawnGroup.cpp">
+      <Filter>Source Files\shared\game</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SpybotShared\server\GameConfig.cpp">
+      <Filter>Source Files\shared\server</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
