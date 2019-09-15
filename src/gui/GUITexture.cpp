@@ -26,7 +26,11 @@ void GUITexture::draw()
 
 void GUITexture::setTransparency(int a)
 {
-    SDL_SetTextureAlphaMod(texture, a);
+    if (a > 255) currAlpha = 255;
+    else if (a < 0) currAlpha = 0;
+    else currAlpha = a;
+
+    SDL_SetTextureAlphaMod(texture, currAlpha);
 }
 
 bool GUITexture::mouseUp()
@@ -34,7 +38,20 @@ bool GUITexture::mouseUp()
     return true;
 }
 
-void GUITexture::tick()
+void GUITexture::tick(int ms)
 {
+    fadeStep(ms);
     return;
+}
+
+SDL_Texture* GUITexture::swapTexture(SDL_Texture* t)
+{
+    SDL_Texture* temp = texture;
+    texture = t;
+    return temp;
+}
+
+void GUITexture::resetBounds()
+{
+    recomputePosition();
 }

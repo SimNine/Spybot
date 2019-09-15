@@ -3,6 +3,8 @@
 
 #include <GUIObject.h>
 
+#include "GUITexture.h"
+#include "LinkedList.h"
 
 class ProgramDisplayContainer : public GUIObject
 {
@@ -14,10 +16,11 @@ class ProgramDisplayContainer : public GUIObject
         void setTransparency(int);
         bool mouseDown();
         bool mouseUp();
-        void tick();
+        void tick(int);
+        void resetBounds();
     protected:
     private:
-        int transparency;
+        int currAlpha;
 };
 
 #endif // PROGRAMDISPLAYCONTAINER_H

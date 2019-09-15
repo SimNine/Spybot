@@ -8,6 +8,8 @@
 #include "DataContainer.h"
 #include "Program.h"
 #include "Enums.h"
+#include "Pair.h"
+#include "Game.h"
 
 class GameScreen : public GUIContainer
 {
@@ -15,57 +17,47 @@ public:
     GameScreen();
     virtual ~GameScreen();
 
-    void shiftBkg(int, int);
+    // GUIContainer method overrides
     void draw();
+    void tick(int);
     bool mouseDown();
-    void saveLevel();
-    void loadLevel(std::string);
-    void setSelectedTile(int, int);
-    void setSelectedProgram(Program*);
+    bool mouseUp();
+    void resetBounds();
+    void shiftBkg(int, int);
+    void toggleViewTeams();
+
+    // Game play methods
     Program* getSelectedProgram();
+    void setSelectedProgram(Program*);
+    void endTurn();
+
+    // Game editing methods
     void setBrushMode(BRUSH);
     void setBrushTileType(TILE);
+    void setBrushItem(ITEM);
     void setBrushProgramType(PROGRAM);
     void setBrushProgramTeam(int);
-    void toggleViewTeams();
-    void setBrushItem(ITEM);
     void setBackground(BACKGROUND);
-    void resetBounds();
+
+    // Game loading/saving methods
+    void saveLevel();
+    void loadLevel(std::string);
+    void clearLevel();
 protected:
 private:
     int bkgX;
     int bkgY;
+    int tickCount;
+    bool canShiftScreen;
+    double shiftSpeed;
     void drawBkg();
-    void drawContents();
+    void drawGrid();
     void checkShiftable();
-    void calculateProgramDist(Program*);
-
-    int gridLeftBound;
-    int gridRightBound;
-    int gridTopBound;
-    int gridBottomBound;
-
-    TILE gridTiles[200][200];
-    ITEM gridItems[200][200];
-    Program* gridPrograms[200][200];
-    int gridProgramDist[200][200];
-
-    void initBoard();
-    void clearLevel();
-    void deleteProgram(Program*);
-    void setTileAt(int, int, TILE);
-
-    void drawRectInBoard(TILE, int, int, int, int);
-    void fillRectInBoard(TILE, int, int, int, int);
-    void drawOvalInBoard(TILE, int, int, int, int);
-    void fillOvalInBoard(TILE, int, int, int, int);
-    bool isDrawValid(int, int, int, int);
+    void centerScreen();
+    int selectedTileX, selectedTileY;
 
     void buildGUI();
-
     ProgramDisplayContainer* progDisp;
-    Program* selectedProgram;
-
     GUIContainer* gridSelectBrushPanel;
     BRUSH brushMode;
     GUIContainer* gridEditPanel;
@@ -75,12 +67,10 @@ private:
     GUIContainer* gridItemEditPanel;
     ITEM brushItemType;
     GUIContainer* gridBkgPanel;
-    BACKGROUND bkgTex;
     int brushProgramTeam;
     bool programViewTeams;
-    int selectedTileX;
-    int selectedTileY;
-    bool canPanScreen;
+
+    Game* game;
 };
 
 #endif // GAMESCREEN_H

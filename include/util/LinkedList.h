@@ -125,7 +125,7 @@ public:
         return length;
     };
 
-    /* pops the first item off the list */
+    /* removes the first item from the list */
     T poll()
     {
         if (length == 0) return NULL;
@@ -139,6 +139,7 @@ public:
         else
         {
             firstNode = firstNode->next;
+            firstNode->prev = NULL;
         }
 
         length--;
@@ -164,10 +165,12 @@ public:
                 else if (currNode == lastNode)
                 {
                     lastNode = currNode->prev;
+                    lastNode->next = NULL;
                 }
                 else if (currNode == firstNode)
                 {
                     firstNode = currNode->next;
+                    firstNode->prev = NULL;
                 }
                 else
                 {

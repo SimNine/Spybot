@@ -10,7 +10,7 @@ GUIContainer::GUIContainer(ANCHOR anchorPoint, int xRel, int yRel, int width, in
     : GUIObject(anchorPoint, xRel, yRel, width, height, parent)
 {
     bkgImg = bkg;
-    contents = NULL;
+    contents = new LinkedList<GUIObject*>();
 }
 
 GUIContainer::~GUIContainer()
@@ -67,9 +67,18 @@ bool GUIContainer::mouseUp()
     return ret;
 }
 
+void GUIContainer::setPressed(bool p)
+{
+    Iterator<GUIObject*> it = contents->getIterator();
+    while (it.hasNext())
+    {
+        it.next()->setPressed(p);
+    }
+}
+
 void GUIContainer::resetBounds()
 {
-    GUIObject::resetBounds();
+    recomputePosition();
 
     if (parent == NULL)
     {
@@ -81,24 +90,12 @@ void GUIContainer::resetBounds()
 
 void GUIContainer::addObject(GUIObject* obj)
 {
-    if (contents == NULL)
-    {
-        contents = new LinkedList<GUIObject*>();
-    }
-
     contents->addLast(obj);
 }
 
 void GUIContainer::addAllObjects(LinkedList<GUIObject*>* objList)
 {
-    if (contents == NULL)
-    {
-        contents = objList;
-    }
-    else
-    {
-        contents->addAllLast(objList);
-    }
+    contents->addAllLast(objList);
 }
 
 void GUIContainer::drawBkg()
@@ -128,23 +125,32 @@ void GUIContainer::draw()
     drawBkg();
     drawContents();
 
-    if (debug) drawBounds();
+    if (debug)
+    {
+        drawBounds();
+    }
 }
 
 void GUIContainer::setTransparency(int a)
 {
+    if (a > 255) currAlpha = 255;
+    else if (a < 0) currAlpha = 0;
+    else currAlpha = a;
+
     Iterator<GUIObject*> it = contents->getIterator();
     while (it.hasNext())
     {
-        it.next()->setTransparency(a);
+        it.next()->setTransparency(currAlpha);
     }
 }
 
-void GUIContainer::tick()
+void GUIContainer::tick(int ms)
 {
+    fadeStep(ms);
+
     Iterator<GUIObject*> it = contents->getIterator();
     while (it.hasNext())
     {
-        it.next()->tick();
+        it.next()->tick(ms);
     }
 }

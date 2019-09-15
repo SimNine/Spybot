@@ -111,6 +111,11 @@ void initData()
     // initialize tile graphics
     dataContainer->tile_over = loadTexture("resources/board/tile_empty.png");
     dataContainer->tile_selected = loadTexture("resources/board/tile_selected.png");
+    dataContainer->tile_moveEast = loadTexture("resources/board/arrowright.png");
+    dataContainer->tile_moveSouth = loadTexture("resources/board/arrowdown.png");
+    dataContainer->tile_moveWest = loadTexture("resources/board/arrowleft.png");
+    dataContainer->tile_moveNorth = loadTexture("resources/board/arrowup.png");
+    dataContainer->tile_movePossible = loadTexture("resources/board/movepossible.png");
     dataContainer->tile_images[TILE_PLAIN] = loadTexture("resources/board/tile_empty_transparent.png");
     dataContainer->tile_images[TILE_PLAIN2] = loadTexture("resources/board/tile_empty2_transparent.png");
     dataContainer->tile_images[TILE_PLAIN3] = loadTexture("resources/board/tile_empty3_transparent.png");
@@ -204,6 +209,11 @@ void initData()
     dataContainer->item_icons[ITEM_BIGCREDIT] = loadTexture("resources/board/items/item_coin.png");
     dataContainer->item_icons[ITEM_FILES] = loadTexture("resources/board/items/item_files.png");
 
+    dataContainer->gameButtonEndTurn = loadTexture("resources/board/button_end_turn.png");
+    dataContainer->gameButtonAbandonGame = loadTexture("resources/board/button_abandon_game.png");
+    dataContainer->gameButtonWinGame = loadTexture("resources/board/button_win_game.png");
+    dataContainer->gameButtonResetGame = loadTexture("resources/board/button_reset_game.png");
+
     // mainScreen resources
     dataContainer->main_bkgdata = loadTexture("resources/main/menu_bkgdata.png");
     dataContainer->main_bkgsplotch = loadTexture("resources/main/menu_bkgsplotch.png");
@@ -232,9 +242,19 @@ void initData()
     dataContainer->color_white->b = 0;
     dataContainer->color_white->a = 0;
 
+    // Font presets
+    dataContainer->font_agencyFB_24 = TTF_OpenFont("resources/AGENCYB.ttf", 24);
+    if (!dataContainer->font_agencyFB_24) {
+        printf("TTF_OpenFont: %s\n", TTF_GetError());
+    }
+
     // SDL_Mixer sounds
     dataContainer->music_title = loadMusic("resources/sounds/title_music.flac");
     dataContainer->music_map_ambient = loadMusic("resources/sounds/map_ambient.flac");
-    dataContainer->music_beep = loadSound("resources/sounds/move_player.flac");
-    dataContainer->music_boop = loadSound("resources/sounds/move_computer.flac");
+    dataContainer->music_game1 = loadMusic("resources/sounds/e1.flac");
+    dataContainer->music_game2 = loadMusic("resources/sounds/e3.flac");
+    dataContainer->music_game3 = loadMusic("resources/sounds/e5.flac");
+    dataContainer->music_game4 = loadMusic("resources/sounds/e8.flac");
+    dataContainer->sound_move_player = loadSound("resources/sounds/move_player.flac");
+    dataContainer->sound_move_computer = loadSound("resources/sounds/move_computer.flac");
 }

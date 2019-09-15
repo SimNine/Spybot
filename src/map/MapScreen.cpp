@@ -153,9 +153,10 @@ MapScreen::MapScreen()
 
     bkgX = 0;
     bkgY = 0;
+    shiftSpeed = 0.25;
 
     levelConfirm = new GUIContainer(ANCHOR_NORTHWEST, 20, 20, 252, 194, this, dataContainer->level_confirm_window);
-    levelConfirm->setVisible(false);
+    levelConfirm->setTransparency(0);
 
     GUIButton* battleButton = new GUIButton(ANCHOR_NORTHWEST, 130, 169, 115, 14, levelConfirm,
                                             []()
@@ -164,9 +165,8 @@ MapScreen::MapScreen()
         {
             gameScreen->loadLevel(mapScreen->getSelectedNode()->getLevelStr());
             currScreen = gameScreen;
+            Mix_HaltMusic();
         }
-        mapScreen->getSelectedNode()->winNode();
-        mapScreen->clearSelectedNode();
     },
     dataContainer->begin_databattle_button_normal,
     dataContainer->begin_databattle_button_over,
@@ -183,6 +183,15 @@ MapScreen::MapScreen()
     levelConfirm->addObject(cancelButton);
 
     addObject(levelConfirm);
+
+    // shift and win the base node
+    shiftTo(baseNode);
+    while (isAnimOccurring)
+    {
+        tick(20);
+    }
+    selectedNode->winNode();
+    clearSelectedNode();
 }
 
 MapScreen::~MapScreen()
@@ -190,8 +199,10 @@ MapScreen::~MapScreen()
     //dtor
 }
 
-void MapScreen::shiftBkg(int x, int y)
+void MapScreen::shiftBkg(double x, double y)
 {
+    //printf("%04f,%04f\n", x, y);
+
     int bkgWidth;
     int bkgHeight;
     SDL_QueryTexture(bkgImg, NULL, NULL, &bkgWidth, &bkgHeight);
@@ -320,14 +331,15 @@ void MapScreen::clearSelectedNode()
     {
         selectedNode->setNodeStatus(NODESTATUS_OWNED);
     }
-    levelConfirm->setVisible(false);
+    levelConfirm->setTransparency(0);
     selectedNode = NULL;
 }
 
-void MapScreen::tick()
+void MapScreen::tick(int ms)
 {
     // tick all GUIObjects
-    GUIContainer::tick();
+    GUIContainer::tick(ms);
+    double shiftAmt = shiftSpeed*ms;
 
     // if the mapscreen is currently animated, don't take shift input
     if (isAnimOccurring)
@@ -340,20 +352,19 @@ void MapScreen::tick()
         // variables representing if the map has shifted sufficiently
         bool xShift = false;
         bool yShift = false;
-        int shiftSpeed = 5;
 
         // shift on the x-axis
         int xDis = selectedNode->getX() - bkgX - SCREEN_WIDTH/2;
         // if this node is left of center
         if (xDis < 0 && bkgX > 0)
         {
-            if (xDis < -shiftSpeed) shiftBkg(-shiftSpeed, 0);
+            if (xDis < -shiftAmt) shiftBkg(-shiftAmt, 0);
             else bkgX = selectedNode->getX() - SCREEN_WIDTH/2;
         }
         // if the node is right of center
         else if (xDis > 0 && bkgX < bkgWidth - SCREEN_WIDTH)
         {
-            if (xDis > shiftSpeed) shiftBkg(shiftSpeed, 0);
+            if (xDis > shiftAmt) shiftBkg(shiftAmt, 0);
             else bkgX = selectedNode->getX() - SCREEN_WIDTH/2;
         }
         else
@@ -366,13 +377,13 @@ void MapScreen::tick()
         // if this node is above center
         if (yDis < 0 && bkgY > 0)
         {
-            if (yDis < -shiftSpeed) shiftBkg(0, -shiftSpeed);
+            if (yDis < -shiftAmt) shiftBkg(0, -shiftAmt);
             else bkgY = selectedNode->getY() - SCREEN_HEIGHT/2;
         }
         // if this node is below center
         else if (yDis > 0 && bkgY < bkgHeight - SCREEN_HEIGHT)
         {
-            if (yDis > shiftSpeed) shiftBkg(0, shiftSpeed);
+            if (yDis > shiftAmt) shiftBkg(0, shiftAmt);
             else bkgY = selectedNode->getY() - SCREEN_HEIGHT/2;
         }
         else
@@ -384,8 +395,49 @@ void MapScreen::tick()
         if (xShift && yShift)
         {
             isAnimOccurring = false;
-            levelConfirm->setVisible(true);
+            levelConfirm->setTransparency(0);
         }
         return;
+    }
+    else
+    {
+        // scan for keys currently pressed
+        const Uint8* currentKeyStates = SDL_GetKeyboardState( NULL );
+        if( currentKeyStates[ SDL_SCANCODE_UP ] )
+        {
+            shiftBkg(0, -shiftAmt);
+        }
+        else if( currentKeyStates[ SDL_SCANCODE_DOWN ] )
+        {
+            shiftBkg(0, shiftAmt);
+        }
+
+        if( currentKeyStates[ SDL_SCANCODE_LEFT ] )
+        {
+            shiftBkg(-shiftAmt, 0);
+        }
+        else if( currentKeyStates[ SDL_SCANCODE_RIGHT ] )
+        {
+            shiftBkg(shiftAmt, 0);
+        }
+
+        // if the mouse is at an edge, try to shift the background
+        if (mousePosX < 20)
+        {
+            shiftBkg(-shiftAmt, 0);
+        }
+        else if (mousePosX > SCREEN_WIDTH - 20)
+        {
+            shiftBkg(shiftAmt, 0);
+        }
+
+        if (mousePosY < 20)
+        {
+            shiftBkg(0, -shiftAmt);
+        }
+        else if (mousePosY > SCREEN_HEIGHT - 20)
+        {
+            shiftBkg(0, shiftAmt);
+        }
     }
 }

@@ -7,9 +7,15 @@ GUIObject::GUIObject(ANCHOR anchorPoint, int xRel, int yRel, int width, int heig
     anchor = anchorPoint;
     xDisplacement = xRel;
     yDisplacement = yRel;
-    this->parent = parent;
     pressed = false;
-    visible = true;
+
+    startAlpha = 255;
+    endAlpha = 255;
+    currAlpha = 255;
+    fadeCurrDuration = 0;
+    fadeInitDuration = 0;
+
+    this->parent = parent;
     setBounds(xRel, yRel, width, height);
 }
 
@@ -83,7 +89,7 @@ SDL_Rect* GUIObject::getBounds()
     return &bounds;
 }
 
-void GUIObject::resetBounds()
+void GUIObject::recomputePosition()
 {
     bounds.x = getXAnchor() + xDisplacement;
     bounds.y = getYAnchor() + yDisplacement;
@@ -106,12 +112,7 @@ bool GUIObject::isMouseOver()
 
 bool GUIObject::isVisible()
 {
-    return visible;
-}
-
-void GUIObject::setVisible(bool b)
-{
-    visible = b;
+    return (currAlpha > 0);
 }
 
 void GUIObject::setPressed(bool b)
@@ -127,24 +128,68 @@ void GUIObject::drawBounds()
         {
             if (pressed)
             {
-                SDL_SetRenderDrawColor(gRenderer, 0, 255, 0, 0);
+                SDL_SetRenderDrawColor(gRenderer, 0, 255, 0, 255);
             }
             else
             {
-                SDL_SetRenderDrawColor(gRenderer, 255, 0, 0, 0);
+                SDL_SetRenderDrawColor(gRenderer, 255, 0, 0, 255);
             }
         }
         else
         {
             if (pressed)
             {
-                SDL_SetRenderDrawColor(gRenderer, 255, 255, 0, 0);
+                SDL_SetRenderDrawColor(gRenderer, 255, 255, 0, 255);
             }
             else
             {
-                SDL_SetRenderDrawColor(gRenderer, 255, 255, 255, 0);
+                SDL_SetRenderDrawColor(gRenderer, 255, 255, 255, 255);
             }
         }
         SDL_RenderDrawRect(gRenderer, &bounds);
+    }
+}
+
+void GUIObject::fade(int endAlpha, int fadeDuration)
+{
+    this->startAlpha = currAlpha;
+    this->endAlpha = endAlpha;
+    this->fadeInitDuration = fadeDuration;
+    this->fadeCurrDuration = 0;
+}
+
+int GUIObject::getTransparency()
+{
+    return currAlpha;
+}
+
+void GUIObject::fadeStep(int ms)
+{
+    if (fadeCurrDuration != fadeInitDuration) // if fading is occurring
+    {
+        double pctDone = (double)fadeCurrDuration/fadeInitDuration;
+
+        if (currAlpha > endAlpha) // if alpha is decreasing
+        {
+            setTransparency(startAlpha - pctDone*(startAlpha - endAlpha) - 1);
+        }
+        else // if alpha is increasing
+        {
+            setTransparency(pctDone*(endAlpha - startAlpha) + 1);
+        }
+
+        // increment the fade duration
+        fadeCurrDuration += ms;
+
+        // if the fade duration has ended
+        if (fadeCurrDuration >= fadeInitDuration)
+        {
+            fadeCurrDuration = 0;
+            fadeInitDuration = 0;
+
+            // guarantee visibility or invisibility
+            if (endAlpha == 255) setTransparency(255);
+            else if (endAlpha == 0) setTransparency(0);
+        }
     }
 }

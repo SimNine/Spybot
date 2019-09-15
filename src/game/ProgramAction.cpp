@@ -1,7 +1,7 @@
 #include "Global.h"
-#include "ProgramMove.h"
+#include "ProgramAction.h"
 
-ProgramMove::ProgramMove(MOVE t, std::string name, std::string description, int range, int power, int reqSize)
+ProgramAction::ProgramAction(MOVE t, std::string name, std::string description, int range, int power, int reqSize)
 {
     this->type = t;
     this->name = name;
@@ -11,7 +11,7 @@ ProgramMove::ProgramMove(MOVE t, std::string name, std::string description, int 
     this->requiredSize = reqSize;
 }
 
-ProgramMove::~ProgramMove()
+ProgramAction::~ProgramAction()
 {
     if (debug)
     {

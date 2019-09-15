@@ -8,7 +8,7 @@ class MainScreenGlow
         MainScreenGlow(int, int);
         virtual ~MainScreenGlow();
         void draw();
-        void tick();
+        void tick(int);
 
         int getXPos();
         int getYPos();

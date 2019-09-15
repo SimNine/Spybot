@@ -9,9 +9,9 @@ class MapScreen : public GUIContainer
     public:
         MapScreen();
         virtual ~MapScreen();
-        void shiftBkg(int, int);
+        void shiftBkg(double, double);
         void draw();
-        void tick();
+        void tick(int);
         bool mouseDown();
         bool isBusy();
         void shiftTo(Node*);
@@ -19,8 +19,9 @@ class MapScreen : public GUIContainer
         void clearSelectedNode();
     protected:
     private:
-        int bkgX;
-        int bkgY;
+        double bkgX;
+        double bkgY;
+        double shiftSpeed;
         LinkedList<Node*>* nodeList;
         bool isAnimOccurring;
         Node* selectedNode;

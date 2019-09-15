@@ -5,11 +5,11 @@
 
 #include "Enums.h"
 
-class ProgramMove
+class ProgramAction
 {
     public:
-        ProgramMove(MOVE, std::string, std::string, int, int, int);
-        virtual ~ProgramMove();
+        ProgramAction(MOVE, std::string, std::string, int, int, int);
+        virtual ~ProgramAction();
         MOVE type;
         std::string name;
         std::string description;

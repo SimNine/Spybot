@@ -88,6 +88,7 @@ bool initSDL()
 
     //Initialize renderer color
     SDL_SetRenderDrawColor( gRenderer, 0xFF, 0xFF, 0xFF, 0xFF );
+    SDL_SetRenderDrawBlendMode(gRenderer, SDL_BLENDMODE_BLEND);
 
     //Initialize PNG loading
     int imgFlags = IMG_INIT_PNG;
@@ -210,103 +211,11 @@ void handleEvents()
             }
         }
     }
-
-    // handle in-progress events
-    if (currScreen == mapScreen)
-    {
-        // if the mapscreen is animating, don't take input
-        if (mapScreen->isBusy())
-        {
-            return;
-        }
-
-        // scan for keys currently pressed
-        const Uint8* currentKeyStates = SDL_GetKeyboardState( NULL );
-        int shiftSpeed = 5;
-        if( currentKeyStates[ SDL_SCANCODE_UP ] )
-        {
-            mapScreen->shiftBkg(0, -shiftSpeed);
-        }
-        else if( currentKeyStates[ SDL_SCANCODE_DOWN ] )
-        {
-            mapScreen->shiftBkg(0, shiftSpeed);
-        }
-
-        if( currentKeyStates[ SDL_SCANCODE_LEFT ] )
-        {
-            mapScreen->shiftBkg(-shiftSpeed, 0);
-        }
-        else if( currentKeyStates[ SDL_SCANCODE_RIGHT ] )
-        {
-            mapScreen->shiftBkg(shiftSpeed, 0);
-        }
-
-        // if the mouse is at an edge, try to shift the background
-        if (mousePosX < 20)
-        {
-            mapScreen->shiftBkg(-shiftSpeed, 0);
-        }
-        else if (mousePosX > SCREEN_WIDTH - 20)
-        {
-            mapScreen->shiftBkg(shiftSpeed, 0);
-        }
-
-        if (mousePosY < 20)
-        {
-            mapScreen->shiftBkg(0, -shiftSpeed);
-        }
-        else if (mousePosY > SCREEN_HEIGHT - 20)
-        {
-            mapScreen->shiftBkg(0, shiftSpeed);
-        }
-    }
-    else if (currScreen == gameScreen)
-    {
-        // scan for keys currently pressed
-        const Uint8* currentKeyStates = SDL_GetKeyboardState( NULL );
-        int shiftSpeed = 3;
-        if( currentKeyStates[ SDL_SCANCODE_UP ] )
-        {
-            gameScreen->shiftBkg(0, -shiftSpeed);
-        }
-        else if( currentKeyStates[ SDL_SCANCODE_DOWN ] )
-        {
-            gameScreen->shiftBkg(0, shiftSpeed);
-        }
-
-        if( currentKeyStates[ SDL_SCANCODE_LEFT ] )
-        {
-            gameScreen->shiftBkg(-shiftSpeed, 0);
-        }
-        else if( currentKeyStates[ SDL_SCANCODE_RIGHT ] )
-        {
-            gameScreen->shiftBkg(shiftSpeed, 0);
-        }
-
-        // if the mouse is at an edge, try to shift the background
-        if (mousePosX < 20)
-        {
-            gameScreen->shiftBkg(-shiftSpeed, 0);
-        }
-        else if (mousePosX > SCREEN_WIDTH - 20)
-        {
-            gameScreen->shiftBkg(shiftSpeed, 0);
-        }
-
-        if (mousePosY < 20)
-        {
-            gameScreen->shiftBkg(0, -shiftSpeed);
-        }
-        else if (mousePosY > SCREEN_HEIGHT - 20)
-        {
-            gameScreen->shiftBkg(0, shiftSpeed);
-        }
-    }
 }
 
-void tick()
+void tick(int ms)
 {
-    currScreen->tick();
+    currScreen->tick(ms);
 }
 
 // main function
@@ -327,13 +236,22 @@ int main( int argc, char* args[] )
     renderTimer.start();
 
     unsigned int fpsCap = 60;
+    unsigned int tickCap = 60;
     unsigned int frameCount = 0;
+    unsigned int tickCount = 0;
     unsigned int msPerFrame;
+    unsigned int msPerTick;
     Timer renderTimerB;
+    Timer tickTimerB;
     if (fpsCap != 0)
     {
         renderTimerB.start();
         msPerFrame = 1000/fpsCap;
+    }
+    if (tickCap != 0)
+    {
+        tickTimerB.start();
+        msPerTick = 1000/tickCap;
     }
 
     // main loop
@@ -341,12 +259,22 @@ int main( int argc, char* args[] )
     while( !quit )
     {
         // handle ticks
-        if (tickTimer.getTicks() >= 20) // tick whenever 20+ ms have gone by
+        unsigned int ticksPassed = tickTimer.getTicks();
+        if (tickCap == 0)
         {
-            tick(); // tick whatever needs to be ticked
-            if (acceptingInput) handleEvents();
             tickTimer.stop();
             tickTimer.start();
+            tick(ticksPassed); // tick whatever needs to be ticked
+            if (acceptingInput) handleEvents();
+            tickCount++;
+        }
+        if (ticksPassed >= msPerTick) // tick whenever 20+ ms have gone by
+        {
+            tickTimer.stop();
+            tickTimer.start();
+            tick(ticksPassed); // tick whatever needs to be ticked
+            if (acceptingInput) handleEvents();
+            tickCount++;
         }
 
         // handle drawing

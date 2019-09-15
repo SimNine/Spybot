@@ -5,7 +5,7 @@
 
 #include "LinkedList.h"
 #include "Enums.h"
-#include "ProgramMove.h"
+#include "ProgramAction.h"
 
 class Program
 {
@@ -27,8 +27,10 @@ class Program
         void setHealth(int);
         int getMaxHealth();
         void setMaxHealth(int);
-        int getSpeed();
-        void setSpeed(int);
+        int getMoves();
+        void setMoves(int);
+        int getMaxMoves();
+        void setMaxMoves(int);
         int getTeam();
         void setTeam(int);
         std::string getName();
@@ -38,15 +40,18 @@ class Program
         int getCost();
         void setCost(int);
 
-        void addMove(ProgramMove*);
+        void endTurn();
+
+        void addAction(ProgramAction*);
+        LinkedList<ProgramAction*>* getActions();
     protected:
     private:
         int xHead, yHead;
         PROGRAM type;
-        int health, maxHealth, speed;
+        int health, maxHealth, moves, maxMoves;
         int color[3];
         int team;
-        LinkedList<ProgramMove*>* moveList;
+        LinkedList<ProgramAction*>* actionList;
         SDL_Texture* icon;
         std::string name;
         std::string description;

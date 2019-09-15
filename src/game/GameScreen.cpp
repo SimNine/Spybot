@@ -6,6 +6,7 @@
 #include "LinkedList.h"
 #include "ResourceLoader.h"
 #include "Pair.h"
+#include "GUITexture.h"
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -14,7 +15,6 @@
 GameScreen::GameScreen()
     : GUIContainer(ANCHOR_NORTHWEST, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, NULL, loadTexture("resources/company_4.png"))
 {
-    initBoard();
     buildGUI();
 
     brushMode = BRUSH_NONE;
@@ -23,12 +23,15 @@ GameScreen::GameScreen()
     brushProgramTeam = 0;
     brushItemType = ITEM_NONE;
     programViewTeams = false;
-    setSelectedProgram(NULL);
-    selectedTileX = 0;
-    selectedTileY = 0;
+    tickCount = 0;
     bkgX = 0;
     bkgY = 0;
-    canPanScreen = true;
+    selectedTileX = 0;
+    selectedTileY = 0;
+    shiftSpeed = 0.1;
+    canShiftScreen = true;
+
+    game = new Game();
 }
 
 GameScreen::~GameScreen()
@@ -46,24 +49,18 @@ void GameScreen::buildGUI()
     {
         gameScreen->setBrushTileType(TILE_NONE);
     },
-    dataContainer->tile_images[TILE_NONE],
-    dataContainer->tile_images[TILE_NONE],
     dataContainer->tile_images[TILE_NONE]);
     GUIButton* plainButton = new GUIButton(ANCHOR_NORTHWEST, 4 + 32*col++, 4, 28, 28, gridEditPanel,
                                            []()
     {
         gameScreen->setBrushTileType(TILE_PLAIN);
     },
-    dataContainer->tile_images[TILE_PLAIN],
-    dataContainer->tile_images[TILE_PLAIN],
     dataContainer->tile_images[TILE_PLAIN]);
     GUIButton* plain2Button = new GUIButton(ANCHOR_NORTHWEST, 4 + 32*col++, 4, 28, 28, gridEditPanel,
                                             []()
     {
         gameScreen->setBrushTileType(TILE_PLAIN2);
     },
-    dataContainer->tile_images[TILE_PLAIN2],
-    dataContainer->tile_images[TILE_PLAIN2],
     dataContainer->tile_images[TILE_PLAIN2]);
     GUIButton* plain3Button = new GUIButton(ANCHOR_NORTHWEST, 4 + 32*col++, 4, 28, 28, gridEditPanel,
                                             []()
@@ -154,15 +151,6 @@ void GameScreen::buildGUI()
     ln = 0;
     col = 0;
     gridProgramEditPanel = new GUIContainer(ANCHOR_NORTHWEST, 20, 60, 32*15 + 8, 136, this, NULL);
-    GUIButton* nullProgramButton = new GUIButton(ANCHOR_NORTHWEST, 4 + 32*col++, 4 + 32*ln, 28, 28, gridProgramEditPanel,
-            []()
-    {
-        gameScreen->setSelectedProgram(NULL);
-    },
-    NULL,
-    NULL,
-    NULL);
-    gridProgramEditPanel->addObject(nullProgramButton);
     GUIButton* ballistaButton = new GUIButton(ANCHOR_NORTHWEST, 4 + 32*col++, 4 + 32*ln, 28, 28, gridProgramEditPanel,
             []()
     {
@@ -851,104 +839,80 @@ void GameScreen::buildGUI()
 
     progDisp = new ProgramDisplayContainer(ANCHOR_SOUTHEAST, -220, -120, 200, 100, this);
     addObject(progDisp);
+
+    GUIButton* endTurnButton = new GUIButton(ANCHOR_SOUTH, -100, -100, 200, 50, this,
+                                             [](){gameScreen->endTurn();},
+                                             dataContainer->gameButtonEndTurn);
+    addObject(endTurnButton);
+
+    GUIButton* abandonGameButton = new GUIButton(ANCHOR_NORTHEAST, -250, 25, 200, 50, this,
+                                                 [](){currScreen = mapScreen; mapScreen->clearSelectedNode();},
+                                                 dataContainer->gameButtonAbandonGame);
+    addObject(abandonGameButton);
+    GUIButton* winGameButton = new GUIButton(ANCHOR_NORTHEAST, -250, 100, 200, 50, this,
+                                             [](){mapScreen->getSelectedNode()->winNode(); mapScreen->clearSelectedNode(); currScreen = mapScreen;},
+                                             dataContainer->gameButtonWinGame);
+    addObject(winGameButton);
+    GUIButton* resetGameButton = new GUIButton(ANCHOR_NORTHEAST, -250, 175, 200, 50, this,
+                                               [](){gameScreen->loadLevel(mapScreen->getSelectedNode()->getLevelStr());},
+                                               dataContainer->gameButtonResetGame);
+    addObject(resetGameButton);
 }
 
 void GameScreen::resetBounds()
 {
     GUIContainer::resetBounds();
     checkShiftable();
-    if (!canPanScreen)
-    {
-        bkgX = (gridRightBound + gridLeftBound)*32/2 - SCREEN_WIDTH/2;
-        bkgY = (gridBottomBound + gridTopBound)*32/2 - SCREEN_HEIGHT/2;
-    }
+    if (!canShiftScreen) centerScreen();
 }
 
 bool GameScreen::mouseDown()
 {
+    GUIContainer::mouseDown();
+
     if (debug)
     {
         if (gridEditPanel->isMouseOver()) // click the tile pallette
         {
-            gridEditPanel->mouseDown();
-            return true;
+            return gridEditPanel->mouseDown();
         }
         else if (gridProgramEditPanel->isMouseOver()) // click the program pallette
         {
-            gridProgramEditPanel->mouseDown();
-            return true;
+            return gridProgramEditPanel->mouseDown();
         }
         else if (gridSelectBrushPanel->isMouseOver())
         {
-            gridSelectBrushPanel->mouseDown();
-            return true;
+            return gridSelectBrushPanel->mouseDown();
         }
         else if (gridItemEditPanel->isMouseOver())
         {
-            gridItemEditPanel->mouseDown();
-            return true;
+            return gridItemEditPanel->mouseDown();
         }
         else if (gridBkgPanel->isMouseOver())
         {
-            gridBkgPanel->mouseDown();
-            return true;
+            return gridBkgPanel->mouseDown();
         }
         else // click the grid
         {
-            int currTileX = (bkgX + mousePosX)/32;
-            int currTileY = (bkgY + mousePosY)/32;
+            // find the clicked tile
+            int x = (bkgX + mousePosX)/32;
+            int y = (bkgY + mousePosY)/32;
+
             if (brushMode == BRUSH_PROGRAMS)
             {
-                if (gridTiles[currTileX][currTileY] == TILE_NONE)
-                {
-                    return false;
-                }
-
-                if (gridPrograms[currTileX][currTileY] == NULL)
-                {
-                    if (selectedProgram == NULL)
-                    {
-                        gridPrograms[currTileX][currTileY] = new Program(brushProgramType, brushProgramTeam, currTileX, currTileY);
-                        selectedProgram = gridPrograms[currTileX][currTileY];
-                    }
-                    else
-                    {
-                        gridPrograms[currTileX][currTileY] = selectedProgram;
-                    }
-                }
-                else if (gridPrograms[currTileX][currTileY] != NULL &&
-                         gridPrograms[currTileX][currTileY]->getCoreX() == currTileX &&
-                         gridPrograms[currTileX][currTileY]->getCoreY() == currTileY)
-                {
-                    selectedProgram = gridPrograms[currTileX][currTileY];
-                }
+                // TODO
             }
             else if (brushMode == BRUSH_TILES)
             {
-                setTileAt(currTileX, currTileY, brushTileType);
+                game->setTileAt(x, y, brushTileType);
             }
             else if (brushMode == BRUSH_DELETEPROGRAMS)
             {
-                if (gridPrograms[currTileX][currTileY] != NULL)
-                {
-                    if (gridPrograms[currTileX][currTileY]->getCoreX() == currTileX &&
-                            gridPrograms[currTileX][currTileY]->getCoreY() == currTileY)
-                    {
-                        Program* temp = gridPrograms[currTileX][currTileY];
-                        deleteProgram(temp);
-                    }
-                    else
-                    {
-                        gridPrograms[currTileX][currTileY] = NULL;
-                    }
-                }
+                game->setProgramAt(x, y, NULL);
             }
             else if (brushMode == BRUSH_ITEMS)
             {
-                if (gridTiles[currTileX][currTileY] != TILE_NONE)
-                {
-                    gridItems[currTileX][currTileY] = brushItemType;
-                }
+                game->setItemAt(x, y, brushItemType);
             }
             else
             {
@@ -957,17 +921,70 @@ bool GameScreen::mouseDown()
             return true;
         }
     }
-    else
+    else // if not in debug mode
     {
-        int currTileX = (bkgX + mousePosX)/32;
-        int currTileY = (bkgY + mousePosY)/32;
+        int x = (bkgX + mousePosX)/32;
+        int y = (bkgY + mousePosY)/32;
 
-        selectedTileX = currTileX;
-        selectedTileY = currTileY;
-        setSelectedProgram(gridPrograms[currTileX][currTileY]);
+        game->moveSelectedProgram(x, y);
+        game->setSelectedProgram(x, y);
+        if (game->getSelectedProgram() == NULL)
+        {
+            selectedTileX = x;
+            selectedTileY = y;
+        }
+        else
+        {
+            selectedTileX = game->getSelectedProgram()->getCoreX();
+            selectedTileY = game->getSelectedProgram()->getCoreY();
+        }
 
         return false;
     }
+}
+
+bool GameScreen::mouseUp()
+{
+    GUIContainer::mouseUp();
+
+    bool r = false;
+
+    if (debug)
+    {
+        if (gridEditPanel->isMouseOver()) // click the tile pallette
+        {
+            r = gridEditPanel->mouseUp();
+        }
+        else if (gridProgramEditPanel->isMouseOver()) // click the program pallette
+        {
+            r = gridProgramEditPanel->mouseUp();
+        }
+        else if (gridSelectBrushPanel->isMouseOver())
+        {
+            r = gridSelectBrushPanel->mouseUp();
+        }
+        else if (gridItemEditPanel->isMouseOver())
+        {
+            r = gridItemEditPanel->mouseUp();
+        }
+        else if (gridBkgPanel->isMouseOver())
+        {
+            r = gridBkgPanel->mouseUp();
+        }
+
+        gridEditPanel->setPressed(false);
+        gridProgramEditPanel->setPressed(false);
+        gridSelectBrushPanel->setPressed(false);
+        gridItemEditPanel->setPressed(false);
+        gridBkgPanel->setPressed(false);
+    }
+
+    return r;
+}
+
+void GameScreen::endTurn()
+{
+    game->endTurn();
 }
 
 void GameScreen::drawBkg()
@@ -976,7 +993,7 @@ void GameScreen::drawBkg()
     SDL_RenderCopy(gRenderer, bkgImg, NULL, NULL);
 }
 
-void GameScreen::drawContents()
+void GameScreen::drawGrid()
 {
     SDL_Rect tileRect;
     // set temp variables
@@ -1007,7 +1024,7 @@ void GameScreen::drawContents()
     {
         for (int y = topLeftTileY; y < bottomRightTileY; y++)
         {
-            if (gridTiles[x][y] == TILE_NONE && !debug)
+            if (game->getTileAt(x, y) == TILE_NONE && !debug)
             {
                 continue;
             }
@@ -1022,10 +1039,10 @@ void GameScreen::drawContents()
             tileRect.w = sizeDefault;
             tileRect.h = sizeDefault;
 
-            if (gridPrograms[x][y] != NULL)
+            if (game->getProgramAt(x, y) != NULL)
             {
                 // get this program
-                Program* prog = gridPrograms[x][y];
+                Program* prog = game->getProgramAt(x, y);
 
                 // draw this program's tile
                 tileRect.x = xDefault - 1;
@@ -1047,10 +1064,22 @@ void GameScreen::drawContents()
                 {
                     SDL_SetTextureColorMod(dataContainer->program_core, prog->getColor(0), prog->getColor(1), prog->getColor(2));
                 }
-                SDL_RenderCopy(gRenderer, dataContainer->program_core, NULL, &tileRect);
+
+                // if this is the farthest chunk of this program
+                if (prog == game->getSelectedProgram() && prog->getHealth() == prog->getMaxHealth())
+                {
+                    Pair<int>* currTail = game->getFarthestContiguousBlock(prog);
+                    if (x == currTail->a && y == currTail->b)
+                    {
+                        if (tickCount % 100 < 50) SDL_RenderCopy(gRenderer, dataContainer->program_core, NULL, &tileRect);
+                    }
+                    else SDL_RenderCopy(gRenderer, dataContainer->program_core, NULL, &tileRect);
+                    delete currTail;
+                }
+                else SDL_RenderCopy(gRenderer, dataContainer->program_core, NULL, &tileRect);
 
                 // if this is part of the selected program, indicate it
-                if (gridPrograms[x][y] == selectedProgram && debug)
+                if (prog == game->getSelectedProgram() && debug)
                 {
                     SDL_SetRenderDrawColor(gRenderer, 255, 0, 0, 0);
                     SDL_RenderDrawLine(gRenderer, tileRect.x, tileRect.y, tileRect.x + tileRect.w, tileRect.y + tileRect.h);
@@ -1058,7 +1087,7 @@ void GameScreen::drawContents()
                 }
 
                 // draw the bridges from this program's tile to adjacent tiles
-                if (gridPrograms[x][y+1] == gridPrograms[x][y])
+                if (game->getProgramAt(x, y+1) == prog)
                 {
                     tileRect.x = xDefault + 9;
                     tileRect.y = yDefault + 26;
@@ -1081,7 +1110,7 @@ void GameScreen::drawContents()
                     }
                     SDL_RenderCopy(gRenderer, dataContainer->program_core_vertical, NULL, &tileRect);
                 }
-                if (gridPrograms[x+1][y] == gridPrograms[x][y])
+                if (game->getProgramAt(x+1, y) == prog)
                 {
                     tileRect.x = xDefault + 26;
                     tileRect.y = yDefault + 8;
@@ -1106,20 +1135,31 @@ void GameScreen::drawContents()
                 }
 
                 // draw the icon IF this is the core tile
-                if (gridPrograms[x][y]->getCoreX() == x &&
-                        gridPrograms[x][y]->getCoreY() == y)
+                if (prog->getCoreX() == x &&
+                    prog->getCoreY() == y)
                 {
                     tileRect.x = xDefault - 1;
                     tileRect.y = yDefault - 1;
                     tileRect.w = 27;
                     tileRect.h = 27;
-                    SDL_RenderCopy(gRenderer, gridPrograms[x][y]->getIcon(), NULL, &tileRect);
+                    SDL_RenderCopy(gRenderer, prog->getIcon(), NULL, &tileRect);
+
+                    // draw the highlight rectangle if this program is selected
+                    if (prog == game->getSelectedProgram())
+                    {
+                        tileRect.x = xDefault - 2;
+                        tileRect.y = yDefault - 2;
+                        tileRect.w = 32;
+                        tileRect.h = 32;
+                        SDL_SetTextureAlphaMod(dataContainer->tile_selected, ((double)-tickCount/1000.0)*255 + 255);
+                        SDL_RenderCopy(gRenderer, dataContainer->tile_selected, NULL, &tileRect);
+                    }
                 }
             }
-            else
+            else // if there is no program on this tile
             {
-                SDL_Texture* tileImg = dataContainer->tile_images[gridTiles[x][y]];
-                if (gridTiles[x][y] == TILE_NONE && !debug)
+                SDL_Texture* tileImg = dataContainer->tile_images[game->getTileAt(x, y)];
+                if (game->getTileAt(x, y) == TILE_NONE && !debug)
                 {
                     continue;
                 }
@@ -1132,9 +1172,9 @@ void GameScreen::drawContents()
 
             // if the mouse is over this tile
             if (mousePosX - tileRect.x > 0 &&
-                    mousePosX - (tileRect.x + tileRect.w) < 0 &&
-                    mousePosY - tileRect.y > 0 &&
-                    mousePosY - (tileRect.y + tileRect.h) < 0)
+                mousePosX - (tileRect.x + tileRect.w) < 0 &&
+                mousePosY - tileRect.y > 0 &&
+                mousePosY - (tileRect.y + tileRect.h) < 0)
             {
                 tileRect.x = xDefault;
                 tileRect.y = yDefault;
@@ -1144,12 +1184,12 @@ void GameScreen::drawContents()
                 SDL_RenderCopy(gRenderer, dataContainer->tile_over, NULL, &tileRect);
             }
 
-            if (gridItems[x][y] != ITEM_NONE)
+            if (game->getItemAt(x, y) != ITEM_NONE)
             {
-                SDL_QueryTexture(dataContainer->item_icons[gridItems[x][y]], NULL, NULL, &tileRect.w, &tileRect.h);
+                SDL_QueryTexture(dataContainer->item_icons[game->getItemAt(x, y)], NULL, NULL, &tileRect.w, &tileRect.h);
                 tileRect.x = xDefault - (tileRect.w - 28)/2;
                 tileRect.y = yDefault - (tileRect.h - 28)/2;
-                SDL_RenderCopy(gRenderer, dataContainer->item_icons[gridItems[x][y]], NULL, &tileRect);
+                SDL_RenderCopy(gRenderer, dataContainer->item_icons[game->getItemAt(x, y)], NULL, &tileRect);
             }
 
             if (x == selectedTileX && y == selectedTileY)
@@ -1158,41 +1198,41 @@ void GameScreen::drawContents()
                 tileRect.y = yDefault - 2;
                 tileRect.w = 32;
                 tileRect.h = 32;
+                SDL_SetTextureAlphaMod(dataContainer->tile_selected, ((double)-tickCount/1000.0)*255 + 255);
                 SDL_RenderCopy(gRenderer, dataContainer->tile_selected, NULL, &tileRect);
             }
 
-            if (gridProgramDist[x][y] != -1)
+            if (game->getSelectedProgramDist(x, y) != -1)
             {
                 tileRect.x = xDefault;
                 tileRect.y = yDefault;
                 tileRect.w = sizeDefault;
-                tileRect.w = sizeDefault;
+                tileRect.h = sizeDefault;
 
-                switch (gridProgramDist[x][y])
+                if (game->getSelectedProgramDist(x, y) == 0)
                 {
-                case 0:
-                    SDL_SetRenderDrawColor(gRenderer, 255, 255, 255, 255);
-                    break;
-                case 1:
-                    SDL_SetRenderDrawColor(gRenderer, 255, 0, 0, 255);
-                    break;
-                case 2:
-                    SDL_SetRenderDrawColor(gRenderer, 255, 128, 0, 255);
-                    break;
-                case 3:
-                    SDL_SetRenderDrawColor(gRenderer, 128, 255, 0, 255);
-                    break;
-                case 4:
-                    SDL_SetRenderDrawColor(gRenderer, 0, 255, 0, 255);
-                    break;
-                case 5:
-                    SDL_SetRenderDrawColor(gRenderer, 0, 255, 128, 255);
-                    break;
-                default:
-                    SDL_SetRenderDrawColor(gRenderer, 0, 0, 0, 255);
-                    break;
+                    continue;
                 }
-                SDL_RenderFillRect(gRenderer, &tileRect);
+                if (x == game->getSelectedProgram()->getCoreX() && y == game->getSelectedProgram()->getCoreY() + 1)
+                {
+                    SDL_RenderCopy(gRenderer, dataContainer->tile_moveSouth, NULL, &tileRect);
+                }
+                else if (x == game->getSelectedProgram()->getCoreX() + 1 && y == game->getSelectedProgram()->getCoreY())
+                {
+                    SDL_RenderCopy(gRenderer, dataContainer->tile_moveEast, NULL, &tileRect);
+                }
+                else if (x == game->getSelectedProgram()->getCoreX() && y == game->getSelectedProgram()->getCoreY() - 1)
+                {
+                    SDL_RenderCopy(gRenderer, dataContainer->tile_moveNorth, NULL, &tileRect);
+                }
+                else if (x == game->getSelectedProgram()->getCoreX() - 1 && y == game->getSelectedProgram()->getCoreY())
+                {
+                    SDL_RenderCopy(gRenderer, dataContainer->tile_moveWest, NULL, &tileRect);
+                }
+                else
+                {
+                    SDL_RenderCopy(gRenderer, dataContainer->tile_movePossible, NULL, &tileRect);
+                }
             }
         }
     }
@@ -1210,10 +1250,10 @@ void GameScreen::drawContents()
         SDL_RenderDrawLine(gRenderer, -bkgX + 100*32, -bkgY + 4, -bkgX + 100*32, -bkgY + 200*32); // vert
         SDL_RenderDrawLine(gRenderer, -bkgX + 4, -bkgY + 100*32, -bkgX + 200*32, -bkgY + 100*32); // horiz
 
-        tileRect.x = -bkgX + gridLeftBound*32;
-        tileRect.y = -bkgY + gridTopBound*32;
-        tileRect.w = (gridRightBound - gridLeftBound)*32;
-        tileRect.h = (gridBottomBound - gridTopBound)*32;
+        tileRect.x = -bkgX + game->getLeftBound()*32;
+        tileRect.y = -bkgY + game->getTopBound()*32;
+        tileRect.w = (game->getRightBound() - game->getLeftBound())*32;
+        tileRect.h = (game->getBottomBound() - game->getTopBound())*32;
         SDL_RenderDrawRect(gRenderer, &tileRect);
     }
 }
@@ -1221,7 +1261,7 @@ void GameScreen::drawContents()
 void GameScreen::draw()
 {
     drawBkg();
-    drawContents();
+    drawGrid();
     GUIContainer::drawContents();
 
     if (debug)
@@ -1236,348 +1276,32 @@ void GameScreen::draw()
 
 void GameScreen::shiftBkg(int x, int y)
 {
-    if (!canPanScreen) return;
+    if (!canShiftScreen) return;
 
-    if (bkgX + x + SCREEN_WIDTH/2 < gridLeftBound*32)
+    if (bkgX + x + SCREEN_WIDTH/2 < game->getLeftBound()*32)
     {
-        bkgX = gridLeftBound*32 - SCREEN_WIDTH/2;
+        bkgX = game->getLeftBound()*32 - SCREEN_WIDTH/2;
     }
-    else if (bkgX + x + SCREEN_WIDTH/2 > gridRightBound*32)
+    else if (bkgX + x + SCREEN_WIDTH/2 > game->getRightBound()*32)
     {
-        bkgX = gridRightBound*32 - SCREEN_WIDTH/2;
+        bkgX = game->getRightBound()*32 - SCREEN_WIDTH/2;
     }
     else
     {
         bkgX += x;
     }
 
-    if (bkgY + y + SCREEN_HEIGHT/2 < gridTopBound*32)
+    if (bkgY + y + SCREEN_HEIGHT/2 < game->getTopBound()*32)
     {
-        bkgY = gridTopBound*32 - SCREEN_HEIGHT/2;
+        bkgY = game->getTopBound()*32 - SCREEN_HEIGHT/2;
     }
-    else if (bkgY + y + SCREEN_HEIGHT/2 > gridBottomBound*32)
+    else if (bkgY + y + SCREEN_HEIGHT/2 > game->getBottomBound()*32)
     {
-        bkgY = gridBottomBound*32 - SCREEN_HEIGHT/2;
+        bkgY = game->getBottomBound()*32 - SCREEN_HEIGHT/2;
     }
     else
     {
         bkgY += y;
-    }
-}
-
-bool GameScreen::isDrawValid(int x, int y, int height, int width)
-{
-    if (x < 0 || x + width > 200 ||
-            y < 0 || y + height > 200)
-    {
-        return false;
-    }
-    else
-    {
-        return true;
-    }
-}
-
-void GameScreen::drawRectInBoard(TILE tileType, int x, int y, int width, int height)
-{
-    if (!isDrawValid(x, y, width, height))
-    {
-        return;
-    }
-
-    for (int xx = x; xx < x + width; xx++)
-    {
-        setTileAt(xx, y, tileType);
-        setTileAt(xx, y + height - 1, tileType);
-    }
-    for (int yy = y; yy < y + height; yy++)
-    {
-        setTileAt(x, yy, tileType);
-        setTileAt(x + width - 1, yy, tileType);
-    }
-}
-
-void GameScreen::fillRectInBoard(TILE tileType, int x, int y, int width, int height)
-{
-    if (!isDrawValid(x, y, width, height))
-    {
-        return;
-    }
-
-    for (int i = x; i < x + width; i++)
-    {
-        for (int j = y; j < y + height; j++)
-        {
-            setTileAt(i, j, tileType);
-        }
-    }
-}
-
-void GameScreen::drawOvalInBoard(TILE tileType, int x, int y, int width, int height)
-{
-
-}
-
-void GameScreen::fillOvalInBoard(TILE tileType, int x, int y, int width, int height)
-{
-    int xCenter = x + width/2;
-    int yCenter = y + height/2;
-    for (int i = x; i < x + width - 1; i++)
-    {
-        for (int j = y; j < y + height - 1; j++)
-        {
-            if (((i - xCenter)*(i - xCenter))/((width/2)*(width/2)) &&
-                    ((j - yCenter)*(j - yCenter))/((height/2)*(height/2)))
-            {
-                setTileAt(i, j, tileType);
-            }
-        }
-    }
-}
-
-void GameScreen::initBoard()
-{
-    for (int x = 0; x < 200; x++)
-    {
-        for (int y = 0; y < 200; y++)
-        {
-            gridTiles[x][y] = TILE_NONE;
-            gridItems[x][y] = ITEM_NONE;
-            gridPrograms[x][y] = NULL;
-            gridProgramDist[x][y] = -1;
-        }
-    }
-
-    gridLeftBound = 100;
-    gridRightBound = 100;
-    gridTopBound = 100;
-    gridBottomBound = 100;
-}
-
-void GameScreen::clearLevel()
-{
-    for (int x = 0; x < 200; x++)
-    {
-        for (int y = 0; y < 200; y++)
-        {
-            gridTiles[x][y] = TILE_NONE;
-            gridItems[x][y] = ITEM_NONE;
-            if (gridPrograms[x][y] != NULL)
-            {
-                Program* temp = gridPrograms[x][y];
-                deleteProgram(temp);
-            }
-        }
-    }
-
-    selectedProgram = NULL;
-
-    gridLeftBound = 100;
-    gridRightBound = 100;
-    gridTopBound = 100;
-    gridBottomBound = 100;
-}
-
-void GameScreen::saveLevel()
-{
-    std::ofstream lvl;
-    lvl.open("levels/default.urf", std::ios::out | std::ios::binary | std::ios::trunc);
-    if (!lvl.is_open())
-    {
-        if (debug) printf("err opening file");
-    }
-    else
-    {
-        if (debug) printf("saving level...\n");
-
-        // begin by writing the sizes of various data types
-        int8_t sizeOfInt = sizeof(int);
-        int8_t sizeOfChar = sizeof(char);
-        int8_t sizeOfDouble = sizeof(double);
-        int8_t sizeOfBool = sizeof(bool);
-        if (debug) printf("saving constants... int:%i, char:%i, double:%i, bool:%i\n", sizeOfInt, sizeOfChar, sizeOfDouble, sizeOfBool);
-        lvl.write((char*) &sizeOfInt, 1);
-        lvl.write((char*) &sizeOfChar, 1);
-        lvl.write((char*) &sizeOfDouble, 1);
-        lvl.write((char*) &sizeOfBool, 1);
-
-        // write the size of the game grid to the file
-        if (debug) printf("saving grid bounds... left:%i, right:%i, top:%i, bottom:%i\n", gridLeftBound, gridRightBound, gridTopBound, gridBottomBound);
-        lvl.write((char*) &gridLeftBound, sizeOfInt);
-        lvl.write((char*) &gridRightBound, sizeOfInt);
-        lvl.write((char*) &gridTopBound, sizeOfInt);
-        lvl.write((char*) &gridBottomBound, sizeOfInt);
-
-        // write the enum of the level's background
-        lvl.write((char*) &bkgTex, sizeOfInt);
-
-        // collect all the programs in a linked list
-        if (debug) printf("gathering program list...\n");
-        LinkedList<Program*> progs = LinkedList<Program*>();
-        for (int x = gridLeftBound; x < gridRightBound; x++)
-        {
-            for (int y = gridTopBound; y < gridBottomBound; y++)
-            {
-                if (gridPrograms[x][y] == NULL)
-                {
-                    continue;
-                }
-                if (progs.contains(gridPrograms[x][y]))
-                {
-                    if (debug) printf("saving program\n");
-                    progs.addLast(gridPrograms[x][y]);
-                }
-            }
-        }
-
-        // write all programs to the file
-        int numPrograms = progs.getLength();
-        if (debug) printf("saving %i programs...\n", numPrograms);
-        lvl.write((char*)(&numPrograms), sizeOfInt);
-        for (int i = 0; i < progs.getLength(); i++)
-        {
-            Program* currProg = progs.getObjectAt(i);
-
-            int xHead = currProg->getCoreX();
-            lvl.write((char*)(&xHead), sizeOfInt);
-            int yHead = currProg->getCoreY();
-            lvl.write((char*)(&yHead), sizeOfInt);
-            int type = currProg->getType();
-            lvl.write((char*)(&type), sizeOfInt);
-            int health = currProg->getHealth();
-            lvl.write((char*)(&health), sizeOfInt);
-            int maxHealth = currProg->getMaxHealth();
-            lvl.write((char*)(&maxHealth), sizeOfInt);
-            int speed = currProg->getSpeed();
-            lvl.write((char*)(&speed), sizeOfInt);
-            int team = currProg->getTeam();
-            lvl.write((char*)(&team), sizeOfInt);
-        }
-
-        // write the grid to the file
-        if (debug) printf("saving tiles, items, and program pointers...\n");
-        for (int x = gridLeftBound; x < gridRightBound; x++)
-        {
-            for (int y = gridTopBound; y < gridBottomBound; y++)
-            {
-                lvl.write((char*)(&(gridTiles[x][y])), sizeOfInt);
-                lvl.write((char*)(&(gridItems[x][y])), sizeOfInt);
-                int index = progs.getIndexOf(gridPrograms[x][y]);
-                lvl.write((char*)(&index), sizeOfInt);
-            }
-        }
-
-        //TODO: DELETE PROGRAM LISTNODES
-
-        // flush and close the file
-        if (debug) printf("flushing and closing save file... ");
-        lvl.flush();
-        lvl.close();
-        if (debug) printf("done\n");
-    }
-}
-
-void GameScreen::loadLevel(std::string str)
-{
-    std::ifstream lvl;
-    if (str.size() == 0)
-    {
-        lvl.open("levels/default.urf", std::ios::in | std::ios::binary);
-    }
-    else
-    {
-        lvl.open(str, std::ios::in | std::ios::binary);
-    }
-
-    if (!lvl.is_open())
-    {
-        if (debug) printf("err opening level %s\n", str.c_str());
-    }
-    else
-    {
-        if (debug) printf("loading level %s...\n", str.c_str());
-
-        // clear the grid
-        clearLevel();
-
-        // read the sizes of various data types
-        if (debug) printf("loading constants...\n");
-        int8_t sizeOfInt;
-        lvl.read((char*) &sizeOfInt, 1);
-        int8_t sizeOfChar;
-        lvl.read((char*) &sizeOfChar, 1);
-        int8_t sizeOfDouble;
-        lvl.read((char*) &sizeOfDouble, 1);
-        int8_t sizeOfBool;
-        lvl.read((char*) &sizeOfBool, 1);
-
-        // load the size of the game grid
-        if (debug) printf("loading grid bounds...\n");
-        int left, right, top, bottom;
-        lvl.read((char*) &left, sizeOfInt);
-        lvl.read((char*) &right, sizeOfInt);
-        lvl.read((char*) &top, sizeOfInt);
-        lvl.read((char*) &bottom, sizeOfInt);
-
-        // load the enum of the level's background
-        lvl.read((char*) &bkgTex, sizeOfInt);
-        setBackground(bkgTex);
-
-        // load the list of programs
-        int numPrograms;
-        lvl.read((char*)(&numPrograms), sizeOfInt);
-        if (debug) printf("loading %i programs...\n", numPrograms);
-        LinkedList<Program*> progs = LinkedList<Program*>();
-        for (int i = 0; i < numPrograms; i++)
-        {
-            int xHead, yHead, type, health, maxHealth, speed, team;
-            lvl.read((char*)(&xHead), sizeOfInt);
-            lvl.read((char*)(&yHead), sizeOfInt);
-            lvl.read((char*)(&type), sizeOfInt);
-            lvl.read((char*)(&health), sizeOfInt);
-            lvl.read((char*)(&maxHealth), sizeOfInt);
-            lvl.read((char*)(&speed), sizeOfInt);
-            lvl.read((char*)(&team), sizeOfInt);
-            Program* p = new Program((PROGRAM)type, team, xHead, yHead);
-            p->setHealth(health);
-            p->setMaxHealth(maxHealth);
-            p->setSpeed(speed);
-            progs.addLast(p);
-        }
-
-        // load the grid from the file
-        if (debug) printf("loading tiles, items, and program pointers...\n");
-        for (int x = left; x < right; x++)
-        {
-            for (int y = top; y < bottom; y++)
-            {
-                // tiles
-                TILE typ;
-                lvl.read((char*)(&typ), sizeOfInt);
-                setTileAt(x, y, typ);
-
-                // items
-                ITEM itm;
-                lvl.read((char*)(&itm), sizeOfInt);
-                gridItems[x][y] = itm;
-
-                // programs
-                int indx;
-                lvl.read((char*)(&indx), sizeOfInt);
-                gridPrograms[x][y] = progs.getObjectAt(indx);
-            }
-        }
-
-        // set background position
-        bkgX = ((gridRightBound + gridLeftBound)*32)/2 - SCREEN_WIDTH/2;
-        bkgY = ((gridBottomBound + gridTopBound)*32)/2 - SCREEN_HEIGHT/2;
-        checkShiftable();
-
-        //TODO: DELETE PROGRAM LISTNODES
-
-        // close the file
-        lvl.close();
-        if (debug) printf("done\n");
     }
 }
 
@@ -1586,143 +1310,10 @@ void GameScreen::setBrushTileType(TILE t)
     brushTileType = t;
 }
 
-void GameScreen::setTileAt(int x, int y, TILE t)
-{
-    // check for OOB
-    if (x < 0 || x > 199 || y < 0 || y > 199)
-    {
-        return;
-    }
-
-    // set the tile
-    gridTiles[x][y] = t;
-
-    // try increasing bounds
-    if (t != TILE_NONE)
-    {
-        if (x < gridLeftBound)
-        {
-            gridLeftBound = x;
-        }
-        else if (x + 1 > gridRightBound)
-        {
-            gridRightBound = x + 1;
-        }
-
-        if (y < gridTopBound)
-        {
-            gridTopBound = y;
-        }
-        else if (y + 1 > gridBottomBound)
-        {
-            gridBottomBound = y + 1;
-        }
-    }
-    else // try decreasing bounds
-    {
-        if (x == gridLeftBound)
-        {
-            bool b = true;
-            while (b && gridLeftBound < 100)
-            {
-                for (int i = 0; i < 200; i++)
-                {
-                    if (gridTiles[gridLeftBound][i] != TILE_NONE)
-                    {
-                        b = false;
-                    }
-                }
-                if (b)
-                {
-                    gridLeftBound++;
-                }
-            }
-        }
-        else if (x + 1 == gridRightBound)
-        {
-            bool b = true;
-            while (b && gridRightBound > 100)
-            {
-                for (int i = 0; i < 200; i++)
-                {
-                    if (gridTiles[gridRightBound - 1][i] != TILE_NONE)
-                    {
-                        b = false;
-                    }
-                }
-                if (b)
-                {
-                    gridRightBound--;
-                }
-            }
-        }
-
-        if (y == gridTopBound)
-        {
-            bool b = true;
-            while (b && gridTopBound < 100)
-            {
-                for (int i = 0; i < 200; i++)
-                {
-                    if (gridTiles[i][gridTopBound] != TILE_NONE)
-                    {
-                        b = false;
-                    }
-                }
-                if (b)
-                {
-                    gridTopBound++;
-                }
-            }
-        }
-        else if (y + 1 == gridBottomBound)
-        {
-            bool b = true;
-            while (b && gridBottomBound > 100)
-            {
-                for (int i = 0; i < 200; i++)
-                {
-                    if (gridTiles[i][gridBottomBound - 1] != TILE_NONE)
-                    {
-                        b = false;
-                    }
-                }
-                if (b)
-                {
-                    gridBottomBound--;
-                }
-            }
-        }
-
-        if (gridRightBound - gridLeftBound == 0 ||
-                gridBottomBound - gridTopBound == 0)
-        {
-            clearLevel();
-        }
-    }
-
-    checkShiftable();
-}
-
 void GameScreen::setBrushProgramType(PROGRAM p)
 {
     brushProgramType = p;
-    selectedProgram = NULL;
-}
-
-void GameScreen::setSelectedTile(int x, int y)
-{
-    selectedTileX = x;
-    selectedTileY = y;
-}
-
-void GameScreen::setSelectedProgram(Program* p)
-{
-    if (p == selectedProgram) return;
-    selectedProgram = p;
-    for (int x = 0; x < 200; x++) for (int y = 0; y < 200; y++) gridProgramDist[x][y] = -1;
-    if (p == NULL) return;
-    else calculateProgramDist(p);
+    game->setSelectedProgram(-1, -1);
 }
 
 void GameScreen::setBrushMode(BRUSH b)
@@ -1730,24 +1321,9 @@ void GameScreen::setBrushMode(BRUSH b)
     brushMode = b;
 }
 
-void GameScreen::deleteProgram(Program* p)
-{
-    for (int i = 0; i < 200; i++)
-    {
-        for (int j = 0; j < 200; j++)
-        {
-            if (gridPrograms[i][j] == p)
-            {
-                gridPrograms[i][j] = NULL;
-            }
-        }
-    }
-    delete p;
-}
-
 void GameScreen::setBrushProgramTeam(int t)
 {
-    selectedProgram = NULL;
+    game->setSelectedProgram(-1, -1);
     brushProgramTeam = t;
 }
 
@@ -1764,83 +1340,117 @@ void GameScreen::setBrushItem(ITEM i)
 void GameScreen::setBackground(BACKGROUND b)
 {
     bkgImg = dataContainer->level_backgrounds[b];
-    bkgTex = b;
+    game->setBackground(b);
 }
 
 void GameScreen::checkShiftable()
 {
-    if ((gridRightBound - gridLeftBound)*32 < SCREEN_WIDTH - 200 &&
-            (gridBottomBound - gridTopBound)*32 < SCREEN_HEIGHT - 200)
-        canPanScreen = false;
-    else canPanScreen = true;
+    if ((game->getRightBound() - game->getLeftBound())*32 < SCREEN_WIDTH - 200 &&
+        (game->getBottomBound() - game->getTopBound())*32 < SCREEN_HEIGHT - 200)
+        canShiftScreen = false;
+    else canShiftScreen = true;
 }
 
 Program* GameScreen::getSelectedProgram()
 {
-    return selectedProgram;
+    return game->getSelectedProgram();
 }
 
-void GameScreen::calculateProgramDist(Program* p)
+void GameScreen::tick(int ms)
 {
-    int xH = p->getCoreX();
-    int yH = p->getCoreY();
-
-    gridProgramDist[xH][yH] = 0;
-    LinkedList<Pair<int>*> ll = LinkedList<Pair<int>*>();
-    ll.addFirst(new Pair<int>(xH, yH));
-
-    // for each pair in the list
-    while (ll.getLength() > 0)
+    // adjust time-dependent textures
+    tickCount += ms;
+    if (tickCount >= 1000)
     {
-        Pair<int>* currPair = ll.poll();
-
-        int xCurr = currPair->a;
-        int yCurr = currPair->b;
-        int dCurr = gridProgramDist[xCurr][yCurr];
-
-        // if this pair is the edge of the program's range
-        if (dCurr < p->getSpeed())
-        {
-            // check tile to the right
-            if (xCurr + 1 < 200 &&
-                    gridTiles[xCurr+1][yCurr] != TILE_NONE &&
-                    (gridPrograms[xCurr+1][yCurr] == NULL || gridPrograms[xCurr+1][yCurr] == p) &&
-                    gridProgramDist[xCurr+1][yCurr] == -1)
-            {
-                gridProgramDist[xCurr+1][yCurr] = dCurr + 1;
-                ll.addLast(new Pair<int>(xCurr + 1, yCurr));
-            }
-
-            // check tile to the left
-            if (xCurr - 1 >= 0 &&
-                    gridTiles[xCurr-1][yCurr] != TILE_NONE &&
-                    (gridPrograms[xCurr-1][yCurr] == NULL || gridPrograms[xCurr-1][yCurr] == p) &&
-                    gridProgramDist[xCurr-1][yCurr] == -1)
-            {
-                gridProgramDist[xCurr-1][yCurr] = dCurr + 1;
-                ll.addLast(new Pair<int>(xCurr - 1, yCurr));
-            }
-
-            // check tile below
-            if (yCurr + 1 < 200 &&
-                    gridTiles[xCurr][yCurr+1] != TILE_NONE &&
-                    (gridPrograms[xCurr][yCurr+1] == NULL || gridPrograms[xCurr][yCurr+1] == p) &&
-                    gridProgramDist[xCurr][yCurr+1] == -1)
-            {
-                gridProgramDist[xCurr][yCurr+1] = dCurr + 1;
-                ll.addLast(new Pair<int>(xCurr, yCurr + 1));
-            }
-
-            // check tile above
-            if (yCurr - 1 >= 0 &&
-                    gridTiles[xCurr][yCurr-1] != TILE_NONE &&
-                    (gridPrograms[xCurr][yCurr-1] == NULL || gridPrograms[xCurr][yCurr-1] == p) &&
-                    gridProgramDist[xCurr][yCurr-1] == -1)
-            {
-                gridProgramDist[xCurr][yCurr-1] = dCurr + 1;
-                ll.addLast(new Pair<int>(xCurr, yCurr - 1));
-            }
-        }
-        delete currPair;
+        tickCount = 0;
     }
+
+    // check if the current music track is done, if so, pick a new one
+    if (Mix_PlayingMusic() == 0)
+    {
+        int rand_1 = rand()%4;
+        int rand_2 = rand()%2;
+        switch (rand_1)
+        {
+        case 0:
+            Mix_PlayMusic(dataContainer->music_game1, rand_2);
+            break;
+        case 1:
+            Mix_PlayMusic(dataContainer->music_game2, rand_2);
+            break;
+        case 2:
+            Mix_PlayMusic(dataContainer->music_game3, rand_2);
+            break;
+        case 3:
+            Mix_PlayMusic(dataContainer->music_game4, rand_2);
+            break;
+        }
+    }
+
+    // scan for keys currently pressed
+    const Uint8* currentKeyStates = SDL_GetKeyboardState( NULL );
+    int shiftAmt = shiftSpeed*ms;
+    if( currentKeyStates[ SDL_SCANCODE_UP ] )
+    {
+        shiftBkg(0, -shiftAmt);
+    }
+    else if( currentKeyStates[ SDL_SCANCODE_DOWN ] )
+    {
+        shiftBkg(0, shiftAmt);
+    }
+
+    if( currentKeyStates[ SDL_SCANCODE_LEFT ] )
+    {
+        shiftBkg(-shiftAmt, 0);
+    }
+    else if( currentKeyStates[ SDL_SCANCODE_RIGHT ] )
+    {
+        shiftBkg(shiftAmt, 0);
+    }
+
+    // if the mouse is at an edge, try to shift the background
+    if (mousePosX < 20)
+    {
+        shiftBkg(-shiftAmt, 0);
+    }
+    else if (mousePosX > SCREEN_WIDTH - 20)
+    {
+        shiftBkg(shiftAmt, 0);
+    }
+
+    if (mousePosY < 20)
+    {
+        shiftBkg(0, -shiftAmt);
+    }
+    else if (mousePosY > SCREEN_HEIGHT - 20)
+    {
+        shiftBkg(0, shiftAmt);
+    }
+}
+
+void GameScreen::saveLevel()
+{
+    game->saveLevel();
+}
+
+void GameScreen::loadLevel(std::string s)
+{
+    delete game;
+    game = new Game(s);
+    checkShiftable();
+    centerScreen();
+}
+
+void GameScreen::clearLevel()
+{
+    delete game;
+    game = new Game();
+    canShiftScreen = false;
+    centerScreen();
+}
+
+void GameScreen::centerScreen()
+{
+    bkgX = (game->getRightBound() + game->getLeftBound())*32/2 - SCREEN_WIDTH/2;
+    bkgY = (game->getBottomBound() + game->getTopBound())*32/2 - SCREEN_HEIGHT/2;
 }

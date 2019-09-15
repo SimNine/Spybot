@@ -33,3 +33,19 @@
 --LinkedLists now cache length and are initialized with a length of zero
 -Added an "Iterator" class that can only be instatiated through a linkedlist
 -Added higher-resolution program core graphics
+
+0.3.0 - 7/18/17
+-----
+-Renamed "ProgramMoves" as "ProgramActions"
+-Converted all audio resources to FLAC (big space saver)
+-Implemented distancefinding algorithm for programs:
+--Programs are now shown which spaces they can reach
+-Programs can only move a maximum number of times in each turn
+-Added turn mechanism - "new turn" resets the move count for all programs
+-Totally separated the game from the game display; new class "Game"
+-Added "abandon", "win", "reset" buttons (placeholders for actual graphics coming later)
+-Fixed a bug preventing GUIContainers from resetting the bounds of their contents; this required making GUIObject's "resetBounds" virtual
+-Added a fading feature to all GUIObjects:
+--GUIObject now includes five more fields related to fading: startAlpha, currAlpha, endAlpha, fadeInitDuration, and fadeCurrDuration
+--GUIObject new method: "fade(int alpha, int durationMS)" which initiates a fade to a given alpha value in a given number of ms
+--GUIObject new method: "fadeStep(int ms)" which checks if a fade is in progress and updates it by a given number of ticks

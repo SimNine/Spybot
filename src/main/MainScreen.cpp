@@ -14,71 +14,82 @@ MainScreen::MainScreen()
     GUITexture* main_subtitle = new GUITexture(ANCHOR_NORTHWEST, 20, 82, dataContainer->title_subtitle, 390, 10, this);
     addObject(main_subtitle);
 
-    //GUISlider* exp_slider = new GUISlider(ANCHOR_CENTER, 0, 0, 300, 50, this,
-    //                                      []( float d ){ Mix_VolumeMusic(d*128); });
-    //addObject(exp_slider);
+    // options container
+    optionsContainer = new GUIContainer(ANCHOR_SOUTHEAST, -350, -300, 240, 200, this, NULL);
+    GUISlider* sound_slider = new GUISlider(ANCHOR_NORTHWEST, 20, 20, 200, 50, optionsContainer,
+                                          []( float d ){ Mix_Volume(-1, d*128); });
+    optionsContainer->addObject(sound_slider);
+    GUISlider* music_slider = new GUISlider(ANCHOR_NORTHWEST, 20, 90, 200, 50, optionsContainer,
+                                          []( float d ){ Mix_VolumeMusic(d*128); });
+    optionsContainer->addObject(music_slider);
+    GUIButton* backbutton = new GUIButton(ANCHOR_SOUTH, -100, -50, "BACK", optionsContainer, [](){mainScreen->toggleOptions();});
+    optionsContainer->addObject(backbutton);
+    addObject(optionsContainer);
 
+    // main container
+    mainContainer = new GUIContainer(ANCHOR_SOUTHWEST, 0, -300, 400, 300, this, NULL);
     int ln = 1;
     GUIButton* button_quit = new GUIButton(ANCHOR_SOUTHWEST, 20, -(41 + 20)*ln++, 73, 41, this,
                                            []()
     {
-        Mix_PlayChannel(-1, dataContainer->music_beep, 0);
+        Mix_PlayChannel(-1, dataContainer->sound_move_player, 0);
         quit = true;
     },
     dataContainer->main_button_quit,
     dataContainer->main_button_quit_over);
-    addObject(button_quit);
-
+    mainContainer->addObject(button_quit);
     GUIButton* button_options = new GUIButton(ANCHOR_SOUTHWEST, 20, -(41 + 20)*ln++, 138, 41, this,
             []()
     {
         printf("placeholder: goto options");
-        Mix_PlayChannel(-1, dataContainer->music_beep, 0);
+        mainScreen->toggleOptions();
+        Mix_PlayChannel(-1, dataContainer->sound_move_player, 0);
     },
     dataContainer->main_button_options,
     dataContainer->main_button_options_over);
-    addObject(button_options);
-
+    mainContainer->addObject(button_options);
     GUIButton* button_achievements = new GUIButton(ANCHOR_SOUTHWEST, 20, -(41 + 20)*ln++, 242, 41, this,
             []()
     {
         printf("placeholder: goto achievs");
-        Mix_PlayChannel(-1, dataContainer->music_beep, 0);
+        Mix_PlayChannel(-1, dataContainer->sound_move_player, 0);
     },
     dataContainer->main_button_achievements,
     dataContainer->main_button_achievements_over);
-    addObject(button_achievements);
-
+    mainContainer->addObject(button_achievements);
     GUIButton* button_freeform = new GUIButton(ANCHOR_SOUTHWEST, 20, -(41 + 20)*ln++, 320, 41, this,
             []()
     {
         printf("placeholder: goto freeform map");
-        Mix_PlayChannel(-1, dataContainer->music_beep, 0);
+        Mix_PlayChannel(-1, dataContainer->sound_move_player, 0);
     },
     dataContainer->main_button_freeform,
     dataContainer->main_button_freeform_over);
-    addObject(button_freeform);
+    mainContainer->addObject(button_freeform);
 
     GUIButton* button_nightfall = new GUIButton(ANCHOR_SOUTHWEST, 20, -(41 + 20)*ln++, 349, 41, this,
             []()
     {
         printf("placeholder: goto nightfall campaign map");
-        Mix_PlayChannel(-1, dataContainer->music_beep, 0);
+        Mix_PlayChannel(-1, dataContainer->sound_move_player, 0);
     },
     dataContainer->main_button_nightfall,
     dataContainer->main_button_nightfall_over);
-    addObject(button_nightfall);
+    mainContainer->addObject(button_nightfall);
 
     GUIButton* button_classic = new GUIButton(ANCHOR_SOUTHWEST, 20, -(41 + 20)*ln++, 315, 41, this,
             []()
     {
         currScreen = mapScreen;
         Mix_PlayMusic(dataContainer->music_map_ambient, -1);
-        Mix_PlayChannel(-1, dataContainer->music_beep, 0);
+        Mix_PlayChannel(-1, dataContainer->sound_move_player, 0);
     },
     dataContainer->main_button_classic,
     dataContainer->main_button_classic_over);
-    addObject(button_classic);
+    mainContainer->addObject(button_classic);
+
+    addObject(mainContainer);
+    optionsContainer->setTransparency(0);
 }
 
 MainScreen::~MainScreen()
@@ -108,60 +119,68 @@ void MainScreen::draw()
         }
     }
 
+    // draw GUIObjects
     drawContents();
 }
 
-void MainScreen::tick()
+void MainScreen::tick(int ms)
 {
     // tick all GUIObjects
-    GUIContainer::tick();
+    GUIContainer::tick(ms);
 
     // tick all particulates
-    glowList->forEach([](MainScreenGlow* g){ g->tick(); });
+    Iterator<MainScreenGlow*> it = glowList->getIterator();
+    while (it.hasNext())
+    {
+        it.next()->tick(ms);
+    }
 
     // check for dead/OOB particulates
-    if (glowList->getLength() == 0)
+    LinkedList<MainScreenGlow*> delList = LinkedList<MainScreenGlow*>();
+    Iterator<MainScreenGlow*> it3 = glowList->getIterator();
+    while (it3.hasNext())
     {
-        // do nothing
+        MainScreenGlow* currObj = it3.next();
+        if (currObj->getTransparent())
+        {
+            delList.addFirst(currObj);
+        }
+        else if (currObj->getXPos() + 200 < 0 ||
+                 currObj->getYPos() + 200 < 0 ||
+                 currObj->getXPos() > SCREEN_WIDTH ||
+                 currObj->getYPos() > SCREEN_HEIGHT)
+        {
+            delList.addFirst(currObj);
+        }
+    }
+
+    Iterator<MainScreenGlow*> it2 = delList.getIterator();
+    while (it2.hasNext())
+    {
+        MainScreenGlow* currObj = it2.next();
+        glowList->remove(currObj);
+        delete currObj;
+    }
+
+    // the longer the delay, the more likely to add a particle
+    // at 50ms, a particle is guaranteed to be added
+    if (rand() % 50 < ms)
+    {
+        MainScreenGlow* newGlow = new MainScreenGlow(rand()%SCREEN_WIDTH, rand()%SCREEN_HEIGHT);
+        glowList->addLast(newGlow);
+    }
+}
+
+void MainScreen::toggleOptions()
+{
+    if (optionsContainer->isVisible())
+    {
+        optionsContainer->fade(0, 1000);
+        mainContainer->fade(255, 1000);
     }
     else
     {
-        LinkedList<MainScreenGlow*> delList = LinkedList<MainScreenGlow*>();
-        for (int i = 0; i < glowList->getLength(); i++)
-        {
-            MainScreenGlow* currObj = glowList->getObjectAt(i);
-            if (currObj->getTransparent())
-            {
-                delList.addFirst(currObj);
-            }
-            else if (currObj->getXPos() + 200 < 0 ||
-                     currObj->getYPos() + 200 < 0 ||
-                     currObj->getXPos() > SCREEN_WIDTH ||
-                     currObj->getYPos() > SCREEN_HEIGHT)
-            {
-                delList.addFirst(currObj);
-            }
-        }
-
-        for (int i = 0; i < delList.getLength(); i++)
-        {
-            MainScreenGlow* currObj = delList.getObjectAt(i);
-            glowList->remove(currObj);
-            delList.remove(currObj);
-            delete currObj;
-        }
+        optionsContainer->fade(255, 1000);
+        mainContainer->fade(0, 1000);
     }
-
-    // 2% chance of adding a particulate
-    if (rand() % 10 == 0)
-    {
-        MainScreenGlow* newGlow = new MainScreenGlow(rand()%SCREEN_WIDTH, rand()%SCREEN_HEIGHT);
-        if (glowList == NULL)
-        {
-            glowList = new LinkedList<MainScreenGlow*>();
-        }
-        glowList->addLast(newGlow);
-    }
-
-    //printf("num glows: %i\n", glowList->getLength());
 }

@@ -3,6 +3,7 @@
 
 #include <SDL.h>
 #include <SDL_mixer.h>
+#include <SDL_TTF.h>
 
 #include "Program.h"
 #include "Enums.h"
@@ -41,6 +42,11 @@ public:
 
     SDL_Texture* tile_over;
     SDL_Texture* tile_selected;
+    SDL_Texture* tile_moveNorth;
+    SDL_Texture* tile_moveEast;
+    SDL_Texture* tile_moveSouth;
+    SDL_Texture* tile_moveWest;
+    SDL_Texture* tile_movePossible;
     SDL_Texture* tile_images[TILE_NUM_TILES];
 
     SDL_Texture* program_core;
@@ -69,6 +75,11 @@ public:
     SDL_Texture* editorTeamComputer;
     SDL_Texture* editorClearGrid;
 
+    SDL_Texture* gameButtonEndTurn;
+    SDL_Texture* gameButtonAbandonGame;
+    SDL_Texture* gameButtonWinGame;
+    SDL_Texture* gameButtonResetGame;
+
     // mainScreen resources
     SDL_Texture* main_bkgdata;
     SDL_Texture* main_bkgsplotch;
@@ -89,11 +100,18 @@ public:
     SDL_Color* color_black;
     SDL_Color* color_white;
 
+    // Font presets
+    TTF_Font* font_agencyFB_24;
+
     // SDL_Mixer sounds
     Mix_Music* music_title;
     Mix_Music* music_map_ambient;
-    Mix_Chunk* music_beep;
-    Mix_Chunk* music_boop;
+    Mix_Music* music_game1;
+    Mix_Music* music_game2;
+    Mix_Music* music_game3;
+    Mix_Music* music_game4;
+    Mix_Chunk* sound_move_player;
+    Mix_Chunk* sound_move_computer;
 protected:
 private:
 };

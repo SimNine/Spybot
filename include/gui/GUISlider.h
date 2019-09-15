@@ -8,15 +8,15 @@ class GUISlider : public GUIObject
     public:
         GUISlider(ANCHOR, int, int, int, int, GUIContainer*, void (*func) (float));
         virtual ~GUISlider();
+
         void setTransparency(int);
         bool mouseDown();
         bool mouseUp();
         void draw();
-        void tick();
+        void tick(int);
         void resetBounds();
     protected:
     private:
-        int transparency;
         SDL_Rect sliderBounds;
         int sliderVal;
         void (*func) (float);

@@ -9,6 +9,7 @@ GUISlider::GUISlider(ANCHOR a, int xD, int yD, int w, int h, GUIContainer* p, vo
     sliderBounds.w = 20;
     sliderBounds.h = bounds.h;
     this->func = func;
+    sliderVal = sliderBounds.x - bounds.x;
 }
 
 GUISlider::~GUISlider()
@@ -18,7 +19,9 @@ GUISlider::~GUISlider()
 
 void GUISlider::setTransparency(int a)
 {
-    transparency = a;
+    if (a > 255) currAlpha = 255;
+    else if (a < 0) currAlpha = 0;
+    else currAlpha = a;
 }
 
 bool GUISlider::mouseDown()
@@ -35,7 +38,7 @@ bool GUISlider::mouseUp()
 
 void GUISlider::draw()
 {
-    SDL_SetRenderDrawColor(gRenderer, 255, 255, 255, 0);
+    SDL_SetRenderDrawColor(gRenderer, 255, 255, 255, currAlpha);
     SDL_RenderDrawLine(gRenderer,
                        bounds.x + sliderBounds.w/2,
                        bounds.y + bounds.h/2,
@@ -46,8 +49,10 @@ void GUISlider::draw()
     if (debug) drawBounds();
 }
 
-void GUISlider::tick()
+void GUISlider::tick(int ms)
 {
+    fadeStep(ms);
+
     if (pressed)
     {
         if (mousePosX < bounds.x + sliderBounds.w/2) sliderBounds.x = bounds.x;
@@ -62,7 +67,7 @@ void GUISlider::tick()
 
 void GUISlider::resetBounds()
 {
-    GUIObject::resetBounds();
+    recomputePosition();
     sliderBounds.x = bounds.x + sliderVal - sliderBounds.w/2;
     sliderBounds.y = bounds.y;
 }

@@ -16,9 +16,11 @@ TitleScreen::TitleScreen()
 
     tickCount = 0;
 
-    timingCompany = 300;
-    timingTitle = 810;
-    timingSubtitle = 910;
+    timingCompany = 3000;
+    timingTitle = 8000;
+    timingSubtitle = 9000;
+
+    spanTiming = 2500;
 }
 
 TitleScreen::~TitleScreen()
@@ -36,68 +38,68 @@ void TitleScreen::draw()
     if (debug) drawBounds();
 }
 
-void TitleScreen::tick()
+void TitleScreen::tick(int ms)
 {
     // tick all GUIObjects
-    GUIContainer::tick();
+    GUIContainer::tick(ms);
 
-    if (tickCount <= timingCompany - 255)
+    if (tickCount <= timingCompany - spanTiming)
     {
         SDL_SetTextureAlphaMod(dataContainer->title_company, 0);
     }
-    else if (tickCount > timingCompany - 255 && tickCount <= timingCompany)
+    else if (tickCount > timingCompany - spanTiming && tickCount <= timingCompany)
     {
-        SDL_SetTextureAlphaMod(dataContainer->title_company, tickCount - timingCompany + 255);
+        SDL_SetTextureAlphaMod(dataContainer->title_company, (int)(((double)(tickCount - timingCompany + spanTiming)/spanTiming)*255.0));
     }
-    else if (tickCount > timingCompany && tickCount <= timingCompany + 255)
+    else if (tickCount > timingCompany && tickCount <= timingCompany + spanTiming)
     {
-        SDL_SetTextureAlphaMod(dataContainer->title_company, timingCompany - tickCount + 255);
+        SDL_SetTextureAlphaMod(dataContainer->title_company, (int)(((double)(timingCompany - tickCount + spanTiming)/spanTiming)*255.0));
     }
-    else if (tickCount > timingCompany + 255)
+    else if (tickCount > timingCompany + spanTiming)
     {
         SDL_SetTextureAlphaMod(dataContainer->title_company, 0);
     }
 
-    if (tickCount <= timingTitle - 255)
+    if (tickCount <= timingTitle - spanTiming)
     {
         SDL_SetTextureAlphaMod(dataContainer->title_title, 0);
     }
-    else if (tickCount > timingTitle - 255 && tickCount <= timingTitle)
+    else if (tickCount > timingTitle - spanTiming && tickCount <= timingTitle)
     {
-        SDL_SetTextureAlphaMod(dataContainer->title_title, tickCount - timingTitle + 255);
+        SDL_SetTextureAlphaMod(dataContainer->title_title, (int)(((double)(tickCount - timingTitle + spanTiming)/spanTiming)*255.0));
     }
-    else if (tickCount > timingTitle && tickCount <= timingTitle + 255)
+    else if (tickCount > timingTitle && tickCount <= timingTitle + spanTiming)
     {
-        SDL_SetTextureAlphaMod(dataContainer->title_title, timingTitle - tickCount + 255);
+        SDL_SetTextureAlphaMod(dataContainer->title_title, (int)(((double)(timingTitle - tickCount + spanTiming)/spanTiming)*255.0));
     }
-    else if (tickCount > timingTitle + 255)
+    else if (tickCount > timingTitle + spanTiming)
     {
         SDL_SetTextureAlphaMod(dataContainer->title_title, 0);
     }
 
-    if (tickCount <= timingSubtitle - 255) // before fade in
+    if (tickCount <= timingSubtitle - spanTiming) // before fade in
     {
         SDL_SetTextureAlphaMod(dataContainer->title_subtitle, 0);
     }
-    else if (tickCount > timingSubtitle - 255 && tickCount <= timingSubtitle) // fading in
+    else if (tickCount > timingSubtitle - spanTiming && tickCount <= timingSubtitle) // fading in
     {
-        SDL_SetTextureAlphaMod(dataContainer->title_subtitle, tickCount - timingSubtitle + 255);
+        SDL_SetTextureAlphaMod(dataContainer->title_subtitle, (int)(((double)(tickCount - timingSubtitle + spanTiming)/spanTiming)*255.0));
     }
-    else if (tickCount > timingSubtitle && tickCount <= timingSubtitle + 255) // fading out
+    else if (tickCount > timingSubtitle && tickCount <= timingSubtitle + spanTiming) // fading out
     {
-        SDL_SetTextureAlphaMod(dataContainer->title_subtitle, timingSubtitle - tickCount + 255);
+        SDL_SetTextureAlphaMod(dataContainer->title_subtitle, (int)(((double)(timingSubtitle - tickCount + spanTiming)/spanTiming)*255.0));
     }
-    else if (tickCount > timingSubtitle + 255)
+    else if (tickCount > timingSubtitle + spanTiming)
     {
         SDL_SetTextureAlphaMod(dataContainer->title_subtitle, 0);
     }
 
-    if (tickCount > timingSubtitle + 305)
+    if (tickCount > timingSubtitle + spanTiming + 500)
     {
         endTitles();
     }
 
-    tickCount++;
+    tickCount += ms;
 }
 
 bool TitleScreen::mouseDown()
@@ -115,9 +117,9 @@ void TitleScreen::advance()
 
 void TitleScreen::endTitles()
 {
-        currScreen = mainScreen;
-        SDL_SetTextureAlphaMod(dataContainer->title_subtitle, 255);
-        SDL_SetTextureAlphaMod(dataContainer->title_title, 255);
-        SDL_ShowCursor(SDL_ENABLE);
-        Mix_PlayMusic(dataContainer->music_title, -1);
+    currScreen = mainScreen;
+    SDL_SetTextureAlphaMod(dataContainer->title_subtitle, 255);
+    SDL_SetTextureAlphaMod(dataContainer->title_title, 255);
+    SDL_ShowCursor(SDL_ENABLE);
+    Mix_PlayMusic(dataContainer->music_title, -1);
 }

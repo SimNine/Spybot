@@ -1,6 +1,22 @@
 #include "GUIButton.h"
 #include "Global.h"
+#include "ResourceLoader.h"
+
 #include <stdio.h>
+
+GUIButton::GUIButton(ANCHOR a, int xDisp, int yDisp, std::string str, GUIContainer* parent, void (*func) (void))
+    : GUIObject(a, xDisp, yDisp, 0, 0, parent)
+{
+    this->func = func;
+    SDL_Texture* tex = loadString(str);
+    this->bkgNormal = tex;
+    this->bkgOver = tex;
+    this->bkgPressed = tex;
+
+    int w, h;
+    SDL_QueryTexture(tex, NULL, NULL, &w, &h);
+    setBounds(xDisp, yDisp, w, h);
+}
 
 GUIButton::GUIButton(ANCHOR a, int xDisp, int yDisp, int width, int height, GUIContainer* parent,
                      void (*func) (void), SDL_Texture* bkgN, SDL_Texture* bkgO, SDL_Texture* bkgP)
@@ -80,12 +96,22 @@ bool GUIButton::mouseUp()
 
 void GUIButton::setTransparency(int a)
 {
-    SDL_SetTextureAlphaMod(bkgNormal, a);
-    SDL_SetTextureAlphaMod(bkgOver, a);
-    SDL_SetTextureAlphaMod(bkgPressed, a);
+    if (a > 255) currAlpha = 255;
+    else if (a < 0) currAlpha = 0;
+    else currAlpha = a;
+
+    SDL_SetTextureAlphaMod(bkgNormal, currAlpha);
+    SDL_SetTextureAlphaMod(bkgOver, currAlpha);
+    SDL_SetTextureAlphaMod(bkgPressed, currAlpha);
 }
 
-void GUIButton::tick()
+void GUIButton::tick(int ms)
 {
+    fadeStep(ms);
     return;
+}
+
+void GUIButton::resetBounds()
+{
+    recomputePosition();
 }

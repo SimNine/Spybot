@@ -8,7 +8,7 @@ class TitleScreen : public GUIContainer
     public:
         TitleScreen();
         virtual ~TitleScreen();
-        void tick();
+        void tick(int);
         void draw();
         bool mouseDown();
     protected:
@@ -18,6 +18,7 @@ class TitleScreen : public GUIContainer
         int timingCompany;
         int timingTitle;
         int timingSubtitle;
+        int spanTiming;
 
         void advance();
         void endTitles();

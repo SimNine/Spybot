@@ -55,11 +55,9 @@ Mix_Chunk* loadSound(std::string path)
 
 SDL_Texture* loadString(std::string str)
 {
-    TTF_Font* f = TTF_OpenFont("resources/AgencyFB.ttf", 24);
-    SDL_Surface* s = TTF_RenderText_Solid(f, str.c_str(), {255, 255, 255});
+    SDL_Surface* s = TTF_RenderText_Solid(dataContainer->font_agencyFB_24, str.c_str(), {255, 255, 255, 255});
     SDL_Texture* t = SDL_CreateTextureFromSurface(gRenderer, s);
 
-    free(f);
     SDL_FreeSurface(s);
     return t;
 }

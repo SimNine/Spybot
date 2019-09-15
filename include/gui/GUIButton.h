@@ -2,11 +2,13 @@
 #define GUIBUTTON_H
 
 #include <GUIObject.h>
-
+#include <string>
 
 class GUIButton : public GUIObject
 {
     public:
+        GUIButton(ANCHOR, int, int, std::string, GUIContainer*,
+                  void (*func) (void));
         GUIButton(ANCHOR, int, int, int, int, GUIContainer*,
                   void (*func) (void), SDL_Texture*, SDL_Texture*, SDL_Texture*);
         GUIButton(ANCHOR, int, int, int, int, GUIContainer*,
@@ -16,10 +18,12 @@ class GUIButton : public GUIObject
         GUIButton(ANCHOR, int, int, int, int, GUIContainer*,
                   void (*func) (void));
         virtual ~GUIButton();
+
         void draw();
         bool mouseDown();
         bool mouseUp();
-        void tick();
+        void tick(int);
+        void resetBounds();
         void setTransparency(int);
     protected:
     private:

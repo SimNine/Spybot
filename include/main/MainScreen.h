@@ -11,10 +11,15 @@ class MainScreen : public GUIContainer
         MainScreen();
         virtual ~MainScreen();
         void draw();
-        void tick();
+        void tick(int);
+
+        void toggleOptions();
     protected:
     private:
         LinkedList<MainScreenGlow*>* glowList;
+
+        GUIContainer* optionsContainer;
+        GUIContainer* mainContainer;
 };
 
 #endif // MAINSCREEN_H

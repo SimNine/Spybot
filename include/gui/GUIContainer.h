@@ -13,20 +13,23 @@ class GUIContainer : public GUIObject
         virtual ~GUIContainer();
         SDL_Texture* getBackground();
         void setBackground(SDL_Texture*);
-        LinkedList<GUIObject*>* getContents();
-        void resetBounds();
         void addObject(GUIObject*);
         void addAllObjects(LinkedList<GUIObject*>*);
+        LinkedList<GUIObject*>* getContents();
+        void setPressed(bool);
+
+        void resetBounds();
         void draw();
         bool mouseDown();
         bool mouseUp();
-        void tick();
+        void tick(int);
         void setTransparency(int);
     protected:
         SDL_Texture* bkgImg;
-        LinkedList<GUIObject*>* contents;
         void drawBkg();
         void drawContents();
+
+        LinkedList<GUIObject*>* contents;
     private:
 };
 

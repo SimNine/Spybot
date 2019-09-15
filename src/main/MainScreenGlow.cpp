@@ -36,24 +36,24 @@ void MainScreenGlow::draw()
     SDL_RenderCopy(gRenderer, dataContainer->main_bkgsplotch, NULL, &destRect);
 }
 
-void MainScreenGlow::tick()
+void MainScreenGlow::tick(int ms)
 {
     // 2% chance of changing accelerations
     if ((rand() % 500) == 1)
     {
-        xAcc = rand()/RAND_MAX - 0.5;
-        yAcc = rand()/RAND_MAX - 0.5;
-        aAcc = rand()/RAND_MAX - 0.5;
+        xAcc = (rand()/RAND_MAX - 0.5)/1000.0;
+        yAcc = (rand()/RAND_MAX - 0.5)/1000.0;
+        aAcc = (rand()/RAND_MAX - 0.5)/1000.0;
     }
 
     // update physics
-    xVel += xAcc;
-    yVel += yAcc;
-    aVel += aAcc;
+    xVel += xAcc*ms/100.0;
+    yVel += yAcc*ms/100.0;
+    aVel += aAcc*ms/100.0;
 
-    xPos += xVel;
-    yPos += yVel;
-    aPos += aVel;
+    xPos += xVel*ms;
+    yPos += yVel*ms;
+    aPos += aVel*ms;
 
     if (aPos < 0)
     {
@@ -64,6 +64,7 @@ void MainScreenGlow::tick()
     else if (aPos > 255)
     {
         aVel = -aVel;
+        aPos = 255;
     }
 }
 
