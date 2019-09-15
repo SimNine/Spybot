@@ -1,25 +1,19 @@
-#ifndef LISTNODE_H_INCLUDED
-#define LISTNODE_H_INCLUDED
+#pragma once
 
 template<class T>
-class ListNode
-{
+class ListNode {
 public:
-    ListNode(T obj)
-    {
-        contents = obj;
-        next = NULL;
-        prev = NULL;
-    };
-    ~ListNode()
-    {
+	ListNode(T obj) {
+		contents = obj;
+		next = NULL;
+		prev = NULL;
+	};
+	~ListNode() {
 
-    };
-    T contents;
-    ListNode* next;
-    ListNode* prev;
+	};
+	T contents;
+	ListNode* next;
+	ListNode* prev;
 protected:
 private:
 };
-
-#endif // LISTNODE_H_INCLUDED

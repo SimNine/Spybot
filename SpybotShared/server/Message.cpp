@@ -268,5 +268,8 @@ void _printMessage(Message m) {
 	case MSGTYPE_PLACEPROG:
 		printf("MSGTYPE_PLACEPROG\n");
 		break;
+	case MSGTYPE_PROGINVENTORY:
+		printf("MSGTYPE_PROGINVENTORY - %i,%i\n", m.progType, m.programID);
+		break;
 	}
 }

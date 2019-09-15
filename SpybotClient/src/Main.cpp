@@ -2,24 +2,25 @@
 #include "Main.h"
 
 #include "Global.h"
-#include "TitleScreen.h"
-#include "MainScreen.h"
-#include "MapScreen.h"
-#include "GameScreen.h"
-#include "LobbyScreen.h"
-#include "NotifyScreen.h"
+#include "TitleOverlay.h"
+#include "MainOverlay.h"
+#include "MapOverlay.h"
+#include "GameOverlay.h"
+#include "LobbyOverlay.h"
+#include "NotifyOverlay.h"
 #include "Data.h"
 #include "Client.h"
 #include "Timer.h"
 #include "ChatDisplay.h"
 #include "ConnectionManager.h"
 #include "Server.h"
+#include "LinkedList.h"
+#include "BackgroundOverlay.h"
+#include "LocalLoginOverlay.h"
+#include "Message.h"
 
 void savePrefs();
 void loadPrefs();
-
-void saveProgs();
-void loadProgs();
 
 // converts an SDL_Keycode into a char
 char convertSDLKeycodeToChar(SDL_Keycode keycode, bool shift) {
@@ -102,25 +103,29 @@ void closeSDL() {
 
 // resets all GUI bounds
 void resetBounds() {
-	_titleScreen->resetBounds();
-	_mainScreen->resetBounds();
-	_mapScreen->resetBounds();
-	_gameScreen->resetBounds();
-	_lobbyScreen->resetBounds();
-	_notifyScreen->resetBounds();
+	_titleOverlay->resetBounds();
+	_mainOverlay->resetBounds();
+	_mapOverlay->resetBounds();
+	_gameOverlay->resetBounds();
+	_lobbyOverlay->resetBounds();
+	_notifyOverlay->resetBounds();
+	_backgroundOverlay->resetBounds();
+	_localLoginOverlay->resetBounds();
 }
 
 // initializes the GUIs and switches the screen to titleScreen
 void initGUIs() {
-	_titleScreen = new TitleScreen();
-	_mainScreen = new MainScreen();
-	_mapScreen = new MapScreen();
-	_mapScreen->switchMap(MAPPRESET_CLASSIC);
-	_gameScreen = new GameScreen();
-	_lobbyScreen = new LobbyScreen();
-	_notifyScreen = new NotifyScreen();
+	_titleOverlay = new TitleOverlay();
+	_mainOverlay = new MainOverlay();
+	_mapOverlay = new MapOverlay();
+	_mapOverlay->switchMap(MAPPRESET_CLASSIC);
+	_gameOverlay = new GameOverlay();
+	_lobbyOverlay = new LobbyOverlay();
+	_notifyOverlay = new NotifyOverlay();
+	_backgroundOverlay = new BackgroundOverlay();
+	_localLoginOverlay = new LocalLoginOverlay();
 
-	_currScreen = _titleScreen;
+	_overlayStack->push(_titleOverlay);
 }
 
 // initializes SDL and SDL_image
@@ -293,62 +298,6 @@ void loadPrefs() {
 	}
 }
 
-// save the user's programs
-void saveProgs() {
-	std::ofstream progs;
-	progs.open("default.progs", std::ios::out | std::ios::binary | std::ios::trunc);
-	if (!progs.is_open()) {
-		if (_debug >= DEBUG_MINIMAL) printf("err saving programs\n");
-	} else {
-		if (_debug >= DEBUG_MINIMAL) printf("saving programs...\n");
-
-		// save constants
-		int8_t sizeOfInt = sizeof(int);
-		progs.write((char*)&sizeOfInt, 1);
-
-		// save programs
-		for (int i = 0; i < PROGRAM_NUM_PROGTYPES; i++) {
-			progs.write((char*)&_progListClassic[i], sizeOfInt);
-			progs.write((char*)&_progListNightfall[i], sizeOfInt);
-			progs.write((char*)&_progListCustom[i], sizeOfInt);
-		}
-
-		// flush and close
-		if (_debug >= DEBUG_MINIMAL) printf("flushing and closing programs file... ");
-		progs.flush();
-		progs.close();
-		if (_debug >= DEBUG_MINIMAL) printf("done\n");
-	}
-}
-
-// load the user's programs
-void loadProgs() {
-	std::ifstream progs;
-	progs.open("default.progs", std::ios::in | std::ios::binary);
-
-	if (!progs.is_open()) {
-		if (_debug >= DEBUG_MINIMAL) printf("err reading programs\n");
-	} else {
-		if (_debug >= DEBUG_MINIMAL) printf("reading programs...\n");
-
-		// load constants
-		int8_t sizeOfInt;
-		progs.read((char*)&sizeOfInt, 1);
-
-		// load programs
-		for (int i = 0; i < PROGRAM_NUM_PROGTYPES; i++) {
-			progs.read((char*)&_progListClassic[i], sizeOfInt);
-			progs.read((char*)&_progListNightfall[i], sizeOfInt);
-			progs.read((char*)&_progListCustom[i], sizeOfInt);
-			_usedPrograms[i] = 0;
-		}
-
-		// close the file
-		progs.close();
-		if (_debug >= DEBUG_MINIMAL) printf("done\n");
-	}
-}
-
 // handle all events in SDL event queue
 void handleEvents() {
 	//Event handler
@@ -369,15 +318,11 @@ void handleEvents() {
 			}
 		} else if (e.type == SDL_KEYDOWN) // keypress
 		{
-			if (e.key.keysym.sym == SDLK_F12) // toggle fullscreen on F12
-			{
+			if (e.key.keysym.sym == SDLK_F12) { // toggle fullscreen on F12
 				toggleFullscreen();
 			} else if (e.key.keysym.sym == SDLK_F2) {
 				if (_debug == DEBUG_EXTRA) _debug = DEBUG_NONE;
 				else _debug = (DEBUG)(_debug + 1);
-			} else if (e.key.keysym.sym == SDLK_p) {
-				_progListCurrent[rand() % PROGRAM_NUM_PROGTYPES]++;
-				_mapScreen->resetProgramInvDisplay();
 			}
 		} else if (e.type == SDL_MOUSEMOTION) {
 			if (_heldContainer != NULL) {
@@ -390,21 +335,21 @@ void handleEvents() {
 			_mousePos.y = e.motion.y;
 		} else if (e.type == SDL_MOUSEBUTTONDOWN) {
 			_mousePressed = true;
-			_currScreen->mouseDown();
+			_overlayStack->getFirst()->mouseDown();
 		} else if (e.type == SDL_MOUSEBUTTONUP) {
 			_mousePressed = false;
-			_currScreen->mouseUp();
+			_overlayStack->getFirst()->mouseUp();
 		}
 
 		// screen-specific input
-		if (_currScreen == _gameScreen) {
+		if (_overlayStack->getFirst() == _gameOverlay) {
 			if (e.type == SDL_KEYDOWN) {
 				if (e.key.keysym.sym == SDLK_s) {
-					_gameScreen->saveGame();
+					_gameOverlay->saveGame();
 				} else if (e.key.keysym.sym == SDLK_ESCAPE) {
-					_gameScreen->togglePauseMenu();
+					_gameOverlay->togglePauseMenu();
 				} else if (e.key.keysym.sym == SDLK_F3) {
-					_gameScreen->toggleEditorMode();
+					_gameOverlay->toggleEditorMode();
 				}
 
 				// handle chat display
@@ -413,33 +358,40 @@ void handleEvents() {
 
 				char out = convertSDLKeycodeToChar(keycode, isShiftPressed);
 				if (out != 0)
-					_gameScreen->getChatDisplay()->addInputChar(out);
+					_gameOverlay->getChatDisplay()->addInputChar(out);
 			}
-		} else if (_currScreen == _mapScreen) {
+		} else if (_overlayStack->getFirst() == _mapOverlay) {
 			if (e.type == SDL_KEYDOWN) {
 				if (e.key.keysym.sym == SDLK_l) {
-					_mapScreen->unlockAllLevels();
+					_mapOverlay->unlockAllLevels();
 				} else if (e.key.keysym.sym == SDLK_ESCAPE) {
-					_mapScreen->togglePauseMenu();
+					_mapOverlay->togglePauseMenu();
+				} else if (e.key.keysym.sym == SDLK_p) {
+					Message m;
+					m.type = MSGTYPE_PROGINVENTORY;
+					m.progType = (PROGRAM)(rand() % PROGRAM_NUM_PROGTYPES);
+					m.programID = 1;
+					m.clientID = _client->getClientID();
+					_connectionManager->sendMessage(m);
 				}
 			}
-		} else if (_currScreen == _mainScreen) {
+		} else if (_overlayStack->getFirst() == _mainOverlay) {
 			if (e.type == SDL_KEYDOWN) {
 				SDL_Keycode keycode = e.key.keysym.sym;
 				bool isShiftPressed = (SDL_GetKeyboardState(NULL)[SDL_SCANCODE_LSHIFT] || SDL_GetKeyboardState(NULL)[SDL_SCANCODE_RSHIFT]);
 
 				char out = convertSDLKeycodeToChar(keycode, isShiftPressed);
 				if (out != 0)
-					_mainScreen->keyPress(out);
+					_mainOverlay->keyPress(out);
 			}
-		} else if (_currScreen == _lobbyScreen) {
+		} else if (_overlayStack->getFirst() == _lobbyOverlay) {
 			if (e.type == SDL_KEYDOWN) {
 				SDL_Keycode keycode = e.key.keysym.sym;
 				bool isShiftPressed = (SDL_GetKeyboardState(NULL)[SDL_SCANCODE_LSHIFT] || SDL_GetKeyboardState(NULL)[SDL_SCANCODE_RSHIFT]);
 
 				char out = convertSDLKeycodeToChar(keycode, isShiftPressed);
 				if (out != 0)
-					_lobbyScreen->getChatDisplay()->addInputChar(out);
+					_lobbyOverlay->getChatDisplay()->addInputChar(out);
 			}
 		}
 	}
@@ -447,15 +399,19 @@ void handleEvents() {
 
 // draw the current screen
 void draw() {
-	_currScreen->draw();
-	_notifyScreen->draw();
+	for (int i = _overlayStack->getLength() - 1; i >= 0; i--) {
+		_overlayStack->getObjectAt(i)->draw();
+	}
+	_notifyOverlay->draw();
 	SDL_RenderPresent(_renderer); // update the screen
 }
 
 // tick the current screen
 void tick(int ms) {
-	_currScreen->tick(ms);
-	_notifyScreen->tick(ms);
+	for (int i = _overlayStack->getLength() - 1; i >= 0; i--) {
+		_overlayStack->getObjectAt(i)->tick(ms);
+	}
+	_notifyOverlay->tick(ms);
 }
 
 // main function
@@ -476,7 +432,6 @@ int main(int argc, char* args[]) {
 	_connectionManager = new ConnectionManager();
 
 	loadPrefs(); // load GUI preferences
-	loadProgs(); // load program list
 	initData(); // initialize resource data
 	initGUIs(); // initialize GUIContainers
 	resetBounds(); // reset bounds of all containers
@@ -557,7 +512,6 @@ int main(int argc, char* args[]) {
 
 	//Free resources, pointers, and close SDL
 	savePrefs();
-	saveProgs();
 	closeSDL();
 
 	return 0;

@@ -4,8 +4,8 @@
 #include "Global.h"
 #include "GUIContainer.h"
 
-GUISlider::GUISlider(ANCHOR a, Coord disp, Coord dims, GUIContainer* p, void(*func) (float))
-	: GUIObject(a, disp, dims, p) {
+GUISlider::GUISlider(GUIContainer* p, ANCHOR a, Coord disp, Coord dims, void(*func) (float))
+	: GUIObject(p, a, disp, dims) {
 	sliderBounds.x = bounds.x;
 	sliderBounds.y = bounds.y;
 	sliderBounds.w = 20;

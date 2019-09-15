@@ -15,16 +15,18 @@
 #include "Pipe.h"
 #include "CommandProcessor.h"
 
-Server::Server(bool isLocal) {
-	clients_ = new LinkedList<Pipe*>();
-	msgQueue_ = new LinkedList<Message*>();
-	users_ = new LinkedList<User*>();
-	loadUsers();
-
+Server::Server(bool isLocal, std::string savePath) {
 	game_ = NULL;
 	ownerClient_ = NULL;
 
 	isLocal_ = isLocal;
+
+	savePath_ = savePath;
+
+	clients_ = new LinkedList<Pipe*>();
+	msgQueue_ = new LinkedList<Message*>();
+	users_ = new LinkedList<User*>();
+	loadUsers();
 }
 
 Server::~Server() {
@@ -98,7 +100,6 @@ void Server::recieveMessage(Message message) {
 void Server::login(Pipe* client, User* user) {
 	// set this client's user
 	client->setUser(user);
-	client->setNewUser(NULL);
 
 	// if there is no owner client, make this it
 	if (ownerClient_ == NULL)
@@ -126,7 +127,15 @@ void Server::login(Pipe* client, User* user) {
 		m.type = MSGTYPE_LOGIN;
 		m.clientID = curr->getClientID();
 		strncpy_s(m.text, DEFAULT_MSG_TEXTSIZE, curr->getUser()->username_.c_str(), DEFAULT_MSG_TEXTSIZE);
-		m.actionID = (curr == ownerClient_) ? 9000 : 0;
+		m.actionID = ((curr == ownerClient_) ? 9000 : 0);
+		client->sendData(m);
+	}
+
+	// send the issuing client its program inventory contents
+	for (int i = 0; i < PROGRAM_NUM_PROGTYPES; i++) {
+		m.type = MSGTYPE_PROGINVENTORY;
+		m.progType = (PROGRAM)i;
+		m.programID = client->getUser()->progs_[i];
 		client->sendData(m);
 	}
 
@@ -229,7 +238,6 @@ void Server::processMessage(Message* msg) {
 						login(issuingClient, requestedUser);
 					} else {
 						printf("SERVER: client tried to log into user %s with wrong password %s\n", requestedUser->username_.c_str(), password.c_str());
-						issuingClient->setTempUser(NULL);
 
 						Message m;
 						m.type = MSGTYPE_CREATEUSER;
@@ -306,7 +314,7 @@ void Server::processMessage(Message* msg) {
 			if (game_ != NULL)
 				delete game_;
 
-			game_ = new Game(true, "levels/classic/" + to_string(msg->levelNum) + ".urf");
+			game_ = new Game(true, savePath_ + "/" + to_string(msg->levelNum) + ".urf");
 			sendMessageToAllClients(*msg);
 		} else {
 			Message err;
@@ -480,7 +488,18 @@ void Server::processMessage(Message* msg) {
 
 		sendMessageToAllClients(response);
 	}
-	break;
+		break;
+	case MSGTYPE_PROGINVENTORY:
+		issuingClient->getUser()->progs_[msg->progType] += msg->programID;
+		saveUsers();
+
+		Message m;
+		m.type = MSGTYPE_PROGINVENTORY;
+		m.clientID = 0;
+		m.progType = msg->progType;
+		m.programID = issuingClient->getUser()->progs_[msg->progType];
+		sendMessageToClient(m, msg->clientID);
+		break;
 	}
 }
 
@@ -632,12 +651,13 @@ void Server::processAITurn(Player* p) {
 
 void Server::loadUsers() {
 	std::ifstream userStream;
-	userStream.open("users.dat", std::ios::in | std::ios::binary);
+	std::string filePath = savePath_ + "/users.dat";
+	userStream.open(filePath, std::ios::in | std::ios::binary);
 
 	if (!userStream.is_open()) {
-		printf("SERVER ERROR: could not open users.dat\n");
+		printf("SERVER ERROR: could not open %s\n", filePath.c_str());
 	} else {
-		printf("SERVER: reading users.dat\n");
+		printf("SERVER: reading %s\n", filePath.c_str());
 
 		// read the sizes of various data types
 		printf("SERVER: reading constants\n");
@@ -685,12 +705,13 @@ void Server::loadUsers() {
 
 void Server::saveUsers() {
 	std::ofstream userStream;
-	userStream.open("users.dat", std::ios::out | std::ios::binary | std::ios::trunc);
+	std::string filePath = savePath_ + "/users.dat";
+	userStream.open(filePath, std::ios::out | std::ios::binary | std::ios::trunc);
 
 	if (!userStream.is_open()) {
-		printf("SERVER ERROR: could not open users.dat\n");
+		printf("SERVER ERROR: could not open %s\n", filePath.c_str());
 	} else {
-		printf("SERVER: writing users.dat\n");
+		printf("SERVER: writing %s\n", filePath.c_str());
 
 		// begin by writing the sizes of various data types
 		int8_t sizeOfInt = sizeof(int);
@@ -748,4 +769,8 @@ LinkedList<User*>* Server::getUsers() {
 
 Pipe* Server::getOwner() {
 	return ownerClient_;
+}
+
+bool Server::isLocal() {
+	return isLocal_;
 }

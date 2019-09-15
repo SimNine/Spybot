@@ -12,7 +12,7 @@ class User;
 
 class Server {
 public:
-	Server(bool isLocal);
+	Server(bool isLocal, std::string savePath);
 	virtual ~Server();
 
 	void processAllMessages();
@@ -32,9 +32,13 @@ public:
 	Game* getGame();
 	LinkedList<User*>* getUsers();
 	Pipe* getOwner();
+	bool isLocal();
 protected:
 
 private:
+	// level and userdata path
+	std::string savePath_;
+
 	// locality modifier
 	bool isLocal_;
 

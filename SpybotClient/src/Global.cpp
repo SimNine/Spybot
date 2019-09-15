@@ -2,17 +2,18 @@
 #include "Global.h"
 
 #include "GUIContainer.h"
-#include "TitleScreen.h"
-#include "MainScreen.h"
-#include "MapScreen.h"
-#include "GameScreen.h"
-#include "LobbyScreen.h"
-#include "NotifyScreen.h"
+#include "TitleOverlay.h"
+#include "MainOverlay.h"
+#include "MapOverlay.h"
+#include "GameOverlay.h"
+#include "LobbyOverlay.h"
+#include "NotifyOverlay.h"
 #include "Data.h"
 #include "Client.h"
 #include "GUITextbox.h"
 #include "ConnectionManager.h"
 #include "Server.h"
+#include "LocalLoginOverlay.h"
 
 // initial screen dimension constants
 int _SCREEN_WIDTH = 800;
@@ -32,13 +33,15 @@ SDL_Window* _window = NULL;
 SDL_Renderer* _renderer = NULL;
 
 // designate the GUI_containers
-GUIContainer* _currScreen = NULL;
-TitleScreen* _titleScreen = NULL;
-MainScreen* _mainScreen = NULL;
-MapScreen* _mapScreen = NULL;
-GameScreen* _gameScreen = NULL;
-LobbyScreen* _lobbyScreen = NULL;
-NotifyScreen* _notifyScreen = NULL;
+LinkedList<GUIContainer*>* _overlayStack = new LinkedList<GUIContainer*>();
+TitleOverlay* _titleOverlay = NULL;
+MainOverlay* _mainOverlay = NULL;
+MapOverlay* _mapOverlay = NULL;
+GameOverlay* _gameOverlay = NULL;
+LobbyOverlay* _lobbyOverlay = NULL;
+NotifyOverlay* _notifyOverlay = NULL;
+BackgroundOverlay* _backgroundOverlay = NULL;
+LocalLoginOverlay* _localLoginOverlay = NULL;
 
 // mouse position
 Coord _mousePos = { 0, 0 };
@@ -52,16 +55,6 @@ bool _quit = false;
 
 // debug flag
 DEBUG _debug = DEBUG_NONE;
-
-// owned programs per campaign
-int _progListClassic[PROGRAM_NUM_PROGTYPES];
-int _progListNightfall[PROGRAM_NUM_PROGTYPES];
-int _progListCustom[PROGRAM_NUM_PROGTYPES];
-int _progListMulti[PROGRAM_NUM_PROGTYPES];
-int* _progListCurrent = _progListClassic;
-
-// programs currently in play
-int _usedPrograms[PROGRAM_NUM_PROGTYPES];
 
 // program ID currently selected (to be placed)
 PROGRAM _currProgram = PROGRAM_NONE;

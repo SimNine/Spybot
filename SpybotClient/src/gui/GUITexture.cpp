@@ -4,26 +4,26 @@
 #include "ResourceLoader.h"
 #include "Global.h"
 
-GUITexture::GUITexture(ANCHOR a, Coord disp, SDL_Texture* tex, Coord dims, GUIContainer* par)
-	: GUIObject(a, disp, dims, par) {
+GUITexture::GUITexture(GUIContainer* par, ANCHOR a, Coord disp, Coord dims, SDL_Texture* tex)
+	: GUIObject(par, a, disp, dims) {
 	texture_ = tex;
 	willDestroyTexture_ = false;
 }
 
-GUITexture::GUITexture(ANCHOR a, Coord disp, SDL_Texture* tex, Coord dims, bool destroyTex, GUIContainer* par)
-	: GUIObject(a, disp, dims, par) {
+GUITexture::GUITexture(GUIContainer* par, ANCHOR a, Coord disp, Coord dims, SDL_Texture* tex, bool destroyTex)
+	: GUIObject(par, a, disp, dims) {
 	texture_ = tex;
 	willDestroyTexture_ = destroyTex;
 }
 
-GUITexture::GUITexture(ANCHOR a, Coord disp, std::string tex, Coord dims, GUIContainer* par)
-	: GUIObject(a, disp, dims, par) {
+GUITexture::GUITexture(GUIContainer* par, ANCHOR a, Coord disp, Coord dims, std::string tex)
+	: GUIObject(par, a, disp, dims) {
 	texture_ = loadTexture(tex);
 	willDestroyTexture_ = true;
 }
 
-GUITexture::GUITexture(ANCHOR a, Coord disp, std::string str, int fontSize, GUIContainer* parent)
-	: GUIObject(a, disp, { 0, 0 }, parent) {
+GUITexture::GUITexture(GUIContainer* parent, ANCHOR a, Coord disp, std::string str, int fontSize)
+	: GUIObject(parent, a, disp, { 0, 0 }) {
 	texture_ = loadString(str, FONT_NORMAL, fontSize, _color_white);
 	int w, h;
 	SDL_QueryTexture(texture_, NULL, NULL, &w, &h);

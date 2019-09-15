@@ -1,5 +1,4 @@
-#ifndef PIPE_H
-#define PIPE_H
+#pragma once
 
 #include "Standard.h"
 
@@ -8,50 +7,35 @@ struct Message;
 class Player;
 class User;
 
-class Pipe
-{
-    public:
-        Pipe(SOCKET socket, Server* server);
-        virtual ~Pipe();
+class Pipe {
+public:
+	Pipe(SOCKET socket, Server* server);
+	virtual ~Pipe();
 
-        void listenData();
-        void sendData(Message m);
+	void listenData();
+	void sendData(Message m);
 
-		int getClientID();
+	int getClientID();
 
-		User* getUser();
-		void setUser(User* user);
+	User* getUser();
+	void setUser(User* user);
 
-		User* getTempUser();
-		void setTempUser(User* user);
+	Player* getPlayer();
+	void setPlayer(Player* p);
 
-		User* getNewUser();
-		void setNewUser(User* user);
+	void close();
+	bool isClosed();
+protected:
 
-		Player* getPlayer();
-		void setPlayer(Player* p);
+private:
+	SOCKET socket_;
+	Server* server_;
+	int clientID_;
 
-		void close();
-		bool isClosed();
-    protected:
+	// the user that the client is currently logged in as
+	User* user_;
 
-    private:
-		SOCKET socket_;
-        Server* server_;
-		int clientID_;
+	Player* player_;
 
-		// the user that the client is currently logged in as
-		User* user_;
-
-		// the user that the client is attempting to log in as
-		User* tempUser_;
-
-		// the user that the client is attempting to create
-		User* newUser_;
-
-		Player* player_;
-
-		bool closed_;
+	bool closed_;
 };
-
-#endif // PIPE_H

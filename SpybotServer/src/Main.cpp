@@ -89,7 +89,7 @@ int main(int argc, char* args[]) {
 	printf("SpybotServer.exe launched\n");
 
 	// initialize the server
-	_server = new Server(false);
+	_server = new Server(false, "levels/multi");
 	printf("Server initialized\n");
 
 	// start up the master listener thread

@@ -3,16 +3,16 @@
 
 #include "Global.h"
 
-GUIContainer::GUIContainer(ANCHOR anchorPoint, Coord disp, Coord dims, GUIContainer* parent, SDL_Texture* bkg)
-	: GUIObject(anchorPoint, disp, dims, parent) {
+GUIContainer::GUIContainer(GUIContainer* parent, ANCHOR anchorPoint, Coord disp, Coord dims, SDL_Texture* bkg)
+	: GUIObject(parent, anchorPoint, disp, dims) {
 	movable = true;
 	bkgImg = bkg;
 	bkgCol = NULL;
 	contents = new LinkedList<GUIObject*>();
 }
 
-GUIContainer::GUIContainer(ANCHOR anch, Coord disp, GUIContainer* parent, SDL_Texture* bkg)
-	: GUIObject(anch, disp, { 0, 0 }, parent) {
+GUIContainer::GUIContainer(GUIContainer* parent, ANCHOR anch, Coord disp, SDL_Texture* bkg)
+	: GUIObject(parent, anch, disp, { 0, 0 }) {
 	movable = true;
 	bkgImg = bkg;
 	bkgCol = NULL;
@@ -20,8 +20,8 @@ GUIContainer::GUIContainer(ANCHOR anch, Coord disp, GUIContainer* parent, SDL_Te
 	contents = new LinkedList<GUIObject*>();
 }
 
-GUIContainer::GUIContainer(ANCHOR anch, Coord disp, Coord dims, GUIContainer* parent, SDL_Color col)
-	: GUIObject(anch, disp, dims, parent) {
+GUIContainer::GUIContainer(GUIContainer* parent, ANCHOR anch, Coord disp, Coord dims, SDL_Color col)
+	: GUIObject(parent, anch, disp, dims) {
 	movable = true;
 	bkgImg = NULL;
 	bkgCol = new SDL_Color(col);

@@ -21,12 +21,6 @@ public:
 	User* getUser();
 	void setUser(User* user);
 
-	User* getTempUser();
-	void setTempUser(User* user);
-
-	User* getNewUser();
-	void setNewUser(User* user);
-
 	Player* getPlayer();
 	void setPlayer(Player* p);
 
@@ -41,12 +35,6 @@ private:
 
 	// the user that the client is currently logged in as
 	User* user_;
-
-	// the user that the client is attempting to log in as
-	User* tempUser_;
-
-	// the user that the client is attempting to create
-	User* newUser_;
 
 	Player* player_;
 

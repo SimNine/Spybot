@@ -16,8 +16,6 @@ Pipe::Pipe(SOCKET client, Server* server) {
 	player_ = NULL;
 	closed_ = false;
 	user_ = NULL;
-	tempUser_ = NULL;
-	newUser_ = NULL;
 
 	// set client ID
 	clientID_ = randInt();
@@ -72,20 +70,4 @@ User* Pipe::getUser() {
 
 void Pipe::setUser(User* user) {
 	user_ = user;
-}
-
-User* Pipe::getTempUser() {
-	return tempUser_;
-}
-
-void Pipe::setTempUser(User* user) {
-	tempUser_ = user;
-}
-
-User* Pipe::getNewUser() {
-	return newUser_;
-}
-
-void Pipe::setNewUser(User* user) {
-	newUser_ = user;
 }

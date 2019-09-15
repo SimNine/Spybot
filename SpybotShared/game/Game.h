@@ -28,6 +28,8 @@ class Game
 		void setCurrTurnPlayer(Player* p);
 		Player* getCurrTurnPlayer();
 
+		void checkForWinCondition();
+
         int getLeftBound();
         int getRightBound();
         int getTopBound();

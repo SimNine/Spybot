@@ -23,21 +23,21 @@ extern int _node_yoffset[8];
 extern SDL_Texture* _map_window_levelConfirm;
 extern SDL_Texture* _map_window_levelCancel;
 
-extern SDL_Texture* _map_button_beginDatabattle_normal;
-extern SDL_Texture* _map_button_beginDatabattle_over;
-extern SDL_Texture* _map_button_cancel_normal;
-extern SDL_Texture* _map_button_cancel_over;
+extern std::string _map_button_beginDatabattle_normal;
+extern std::string _map_button_beginDatabattle_over;
+extern std::string _map_button_cancel_normal;
+extern std::string _map_button_cancel_over;
 
-extern SDL_Texture* _map_button_joingame;
+extern std::string _map_button_joingame;
 
 // lobbyScreen resources
-extern SDL_Texture* _lobby_button_gamemode_coop;
-extern SDL_Texture* _lobby_button_gamemode_coop_over;
-extern SDL_Texture* _lobby_button_gamemode_ffa;
-extern SDL_Texture* _lobby_button_gamemode_ffa_over;
-extern SDL_Texture* _lobby_button_gamemode_teamdm;
-extern SDL_Texture* _lobby_button_gamemode_teamdm_over;
-extern SDL_Texture* _lobby_button_gamemode_selected;
+extern std::string _lobby_button_gamemode_coop;
+extern std::string _lobby_button_gamemode_coop_over;
+extern std::string _lobby_button_gamemode_ffa;
+extern std::string _lobby_button_gamemode_ffa_over;
+extern std::string _lobby_button_gamemode_teamdm;
+extern std::string _lobby_button_gamemode_teamdm_over;
+extern std::string _lobby_button_gamemode_selected;
 
 // game resources
 extern SDL_Texture* _game_backgrounds[BKG_NUM_BKGS];
@@ -116,21 +116,6 @@ extern std::string _game_disp_compturn;
 extern SDL_Texture* _main_bkgdata;
 extern SDL_Texture* _main_bkgsplotch;
 extern SDL_Texture* _main_bkgsplotch2;
-
-extern std::string _main_button_classic;
-extern std::string _main_button_classic_over;
-extern std::string _main_button_nightfall;
-extern std::string _main_button_nightfall_over;
-extern std::string _main_button_freeform;
-extern std::string _main_button_freeform_over;
-extern std::string _main_button_multiplayer;
-extern std::string _main_button_multiplayer_over;
-extern std::string _main_button_options;
-extern std::string _main_button_options_over;
-extern std::string _main_button_achievements;
-extern std::string _main_button_achievements_over;
-extern std::string _main_button_quit;
-extern std::string _main_button_quit_over;
 
 // SDL_Mixer music
 extern Mix_Music* _music_title;

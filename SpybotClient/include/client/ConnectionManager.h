@@ -14,7 +14,7 @@ public:
 	virtual ~ConnectionManager();
 
 	void connectToExternalServer(std::string IP);
-	void connectToLocalServer();
+	void connectToLocalServer(std::string savePath);
 	void disconnect();
 	void listen();
 

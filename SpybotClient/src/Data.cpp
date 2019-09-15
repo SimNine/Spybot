@@ -21,21 +21,21 @@ int _node_yoffset[8];
 SDL_Texture* _map_window_levelConfirm;
 SDL_Texture* _map_window_levelCancel;
 
-SDL_Texture* _map_button_beginDatabattle_normal;
-SDL_Texture* _map_button_beginDatabattle_over;
-SDL_Texture* _map_button_cancel_normal;
-SDL_Texture* _map_button_cancel_over;
+std::string _map_button_beginDatabattle_normal;
+std::string _map_button_beginDatabattle_over;
+std::string _map_button_cancel_normal;
+std::string _map_button_cancel_over;
 
-SDL_Texture* _map_button_joingame;
+std::string _map_button_joingame;
 
 // lobbyScreen resources
-SDL_Texture* _lobby_button_gamemode_coop;
-SDL_Texture* _lobby_button_gamemode_coop_over;
-SDL_Texture* _lobby_button_gamemode_ffa;
-SDL_Texture* _lobby_button_gamemode_ffa_over;
-SDL_Texture* _lobby_button_gamemode_teamdm;
-SDL_Texture* _lobby_button_gamemode_teamdm_over;
-SDL_Texture* _lobby_button_gamemode_selected;
+std::string _lobby_button_gamemode_coop;
+std::string _lobby_button_gamemode_coop_over;
+std::string _lobby_button_gamemode_ffa;
+std::string _lobby_button_gamemode_ffa_over;
+std::string _lobby_button_gamemode_teamdm;
+std::string _lobby_button_gamemode_teamdm_over;
+std::string _lobby_button_gamemode_selected;
 
 // game resources
 SDL_Texture* _game_backgrounds[BKG_NUM_BKGS];
@@ -114,21 +114,6 @@ std::string _game_disp_compturn;
 SDL_Texture* _main_bkgdata;
 SDL_Texture* _main_bkgsplotch;
 SDL_Texture* _main_bkgsplotch2;
-
-std::string _main_button_classic;
-std::string _main_button_classic_over;
-std::string _main_button_nightfall;
-std::string _main_button_nightfall_over;
-std::string _main_button_freeform;
-std::string _main_button_freeform_over;
-std::string _main_button_multiplayer;
-std::string _main_button_multiplayer_over;
-std::string _main_button_options;
-std::string _main_button_options_over;
-std::string _main_button_achievements;
-std::string _main_button_achievements_over;
-std::string _main_button_quit;
-std::string _main_button_quit_over;
 
 // SDL_Mixer music
 Mix_Music* _music_title;
@@ -239,21 +224,21 @@ void initData() {
 	_map_window_levelConfirm = loadTexture("resources/level_confirm.png");
 	_map_window_levelCancel = loadTexture("resources/level_cancel.png");
 
-	_map_button_beginDatabattle_normal = loadTexture("resources/begin_databattle_button_normal.png");
-	_map_button_beginDatabattle_over = loadTexture("resources/begin_databattle_button_over.png");
-	_map_button_cancel_normal = loadTexture("resources/cancel_button_normal.png");
-	_map_button_cancel_over = loadTexture("resources/cancel_button_over.png");
+	_map_button_beginDatabattle_normal = "resources/begin_databattle_button_normal.png";
+	_map_button_beginDatabattle_over = "resources/begin_databattle_button_over.png";
+	_map_button_cancel_normal = "resources/cancel_button_normal.png";
+	_map_button_cancel_over = "resources/cancel_button_over.png";
 
-	_map_button_joingame = loadTexture("resources/map/joinexisting.png");
+	_map_button_joingame = "resources/map/joinexisting.png";
 
 	// lobbyScreen resources
-	_lobby_button_gamemode_coop = loadTexture("resources/lobby/gamemode_coop.png");
-	_lobby_button_gamemode_coop_over = loadTexture("resources/lobby/gamemode_coop_over.png");
-	_lobby_button_gamemode_ffa = loadTexture("resources/lobby/gamemode_ffa.png");
-	_lobby_button_gamemode_ffa_over = loadTexture("resources/lobby/gamemode_ffa_over.png");
-	_lobby_button_gamemode_teamdm = loadTexture("resources/lobby/gamemode_teamdm.png");
-	_lobby_button_gamemode_teamdm_over = loadTexture("resources/lobby/gamemode_teamdm_over.png");
-	_lobby_button_gamemode_selected = loadTexture("resources/lobby/gamemode_selected.png");
+	_lobby_button_gamemode_coop = "resources/lobby/gamemode_coop.png";
+	_lobby_button_gamemode_coop_over = "resources/lobby/gamemode_coop_over.png";
+	_lobby_button_gamemode_ffa = "resources/lobby/gamemode_ffa.png";
+	_lobby_button_gamemode_ffa_over = "resources/lobby/gamemode_ffa_over.png";
+	_lobby_button_gamemode_teamdm = "resources/lobby/gamemode_teamdm.png";
+	_lobby_button_gamemode_teamdm_over = "resources/lobby/gamemode_teamdm_over.png";
+	_lobby_button_gamemode_selected = "resources/lobby/gamemode_selected.png";
 
 	// gameScreen resources
 	_game_backgrounds[0] = loadTexture("resources/company_0.png");
@@ -295,65 +280,66 @@ void initData() {
 	_program_core_horizontal = loadTexture("resources/board/programs/program_core_horizontal.png");
 
 	// initialize program data
-	_program_icons[0] = NULL;
-	_program_icons[1] = NULL;
-	_program_icons[2] = loadTexture("resources/board/programs/program_icon_ballista.png");
-	_program_icons[3] = loadTexture("resources/board/programs/program_icon_bitman.png");
-	_program_icons[4] = loadTexture("resources/board/programs/program_icon_bitman2.png");
-	_program_icons[5] = loadTexture("resources/board/programs/program_icon_blackwidow.png");
-	_program_icons[6] = loadTexture("resources/board/programs/program_icon_bug.png");
-	_program_icons[7] = loadTexture("resources/board/programs/program_icon_bug2.png");
-	_program_icons[8] = loadTexture("resources/board/programs/program_icon_bug3.png");
-	_program_icons[9] = loadTexture("resources/board/programs/program_icon_catapult.png");
-	_program_icons[10] = loadTexture("resources/board/programs/program_icon_clog.png");
-	_program_icons[11] = loadTexture("resources/board/programs/program_icon_clog2.png");
-	_program_icons[12] = loadTexture("resources/board/programs/program_icon_clog3.png");
-	_program_icons[13] = loadTexture("resources/board/programs/program_icon_databomb.png");
-	_program_icons[14] = loadTexture("resources/board/programs/program_icon_datadoctor.png");
-	_program_icons[15] = loadTexture("resources/board/programs/program_icon_datadoctor2.png");
-	_program_icons[16] = loadTexture("resources/board/programs/program_icon_fiddle.png");
-	_program_icons[17] = loadTexture("resources/board/programs/program_icon_golem.png");
-	_program_icons[18] = loadTexture("resources/board/programs/program_icon_golem2.png");
-	_program_icons[19] = loadTexture("resources/board/programs/program_icon_golem3.png");
-	_program_icons[20] = loadTexture("resources/board/programs/program_icon_hack.png");
-	_program_icons[21] = loadTexture("resources/board/programs/program_icon_hack2.png");
-	_program_icons[22] = loadTexture("resources/board/programs/program_icon_hack3.png");
-	_program_icons[23] = loadTexture("resources/board/programs/program_icon_kamikazee.png");
-	_program_icons[24] = loadTexture("resources/board/programs/program_icon_medic.png");
-	_program_icons[25] = loadTexture("resources/board/programs/program_icon_memhog.png");
-	_program_icons[26] = loadTexture("resources/board/programs/program_icon_mobiletower.png");
-	_program_icons[27] = loadTexture("resources/board/programs/program_icon_satellite.png");
-	_program_icons[28] = loadTexture("resources/board/programs/program_icon_satellite2.png");
-	_program_icons[29] = loadTexture("resources/board/programs/program_icon_seeker.png");
-	_program_icons[30] = loadTexture("resources/board/programs/program_icon_seeker2.png");
-	_program_icons[31] = loadTexture("resources/board/programs/program_icon_seeker3.png");
-	_program_icons[32] = loadTexture("resources/board/programs/program_icon_slingshot.png");
-	_program_icons[33] = loadTexture("resources/board/programs/program_icon_specs.png");
-	_program_icons[34] = loadTexture("resources/board/programs/program_icon_sumo.png");
-	_program_icons[35] = loadTexture("resources/board/programs/program_icon_tarantula.png");
-	_program_icons[36] = loadTexture("resources/board/programs/program_icon_tower.png");
-	_program_icons[37] = loadTexture("resources/board/programs/program_icon_turbo.png");
-	_program_icons[38] = loadTexture("resources/board/programs/program_icon_turbo2.png");
-	_program_icons[39] = loadTexture("resources/board/programs/program_icon_turbo3.png");
-	_program_icons[40] = loadTexture("resources/board/programs/program_icon_wizard.png");
-	_program_icons[41] = loadTexture("resources/board/programs/program_icon_wolfspider.png");
-	_program_icons[42] = loadTexture("resources/board/programs/program_icon_boss.png");
-	_program_icons[43] = loadTexture("resources/board/programs/program_icon_dog.png");
-	_program_icons[44] = loadTexture("resources/board/programs/program_icon_dog2.png");
-	_program_icons[45] = loadTexture("resources/board/programs/program_icon_dog3.png");
-	_program_icons[46] = loadTexture("resources/board/programs/program_icon_firewall.png");
-	_program_icons[47] = loadTexture("resources/board/programs/program_icon_sonar.png");
-	_program_icons[48] = loadTexture("resources/board/programs/program_icon_sonar2.png");
-	_program_icons[49] = loadTexture("resources/board/programs/program_icon_sonar3.png");
-	_program_icons[50] = loadTexture("resources/board/programs/program_icon_walker.png");
-	_program_icons[51] = loadTexture("resources/board/programs/program_icon_walker2.png");
-	_program_icons[52] = loadTexture("resources/board/programs/program_icon_walker3.png");
-	_program_icons[53] = loadTexture("resources/board/programs/program_icon_warden.png");
-	_program_icons[54] = loadTexture("resources/board/programs/program_icon_warden2.png");
-	_program_icons[55] = loadTexture("resources/board/programs/program_icon_warden3.png");
-	_program_icons[56] = loadTexture("resources/board/programs/program_icon_watchman.png");
-	_program_icons[57] = loadTexture("resources/board/programs/program_icon_watchman2.png");
-	_program_icons[58] = loadTexture("resources/board/programs/program_icon_watchman3.png");
+	_program_icons[PROGRAM_BALLISTA] = loadTexture("resources/board/programs/program_icon_ballista.png");
+	_program_icons[PROGRAM_BITMAN] = loadTexture("resources/board/programs/program_icon_bitman.png");
+	_program_icons[PROGRAM_BITMAN2] = loadTexture("resources/board/programs/program_icon_bitman2.png");
+	_program_icons[PROGRAM_BLACKWIDOW] = loadTexture("resources/board/programs/program_icon_blackwidow.png");
+	_program_icons[PROGRAM_BUG] = loadTexture("resources/board/programs/program_icon_bug.png");
+	_program_icons[PROGRAM_BUG2] = loadTexture("resources/board/programs/program_icon_bug2.png");
+	_program_icons[PROGRAM_BUG3] = loadTexture("resources/board/programs/program_icon_bug3.png");
+	_program_icons[PROGRAM_CATAPULT] = loadTexture("resources/board/programs/program_icon_catapult.png");
+	_program_icons[PROGRAM_CLOG] = loadTexture("resources/board/programs/program_icon_clog.png");
+	_program_icons[PROGRAM_CLOG2] = loadTexture("resources/board/programs/program_icon_clog2.png");
+	_program_icons[PROGRAM_CLOG3] = loadTexture("resources/board/programs/program_icon_clog3.png");
+	_program_icons[PROGRAM_DATABOMB] = loadTexture("resources/board/programs/program_icon_databomb.png");
+	_program_icons[PROGRAM_DATADOCTOR] = loadTexture("resources/board/programs/program_icon_datadoctor.png");
+	_program_icons[PROGRAM_DATADOCTOR2] = loadTexture("resources/board/programs/program_icon_datadoctor2.png");
+	_program_icons[PROGRAM_FIDDLE] = loadTexture("resources/board/programs/program_icon_fiddle.png");
+	_program_icons[PROGRAM_GOLEM] = loadTexture("resources/board/programs/program_icon_golem.png");
+	_program_icons[PROGRAM_GOLEM2] = loadTexture("resources/board/programs/program_icon_golem2.png");
+	_program_icons[PROGRAM_GOLEM3] = loadTexture("resources/board/programs/program_icon_golem3.png");
+	_program_icons[PROGRAM_HACK] = loadTexture("resources/board/programs/program_icon_hack.png");
+	_program_icons[PROGRAM_HACK2] = loadTexture("resources/board/programs/program_icon_hack2.png");
+	_program_icons[PROGRAM_HACK3] = loadTexture("resources/board/programs/program_icon_hack3.png");
+	_program_icons[PROGRAM_KAMIKAZEE] = loadTexture("resources/board/programs/program_icon_kamikazee.png");
+	_program_icons[PROGRAM_MEDIC] = loadTexture("resources/board/programs/program_icon_medic.png");
+	_program_icons[PROGRAM_MEMHOG] = loadTexture("resources/board/programs/program_icon_memhog.png");
+	_program_icons[PROGRAM_MOBILETOWER] = loadTexture("resources/board/programs/program_icon_mobiletower.png");
+	_program_icons[PROGRAM_SATELLITE] = loadTexture("resources/board/programs/program_icon_satellite.png");
+	_program_icons[PROGRAM_SATELLITE2] = loadTexture("resources/board/programs/program_icon_satellite2.png");
+	_program_icons[PROGRAM_SEEKER] = loadTexture("resources/board/programs/program_icon_seeker.png");
+	_program_icons[PROGRAM_SEEKER2] = loadTexture("resources/board/programs/program_icon_seeker2.png");
+	_program_icons[PROGRAM_SEEKER3] = loadTexture("resources/board/programs/program_icon_seeker3.png");
+	_program_icons[PROGRAM_SLINGSHOT] = loadTexture("resources/board/programs/program_icon_slingshot.png");
+	_program_icons[PROGRAM_SPECS] = loadTexture("resources/board/programs/program_icon_specs.png");
+	_program_icons[PROGRAM_SUMO] = loadTexture("resources/board/programs/program_icon_sumo.png");
+	_program_icons[PROGRAM_TARANTULA] = loadTexture("resources/board/programs/program_icon_tarantula.png");
+	_program_icons[PROGRAM_TOWER] = loadTexture("resources/board/programs/program_icon_tower.png");
+	_program_icons[PROGRAM_TURBO] = loadTexture("resources/board/programs/program_icon_turbo.png");
+	_program_icons[PROGRAM_TURBO2] = loadTexture("resources/board/programs/program_icon_turbo2.png");
+	_program_icons[PROGRAM_TURBO3] = loadTexture("resources/board/programs/program_icon_turbo3.png");
+	_program_icons[PROGRAM_WIZARD] = loadTexture("resources/board/programs/program_icon_wizard.png");
+	_program_icons[PROGRAM_WOLFSPIDER] = loadTexture("resources/board/programs/program_icon_wolfspider.png");
+	_program_icons[PROGRAM_BOSS] = loadTexture("resources/board/programs/program_icon_boss.png");
+	_program_icons[PROGRAM_DOG] = loadTexture("resources/board/programs/program_icon_dog.png");
+	_program_icons[PROGRAM_DOG2] = loadTexture("resources/board/programs/program_icon_dog2.png");
+	_program_icons[PROGRAM_DOG3] = loadTexture("resources/board/programs/program_icon_dog3.png");
+	_program_icons[PROGRAM_FIREWALL] = loadTexture("resources/board/programs/program_icon_firewall.png");
+	_program_icons[PROGRAM_SONAR] = loadTexture("resources/board/programs/program_icon_sonar.png");
+	_program_icons[PROGRAM_SONAR2] = loadTexture("resources/board/programs/program_icon_sonar2.png");
+	_program_icons[PROGRAM_SONAR3] = loadTexture("resources/board/programs/program_icon_sonar3.png");
+	_program_icons[PROGRAM_WALKER] = loadTexture("resources/board/programs/program_icon_walker.png");
+	_program_icons[PROGRAM_WALKER2] = loadTexture("resources/board/programs/program_icon_walker2.png");
+	_program_icons[PROGRAM_WALKER3] = loadTexture("resources/board/programs/program_icon_walker3.png");
+	_program_icons[PROGRAM_WARDEN] = loadTexture("resources/board/programs/program_icon_warden.png");
+	_program_icons[PROGRAM_WARDEN2] = loadTexture("resources/board/programs/program_icon_warden2.png");
+	_program_icons[PROGRAM_WARDEN3] = loadTexture("resources/board/programs/program_icon_warden3.png");
+	_program_icons[PROGRAM_WATCHMAN] = loadTexture("resources/board/programs/program_icon_watchman.png");
+	_program_icons[PROGRAM_WATCHMAN2] = loadTexture("resources/board/programs/program_icon_watchman2.png");
+	_program_icons[PROGRAM_WATCHMAN3] = loadTexture("resources/board/programs/program_icon_watchman3.png");
+	_program_icons[PROGRAM_NUM_PROGTYPES] = NULL;
+	_program_icons[PROGRAM_CUSTOM] = NULL;
+	_program_icons[PROGRAM_NONE] = NULL;
 
 	_game_editor_brush_none = loadTexture("resources/board/editor/brush_none.png");
 	_game_editor_brush_tiles = loadTexture("resources/board/editor/brush_tile.png");
@@ -410,21 +396,6 @@ void initData() {
 	_main_bkgdata = loadTexture("resources/main/menu_bkgdata.png");
 	_main_bkgsplotch = loadTexture("resources/main/menu_bkgsplotch.png");
 	_main_bkgsplotch2 = loadTexture("resources/main/menu_bkgsplotch2.png");
-
-	_main_button_classic = "resources/main/menu_button_classic.png";
-	_main_button_classic_over = "resources/main/menu_button_classic_over.png";
-	_main_button_nightfall = "resources/main/menu_button_nightfall.png";
-	_main_button_nightfall_over = "resources/main/menu_button_nightfall_over.png";
-	_main_button_freeform = "resources/main/menu_button_freeform.png";
-	_main_button_freeform_over = "resources/main/menu_button_freeform_over.png";
-	_main_button_multiplayer = "resources/main/menu_button_multiplayer.png";
-	_main_button_multiplayer_over = "resources/main/menu_button_multiplayer_over.png";
-	_main_button_options = "resources/main/menu_button_options.png";
-	_main_button_options_over = "resources/main/menu_button_options_over.png";
-	_main_button_achievements = "resources/main/menu_button_achievements.png";
-	_main_button_achievements_over = "resources/main/menu_button_achievements_over.png";
-	_main_button_quit = "resources/main/menu_button_quit.png";
-	_main_button_quit_over = "resources/main/menu_button_quit_over.png";
 
 	// SDL_Mixer music
 	_music_title = loadMusic("resources/sounds/title_music.flac");

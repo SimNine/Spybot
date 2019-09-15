@@ -4,7 +4,7 @@
 #include "GUIContainer.h"
 #include "Global.h"
 
-GUIObject::GUIObject(ANCHOR anchorPoint, Coord disp, Coord dims, GUIContainer* parent) {
+GUIObject::GUIObject(GUIContainer* parent, ANCHOR anchorPoint, Coord disp, Coord dims) {
 	anchor = anchorPoint;
 	displacement = disp;
 	pressed = false;
@@ -136,15 +136,12 @@ int GUIObject::getTransparency() {
 }
 
 void GUIObject::fadeStep(int ms) {
-	if (fadeCurrDuration != fadeInitDuration) // if fading is occurring
-	{
+	if (fadeCurrDuration != fadeInitDuration) { // if fading is occurring
 		double pctDone = (double)fadeCurrDuration / fadeInitDuration;
 
-		if (currAlpha > endAlpha) // if alpha is decreasing
-		{
+		if (currAlpha > endAlpha) { // if alpha is decreasing
 			setTransparency(startAlpha - (int)(pctDone*(startAlpha - endAlpha)) - 1);
-		} else // if alpha is increasing
-		{
+		} else { // if alpha is increasing
 			setTransparency((int)(pctDone*(endAlpha - startAlpha)) + 1);
 		}
 
@@ -157,8 +154,10 @@ void GUIObject::fadeStep(int ms) {
 			fadeInitDuration = 0;
 
 			// guarantee visibility or invisibility
-			if (endAlpha == 255) setTransparency(255);
-			else if (endAlpha == 0) setTransparency(0);
+			if (endAlpha == 255)
+				setTransparency(255);
+			else if (endAlpha == 0)
+				setTransparency(0);
 		}
 	}
 }

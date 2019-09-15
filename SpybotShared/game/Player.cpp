@@ -9,6 +9,13 @@
 #include "ProgramAction.h"
 #include "Server.h"
 
+#ifdef CLIENTSIDE
+#include "GameOverlay.h"
+#include "AnimationTileFade.h"
+#include "AnimationAttack.h"
+#endif // CLIENTSIDE
+
+
 Player::Player(Game* g, int t) {
 	game = g;
 	team = t;
@@ -29,9 +36,12 @@ Player::~Player() {
 }
 
 void Player::setSelectedProgram(Program* p) {
-	if (p == NULL) calculateProgramDist(NULL);
-	else if (p->getTeam() != team) calculateProgramDist(NULL);
-	else calculateProgramDist(p);
+	if (p == NULL)
+		calculateProgramDist(NULL);
+	else if
+		(p->getTeam() != team) calculateProgramDist(NULL);
+	else
+		calculateProgramDist(p);
 
 	setSelectedAction(NULL);
 	selectedProgram = p;
@@ -357,15 +367,18 @@ void Player::useSelectedActionAt(Coord pos) {
 			return;
 
 		if (tgtProg->getTeam() != team) {
-			// TODO: convert animations this to msg system
-			//_gameScreen->addAnimation(new AnimationAttack(tgtProg->getHead(), selectedAction->power));
+#ifdef CLIENTSIDE // if this is compiled on the client side, add an animation to the game overlays
+			_gameOverlay->addAnimation(new AnimationAttack(tgtProg->getHead(), selectedAction->power));
+#endif // CLIENTSIDE
 			for (int i = 0; i < selectedAction->power; i++) {
 				Coord* curr = tgtProg->popTail();
 				if (curr == NULL)
 					break;
 				else {
 					SDL_Color c = tgtProg->getOwner()->getColor();
-					//_gameScreen->addAnimation(new AnimationTileFade(*curr, i * 255 + 255, c.r, c.g, c.b));
+#ifdef CLIENTSIDE // if this is compiled on the client side, add an animation to the game overlay
+					_gameOverlay->addAnimation(new AnimationTileFade(*curr, i * 255 + 255, c.r, c.g, c.b));
+#endif // CLIENTSIDE
 					game->setProgramAt(*curr, NULL);
 				}
 			}
@@ -430,6 +443,8 @@ void Player::useSelectedActionAt(Coord pos) {
 		m.playerID = playerID_;
 		m.pos = pos;
 		_server->sendMessageToAllClients(m);
+
+		game->checkForWinCondition();
 	}
 }
 

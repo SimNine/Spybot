@@ -1,23 +1,21 @@
-#ifndef CLIENTMIRROR_H
-#define CLIENTMIRROR_H
+#pragma once
 
 #include "Standard.h"
 #include "LinkedList.h"
 
 class Player;
 
-class ClientMirror
-{
-    public:
-        ClientMirror();
-        virtual ~ClientMirror();
+class ClientMirror {
+public:
+	ClientMirror();
+	virtual ~ClientMirror();
 
-		int clientID_;
-		Player* player_;
-		std::string name_;
-    protected:
+	int clientID_;
+	Player* player_;
+	std::string name_;
+	int ownedProgs_[PROGRAM_NUM_PROGTYPES];
+	int inPlayProgs_[PROGRAM_NUM_PROGTYPES];
+protected:
 
-    private:
+private:
 };
-
-#endif // SERVER_H

@@ -26,15 +26,20 @@ public:
 	int getClientID();
 	void setClientID(int clientID);
 
+	ClientMirror* getMyClientMirror();
+	void setMyClientMirror(ClientMirror* mirr);
 protected:
 
 private:
 	// the ID number of this client
 	int myClientID_;
 
-	// game entity (NULL when no game is being played)
+	// game entity and player entity (both NULL when no game is being played)
 	Game* game_;
 	Player* player_;
+
+	// clientmirror entity
+	ClientMirror* myClientMirror_;
 };
 
 #endif // SERVER_H

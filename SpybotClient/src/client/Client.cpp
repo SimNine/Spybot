@@ -6,11 +6,11 @@
 #include "MiscUtil.h"
 #include "Game.h"
 #include "Program.h"
-#include "NotifyScreen.h"
+#include "NotifyOverlay.h"
 #include "Data.h"
-#include "GameScreen.h"
-#include "LobbyScreen.h"
-#include "MainScreen.h"
+#include "GameOverlay.h"
+#include "LobbyOverlay.h"
+#include "MainOverlay.h"
 #include "Player.h"
 #include "ClientMirror.h"
 #include "ChatDisplay.h"
@@ -18,6 +18,8 @@
 #include "AnimationAttack.h"
 #include "AnimationSelect.h"
 #include "ConnectionManager.h"
+#include "BackgroundOverlay.h"
+#include "MapOverlay.h"
 
 Client::Client() {
 	game_ = NULL;
@@ -62,13 +64,13 @@ void Client::processMessage(Message* msg) {
 		break;
 	case MSGTYPE_LOAD:
 		if (msg->clientID != myClientID_)
-			_notifyScreen->addNotification("Client " + to_string(msg->clientID) + " has loaded level " + to_string(msg->levelNum));
+			_notifyOverlay->addNotification("Client " + to_string(msg->clientID) + " has loaded level " + to_string(msg->levelNum));
 
 		player_ = NULL;
 		delete game_;
 		game_ = NULL;
 		game_ = new Game(false);
-		_gameScreen->resetScreen();
+		_gameOverlay->resetScreen();
 
 		Message m;
 		m.type = MSGTYPE_JOIN;
@@ -105,7 +107,7 @@ void Client::processMessage(Message* msg) {
 	case MSGTYPE_INFO:
 		if (msg->infoType == MSGINFOTYPE_BKG) {
 			game_->setBackground(msg->bkgType);
-			_gameScreen->setBackgroundImg(msg->bkgType);
+			_gameOverlay->setBackgroundImg(msg->bkgType);
 		} else if (msg->infoType == MSGINFOTYPE_TILE)
 			game_->setTileAt(msg->pos, msg->tileType);
 		else if (msg->infoType == MSGINFOTYPE_PROGRAM) {
@@ -140,15 +142,21 @@ void Client::processMessage(Message* msg) {
 			game_->setItemAt(msg->pos, msg->itemType);
 		} else if (msg->infoType == MSGINFOTYPE_GAMESTATUS) {
 			game_->setStatus(msg->statusType);
-			_gameScreen->changeGameStatus(msg->statusType);
-			_currScreen = _gameScreen;
+			_gameOverlay->changeGameStatus(msg->statusType);
+			_overlayStack->removeAll();
+			_overlayStack->push(_gameOverlay);
+			_gameOverlay->updateProgramInventoryDisplay();
+
+			if (msg->statusType == GAMESTATUS_WON) {
+				_gameOverlay->showWin(msg->team);
+			}
 		}
-		_gameScreen->centerScreen();
+		_gameOverlay->centerScreen();
 		break;
 	case MSGTYPE_SELECT:
 		if (msg->selectType == MSGSELECTTYPE_TILE) {
 			Player* p = game_->getPlayerByID(msg->playerID);
-			_gameScreen->addAnimation(new AnimationSelect(msg->pos, p->getColor().r, p->getColor().g, p->getColor().b));
+			_gameOverlay->addAnimation(new AnimationSelect(msg->pos, p->getColor().r, p->getColor().g, p->getColor().b));
 			p->setSelectedTile(msg->pos);
 		} else if (msg->selectType == MSGSELECTTYPE_PROGRAM) {
 			Player* p = game_->getPlayerByID(msg->playerID);
@@ -161,7 +169,7 @@ void Client::processMessage(Message* msg) {
 	case MSGTYPE_JOIN:
 	{
 		// add notification
-		_notifyScreen->addNotification("CLIENT: received player id " + to_string(msg->playerID));
+		_notifyOverlay->addNotification("CLIENT: received player id " + to_string(msg->playerID));
 
 		// get or create team
 		Team* t = game_->getTeamByNum(msg->team);
@@ -195,17 +203,17 @@ void Client::processMessage(Message* msg) {
 	case MSGTYPE_CONNECT:
 	{
 		myClientID_ = msg->clientID;
-		_notifyScreen->addNotification("Connection to server confirmed");
-		_notifyScreen->addNotification("Assigned client ID " + to_string(msg->clientID));
-		_mainScreen->hideIPEntry();
-		_mainScreen->loginShow();
+		_notifyOverlay->addNotification("Connection to server confirmed");
+		_notifyOverlay->addNotification("Assigned client ID " + to_string(msg->clientID));
+		_mainOverlay->hideIPEntry();
+		_mainOverlay->loginShow();
 	}
 	break;
 	case MSGTYPE_DISCONNECT:
 		// TODO: have the pipe be destroyed
 		break;
 	case MSGTYPE_LEAVE:
-		if (_currScreen == _lobbyScreen) {
+		if (_overlayStack->getFirst() == _lobbyOverlay) {
 			// find the index of this clientID
 			int index = -1;
 			for (int i = 0; i < _connectionManager->getClientList()->getLength(); i++) {
@@ -217,7 +225,7 @@ void Client::processMessage(Message* msg) {
 			//game_->removePlayer(clientList_->getObjectAt(index)->player_->getPlayerID());
 
 			// remove the client
-			_notifyScreen->addNotification(_connectionManager->getClientList()->getObjectAt(index)->name_ + " has disconnected from the server");
+			_notifyOverlay->addNotification(_connectionManager->getClientList()->getObjectAt(index)->name_ + " has disconnected from the server");
 			delete _connectionManager->getClientList()->removeObjectAt(index);
 		}
 
@@ -229,10 +237,10 @@ void Client::processMessage(Message* msg) {
 		game_->setCurrTurnPlayer(pNext);
 		ClientMirror* cNext = _connectionManager->getClientMirrorByPlayerID(msg->playerID);
 		if (cNext != NULL)
-			_gameScreen->setPlayerTurnDisplay(cNext->name_);
+			_gameOverlay->setPlayerTurnDisplay(cNext->name_);
 		else
-			_gameScreen->setPlayerTurnDisplay("AI");
-		_gameScreen->toggleTurnButtonShown(false);
+			_gameOverlay->setPlayerTurnDisplay("AI");
+		_gameOverlay->toggleTurnButtonShown(false);
 
 		// if it's now my turn
 		if (msg->playerID == player_->getPlayerID()) {
@@ -242,7 +250,7 @@ void Client::processMessage(Message* msg) {
 				itTeams.next()->getAllPlayers()->forEach([] (Player* p) {p->endTurn(); });
 
 			// show the "end turn" button
-			_gameScreen->toggleTurnButtonShown(true);
+			_gameOverlay->toggleTurnButtonShown(true);
 		}
 	}
 	break;
@@ -255,18 +263,18 @@ void Client::processMessage(Message* msg) {
 		}
 		text += "> " + std::string(msg->text);
 
-		if (_currScreen == _lobbyScreen)
-			_lobbyScreen->getChatDisplay()->addMessage(text);
-		else if (_currScreen == _gameScreen)
-			_gameScreen->getChatDisplay()->addMessage(text);
+		if (_overlayStack->getFirst() == _lobbyOverlay)
+			_lobbyOverlay->getChatDisplay()->addMessage(text);
+		else if (_overlayStack->getFirst() == _gameOverlay)
+			_gameOverlay->getChatDisplay()->addMessage(text);
 	}
 	break;
 	case MSGTYPE_LOGIN:
 	{
 		if (msg->clientID == myClientID_)
-			_notifyScreen->addNotification("Logged in as " + std::string(msg->text));
+			_notifyOverlay->addNotification("Logged in as " + std::string(msg->text));
 		else
-			_notifyScreen->addNotification(std::string(msg->text) + " has joined the game");
+			_notifyOverlay->addNotification(std::string(msg->text) + " has joined the game");
 
 		ClientMirror* mirror = new ClientMirror();
 		mirror->clientID_ = msg->clientID;
@@ -274,31 +282,46 @@ void Client::processMessage(Message* msg) {
 			_connectionManager->setServerOwner(mirror);
 		mirror->name_ = msg->text;
 		_connectionManager->getClientList()->addFirst(mirror);
-		_mainScreen->loginHide();
-		_mainScreen->showMainContainer();
-		_currScreen = _lobbyScreen;
+
+		// if this is my client's login reflection, set my client mirror
+		if (mirror->clientID_ == myClientID_) {
+			myClientMirror_ = mirror;
+		}
+
+		// if coming from an external server, go to the lobby screen
+		if (_server == NULL) {
+			_mainOverlay->loginHide();
+			_mainOverlay->showMainContainer();
+			_overlayStack->removeAll();
+			_overlayStack->push(_backgroundOverlay);
+			_overlayStack->push(_lobbyOverlay);
+		} else { // otherwise, go to the map screen
+			_overlayStack->removeAll();
+			_overlayStack->push(_mapOverlay);
+		}
 	}
 	break;
 	case MSGTYPE_CREATEUSER:
-		_notifyScreen->addNotification(std::string(msg->text));
-		_mainScreen->loginClear();
+		_notifyOverlay->addNotification(std::string(msg->text));
+		_mainOverlay->loginClear();
 		break;
 	case MSGTYPE_ERROR:
-		_notifyScreen->addNotification(std::string(msg->text));
+		_notifyOverlay->addNotification(std::string(msg->text));
 		break;
 	case MSGTYPE_GAMECONFIG:
 		if (msg->gameConfigType == MSGGAMECONFIGTYPE_COOP)
-			_lobbyScreen->setGameMode(GAMEMODE_COOP);
+			_lobbyOverlay->setGameMode(GAMEMODE_COOP);
 		else if (msg->gameConfigType == MSGGAMECONFIGTYPE_FFA)
-			_lobbyScreen->setGameMode(GAMEMODE_FFA);
+			_lobbyOverlay->setGameMode(GAMEMODE_FFA);
 		else if (msg->gameConfigType == MSGGAMECONFIGTYPE_TEAMDM)
-			_lobbyScreen->setGameMode(GAMEMODE_TEAMDM);
+			_lobbyOverlay->setGameMode(GAMEMODE_TEAMDM);
 		break;
 	case MSGTYPE_PLACEPROG:
+	{
 		// if a program was already here, remove and refund it
 		Program* currProg = game_->getProgramAt(msg->pos);
 		if (currProg != NULL && currProg->getOwner() == player_) {
-			_progListMulti[currProg->getType()]++;
+			_client->getMyClientMirror()->ownedProgs_[currProg->getType()]++;
 			player_->getProgList()->remove(currProg);
 			game_->setProgramAt(msg->pos, NULL);
 			delete currProg;
@@ -321,10 +344,18 @@ void Client::processMessage(Message* msg) {
 
 		// create program
 		Program* pr = new Program(msg->progType, t->getTeamNum(), msg->pos);
-		_progListMulti[msg->progType]--;
+		_client->getMyClientMirror()->ownedProgs_[msg->progType]--;
 		pr->setProgramID(msg->programID);
 		p->addProgram(pr);
 		game_->setProgramAt(msg->pos, pr);
+
+		// refresh inventory display
+		_gameOverlay->updateProgramInventoryDisplay();
+		break;
+	}
+	case MSGTYPE_PROGINVENTORY:
+		_client->getMyClientMirror()->ownedProgs_[msg->progType] = msg->programID;
+		_mapOverlay->updateProgramInvDisplay();
 		break;
 	}
 }
@@ -351,4 +382,12 @@ int Client::getClientID() {
 
 void Client::setClientID(int clientID) {
 	myClientID_ = clientID;
+}
+
+ClientMirror* Client::getMyClientMirror() {
+	return myClientMirror_;
+}
+
+void Client::setMyClientMirror(ClientMirror* mirr) {
+	myClientMirror_ = mirr;
 }

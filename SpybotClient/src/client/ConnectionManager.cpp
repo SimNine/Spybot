@@ -38,11 +38,11 @@ bool ConnectionManager::hasMessage() {
 	return (msgQueue_->getLength() > 0);
 }
 
-void ConnectionManager::connectToLocalServer() {
+void ConnectionManager::connectToLocalServer(std::string savePath) {
 	// disconnect in case there is still some connection
 	disconnect();
 
-	_server = new Server(true);
+	_server = new Server(true, savePath);
 	_server->connect(NULL);
 }
 

@@ -4,10 +4,9 @@
 
 class GUIButton;
 
-class GUITextbox : public GUIContainer
-{
+class GUITextbox : public GUIContainer {
 public:
-	GUITextbox(ANCHOR anchor, Coord disp, Coord dims, GUIContainer* parent, int maxChars, bool censored);
+	GUITextbox(GUIContainer* parent, ANCHOR anchor, Coord disp, Coord dims, int maxChars, bool censored);
 	~GUITextbox();
 
 	void draw();

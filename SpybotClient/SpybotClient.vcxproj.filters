@@ -16,38 +16,8 @@
     <Filter Include="Header Files\gui">
       <UniqueIdentifier>{0178c817-c246-4a2e-82ed-4eecbfe2ec92}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\main">
-      <UniqueIdentifier>{5ee0d1a2-989f-45e2-a6ea-cc30b5ebee30}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files\map">
-      <UniqueIdentifier>{126bebc6-db1f-41a0-8ab1-6e4724e518b7}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files\title">
-      <UniqueIdentifier>{b5d17fa2-bc12-45a6-b1e8-aaafaf57cd5f}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source Files\gui">
       <UniqueIdentifier>{1430b8bd-77f1-44de-bfc1-8f4e11b9019d}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\main">
-      <UniqueIdentifier>{90f04ee8-fafe-4e3a-92f0-05d9c0d137f3}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\map">
-      <UniqueIdentifier>{5b19711b-3690-478a-baec-9477f299cf82}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\title">
-      <UniqueIdentifier>{0aa7ec40-184c-4aeb-8c92-bf4398763829}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\notify">
-      <UniqueIdentifier>{fb4037a4-d395-47ed-b77b-368590092f2a}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files\notify">
-      <UniqueIdentifier>{c2c556d2-7f87-4178-ab56-151fcad233a3}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\lobby">
-      <UniqueIdentifier>{46f4dbf9-2a06-46e5-a8cb-76f3aa35b405}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files\lobby">
-      <UniqueIdentifier>{c6c45c00-1aae-4b14-9ad4-03ca781a4f51}</UniqueIdentifier>
     </Filter>
     <Filter Include="Header Files\shared">
       <UniqueIdentifier>{c4029958-b833-4973-8a85-c5b3b2dd02f7}</UniqueIdentifier>
@@ -58,17 +28,8 @@
     <Filter Include="Header Files\shared\server">
       <UniqueIdentifier>{e31a917e-40b5-4c47-b93f-162e40784f7a}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\game">
-      <UniqueIdentifier>{3c308990-8a6c-4062-9904-3dc2b2faadb5}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Header Files\shared\game">
       <UniqueIdentifier>{139a1905-d8a2-428c-8344-11293f9330d6}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files\game\animations">
-      <UniqueIdentifier>{61ac7e4b-3184-4c9e-8b20-1d1f204a9ce3}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files\game\animations\particles">
-      <UniqueIdentifier>{93e61272-4a90-4c7e-ba86-15db01b67e28}</UniqueIdentifier>
     </Filter>
     <Filter Include="Header Files\client">
       <UniqueIdentifier>{55481ed5-bf17-4eba-97dd-dbe5c1b73c2f}</UniqueIdentifier>
@@ -85,17 +46,74 @@
     <Filter Include="Source Files\shared\utils">
       <UniqueIdentifier>{4e26f836-d57d-49b9-a8e6-bb6645c485b0}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\game">
-      <UniqueIdentifier>{94c8b5d2-84da-4c90-a373-f7ede3f073e7}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\game\animations">
-      <UniqueIdentifier>{6f8e89a8-a95f-49dd-bd01-886540dcf17e}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\game\animations\particles">
-      <UniqueIdentifier>{2c21df80-7b20-4ded-8fda-0d1f3b4ade24}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source Files\client">
       <UniqueIdentifier>{00de5b4a-5bdd-434b-bd57-afd3b96657e0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\overlays">
+      <UniqueIdentifier>{815aa8cf-ada6-4851-a1b9-7d97d69298f9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\overlays\main">
+      <UniqueIdentifier>{f4c46cb5-f875-40c2-b85c-34b47f91fa30}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\overlays\notify">
+      <UniqueIdentifier>{e82c12f2-0d9f-490b-a392-9df00bc614b0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\overlays\game">
+      <UniqueIdentifier>{2330d785-3c2f-4842-a0a8-18b1f76b966f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\overlays\lobby">
+      <UniqueIdentifier>{b356b126-aab9-49fc-92b5-3a8ad74590d1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\overlays\map">
+      <UniqueIdentifier>{ba7a5b71-318a-47c6-8794-d05b499b6269}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\overlays\title">
+      <UniqueIdentifier>{1d438bb8-5acf-4208-ac74-150dcbc8a645}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\overlays\game\animations">
+      <UniqueIdentifier>{8a4de83a-d76f-4bd6-986d-9984e8c7671c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\overlays\game\animations\particles">
+      <UniqueIdentifier>{541a41f8-8e21-4757-b5d7-a396a9530bdb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\overlays">
+      <UniqueIdentifier>{8e1ed119-7266-44a9-868f-876ff779eb96}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\overlays\main">
+      <UniqueIdentifier>{574301ff-38f9-4a67-a9e8-032be993d3a2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\overlays\game">
+      <UniqueIdentifier>{e9048e34-b970-48a1-a1ce-afc661cc3f3f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\overlays\game\animations">
+      <UniqueIdentifier>{a86503e6-fc56-46f9-af73-3f2635cb2399}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\overlays\game\animations\particles">
+      <UniqueIdentifier>{74d444c2-bf7f-43fc-9e30-d92eeebdff41}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\overlays\map">
+      <UniqueIdentifier>{35dfb5c9-d56b-4f39-8af3-c00901a8a4bb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\overlays\notify">
+      <UniqueIdentifier>{82871443-f2cc-48d4-9794-80a65b2b9af1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\overlays\lobby">
+      <UniqueIdentifier>{7cb42fdb-34d4-4616-857d-93fd07572225}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\overlays\title">
+      <UniqueIdentifier>{4d16acd3-a2b9-49e3-a8b7-f44336a2af7e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\overlays\background">
+      <UniqueIdentifier>{52936620-c3b2-4dae-b62f-711f4a7ecfc6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\overlays\background">
+      <UniqueIdentifier>{8aa17f04-c539-4d22-95b5-f653cf0e9113}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\overlays\locallogin">
+      <UniqueIdentifier>{72cb4fa3-3642-4ce9-8b1f-94917b1cd796}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\overlays\locallogin">
+      <UniqueIdentifier>{6d1fa3ff-43a3-464c-bdaf-c5924ea2ed3a}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -114,27 +132,6 @@
     <ClInclude Include="include\ResourceLoader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\title\TitleScreen.h">
-      <Filter>Header Files\title</Filter>
-    </ClInclude>
-    <ClInclude Include="include\map\MapScreen.h">
-      <Filter>Header Files\map</Filter>
-    </ClInclude>
-    <ClInclude Include="include\map\Node.h">
-      <Filter>Header Files\map</Filter>
-    </ClInclude>
-    <ClInclude Include="include\map\ProgramInventoryButton.h">
-      <Filter>Header Files\map</Filter>
-    </ClInclude>
-    <ClInclude Include="include\map\ProgramInventoryDisplay.h">
-      <Filter>Header Files\map</Filter>
-    </ClInclude>
-    <ClInclude Include="include\main\MainScreen.h">
-      <Filter>Header Files\main</Filter>
-    </ClInclude>
-    <ClInclude Include="include\main\MainScreenGlow.h">
-      <Filter>Header Files\main</Filter>
-    </ClInclude>
     <ClInclude Include="include\gui\GUIButton.h">
       <Filter>Header Files\gui</Filter>
     </ClInclude>
@@ -150,20 +147,8 @@
     <ClInclude Include="include\gui\GUITexture.h">
       <Filter>Header Files\gui</Filter>
     </ClInclude>
-    <ClInclude Include="include\notify\NotifyScreen.h">
-      <Filter>Header Files\notify</Filter>
-    </ClInclude>
-    <ClInclude Include="include\lobby\LobbyScreen.h">
-      <Filter>Header Files\lobby</Filter>
-    </ClInclude>
     <ClInclude Include="include\Standard.h">
       <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\lobby\ChatDisplay.h">
-      <Filter>Header Files\lobby</Filter>
-    </ClInclude>
-    <ClInclude Include="include\main\PromptBox.h">
-      <Filter>Header Files\main</Filter>
     </ClInclude>
     <ClInclude Include="include\gui\GUITextbox.h">
       <Filter>Header Files\gui</Filter>
@@ -231,39 +216,6 @@
     <ClInclude Include="..\SpybotShared\game\Team.h">
       <Filter>Header Files\shared\game</Filter>
     </ClInclude>
-    <ClInclude Include="include\game\GameScreen.h">
-      <Filter>Header Files\game</Filter>
-    </ClInclude>
-    <ClInclude Include="include\game\PlayerDisplayContainer.h">
-      <Filter>Header Files\game</Filter>
-    </ClInclude>
-    <ClInclude Include="include\game\ProgramDisplayActionButton.h">
-      <Filter>Header Files\game</Filter>
-    </ClInclude>
-    <ClInclude Include="include\game\ProgramDisplayContainer.h">
-      <Filter>Header Files\game</Filter>
-    </ClInclude>
-    <ClInclude Include="include\game\animations\Animation.h">
-      <Filter>Header Files\game\animations</Filter>
-    </ClInclude>
-    <ClInclude Include="include\game\animations\AnimationAttack.h">
-      <Filter>Header Files\game\animations</Filter>
-    </ClInclude>
-    <ClInclude Include="include\game\animations\AnimationSelect.h">
-      <Filter>Header Files\game\animations</Filter>
-    </ClInclude>
-    <ClInclude Include="include\game\animations\AnimationTileFade.h">
-      <Filter>Header Files\game\animations</Filter>
-    </ClInclude>
-    <ClInclude Include="include\game\animations\particles\AnimationParticle.h">
-      <Filter>Header Files\game\animations\particles</Filter>
-    </ClInclude>
-    <ClInclude Include="include\game\animations\particles\AnimationParticleSelectRing.h">
-      <Filter>Header Files\game\animations\particles</Filter>
-    </ClInclude>
-    <ClInclude Include="include\game\animations\particles\AnimationParticleSquareSpeck.h">
-      <Filter>Header Files\game\animations\particles</Filter>
-    </ClInclude>
     <ClInclude Include="include\client\Client.h">
       <Filter>Header Files\client</Filter>
     </ClInclude>
@@ -273,9 +225,6 @@
     <ClInclude Include="..\SpybotShared\server\User.h">
       <Filter>Header Files\shared\server</Filter>
     </ClInclude>
-    <ClInclude Include="include\notify\Notification.h">
-      <Filter>Header Files\notify</Filter>
-    </ClInclude>
     <ClInclude Include="include\Pipe.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -284,6 +233,93 @@
     </ClInclude>
     <ClInclude Include="..\SpybotShared\server\CommandProcessor.h">
       <Filter>Header Files\shared\server</Filter>
+    </ClInclude>
+    <ClInclude Include="include\overlays\main\PromptBox.h">
+      <Filter>Header Files\overlays\main</Filter>
+    </ClInclude>
+    <ClInclude Include="include\overlays\game\PlayerDisplayContainer.h">
+      <Filter>Header Files\overlays\game</Filter>
+    </ClInclude>
+    <ClInclude Include="include\overlays\game\ProgramDisplayActionButton.h">
+      <Filter>Header Files\overlays\game</Filter>
+    </ClInclude>
+    <ClInclude Include="include\overlays\game\ProgramDisplayContainer.h">
+      <Filter>Header Files\overlays\game</Filter>
+    </ClInclude>
+    <ClInclude Include="include\overlays\game\animations\Animation.h">
+      <Filter>Header Files\overlays\game\animations</Filter>
+    </ClInclude>
+    <ClInclude Include="include\overlays\game\animations\AnimationAttack.h">
+      <Filter>Header Files\overlays\game\animations</Filter>
+    </ClInclude>
+    <ClInclude Include="include\overlays\game\animations\AnimationSelect.h">
+      <Filter>Header Files\overlays\game\animations</Filter>
+    </ClInclude>
+    <ClInclude Include="include\overlays\game\animations\AnimationTileFade.h">
+      <Filter>Header Files\overlays\game\animations</Filter>
+    </ClInclude>
+    <ClInclude Include="include\overlays\game\animations\particles\AnimationParticle.h">
+      <Filter>Header Files\overlays\game\animations\particles</Filter>
+    </ClInclude>
+    <ClInclude Include="include\overlays\game\animations\particles\AnimationParticleSelectRing.h">
+      <Filter>Header Files\overlays\game\animations\particles</Filter>
+    </ClInclude>
+    <ClInclude Include="include\overlays\game\animations\particles\AnimationParticleSquareSpeck.h">
+      <Filter>Header Files\overlays\game\animations\particles</Filter>
+    </ClInclude>
+    <ClInclude Include="include\overlays\map\Node.h">
+      <Filter>Header Files\overlays\map</Filter>
+    </ClInclude>
+    <ClInclude Include="include\overlays\map\ProgramInventoryButton.h">
+      <Filter>Header Files\overlays\map</Filter>
+    </ClInclude>
+    <ClInclude Include="include\overlays\map\ProgramInventoryDisplay.h">
+      <Filter>Header Files\overlays\map</Filter>
+    </ClInclude>
+    <ClInclude Include="include\overlays\notify\Notification.h">
+      <Filter>Header Files\overlays\notify</Filter>
+    </ClInclude>
+    <ClInclude Include="include\overlays\lobby\ChatDisplay.h">
+      <Filter>Header Files\overlays\lobby</Filter>
+    </ClInclude>
+    <ClInclude Include="include\overlays\main\MainOverlay.h">
+      <Filter>Header Files\overlays\main</Filter>
+    </ClInclude>
+    <ClInclude Include="include\overlays\main\GlowSpeck.h">
+      <Filter>Header Files\overlays\main</Filter>
+    </ClInclude>
+    <ClInclude Include="include\overlays\game\GameOverlay.h">
+      <Filter>Header Files\overlays\game</Filter>
+    </ClInclude>
+    <ClInclude Include="include\overlays\map\MapOverlay.h">
+      <Filter>Header Files\overlays\map</Filter>
+    </ClInclude>
+    <ClInclude Include="include\overlays\title\TitleOverlay.h">
+      <Filter>Header Files\overlays\title</Filter>
+    </ClInclude>
+    <ClInclude Include="include\overlays\lobby\LobbyOverlay.h">
+      <Filter>Header Files\overlays\lobby</Filter>
+    </ClInclude>
+    <ClInclude Include="include\overlays\notify\NotifyOverlay.h">
+      <Filter>Header Files\overlays\notify</Filter>
+    </ClInclude>
+    <ClInclude Include="include\overlays\background\GlowSpeck.h">
+      <Filter>Header Files\overlays\background</Filter>
+    </ClInclude>
+    <ClInclude Include="include\overlays\background\BackgroundOverlay.h">
+      <Filter>Header Files\overlays\background</Filter>
+    </ClInclude>
+    <ClInclude Include="include\overlays\locallogin\LocalLoginOverlay.h">
+      <Filter>Header Files\overlays\locallogin</Filter>
+    </ClInclude>
+    <ClInclude Include="include\overlays\locallogin\UserDisplay.h">
+      <Filter>Header Files\overlays\locallogin</Filter>
+    </ClInclude>
+    <ClInclude Include="include\gui\GUIButtonParamaterized.h">
+      <Filter>Header Files\gui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\SpybotShared\utils\NameGenerator.h">
+      <Filter>Header Files\shared\util</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -310,39 +346,6 @@
     </ClCompile>
     <ClCompile Include="src\gui\GUITexture.cpp">
       <Filter>Source Files\gui</Filter>
-    </ClCompile>
-    <ClCompile Include="src\main\MainScreen.cpp">
-      <Filter>Source Files\main</Filter>
-    </ClCompile>
-    <ClCompile Include="src\main\MainScreenGlow.cpp">
-      <Filter>Source Files\main</Filter>
-    </ClCompile>
-    <ClCompile Include="src\map\MapScreen.cpp">
-      <Filter>Source Files\map</Filter>
-    </ClCompile>
-    <ClCompile Include="src\map\Node.cpp">
-      <Filter>Source Files\map</Filter>
-    </ClCompile>
-    <ClCompile Include="src\map\ProgramInventoryButton.cpp">
-      <Filter>Source Files\map</Filter>
-    </ClCompile>
-    <ClCompile Include="src\map\ProgramInventoryDisplay.cpp">
-      <Filter>Source Files\map</Filter>
-    </ClCompile>
-    <ClCompile Include="src\title\TitleScreen.cpp">
-      <Filter>Source Files\title</Filter>
-    </ClCompile>
-    <ClCompile Include="src\notify\NotifyScreen.cpp">
-      <Filter>Source Files\notify</Filter>
-    </ClCompile>
-    <ClCompile Include="src\lobby\LobbyScreen.cpp">
-      <Filter>Source Files\lobby</Filter>
-    </ClCompile>
-    <ClCompile Include="src\lobby\ChatDisplay.cpp">
-      <Filter>Source Files\lobby</Filter>
-    </ClCompile>
-    <ClCompile Include="src\main\PromptBox.cpp">
-      <Filter>Source Files\main</Filter>
     </ClCompile>
     <ClCompile Include="src\gui\GUITextbox.cpp">
       <Filter>Source Files\gui</Filter>
@@ -389,47 +392,11 @@
     <ClCompile Include="..\SpybotShared\server\User.cpp">
       <Filter>Source Files\shared\server</Filter>
     </ClCompile>
-    <ClCompile Include="src\game\GameScreen.cpp">
-      <Filter>Source Files\game</Filter>
-    </ClCompile>
-    <ClCompile Include="src\game\PlayerDisplayContainer.cpp">
-      <Filter>Source Files\game</Filter>
-    </ClCompile>
-    <ClCompile Include="src\game\ProgramDisplayActionButton.cpp">
-      <Filter>Source Files\game</Filter>
-    </ClCompile>
-    <ClCompile Include="src\game\ProgramDisplayContainer.cpp">
-      <Filter>Source Files\game</Filter>
-    </ClCompile>
-    <ClCompile Include="src\game\animations\Animation.cpp">
-      <Filter>Source Files\game\animations</Filter>
-    </ClCompile>
-    <ClCompile Include="src\game\animations\AnimationAttack.cpp">
-      <Filter>Source Files\game\animations</Filter>
-    </ClCompile>
-    <ClCompile Include="src\game\animations\AnimationSelect.cpp">
-      <Filter>Source Files\game\animations</Filter>
-    </ClCompile>
-    <ClCompile Include="src\game\animations\AnimationTileFade.cpp">
-      <Filter>Source Files\game\animations</Filter>
-    </ClCompile>
-    <ClCompile Include="src\game\animations\particles\AnimationParticle.cpp">
-      <Filter>Source Files\game\animations\particles</Filter>
-    </ClCompile>
-    <ClCompile Include="src\game\animations\particles\AnimationParticleSelectRing.cpp">
-      <Filter>Source Files\game\animations\particles</Filter>
-    </ClCompile>
-    <ClCompile Include="src\game\animations\particles\AnimationParticleSquareSpeck.cpp">
-      <Filter>Source Files\game\animations\particles</Filter>
-    </ClCompile>
     <ClCompile Include="src\client\Client.cpp">
       <Filter>Source Files\client</Filter>
     </ClCompile>
     <ClCompile Include="src\client\ClientMirror.cpp">
       <Filter>Source Files\client</Filter>
-    </ClCompile>
-    <ClCompile Include="src\notify\Notification.cpp">
-      <Filter>Source Files\notify</Filter>
     </ClCompile>
     <ClCompile Include="src\Pipe.cpp">
       <Filter>Source Files</Filter>
@@ -439,6 +406,87 @@
     </ClCompile>
     <ClCompile Include="..\SpybotShared\server\CommandProcessor.cpp">
       <Filter>Source Files\shared\server</Filter>
+    </ClCompile>
+    <ClCompile Include="src\overlays\game\PlayerDisplayContainer.cpp">
+      <Filter>Source Files\overlays\game</Filter>
+    </ClCompile>
+    <ClCompile Include="src\overlays\game\ProgramDisplayActionButton.cpp">
+      <Filter>Source Files\overlays\game</Filter>
+    </ClCompile>
+    <ClCompile Include="src\overlays\game\ProgramDisplayContainer.cpp">
+      <Filter>Source Files\overlays\game</Filter>
+    </ClCompile>
+    <ClCompile Include="src\overlays\game\animations\Animation.cpp">
+      <Filter>Source Files\overlays\game\animations</Filter>
+    </ClCompile>
+    <ClCompile Include="src\overlays\game\animations\AnimationAttack.cpp">
+      <Filter>Source Files\overlays\game\animations</Filter>
+    </ClCompile>
+    <ClCompile Include="src\overlays\game\animations\AnimationSelect.cpp">
+      <Filter>Source Files\overlays\game\animations</Filter>
+    </ClCompile>
+    <ClCompile Include="src\overlays\game\animations\AnimationTileFade.cpp">
+      <Filter>Source Files\overlays\game\animations</Filter>
+    </ClCompile>
+    <ClCompile Include="src\overlays\game\animations\particles\AnimationParticle.cpp">
+      <Filter>Source Files\overlays\game\animations\particles</Filter>
+    </ClCompile>
+    <ClCompile Include="src\overlays\game\animations\particles\AnimationParticleSelectRing.cpp">
+      <Filter>Source Files\overlays\game\animations\particles</Filter>
+    </ClCompile>
+    <ClCompile Include="src\overlays\game\animations\particles\AnimationParticleSquareSpeck.cpp">
+      <Filter>Source Files\overlays\game\animations\particles</Filter>
+    </ClCompile>
+    <ClCompile Include="src\overlays\lobby\ChatDisplay.cpp">
+      <Filter>Source Files\overlays\lobby</Filter>
+    </ClCompile>
+    <ClCompile Include="src\overlays\map\Node.cpp">
+      <Filter>Source Files\overlays\map</Filter>
+    </ClCompile>
+    <ClCompile Include="src\overlays\map\ProgramInventoryButton.cpp">
+      <Filter>Source Files\overlays\map</Filter>
+    </ClCompile>
+    <ClCompile Include="src\overlays\map\ProgramInventoryDisplay.cpp">
+      <Filter>Source Files\overlays\map</Filter>
+    </ClCompile>
+    <ClCompile Include="src\overlays\main\PromptBox.cpp">
+      <Filter>Source Files\overlays\main</Filter>
+    </ClCompile>
+    <ClCompile Include="src\overlays\notify\Notification.cpp">
+      <Filter>Source Files\overlays\notify</Filter>
+    </ClCompile>
+    <ClCompile Include="src\overlays\main\MainOverlay.cpp">
+      <Filter>Source Files\overlays\main</Filter>
+    </ClCompile>
+    <ClCompile Include="src\overlays\map\MapOverlay.cpp">
+      <Filter>Source Files\overlays\map</Filter>
+    </ClCompile>
+    <ClCompile Include="src\overlays\notify\NotifyOverlay.cpp">
+      <Filter>Source Files\overlays\notify</Filter>
+    </ClCompile>
+    <ClCompile Include="src\overlays\lobby\LobbyOverlay.cpp">
+      <Filter>Source Files\overlays\lobby</Filter>
+    </ClCompile>
+    <ClCompile Include="src\overlays\game\GameOverlay.cpp">
+      <Filter>Source Files\overlays\game</Filter>
+    </ClCompile>
+    <ClCompile Include="src\overlays\title\TitleOverlay.cpp">
+      <Filter>Source Files\overlays\title</Filter>
+    </ClCompile>
+    <ClCompile Include="src\overlays\background\BackgroundOverlay.cpp">
+      <Filter>Source Files\overlays\background</Filter>
+    </ClCompile>
+    <ClCompile Include="src\overlays\background\GlowSpeck.cpp">
+      <Filter>Source Files\overlays\background</Filter>
+    </ClCompile>
+    <ClCompile Include="src\overlays\locallogin\LocalLoginOverlay.cpp">
+      <Filter>Source Files\overlays\locallogin</Filter>
+    </ClCompile>
+    <ClCompile Include="src\overlays\locallogin\UserDisplay.cpp">
+      <Filter>Source Files\overlays\locallogin</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SpybotShared\utils\NameGenerator.cpp">
+      <Filter>Source Files\shared\utils</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

@@ -4,8 +4,8 @@
 #include "Global.h"
 #include "ResourceLoader.h"
 
-GUITextbox::GUITextbox(ANCHOR anchor, Coord disp, Coord dims, GUIContainer* parent, int maxChars, bool censored)
-	: GUIContainer(anchor, disp, dims, parent, { 120, 120, 120, 140 }) {
+GUITextbox::GUITextbox(GUIContainer* parent, ANCHOR anchor, Coord disp, Coord dims, int maxChars, bool censored)
+	: GUIContainer(parent, anchor, disp, dims, { 120, 120, 120, 140 }) {
 	maxChars_ = maxChars;
 	textSize_ = dims.y;
 	contentText_ = "";

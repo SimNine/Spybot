@@ -8,9 +8,10 @@
 class GUIContainer : public GUIObject
 {
     public:
-        GUIContainer(ANCHOR anch, Coord disp, Coord dims, GUIContainer* parent, SDL_Texture* bkg);
-        GUIContainer(ANCHOR anch, Coord disp, GUIContainer* parent, SDL_Texture* bkg);
-        GUIContainer(ANCHOR anch, Coord disp, Coord dims, GUIContainer* parent, SDL_Color col);
+        GUIContainer(GUIContainer* parent, ANCHOR anch, Coord disp, Coord dims, SDL_Texture* bkg);
+		GUIContainer(GUIContainer* parent, ANCHOR anch, Coord disp, Coord dims, SDL_Color col);
+        GUIContainer(GUIContainer* parent, ANCHOR anch, Coord disp, SDL_Texture* bkg);
+
         virtual ~GUIContainer();
         SDL_Texture* getBackgroundImg();
         SDL_Color getBackgroundCol();

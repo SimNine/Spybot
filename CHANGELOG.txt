@@ -219,3 +219,17 @@ Game code separation, singleplayer reintroduction
 -Separated CommandProcessor from Server
 -Commands sent from external clients are now echoed back their responses
 -Singleplayer is now functional again
+
+2.1.0 - 5/21/18
+Overlay stack, users stored per singleplayer game
+-----
+-Renamed all "screen" subclasses of GUIContainer to "overlay", consolidated them in top-level "overlays" folder
+-Replaced the global current overlay with a linkedlist of overlays, used as a stack, iterated through from bottom to top
+-Added LocalLoginOverlay to choose between savefiles for local campaigns
+-Added UserDisplay class to contain saved user data
+-Refactored GUIObject and subclasses' constructors to make them more consistent
+-Added a GUIButtonParameterized class, which is essentially a GUIButton except in that its lambda function takes a single paramater
+-Converted GUIButtons that use preloaded string textures to procedurally generated ones
+-Users are now stored per campaign
+-Owned programs are now owned per user, and not stored as global variables
+-Serverside, the game now checks for a win condition after every move, and sends a message to the game indicating a win for a team

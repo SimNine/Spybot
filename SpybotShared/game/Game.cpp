@@ -66,8 +66,7 @@ void Game::setTileAt(Coord pos, TILE t) {
 			gridTopBound = pos.y;
 		else if (pos.y + 1 > gridBottomBound)
 			gridBottomBound = pos.y + 1;
-	} else // try decreasing bounds
-	{
+	} else { // try decreasing bounds
 		if (pos.x == gridLeftBound) {
 			bool b = true;
 			while (b && gridLeftBound < 100) {
@@ -557,4 +556,36 @@ Player* Game::getFollowingPlayer(Player* currPlayer) {
 
 bool Game::isServerSide() {
 	return serverSide_;
+}
+
+void Game::checkForWinCondition() {
+	int currTeamWinning = -1;
+
+	Iterator<Team*> itTeam = teamList->getIterator();
+	while (itTeam.hasNext()) { // check each team
+		Team* currTeam = itTeam.next();
+		Iterator<Player*> itPlayer = currTeam->getAllPlayers()->getIterator();
+		while (itPlayer.hasNext()) { // check each player on this team to see if they are alive
+			Player* currPlayer = itPlayer.next();
+			if (currPlayer->getProgList()->getLength() > 0) { // if this player is alive
+				if (currTeamWinning == -1) { // if there is not yet a winning team
+					currTeamWinning = currTeam->getTeamNum();
+				} else { // if this team is alive, and is a different team than previously (no winning condition)
+					return;
+				}
+			}
+		}
+	}
+
+	// at this point, if currTeamWinning is -1, something went wrong
+	// otherwise, currTeamWinning is the number of the winning team
+	if (currTeamWinning != -1) {
+		Message m;
+		m.type = MSGTYPE_INFO;
+		m.infoType = MSGINFOTYPE_GAMESTATUS;
+		m.statusType = GAMESTATUS_WON;
+		m.team = currTeamWinning;
+		_server->sendMessageToAllClients(m);
+		printf("SERVER: game detected winning condition for team %i\n", currTeamWinning);
+	}
 }
