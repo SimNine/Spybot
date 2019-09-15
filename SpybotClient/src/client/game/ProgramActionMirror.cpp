@@ -210,23 +210,29 @@ ProgramActionMirror::ProgramActionMirror(MOVEPRESET p) {
 	case MOVEPRESET_ZERO:
 		setMove(ACTIONTYPE_TILEDELETE, "Zero", "Deletes one grid square", 1, 0, 0);
 		break;
+	case MOVEPRESET_FEAR:
+		setMove(ACTIONTYPE_MAXACTIONSDOWN, "Fear", "Decreases the max actions of the target by 1", 3, 1, 0);
+		break;
+	case MOVEPRESET_COURAGE:
+		setMove(ACTIONTYPE_MAXACTIONSUP, "Courage", "Increases the max actions of the target by 1", 3, 1, 0);
+		break;
 	case MOVEPRESET_CUSTOM:
-		printf("CLIENT ERR: tried to initialize ProgramActionMirror of invalid type\n");
+		log("CLIENT ERR: tried to initialize ProgramActionMirror of invalid type\n");
 		exit(1);
 		break;
 	case MOVEPRESET_NUM_MOVEPRESETS:
-		printf("CLIENT ERR: tried to initialize ProgramActionMirror of invalid type\n");
+		log("CLIENT ERR: tried to initialize ProgramActionMirror of invalid type\n");
 		exit(1);
 		break;
 	default:
-		printf("CLIENT ERR: tried to initialize ProgramActionMirror of invalid type\n");
+		log("CLIENT ERR: tried to initialize ProgramActionMirror of invalid type\n");
 		exit(1);
 		break;
 	}
 }
 
 ProgramActionMirror::~ProgramActionMirror() {
-	//printf("CLIENT: Move '%s' deleted\n", name_.c_str());
+	//log("CLIENT: Move '%s' deleted\n", name_.c_str());
 }
 
 void ProgramActionMirror::setMove(ACTIONTYPE t, std::string name, std::string description, int range, int power, int reqSize) {

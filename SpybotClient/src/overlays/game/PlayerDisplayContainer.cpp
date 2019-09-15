@@ -55,7 +55,7 @@ void PlayerDisplayContainer::draw() {
 		TeamMirror* currTeam = itTeams.next();
 
 		// draw the human player section title
-		SDL_Texture* humanPTitle = loadString("Team " + to_string(currTeam->getTeamNum()) + ":", FONT_NORMAL, fontSize, { 255, 255, 255, 255 });
+		SDL_Texture* humanPTitle = loadString("Team " + to_string(currTeam->getTeamID()) + ":", FONT_NORMAL, fontSize, { 255, 255, 255, 255 });
 		SDL_QueryTexture(humanPTitle, NULL, NULL, &objBounds.w, &objBounds.h);
 		objBounds.x = bounds_.x + xOffset;
 		objBounds.y = bounds_.y + yOffset;
@@ -111,7 +111,7 @@ void PlayerDisplayContainer::draw() {
 
 			// draw icon if this player is the current owner of the server
 			if (_connectionManager->getServerOwner() == NULL) {
-				printf("no server owner, for some reason\n");
+				log("no server owner, for some reason\n");
 			} else if (curr == _connectionManager->getServerOwner()->player_) {
 				SDL_QueryTexture(_game_icon_owner, NULL, NULL, &objBounds.w, &objBounds.h);
 				objBounds.x = bounds_.x + xOffset;

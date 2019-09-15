@@ -1,9 +1,10 @@
 #pragma once
 
 #define DEFAULT_MSG_TEXTSIZE 50
-#define DEFAULT_MSGSIZE (47 + DEFAULT_MSG_TEXTSIZE)
-// there are 17 essential bytes in a message: one MSGTYPE byte, 4x ID ints (4 bytes each)
-#define DEFAULT_CHATSIZE (DEFAULT_MSGSIZE - 17)
+#define DEFAULT_MSG_ESSENTIALBYTES 21
+#define DEFAULT_MSG_NONESSENTIALBYTES 36
+#define DEFAULT_MSGSIZE (DEFAULT_MSG_ESSENTIALBYTES + DEFAULT_MSG_NONESSENTIALBYTES + DEFAULT_MSG_TEXTSIZE)
+#define DEFAULT_CHATSIZE (DEFAULT_MSGSIZE - DEFAULT_MSG_ESSENTIALBYTES)
 
 #include "Enums.h"
 #include "Coord.h"
@@ -45,6 +46,7 @@ enum MSGSOUNDNAME {
 	MSGSOUNDNAME_ZERO,
 	MSGSOUNDNAME_ONE,
 	MSGSOUNDNAME_SIZEMOD,
+	MSGSOUNDNAME_SPEEDMOD,
 	MSGSOUNDNAME_PICKUPCREDIT
 };
 
@@ -70,13 +72,33 @@ enum MSGINFOTYPE {
 	MSGINFOTYPE_TILE,
 	MSGINFOTYPE_BKG,
 	MSGINFOTYPE_ITEM,
-	MSGINFOTYPE_PROGRAM,
 	MSGINFOTYPE_ACTION,
 	MSGINFOTYPE_GAMESTATUS,
 	MSGINFOTYPE_USERNAME,
 	MSGINFOTYPE_PASSWORD,
 	MSGINFOTYPE_PROGINVENTORY,
-	MSGINFOTYPE_CREDITS
+	MSGINFOTYPE_CREDITS,
+	MSGINFOTYPE_ANIM,
+
+	// entity creation
+	MSGINFOTYPE_TEAM,
+	MSGINFOTYPE_PLAYER,
+	MSGINFOTYPE_PROGRAM,
+
+	// entity deletion
+	MSGINFOTYPE_TEAMDELETE,
+	MSGINFOTYPE_PLAYERDELETE,
+	MSGINFOTYPE_PROGRAMDELETE,
+
+	// program modification
+	MSGINFOTYPE_PROGRAMADDTAIL,
+	MSGINFOTYPE_PROGRAMADDHEAD,
+	MSGINFOTYPE_PROGRAMREMOVETILE,
+	MSGINFOTYPE_PROGRAMCHANGENUMACTIONS,
+	MSGINFOTYPE_PROGRAMCHANGENUMMOVES,
+	MSGINFOTYPE_PROGRAMCHANGEMAXHEALTH,
+	MSGINFOTYPE_PROGRAMCHANGEMAXACTIONS,
+	MSGINFOTYPE_PROGRAMCHANGEMAXMOVES
 };
 
 enum MSGGAMECONFIGTYPE {
@@ -89,19 +111,28 @@ struct Message {
 	// message type
 	MSGTYPE type;
 
+	// ids
+	int clientID;
+	int teamID;
+	int playerID;
+	int programID;
+	int actionID;
+
 	// general-use position fields
-	Coord pos; // to
-	Coord pos2; // from
+	Coord pos;
+	Coord pos2;
+
+	// general-purpose ints
+	int num;
+	int num2;
 
 	// select
 	MSGSELECTTYPE selectType;
 
 	// sound
 	MSGSOUNDNAME soundType;
-	char numRepeats;
 
 	// level load
-	char levelNum;
 	MSGLEVELTYPE levelType;
 
 	// inquiry
@@ -114,13 +145,7 @@ struct Message {
 	BACKGROUND bkgType;
 	PROGRAM progType;
 	ITEM itemType;
-	char team;
-
-	// ids
-	int clientID;
-	int playerID;
-	int programID;
-	int actionID;
+	ANIMTYPE animType;
 
 	// game config
 	MSGGAMECONFIGTYPE gameConfigType;
@@ -129,8 +154,8 @@ struct Message {
 	char text[DEFAULT_MSGSIZE];
 };
 
-void serializeMessage(char* buffer, Message m);
+void _serializeMessage(char* buffer, Message m);
 
-Message deserializeMessage(char* in);
+Message _deserializeMessage(char* in);
 
 void _printMessage(Message m);

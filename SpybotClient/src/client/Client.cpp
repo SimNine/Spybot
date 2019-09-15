@@ -22,6 +22,7 @@
 #include "PlayerMirror.h"
 #include "ProgramMirror.h"
 #include "TeamMirror.h"
+#include "AnimationTileFade.h"
 
 Client::Client() {
 	game_ = NULL;
@@ -42,32 +43,16 @@ void Client::processAllMessages() {
 }
 
 void Client::processMessage(Message* msg) {
-	printf("CLIENT RECIEVED MSG: ");
+	log("CLIENT RECIEVED MSG: ");
 	_printMessage(*msg);
 
 	switch (msg->type) {
-	case MSGTYPE_ACTION:
-	{
-		PlayerMirror* pl = game_->getPlayerByID(msg->playerID);
-		ProgramMirror* pr = pl->getProgramByID(msg->programID);
-		ProgramActionMirror* pa = pr->getActions()->getObjectAt(msg->actionID);
-		game_->useActionAt(pl, pr, pa, msg->pos);
-	}
-	break;
-	case MSGTYPE_MOVE:
-	{
-		PlayerMirror* pl = game_->getPlayerByID(msg->playerID);
-		ProgramMirror* pr = pl->getProgramByID(msg->programID);
-		game_->moveProgramTo(pr, msg->pos);
-		pl->setSelectedProgram(pr);
-		pl->setSelectedTile(msg->pos);
-	}
-	break;
 	case MSGTYPE_LOAD:
 	{
 		if (msg->clientID != myClientID_)
-			_notifyOverlay->addNotification("Client " + to_string(msg->clientID) + " has loaded level " + to_string(msg->levelNum));
+			_notifyOverlay->addNotification("Client " + to_string(msg->clientID) + " has loaded level " + to_string(msg->num));
 
+		// reset the game
 		player_ = NULL;
 		delete game_;
 		game_ = NULL;
@@ -79,9 +64,9 @@ void Client::processMessage(Message* msg) {
 			clientIt.next()->player_ = NULL;
 		}
 
+		// tell the server to let this client join the game
 		Message m;
 		m.type = MSGTYPE_JOIN;
-		m.clientID = myClientID_;
 		_connectionManager->sendMessage(m);
 
 		if (_server != NULL && !_progressAchievements[ACHIEVEMENT_FIRSTATTEMPTEDCYBERCRIME])
@@ -91,25 +76,28 @@ void Client::processMessage(Message* msg) {
 	case MSGTYPE_SOUND:
 		switch (msg->soundType) {
 		case MSGSOUNDNAME_MOVE:
-			Mix_PlayChannel(-1, _sound_move_player, msg->numRepeats);
+			Mix_PlayChannel(-1, _sound_move_player, msg->num);
 			break;
 		case MSGSOUNDNAME_DAMAGE:
-			Mix_PlayChannel(-1, _sound_action_attack, msg->numRepeats);
+			Mix_PlayChannel(-1, _sound_action_attack, msg->num);
 			break;
 		case MSGSOUNDNAME_HEAL:
-			Mix_PlayChannel(-1, _sound_action_heal, msg->numRepeats);
+			Mix_PlayChannel(-1, _sound_action_heal, msg->num);
 			break;
 		case MSGSOUNDNAME_SIZEMOD:
-			Mix_PlayChannel(-1, _sound_action_heal, msg->numRepeats);
+			Mix_PlayChannel(-1, _sound_action_heal, msg->num);
+			break;
+		case MSGSOUNDNAME_SPEEDMOD:
+			Mix_PlayChannel(-1, _sound_action_speed, msg->num);
 			break;
 		case MSGSOUNDNAME_ZERO:
-			Mix_PlayChannel(-1, _sound_action_grid_damage, msg->numRepeats);
+			Mix_PlayChannel(-1, _sound_action_grid_damage, msg->num);
 			break;
 		case MSGSOUNDNAME_ONE:
-			Mix_PlayChannel(-1, _sound_action_grid_fix, msg->numRepeats);
+			Mix_PlayChannel(-1, _sound_action_grid_fix, msg->num);
 			break;
 		case MSGSOUNDNAME_PICKUPCREDIT:
-			Mix_PlayChannel(-1, _sound_pickup_credit, msg->numRepeats);
+			Mix_PlayChannel(-1, _sound_pickup_credit, msg->num);
 			break;
 		default:
 			break;
@@ -120,49 +108,70 @@ void Client::processMessage(Message* msg) {
 			_gameOverlay->setBackgroundImg(msg->bkgType);
 		} else if (msg->infoType == MSGINFOTYPE_TILE) {
 			game_->setTileAt(msg->pos, msg->tileType);
+		} else if (msg->infoType == MSGINFOTYPE_TEAM) {
+			game_->addTeam(msg->teamID);
+		} else if (msg->infoType == MSGINFOTYPE_PLAYER) {
+			game_->addPlayer(msg->playerID, msg->teamID);
 		} else if (msg->infoType == MSGINFOTYPE_PROGRAM) {
-			// get team
-			TeamMirror* t = game_->getTeamByNum(msg->team);
-			if (t == NULL) {
-				t = new TeamMirror(msg->team);
-				game_->getAllTeams()->addFirst(t);
-			}
-
-			// get player
-			PlayerMirror* p = t->getPlayerByID(msg->playerID);
-			if (p == NULL) {
-				p = new PlayerMirror(game_, t->getTeamNum());
-				p->setPlayerID(msg->playerID);
-				t->getAllPlayers()->addFirst(p);
-			}
-
-			// get program
-			ProgramMirror* pr = p->getProgramByID(msg->programID);
-			if (pr == NULL) {
-				pr = new ProgramMirror(msg->progType, t->getTeamNum(), msg->pos);
-				pr->setProgramID(msg->programID);
-				p->addProgram(pr);
-			} else
-				pr->addTail(msg->pos);
-
-			game_->setProgramAt(msg->pos, pr);
+			game_->addProgram(msg->progType, msg->programID, msg->playerID, msg->teamID);
+		} else if (msg->infoType == MSGINFOTYPE_TEAMDELETE) {
+			game_->removeTeam(msg->teamID);
+		} else if (msg->infoType == MSGINFOTYPE_PLAYERDELETE) {
+			game_->removePlayer(msg->playerID, msg->teamID);
+		} else if (msg->infoType == MSGINFOTYPE_PROGRAMDELETE) {
+			game_->removeProgram(msg->programID, msg->playerID, msg->teamID);
+		} else if (msg->infoType == MSGINFOTYPE_PROGRAMCHANGEMAXACTIONS) {
+			game_->getPlayerByID(msg->playerID)->getProgramByID(msg->programID)->setMaxActions(msg->num);
+		} else if (msg->infoType == MSGINFOTYPE_PROGRAMCHANGEMAXMOVES) {
+			game_->getPlayerByID(msg->playerID)->getProgramByID(msg->programID)->setMaxMoves(msg->num);
+		} else if (msg->infoType == MSGINFOTYPE_PROGRAMCHANGEMAXHEALTH) {
+			game_->getPlayerByID(msg->playerID)->getProgramByID(msg->programID)->setMaxHealth(msg->num);
+		} else if (msg->infoType == MSGINFOTYPE_PROGRAMCHANGENUMACTIONS) {
+			game_->getPlayerByID(msg->playerID)->getProgramByID(msg->programID)->setActionsLeft(msg->num);
+		} else if (msg->infoType == MSGINFOTYPE_PROGRAMCHANGENUMMOVES) {
+			game_->getPlayerByID(msg->playerID)->getProgramByID(msg->programID)->setMoves(msg->num);
+		} else if (msg->infoType == MSGINFOTYPE_PROGRAMADDHEAD) {
+			ProgramMirror* pMirr = game_->getTeamByID(msg->teamID)->getPlayerByID(msg->playerID)->getProgramByID(msg->programID);
+			pMirr->addHead(msg->pos);
+		} else if (msg->infoType == MSGINFOTYPE_PROGRAMADDTAIL) {
+			ProgramMirror* pMirr = game_->getTeamByID(msg->teamID)->getPlayerByID(msg->playerID)->getProgramByID(msg->programID);
+			pMirr->addTail(msg->pos);
+		} else if (msg->infoType == MSGINFOTYPE_PROGRAMREMOVETILE) {
+			ProgramMirror* pMirr = game_->getTeamByID(msg->teamID)->getPlayerByID(msg->playerID)->getProgramByID(msg->programID);
+			pMirr->removeTile(msg->pos);
 		} else if (msg->infoType == MSGINFOTYPE_ACTION) {
 			// TODO: have this support creating an arbitrary action
 		} else if (msg->infoType == MSGINFOTYPE_ITEM) {
 			game_->setItemAt(msg->pos, msg->itemType);
+		} else if (msg->infoType == MSGINFOTYPE_ANIM) {
+			switch (msg->animType) {
+			case ANIMTYPE_ACTION_ATTACK:
+				_gameOverlay->addAnimation(new AnimationAttack(msg->pos, msg->num));
+				break;
+			case ANIMTYPE_ACTION_TILECREATE:
+				_gameOverlay->addAnimation(new AnimationSelect(msg->pos, 255, 255, 255));
+				break;
+			case ANIMTYPE_ACTION_TILEDESTROY:
+				_gameOverlay->addAnimation(new AnimationSelect(msg->pos, 0, 0, 0));
+				break;
+			case ANIMTYPE_PROGRAMTILEDESTROY:
+			{
+				SDL_Color c = game_->getProgramAt(msg->pos)->getOwner()->getColor();
+				_gameOverlay->addAnimation(new AnimationTileFade(msg->pos, msg->num, c.r, c.g, c.b));
+			}
+			break;
+			}
 		} else if (msg->infoType == MSGINFOTYPE_GAMESTATUS) {
 			game_->setStatus(msg->statusType);
 			_gameOverlay->changeGameStatus(msg->statusType);
-			_overlayStack->removeAll();
-			_overlayStack->push(_gameOverlay);
 			_gameOverlay->updateProgramInventoryDisplay();
 
 			if (msg->statusType == GAMESTATUS_END) {
-				_gameOverlay->showWinContainer(msg->team);
+				_gameOverlay->showWinContainer(msg->teamID);
 
 				// increment progress
 				_progressGamesPlayed++;
-				if (msg->team == player_->getTeam())
+				if (msg->teamID == player_->getTeamID())
 					_progressGamesWon++;
 				else
 					_progressGamesLost++;
@@ -173,13 +182,13 @@ void Client::processMessage(Message* msg) {
 					if (!_progressAchievements[ACHIEVEMENT_FIRSTCOMMITTEDCYBERCRIME])
 						unlockAchievement(ACHIEVEMENT_FIRSTCOMMITTEDCYBERCRIME);
 
-					if (msg->team == player_->getTeam() && !_progressAchievements[ACHIEVEMENT_FIRSTSUCCESSFULCYBERCRIME]) {
+					if (msg->teamID == player_->getTeamID() && !_progressAchievements[ACHIEVEMENT_FIRSTSUCCESSFULCYBERCRIME]) {
 						unlockAchievement(ACHIEVEMENT_FIRSTSUCCESSFULCYBERCRIME);
 					}
 				}
 			}
 		} else if (msg->infoType == MSGINFOTYPE_CREDITS) {
-			_client->getMyClientMirror()->credits_ = msg->actionID;
+			_client->getMyClientMirror()->credits_ = msg->num;
 		}
 		_gameOverlay->centerScreen();
 		break;
@@ -200,35 +209,32 @@ void Client::processMessage(Message* msg) {
 	case MSGTYPE_JOIN:
 	{
 		// add notification
-		_notifyOverlay->addNotification("CLIENT: received player id " + to_string(msg->playerID));
+		_notifyOverlay->addNotification("Player " + to_string(msg->playerID) + " has connected to the game");
 
 		// get or create team
-		TeamMirror* t = game_->getTeamByNum(msg->team);
-		if (t == NULL) {
-			t = new TeamMirror(msg->team);
-			game_->getAllTeams()->addFirst(t);
-		}
+		TeamMirror* t = game_->getTeamByID(msg->teamID);
+		if (t == NULL)
+			game_->addTeam(msg->teamID);
 
-		// create player
-		PlayerMirror* newP = new PlayerMirror(game_, msg->team);
-		newP->setPlayerID(msg->playerID);
-		t->getAllPlayers()->addFirst(newP);
+		// get or create player
+		PlayerMirror* p = game_->getPlayerByID(msg->playerID);
+		if (p == NULL)
+			game_->addPlayer(msg->playerID, msg->teamID);
 
 		// if this is my client's player
-		if (msg->clientID == myClientID_) {
-			player_ = newP;
-
-			Message m;
-			m.type = MSGTYPE_RESYNCGAME;
-			_connectionManager->sendMessage(m);
-		}
+		if (msg->clientID == myClientID_)
+			player_ = p;
 
 		// set this clientMirror's player
 		for (int i = 0; i < _connectionManager->getClientList()->getLength(); i++) {
 			ClientMirror* cm = _connectionManager->getClientList()->getObjectAt(i);
 			if (cm->clientID_ == msg->clientID)
-				cm->player_ = newP;
+				cm->player_ = p;
 		}
+
+		// switch to the game overlay
+		_overlayStack->removeAll();
+		_overlayStack->addFirst(_gameOverlay);
 	}
 	break;
 	case MSGTYPE_CONNECT:
@@ -352,53 +358,17 @@ void Client::processMessage(Message* msg) {
 		else if (msg->gameConfigType == MSGGAMECONFIGTYPE_TEAMDM)
 			_lobbyOverlay->setGameMode(GAMEMODE_TEAMDM);
 		break;
-	case MSGTYPE_PLACEPROG:
-	{
-		// if a program was already here, remove and refund it
-		ProgramMirror* currProg = game_->getProgramAt(msg->pos);
-		if (currProg != NULL && currProg->getOwner() == player_) {
-			_client->getMyClientMirror()->ownedProgs_[currProg->getType()]++;
-			player_->getProgList()->remove(currProg);
-			player_->setSelectedProgram(NULL);
-			game_->setProgramAt(msg->pos, NULL);
-			delete currProg;
-		}
-
-		// get team
-		TeamMirror* t = game_->getTeamByNum(msg->team);
-		if (t == NULL) {
-			t = new TeamMirror(msg->team);
-			game_->getAllTeams()->addFirst(t);
-		}
-
-		// get player
-		PlayerMirror* p = t->getPlayerByID(msg->playerID);
-		if (p == NULL) {
-			p = new PlayerMirror(game_, t->getTeamNum());
-			p->setPlayerID(msg->playerID);
-			t->getAllPlayers()->addFirst(p);
-		}
-
-		// create program
-		ProgramMirror* pr = new ProgramMirror(msg->progType, t->getTeamNum(), msg->pos);
-		_client->getMyClientMirror()->ownedProgs_[msg->progType]--;
-		pr->setProgramID(msg->programID);
-		p->addProgram(pr);
-		game_->setProgramAt(msg->pos, pr);
-
-		// refresh inventory display
-		_gameOverlay->updateProgramInventoryDisplay();
-		break;
-	}
 	case MSGTYPE_PROGINVENTORY:
-		_client->getMyClientMirror()->ownedProgs_[msg->progType] = msg->programID;
-		_mapOverlay->updateProgramInvDisplay();
-		_gameOverlay->updateProgramInventoryDisplay();
+		if (_client->getClientID() == msg->clientID) {
+			_client->getMyClientMirror()->ownedProgs_[msg->progType] = msg->num;
+			_mapOverlay->updateProgramInvDisplay();
+			_gameOverlay->updateProgramInventoryDisplay();
+		}
 		break;
 	case MSGTYPE_CREDITPICKUP:
 		// increment credit counters
-		_progressCreditsCollected += msg->actionID;
-		myClientMirror_->credits_ += msg->actionID;
+		_progressCreditsCollected += msg->num;
+		myClientMirror_->credits_ += msg->num;
 		saveProgress();
 
 		// check for credit-related achievements
@@ -420,7 +390,7 @@ void Client::processMessage(Message* msg) {
 			unlockAchievement(ACHIEVEMENT_GARLICOIN);
 
 		// show credits earned display
-		_gameOverlay->showCreditPickup(msg->actionID);
+		_gameOverlay->showCreditPickup(msg->num);
 		_gameOverlay->refreshCreditCounter();
 
 		// remove item from local grid
@@ -428,7 +398,7 @@ void Client::processMessage(Message* msg) {
 
 		break;
 	case MSGTYPE_LEVELUNLOCK:
-		_mapOverlay->winNode(msg->levelNum);
+		_mapOverlay->winNode(msg->num);
 		break;
 	}
 }

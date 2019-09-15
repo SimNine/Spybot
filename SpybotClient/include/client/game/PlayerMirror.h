@@ -9,16 +9,15 @@ class ProgramMirror;
 
 class PlayerMirror {
 public:
-	PlayerMirror(GameMirror*, int);
+	PlayerMirror(GameMirror* g, int playerID, int teamID);
 	virtual ~PlayerMirror();
 
 	void endTurn();
 
 	LinkedList<ProgramMirror*>* getProgList();
 	ProgramMirror* getProgramByID(int progID);
-	int getTeam();
 
-	void addProgram(ProgramMirror*);
+	void addProgram(ProgramMirror* p);
 
 	void setSelectedTile(Coord);
 	Coord getSelectedTile();
@@ -27,31 +26,35 @@ public:
 	void setSelectedProgram(ProgramMirror*);
 	ProgramMirror* getSelectedProgram();
 	bool canSelectedProgramMoveTo(Coord);
+
 	int getSelectedProgramDist(Coord);
 	int getSelectedProgramDistAll(Coord);
-	int getSelectedActionDist(Coord);
 
+	int getSelectedActionDist(Coord);
+	int getSelectedActionDistAll(Coord);
+
+	int getTeamID();
 	int getPlayerID();
-	void setPlayerID(int playerID);
 
 	SDL_Color getColor();
 	GameMirror* getGame();
-protected:
+private:
+	Coord selectedTile_;
+	int selectedProgDist_[200][200];
+	int selectedProgDistAll_[200][200];
+	int selectedActionDist_[200][200];
+	int selectedActionDistAll_[200][200];
+
 	GameMirror* game_;
-	int team_;
 	ProgramMirror* selectedProgram_;
 	ProgramActionMirror* selectedAction_;
 	LinkedList<ProgramMirror*>* progsOwned_;
 
 	// helper methods for AI subclasses
 	void calculateProgramDist(ProgramMirror*);
-private:
-	Coord selectedTile_;
-	int selectedProgDist_[200][200];
-	int selectedProgDistAll_[200][200];
-	int selectedActionDist_[200][200];
 
 	SDL_Color color_;
 
+	int teamID_;
 	int playerID_;
 };

@@ -1,8 +1,9 @@
 #include "Message.h"
 
+#include "Logger.h"
 #include "MiscUtil.h"
 
-void serializeMessage(char* buffer, Message m) {
+void _serializeMessage(char* buffer, Message m) {
 	int currByte = 0;
 
 	// write type
@@ -11,6 +12,8 @@ void serializeMessage(char* buffer, Message m) {
 
 	// write IDs
 	serializeInt(&buffer[currByte], m.clientID);
+	currByte += 4;
+	serializeInt(&buffer[currByte], m.teamID);
 	currByte += 4;
 	serializeInt(&buffer[currByte], m.playerID);
 	currByte += 4;
@@ -34,6 +37,12 @@ void serializeMessage(char* buffer, Message m) {
 		serializeInt(&buffer[currByte], m.pos2.y);
 		currByte += 4;
 
+		// write general-purpose ints
+		buffer[currByte] = m.num;
+		currByte += 4;
+		buffer[currByte] = m.num2;
+		currByte += 4;
+
 		// write select
 		buffer[currByte] = m.selectType;
 		currByte++;
@@ -41,12 +50,8 @@ void serializeMessage(char* buffer, Message m) {
 		// write sound
 		buffer[currByte] = m.soundType;
 		currByte++;
-		buffer[currByte] = m.numRepeats;
-		currByte++;
 
 		// write level
-		buffer[currByte] = m.levelNum;
-		currByte++;
 		buffer[currByte] = m.levelType;
 		currByte++;
 
@@ -67,7 +72,7 @@ void serializeMessage(char* buffer, Message m) {
 		currByte++;
 		buffer[currByte] = m.itemType;
 		currByte++;
-		buffer[currByte] = m.team;
+		buffer[currByte] = m.animType;
 		currByte++;
 
 		// write gameselect
@@ -81,7 +86,7 @@ void serializeMessage(char* buffer, Message m) {
 	}
 }
 
-Message deserializeMessage(char* in) {
+Message _deserializeMessage(char* in) {
 	Message m;
 	int currByte = 0;
 
@@ -91,6 +96,8 @@ Message deserializeMessage(char* in) {
 
 	// read IDs
 	deserializeInt(&in[currByte], &m.clientID);
+	currByte += 4;
+	deserializeInt(&in[currByte], &m.teamID);
 	currByte += 4;
 	deserializeInt(&in[currByte], &m.playerID);
 	currByte += 4;
@@ -113,6 +120,12 @@ Message deserializeMessage(char* in) {
 		deserializeInt(&in[currByte], &m.pos2.y);
 		currByte += 4;
 
+		// read general-purpose ints
+		deserializeInt(&in[currByte], &m.num);
+		currByte++;
+		deserializeInt(&in[currByte], &m.num2);
+		currByte++;
+
 		// read select
 		m.selectType = (MSGSELECTTYPE)in[currByte];
 		currByte++;
@@ -120,12 +133,8 @@ Message deserializeMessage(char* in) {
 		// read sound
 		m.soundType = (MSGSOUNDNAME)in[currByte];
 		currByte++;
-		m.numRepeats = in[currByte];
-		currByte++;
 
 		// read level
-		m.levelNum = in[currByte];
-		currByte++;
 		m.levelType = (MSGLEVELTYPE)in[currByte];
 		currByte++;
 
@@ -146,7 +155,7 @@ Message deserializeMessage(char* in) {
 		currByte++;
 		m.itemType = (ITEM)in[currByte];
 		currByte++;
-		m.team = in[currByte];
+		m.animType = (ANIMTYPE)in[currByte];
 		currByte++;
 
 		// read gameconfig
@@ -163,122 +172,166 @@ Message deserializeMessage(char* in) {
 }
 
 void _printMessage(Message m) {
-	printf("%i - ", m.clientID);
+	log(to_string(m.clientID) + " - ");
 	switch (m.type) {
 	case MSGTYPE_ACTION:
-		printf("MSGTYPE_ACTION\n");
+		log("MSGTYPE_ACTION\n");
 		break;
 	case MSGTYPE_AISTEP:
-		printf("MSGTYPE_AISTEP\n");
+		log("MSGTYPE_AISTEP\n");
 		break;
 	case MSGTYPE_CLEAR:
-		printf("MSGTYPE_CLEAR\n");
+		log("MSGTYPE_CLEAR\n");
 		break;
 	case MSGTYPE_NEXTTURN:
-		printf("MSGTYPE_NEXTTURN\n");
+		log("MSGTYPE_NEXTTURN\n");
 		break;
 	case MSGTYPE_INFO:
-		printf("MSGTYPE_INFO - ");
+		log("MSGTYPE_INFO - ");
 		switch (m.infoType) {
 		case MSGINFOTYPE_ACTION:
-			printf("MSGINFOTYPE_ACTION\n");
+			log("MSGINFOTYPE_ACTION\n");
 			break;
 		case MSGINFOTYPE_BKG:
-			printf("MSGINFOTYPE_BKG\n");
+			log("MSGINFOTYPE_BKG\n");
 			break;
 		case MSGINFOTYPE_GAMESTATUS:
-			printf("MSGINFOTYPE_GAMESTATUS\n");
+			log("MSGINFOTYPE_GAMESTATUS\n");
 			break;
 		case MSGINFOTYPE_ITEM:
-			printf("MSGINFOTYPE_ITEM\n");
-			break;
-		case MSGINFOTYPE_PROGRAM:
-			printf("MSGINFOTYPE_PROGRAM\n");
+			log("MSGINFOTYPE_ITEM - ITEM " + to_string(m.itemType) + "\n");
 			break;
 		case MSGINFOTYPE_TILE:
-			printf("MSGINFOTYPE_TILE\n");
+			log("MSGINFOTYPE_TILE - TILE " + to_string(m.tileType) + "\n");
 			break;
 		case MSGINFOTYPE_PROGINVENTORY:
-			printf("MSGINFOTYPE_PROGINVENTORY\n");
+			log("MSGINFOTYPE_PROGINVENTORY\n");
 			break;
 		case MSGINFOTYPE_CREDITS:
-			printf("MSGINFOTYPE_CREDITS\n");
+			log("MSGINFOTYPE_CREDITS - CREDITS " + to_string(m.num) + "\n");
+			break;
+		case MSGINFOTYPE_ANIM:
+			log("MSGiNFOTYPE_ANIM - ANIM " + to_string(m.animType) + "\n");
+			break;
+
+		case MSGINFOTYPE_TEAM:
+			log("MSGINFOTYPE_TEAM - TEAM " + to_string(m.teamID) + "\n");
+			break;
+		case MSGINFOTYPE_PLAYER:
+			log("MSGINFOTYPE_PLAYER - PLAYER " + to_string(m.playerID) + "\n");
+			break;
+		case MSGINFOTYPE_PROGRAM:
+			log("MSGINFOTYPE_PROGRAM - PROGRAM " + to_string(m.programID) + "\n");
+			break;
+		case MSGINFOTYPE_TEAMDELETE:
+			log("MSGINFOTYPE_TEAMDELETE - TEAM " + to_string(m.teamID) + "\n");
+			break;
+		case MSGINFOTYPE_PLAYERDELETE:
+			log("MSGINFOTYPE_PLAYERDELETE - PLAYER " + to_string(m.playerID) + "\n");
+			break;
+		case MSGINFOTYPE_PROGRAMDELETE:
+			log("MSGINFOTYPE_PROGRAMDELETE - PROGRAM " + to_string(m.programID) + "\n");
+			break;
+
+		case MSGINFOTYPE_PROGRAMADDHEAD:
+			log("MSGINFOTYPE_PROGRAMADDHEAD - PROGRAM " + to_string(m.programID) + ", TILE " + to_string(m.pos.x) + "," + to_string(m.pos.y) + "\n");
+			break;
+		case MSGINFOTYPE_PROGRAMADDTAIL:
+			log("MSGINFOTYPE_PROGRAMADDTAIL - PROGRAM " + to_string(m.programID) + ", TILE " + to_string(m.pos.x) + "," + to_string(m.pos.y) + "\n");
+			break;
+		case MSGINFOTYPE_PROGRAMREMOVETILE:
+			log("MSGINFOTYPE_PROGRAMREMOVETILE - PROGRAM " + to_string(m.programID) + ", TILE " + to_string(m.pos.x) + "," + to_string(m.pos.y) + "\n");
+			break;
+		case MSGINFOTYPE_PROGRAMCHANGENUMMOVES:
+			log("MSGINFOTYPE_PROGRAMCHANGENUMMOVES - PROGRAM " + to_string(m.programID) + ", NUMMOVES " + to_string(m.num) + "\n");
+			break;
+		case MSGINFOTYPE_PROGRAMCHANGENUMACTIONS:
+			log("MSGINFOTYPE_PROGRAMCHANGENUMACTIONS - PROGRAM " + to_string(m.programID) + ", NUMACTIONS " + to_string(m.num) + "\n");
+			break;
+		case MSGINFOTYPE_PROGRAMCHANGEMAXHEALTH:
+			log("MSGINFOTYPE_PROGRAMCHANGEMAXHEALTH - PROGRAM " + to_string(m.programID) + ", MAXHEALTH " + to_string(m.num) + "\n");
+			break;
+		case MSGINFOTYPE_PROGRAMCHANGEMAXMOVES:
+			log("MSGINFOTYPE_PROGRAMCHANGEMAXMOVES - PROGRAM " + to_string(m.programID) + ", MAXMOVES " + to_string(m.num) + "\n");
+			break;
+		case MSGINFOTYPE_PROGRAMCHANGEMAXACTIONS:
+			log("MSGINFOTYPE_PROGRAMCHANGEMAXACTIONS - PROGRAM " + to_string(m.programID) + ", MAXACTIONS " + to_string(m.num) + "\n");
 			break;
 		}
 		break;
 	case MSGTYPE_INQUIRY:
-		printf("MSGTYPE_INQUIRY\n");
+		log("MSGTYPE_INQUIRY\n");
 		break;
 	case MSGTYPE_JOIN:
-		printf("MSGTYPE_JOIN\n");
+		log("MSGTYPE_JOIN\n");
 		break;
 	case MSGTYPE_LEAVE:
-		printf("MSGTYPE_LEAVE\n");
+		log("MSGTYPE_LEAVE\n");
 		break;
 	case MSGTYPE_LOAD:
-		printf("MSGTYPE_LOAD - Level #%i\n", m.levelNum);
+		log("MSGTYPE_LOAD - LEVEL " + to_string(m.num) + "\n");
 		break;
 	case MSGTYPE_DONELOAD:
-		printf("MSGTYPE_DONELOAD\n");
+		log("MSGTYPE_DONELOAD\n");
 		break;
 	case MSGTYPE_MOVE:
-		printf("MSGTYPE_MOVE\n");
+		log("MSGTYPE_MOVE\n");
 		break;
 	case MSGTYPE_NONE:
-		printf("MSGTYPE_NONE\n");
+		log("MSGTYPE_NONE\n");
 		break;
 	case MSGTYPE_RESYNCGAME:
-		printf("MSGTYPE_RESYNCGAME\n");
+		log("MSGTYPE_RESYNCGAME\n");
 		break;
 	case MSGTYPE_SELECT:
-		printf("MSGTYPE_SELECT - ");
+		log("MSGTYPE_SELECT - ");
 		switch (m.selectType) {
 		case MSGSELECTTYPE_TILE:
-			printf("TILE - %i,%i\n", m.pos.x, m.pos.y);
+			log("TILE " + to_string(m.pos.x) + "," + to_string(m.pos.y) + "\n");
 			break;
 		case MSGSELECTTYPE_PROGRAM:
-			printf("PROGRAM - ID %i\n", m.programID);
+			log("PROGRAM " + to_string(m.programID) + "\n");
 			break;
 		case MSGSELECTTYPE_ACTION:
-			printf("ACTION - ID %i\n", m.actionID);
+			log("ACTION " + to_string(m.actionID) + "\n");
 			break;
 		}
 		break;
 	case MSGTYPE_SOUND:
-		printf("MSGTYPE_SOUND\n");
+		log("MSGTYPE_SOUND\n");
 		break;
 	case MSGTYPE_CONNECT:
-		printf("MSGTYPE_CONNECT\n");
+		log("MSGTYPE_CONNECT\n");
 		break;
 	case MSGTYPE_DISCONNECT:
-		printf("MSGTYPE_DISCONNECT\n");
+		log("MSGTYPE_DISCONNECT\n");
 		break;
 	case MSGTYPE_TEXT:
-		printf("MSGTYPE_TEXT - %s\n", m.text);
+		log("MSGTYPE_TEXT - " + std::string(m.text) + "\n");
 		break;
 	case MSGTYPE_GAMECONFIG:
-		printf("MSGTYPE_GAMECONFIG\n");
+		log("MSGTYPE_GAMECONFIG\n");
 		break;
 	case MSGTYPE_LOGIN:
-		printf("MSGTYPE_LOGIN - %s\n", m.text);
+		log("MSGTYPE_LOGIN - " + std::string(m.text) + "\n");
 		break;
 	case MSGTYPE_CREATEUSER:
-		printf("MSGTYPE_CREATEUSER - %s\n", m.text);
+		log("MSGTYPE_CREATEUSER - " + std::string(m.text) + "\n");
 		break;
 	case MSGTYPE_ERROR:
-		printf("MSGTYPE_ERROR - %s\n", m.text);
+		log("MSGTYPE_ERROR - " + std::string(m.text) + "\n");
 		break;
 	case MSGTYPE_PLACEPROG:
-		printf("MSGTYPE_PLACEPROG\n");
+		log("MSGTYPE_PLACEPROG\n");
 		break;
 	case MSGTYPE_PROGINVENTORY:
-		printf("MSGTYPE_PROGINVENTORY - %i,%i\n", m.progType, m.programID);
+		log("MSGTYPE_PROGINVENTORY - TYPE " + to_string(m.progType) + ", COUNT " + to_string(m.num) + "\n");
 		break;
 	case MSGTYPE_CREDITPICKUP:
-		printf("MSGTYPE_CREDITPICKUP - %i\n", m.actionID);
+		log("MSGTYPE_CREDITPICKUP - CREDITS " + to_string(m.num) + "\n");
 		break;
 	case MSGTYPE_LEVELUNLOCK:
-		printf("MSGTYPE_LEVELUNLOCK - %i\n", m.levelNum);
+		log("MSGTYPE_LEVELUNLOCK - LEVEL " + to_string(m.num) + "\n");
 		break;
 	}
 }

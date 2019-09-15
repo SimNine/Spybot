@@ -91,8 +91,14 @@ void ProgramDisplayActionButton::draw() {
 	} else if (action_.type_ == ACTIONTYPE_TILEDELETE) {
 		tex = _game_icon_action_tiledestroy;
 		col = _color_action_tiledestroy;
+	} else if (action_.type_ == ACTIONTYPE_MAXACTIONSUP) {
+		tex = _game_icon_action_maxactionsup;
+		col = _color_action_maxactionsup;
+	} else if (action_.type_ == ACTIONTYPE_MAXACTIONSDOWN) {
+		tex = _game_icon_action_maxactionsdown;
+		col = _color_action_maxactionsdown;
 	} else
-		printf("CLIENT ERR: a nonexistent action type was found\n");
+		log("CLIENT ERR: a nonexistent action type was found\n");
 	SDL_SetTextureColorMod(_program_core_50px, col.r, col.g, col.b);
 	SDL_SetTextureAlphaMod(_program_core_50px, currAlpha_);
 	SDL_RenderCopy(_renderer, _program_core_50px, NULL, &clipRect);

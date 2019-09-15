@@ -7,15 +7,16 @@ class PlayerMirror;
 
 class TeamMirror {
 public:
-	TeamMirror(int teamNum);
+	TeamMirror(int teamID);
 	virtual ~TeamMirror();
 
 	LinkedList<PlayerMirror*>* getAllPlayers();
 	PlayerMirror* getPlayerByID(int playerID);
-	int getTeamNum();
+
+	int getTeamID();
 protected:
 
 private:
 	LinkedList<PlayerMirror*>* players_;
-	int teamNum_;
+	int teamID_;
 };

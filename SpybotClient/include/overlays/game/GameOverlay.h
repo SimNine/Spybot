@@ -42,6 +42,7 @@ public:
 	ChatDisplay* getChatDisplay();
 	void addAnimation(Animation* a);
 	void updateProgramInventoryDisplay();
+	ProgramDisplayContainer* getProgramDisplayContainer();
 
 	// win container
 	void showWinContainer(int teamID);

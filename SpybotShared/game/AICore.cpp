@@ -16,7 +16,7 @@ AICore::~AICore() {
 }
 
 void AICore::act(int num) {
-	//printf("agent on team %i carrying out %i action steps...\n", team, num);
+	//log("agent on team %i carrying out %i action steps...\n", team, num);
 	if (num == -1) {
 		bool b = true;
 		while (b)
@@ -58,9 +58,10 @@ Program* AICore::getNearestEnemyProgramAbsoluteDist(Player* enemy) {
 	Iterator<Program*> enemyProgs = enemyProgList->getIterator();
 	while (enemyProgs.hasNext()) {
 		Program* enemyProg = enemyProgs.next();
-		int newDist = dist(enemyProg->getCore(), owner_->getSelectedProgram()->getCore());
-		int oldDist = dist(nearest, owner_->getSelectedProgram()->getCore());
-		if (newDist < oldDist) nearest = enemyProg->getHead();
+		int newDist = dist(enemyProg->getHead(), owner_->getSelectedProgram()->getHead());
+		int oldDist = dist(nearest, owner_->getSelectedProgram()->getHead());
+		if (newDist < oldDist)
+			nearest = enemyProg->getHead();
 	}
 
 	delete allEnemyProgs;
@@ -83,7 +84,7 @@ Program* AICore::getNearestEnemyProgramAStarDist(Player* enemy) {
 	Iterator<Program*> enemyProgs = enemyProgList->getIterator();
 	while (enemyProgs.hasNext()) {
 		Program* enemyProg = enemyProgs.next();
-		int newDist = owner_->getSelectedProgramDistAll({ enemyProg->getCore().x, enemyProg->getCore().y });
+		int newDist = owner_->getSelectedProgramDistAll({ enemyProg->getHead().x, enemyProg->getHead().y });
 		int oldDist = owner_->getSelectedProgramDistAll({ nearest.x, nearest.y });
 		if (newDist == -1)
 			continue;
@@ -102,7 +103,7 @@ LinkedList<Program*>* AICore::getAllEnemyPrograms() {
 	Iterator<Team*> itTeam = owner_->getGame()->getAllTeams()->getIterator();
 	while (itTeam.hasNext()) {
 		Team* curr = itTeam.next();
-		if (curr->getTeamNum() != owner_->getTeam()) {
+		if (curr->getTeamID() != owner_->getTeam()) {
 			Iterator<Player*> itPlayer = curr->getAllPlayers()->getIterator();
 			while (itPlayer.hasNext()) {
 				Player* pCurr = itPlayer.next();
@@ -111,7 +112,7 @@ LinkedList<Program*>* AICore::getAllEnemyPrograms() {
 		}
 	}
 
-	//printf("found %i enemy progs\n", progs.getLength());
+	//log("found %i enemy progs\n", progs.getLength());
 	return progs;
 }
 
@@ -121,8 +122,8 @@ Coord* AICore::idealStepTowardsProgram(Program* p) {
 
 Coord* AICore::naiveStepTowardsProgram(Program* p) {
 	// create temp variables
-	Coord enemyCore = p->getCore();
-	Coord myCore = owner_->getSelectedProgram()->getCore();
+	Coord enemyCore = p->getHead();
+	Coord myCore = owner_->getSelectedProgram()->getHead();
 
 	// gather the directions it would be optimal for this program to move
 	LinkedList<Coord*> idealMoves = LinkedList<Coord*>();

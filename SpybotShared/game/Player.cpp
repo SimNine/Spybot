@@ -11,11 +11,12 @@
 #include "Pipe.h"
 #include "User.h"
 
-Player::Player(Game* g, int t) {
+Player::Player(Game* g, int teamID) {
 	game_ = g;
-	team_ = t;
+	team_ = teamID;
+	playerID_ = randInt();
 	doneTurn_ = false;
-	selectedTile_ = { -1, -1 };
+	selectedTile_ = NULLCOORD;
 	selectedProgram_ = NULL;
 	progsOwned_ = new LinkedList<Program*>();
 	color_ = { (Uint8)rand(), (Uint8)rand(), (Uint8)rand(), (Uint8)rand() };
@@ -46,50 +47,35 @@ void Player::setSelectedProgram(Program* p) {
 	m.selectType = MSGSELECTTYPE_PROGRAM;
 	m.clientID = 0;
 	m.playerID = playerID_;
-	if (p != NULL)
-		m.programID = p->getProgramID();
-	else
-		m.programID = -1;
+	m.programID = (p == NULL) ? -1 : p->getProgramID();
 	_server->sendMessageToAllClients(m);
 }
 
 void Player::moveSelectedProgram(Coord pos) {
 	// check for validity
-	if (!game_->isTiled(pos)) return;
+	if (!game_->isTiled(pos))
+		return;
 
 	// if the given space is adjacent to the selected program,
 	// and the selected program has moves left
 	if (selectedProgDist_[pos.x][pos.y] == 1 && selectedProgram_->getMoves() > 0) {
-		// delete the tail of this program if it's at max health
-		if (selectedProgram_->getHealth() == selectedProgram_->getMaxHealth() &&
-			game_->getProgramAt(pos) != selectedProgram_) {
-			Coord temp = selectedProgram_->getTail();
-			game_->setProgramAt(temp, NULL);
-		}
-
 		// move the program
-		game_->setProgramAt(pos, selectedProgram_);
 		selectedProgram_->moveTo(pos);
-		selectedTile_ = selectedProgram_->getHead();
 		calculateProgramDist(selectedProgram_);
 
-		Message msg;
-		// move the program for the client
-		msg.type = MSGTYPE_MOVE;
-		msg.clientID = 0;
-		msg.playerID = playerID_;
-		msg.programID = selectedProgram_->getProgramID();
-		msg.pos = pos;
-		_server->sendMessageToAllClients(msg);
+		// re-select the program and the tile
+		setSelectedProgram(selectedProgram_);
+		setSelectedTile(pos);
 
 		// send the move sound to the client
+		Message msg;
 		msg.type = MSGTYPE_SOUND;
 		msg.soundType = MSGSOUNDNAME_MOVE;
-		msg.numRepeats = 0;
+		msg.num = 0;
 		_server->sendMessageToAllClients(msg);
 
 		// if there is a credit here, pick it up
-		if (game_->getItemAt(pos) == ITEM_CREDIT && team_ == 0) {
+		if (game_->getItemAt(pos) == ITEM_CREDIT && brain_ == NULL) {
 			game_->setItemAt(pos, ITEM_NONE);
 
 			msg.soundType = MSGSOUNDNAME_PICKUPCREDIT;
@@ -100,10 +86,11 @@ void Player::moveSelectedProgram(Coord pos) {
 			while (it.hasNext()) {
 				Pipe* curr = it.next();
 				if (curr->getPlayer() == playerID_) {
+					Message msg;
 					msg.type = MSGTYPE_CREDITPICKUP;
 					msg.pos = pos;
-					msg.actionID = rand() % 300;
-					_server->getUserByName(curr->getUser())->numCredits_ += msg.actionID;
+					msg.num = rand() % 400;
+					_server->getUserByName(curr->getUser())->numCredits_ += msg.num;
 					_server->sendMessageToClient(msg, curr->getClientID());
 					_server->saveUsers();
 					break;
@@ -114,7 +101,7 @@ void Player::moveSelectedProgram(Coord pos) {
 }
 
 void Player::moveSelectedProgramBy(Coord disp) {
-	Coord n = selectedProgram_->getCore() + disp;
+	Coord n = selectedProgram_->getHead() + disp;
 	moveSelectedProgram(n);
 }
 
@@ -140,7 +127,7 @@ bool Player::canSelectedProgramMoveBy(Coord disp) {
 		return false;
 
 	//otherwise...
-	if (selectedProgDist_[selectedProgram_->getCore().x + disp.x][selectedProgram_->getCore().y + disp.y] >= 1)
+	if (selectedProgDist_[selectedProgram_->getHead().x + disp.x][selectedProgram_->getHead().y + disp.y] >= 1)
 		return true;
 	else
 		return false;
@@ -165,8 +152,8 @@ Coord Player::getFarthestTile(Program* p) {
 			if (game_->getProgramAt({ x, y }) == p)
 				ll.addFirst(new Coord{ x, y });
 
-	Coord h = p->getCore();
-	Coord f = p->getCore();
+	Coord h = p->getHead();
+	Coord f = p->getHead();
 	while (ll.getLength() > 0) {
 		Coord* currP = ll.poll();
 		Coord curr = *currP;
@@ -191,7 +178,7 @@ void Player::calculateProgramDist(Program* p) {
 	if (p == NULL)
 		return;
 
-	Coord h = p->getCore();
+	Coord h = p->getHead();
 	selectedProgDist_[h.x][h.y] = 0;
 	selectedProgDistAll_[h.x][h.y] = 0;
 
@@ -269,7 +256,7 @@ void Player::setSelectedTile(Coord pos) {
 
 	if (game_->isOOB(pos)) {
 		setSelectedProgram(NULL);
-		selectedTile_ = { -1, -1 };
+		selectedTile_ = NULLCOORD;
 
 		m.pos = pos;
 		_server->sendMessageToAllClients(m);
@@ -300,7 +287,7 @@ void Player::endTurn() {
 	while (it.hasNext())
 		it.next()->endTurn();
 
-	setSelectedTile({ -1, -1 });
+	setSelectedTile(NULLCOORD);
 }
 
 bool Player::getDoneTurn() {
@@ -325,7 +312,7 @@ void Player::setSelectedAction(ProgramAction* pa) {
 		return;
 	}
 
-	Coord center = selectedProgram_->getCore();
+	Coord center = selectedProgram_->getHead();
 	for (int x = -pa->range_; x <= pa->range_; x++) {
 		int rngLeft = pa->range_ - abs(x);
 		for (int y = -rngLeft; y <= rngLeft; y++)
@@ -365,80 +352,206 @@ void Player::useSelectedActionAt(Coord pos) {
 		if (tgtProg == NULL)
 			return;
 
-		if (tgtProg->getTeam() != team_) {
-			for (int i = 0; i < selectedAction_->power_; i++) {
-				Coord* curr = tgtProg->popTail();
-				if (curr == NULL)
-					break;
-				else {
-					SDL_Color c = tgtProg->getOwner()->getColor();
-					game_->setProgramAt(*curr, NULL);
-				}
-			}
+		if (tgtProg->getTeam() == team_)
+			return;
+
+		{
+			Message m;
+			m.type = MSGTYPE_INFO;
+			m.infoType = MSGINFOTYPE_ANIM;
+			m.animType = ANIMTYPE_ACTION_ATTACK;
+			m.pos = tgtProg->getHead();
+			m.num = selectedAction_->power_;
+			_server->sendMessageToAllClients(m);
+
+			m.type = MSGTYPE_SOUND;
+			m.soundType = MSGSOUNDNAME_DAMAGE;
+			m.num = 0;
+			_server->sendMessageToAllClients(m);
 		}
+
+		for (int i = 0; i < selectedAction_->power_; i++) {
+			Coord tail = tgtProg->getTail();
+			if (tail == NULLCOORD)
+				break;
+
+			Message m;
+			m.type = MSGTYPE_INFO;
+			m.infoType = MSGINFOTYPE_ANIM;
+			m.animType = ANIMTYPE_PROGRAMTILEDESTROY;
+			m.pos = tail;
+			m.num = (i + 1) * 100;
+			_server->sendMessageToAllClients(m);
+
+			tgtProg->removeTile(tail);
+		}
+
 		if (tgtProg->getHealth() <= 0) {
-			Player* owner = tgtProg->getOwner();
-			owner->getProgList()->remove(tgtProg);
-			delete tgtProg;
+			game_->removeProgram(tgtProg->getProgramID(), tgtProg->getOwner()->getPlayerID(), tgtProg->getOwner()->getTeam());
 		}
 		break;
 	case ACTIONTYPE_SPEEDDOWN:
 		if (tgtProg == NULL)
 			return;
 
-		if (tgtProg->getMaxMoves() < selectedAction_->power_)
-			tgtProg->setMaxMoves(0);
-		else
-			tgtProg->setMaxMoves(tgtProg->getMaxMoves() - selectedAction_->power_);
+		if (tgtProg->getTeam() == team_)
+			return;
 
-		if (tgtProg->getMoves() > tgtProg->getMaxMoves())
-			tgtProg->setMoves(tgtProg->getMaxMoves());
+		tgtProg->setMaxMoves(tgtProg->getMaxMoves() - selectedAction_->power_);
+
+		{
+			Message m;
+			m.type = MSGTYPE_INFO;
+			m.infoType = MSGINFOTYPE_ANIM;
+			m.animType = ANIMTYPE_ACTION_ATTACK;
+			m.pos = tgtProg->getHead();
+			m.num = selectedAction_->power_;
+			_server->sendMessageToAllClients(m);
+
+			m.type = MSGTYPE_SOUND;
+			m.soundType = MSGSOUNDNAME_SPEEDMOD;
+			m.num = 0;
+			_server->sendMessageToAllClients(m);
+		}
 		break;
 	case ACTIONTYPE_SPEEDUP:
 		if (tgtProg == NULL)
 			return;
 
+		if (tgtProg->getTeam() != team_)
+			return;
+
 		tgtProg->setMaxMoves(tgtProg->getMaxMoves() + selectedAction_->power_);
 		tgtProg->setMoves(tgtProg->getMoves() + selectedAction_->power_);
+
+		{
+			Message m;
+			m.type = MSGTYPE_INFO;
+			m.infoType = MSGINFOTYPE_ANIM;
+			m.animType = ANIMTYPE_ACTION_ATTACK;
+			m.pos = tgtProg->getHead();
+			m.num = selectedAction_->power_;
+			_server->sendMessageToAllClients(m);
+
+			m.type = MSGTYPE_SOUND;
+			m.soundType = MSGSOUNDNAME_SPEEDMOD;
+			m.num = 0;
+			_server->sendMessageToAllClients(m);
+		}
 		break;
 	case ACTIONTYPE_TILEDELETE:
-		if (game_->isTiled(pos) && game_->getProgramAt(pos) == NULL)
-			game_->setTileAt(pos, TILE_NONE);
+		if (!game_->isTiled(pos) || game_->getProgramAt(pos) != NULL)
+			return;
+
+		game_->setTileAt(pos, TILE_NONE);
+
+		{
+			Message m;
+			m.type = MSGTYPE_INFO;
+			m.infoType = MSGINFOTYPE_ANIM;
+			m.animType = ANIMTYPE_ACTION_TILEDESTROY;
+			m.pos = pos;
+			_server->sendMessageToAllClients(m);
+
+			m.type = MSGTYPE_SOUND;
+			m.soundType = MSGSOUNDNAME_ZERO;
+			m.num = 0;
+			_server->sendMessageToAllClients(m);
+		}
 		break;
 	case ACTIONTYPE_TILEPLACE:
-		if (!game_->isTiled(pos))
-			game_->setTileAt(pos, TILE_PLAIN);
+		if (game_->isTiled(pos))
+			return;
+
+		game_->setTileAt(pos, TILE_PLAIN);
+
+		{
+			Message m;
+			m.type = MSGTYPE_INFO;
+			m.infoType = MSGINFOTYPE_ANIM;
+			m.animType = ANIMTYPE_ACTION_TILECREATE;
+			m.pos = pos;
+			_server->sendMessageToAllClients(m);
+
+			m.type = MSGTYPE_SOUND;
+			m.soundType = MSGSOUNDNAME_ONE;
+			m.num = 0;
+			_server->sendMessageToAllClients(m);
+		}
 		break;
 	case ACTIONTYPE_MAXHEALTHDOWN:
 		if (tgtProg == NULL)
 			return;
 
-		if (tgtProg->getMaxHealth() < selectedAction_->power_ - 1)
-			tgtProg->setMaxHealth(0);
-		else
-			tgtProg->setMaxHealth(tgtProg->getMaxHealth() - selectedAction_->power_);
+		if (tgtProg->getTeam() == team_)
+			return;
+
+		tgtProg->setMaxHealth(tgtProg->getMaxHealth() - selectedAction_->power_);
 		break;
 	case ACTIONTYPE_MAXHEALTHUP:
 		if (tgtProg == NULL)
 			return;
 
+		if (tgtProg->getTeam() != team_)
+			return;
+
 		tgtProg->setMaxHealth(tgtProg->getMaxHealth() + selectedAction_->power_);
 		break;
 	case ACTIONTYPE_HEAL:
-		printf("CLIENT ERR: action type HEAL not implemented yet\n");
+		log("SERVER ERR: action type HEAL not implemented yet\n");
+	case ACTIONTYPE_MAXACTIONSUP:
+		if (tgtProg == NULL)
+			return;
+
+		if (tgtProg->getTeam() != team_)
+			return;
+
+		tgtProg->setMaxActions(tgtProg->getMaxActions() + selectedAction_->power_);
+		tgtProg->setActionsLeft(tgtProg->getActionsLeft() + selectedAction_->power_);
+		log("SELECTEDACTIONPOWER = " + to_string(selectedAction_->power_) + "\n");
+
+		{
+			Message m;
+			m.type = MSGTYPE_INFO;
+			m.infoType = MSGINFOTYPE_ANIM;
+			m.animType = ANIMTYPE_ACTION_ATTACK;
+			m.pos = tgtProg->getHead();
+			m.num = selectedAction_->power_;
+			_server->sendMessageToAllClients(m);
+
+			m.type = MSGTYPE_SOUND;
+			m.soundType = MSGSOUNDNAME_SPEEDMOD;
+			m.num = 0;
+			_server->sendMessageToAllClients(m);
+		}
+		break;
+	case ACTIONTYPE_MAXACTIONSDOWN:
+		if (tgtProg == NULL)
+			return;
+
+		if (tgtProg->getTeam() == team_)
+			return;
+
+		tgtProg->setMaxActions(tgtProg->getMaxActions() - selectedAction_->power_);
+
+		{
+			Message m;
+			m.type = MSGTYPE_INFO;
+			m.infoType = MSGINFOTYPE_ANIM;
+			m.animType = ANIMTYPE_ACTION_ATTACK;
+			m.pos = tgtProg->getHead();
+			m.num = selectedAction_->power_;
+			_server->sendMessageToAllClients(m);
+
+			m.type = MSGTYPE_SOUND;
+			m.soundType = MSGSOUNDNAME_SPEEDMOD;
+			m.num = 0;
+			_server->sendMessageToAllClients(m);
+		}
+		break;
 	default:
 		break;
 	}
-
-	Message m;
-	m.type = MSGTYPE_ACTION;
-	m.clientID = 0;
-	m.playerID = playerID_;
-	m.programID = selectedProgram_->getProgramID();
-	m.actionID = selectedProgram_->getActions()->getIndexOf(selectedAction_);
-	printf("SERVER: actionID %i\n", m.actionID);
-	m.pos = pos;
-	_server->sendMessageToAllClients(m);
 
 	selectedProgram_->setActionsLeft(selectedProgram_->getActionsLeft() - 1);
 	setSelectedAction(NULL);

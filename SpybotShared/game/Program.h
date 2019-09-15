@@ -8,15 +8,14 @@ class ProgramAction;
 
 class Program {
 public:
-	Program(PROGRAM, int, Coord);
+	Program(PROGRAM type);
 	virtual ~Program();
 
 	int getColor(int);
-	void setColor(int, int, int);
-	Coord getCore();
-	void setCore(Coord);
+	void setColor(int r, int g, int b);
 	PROGRAM getType();
 	void setType(PROGRAM);
+
 	int getHealth();
 	int getMaxHealth();
 	void setMaxHealth(int);
@@ -24,6 +23,11 @@ public:
 	void setMoves(int);
 	int getMaxMoves();
 	void setMaxMoves(int);
+	int getActionsLeft();
+	void setActionsLeft(int);
+	int getMaxActions();
+	void setMaxActions(int);
+
 	Player* getOwner();
 	void setOwner(Player*);
 	int getTeam();
@@ -33,14 +37,15 @@ public:
 	void setDescription(std::string);
 	int getCost();
 	void setCost(int);
-	int getActionsLeft();
-	void setActionsLeft(int);
 
 	void moveTo(Coord);
+
+	void addHead(Coord);
 	void addTail(Coord);
+	void removeTile(Coord);
+
 	Coord getHead();
 	Coord getTail();
-	Coord* popTail();
 	LinkedList<Coord*>* getTiles();
 
 	void endTurn();
@@ -52,23 +57,23 @@ public:
 	ProgramAction* getActionByID(int actionID);
 
 	int getProgramID();
-	void setProgramID(int progID);
 protected:
 private:
+	PROGRAM type_;
+
 	LinkedList<Coord*>* tiles_;
 
 	LinkedList<ProgramAction*>* actionList_;
-	int actionsLeft_;
 
-	PROGRAM type_;
 	int maxHealth_;
 	int moves_, maxMoves_;
+	int actionsLeft_, maxActions_;
+
 	int color_[3];
-	int team_;
-	Player* owner_;
 	std::string name_;
 	std::string description_;
 	int cost_;
 
+	Player* owner_;
 	int programID_;
 };

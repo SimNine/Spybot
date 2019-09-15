@@ -2,10 +2,14 @@
 #include "Team.h"
 
 #include "Player.h"
+#include "MiscUtil.h"
 
-Team::Team(int teamNum) {
+Team::Team() {
 	players_ = new LinkedList<Player*>();
-	teamNum_ = teamNum;
+	teamID_ = randInt();
+
+	isDefaultAI_ = false;
+	isDefaultHuman_ = false;
 }
 
 Team::~Team() {
@@ -29,6 +33,26 @@ Player* Team::getPlayerByID(int playerID) {
 	return NULL;
 }
 
-int Team::getTeamNum() {
-	return teamNum_;
+void Team::setTeamID(int teamID) {
+	teamID_ = teamID;
+}
+
+int Team::getTeamID() {
+	return teamID_;
+}
+
+void Team::setDefaultHuman(bool b) {
+	isDefaultHuman_ = b;
+}
+
+bool Team::isDefaultHuman() {
+	return isDefaultHuman_;
+}
+
+void Team::setDefaultAI(bool b) {
+	isDefaultAI_ = b;
+}
+
+bool Team::isDefaultAI() {
+	return isDefaultAI_;
 }

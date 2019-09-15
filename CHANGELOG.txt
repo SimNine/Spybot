@@ -279,3 +279,21 @@ Split serverside and clientside game state
 	-Not fully optimized
 -Began implementing int array "gridSpawnGroups_" to Game class; represents clusters of spawn tiles in same areas
 	-Only used in multiplayer maps
+
+2.5.0 - 6/19/18
+Save format rebuild, control flow, "Mentalist" program, logging
+-----
+-Rebuilt save system to save each team, then each player, then each program
+-Continued refactoring control flow; many, many changes
+-Control flow is as such:
+	1. User interacts on the clientside with GameOverlay
+	2. GameOverlay doesn't alter its state AT ALL, but sends a message to the server
+	3. Server interprets and acts on the message, altering Game state if necessary
+	4. Game updates state and sends a message to every connected client
+	5. Client receives message and updates GameOverlay accordingly
+-Implemented sounds and animations for other types of actons besides DAMAGE
+-Implemented custom program "Mentalist"
+	-Has two unique moves that change the number of actions a program can perform in a turn
+	-Added relevant graphics and icons
+-Implemented logging function, replaced every instance of printf() with log()
+-Messages now have two general-purpose int fields to hold level num, program counts, or anything else

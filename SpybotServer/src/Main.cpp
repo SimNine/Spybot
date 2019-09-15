@@ -22,7 +22,7 @@ void masterSocketFunc() {
 	// Initialize Winsock
 	iResult = WSAStartup(MAKEWORD(2, 2), &wsaData);
 	if (iResult != 0) {
-		printf("WSAStartup failed with error: %d\n", iResult);
+		log("WSAStartup failed with error: " + to_string(iResult) + "\n");
 		exit(1);
 	}
 
@@ -35,7 +35,7 @@ void masterSocketFunc() {
 	// Resolve the server address and port
 	iResult = getaddrinfo(NULL, DEFAULT_PORT, &hints, &result);
 	if (iResult != 0) {
-		printf("getaddrinfo failed with error: %d\n", iResult);
+		log("getaddrinfo failed with error: " + to_string(iResult) + "\n");
 		WSACleanup();
 		exit(1);
 	}
@@ -43,7 +43,7 @@ void masterSocketFunc() {
 	// Create a SOCKET for connecting to server
 	ListenSocket = socket(result->ai_family, result->ai_socktype, result->ai_protocol);
 	if (ListenSocket == INVALID_SOCKET) {
-		printf("socket failed with error: %ld\n", WSAGetLastError());
+		log("socket failed with error: " + to_string(WSAGetLastError()) + "\n");
 		freeaddrinfo(result);
 		WSACleanup();
 		exit(1);
@@ -52,7 +52,7 @@ void masterSocketFunc() {
 	// Setup the TCP listening socket
 	iResult = bind(ListenSocket, result->ai_addr, (int)result->ai_addrlen);
 	if (iResult == SOCKET_ERROR) {
-		printf("bind failed with error: %d\n", WSAGetLastError());
+		log("bind failed with error: " + to_string(WSAGetLastError()) + "\n");
 		freeaddrinfo(result);
 		closesocket(ListenSocket);
 		WSACleanup();
@@ -64,7 +64,7 @@ void masterSocketFunc() {
 	// listen for incoming connections
 	iResult = listen(ListenSocket, SOMAXCONN);
 	if (iResult == SOCKET_ERROR) {
-		printf("listen failed with error: %d\n", WSAGetLastError());
+		log("listen failed with error: " + to_string(WSAGetLastError()) + "\n");
 		closesocket(ListenSocket);
 		WSACleanup();
 		exit(1);
@@ -75,7 +75,7 @@ void masterSocketFunc() {
 		// attempt to accept a client socket
 		SOCKET newSock = accept(ListenSocket, NULL, NULL);
 		if (newSock == INVALID_SOCKET) {
-			printf("accept failed with error: %d\n", WSAGetLastError());
+			log("accept failed with error: " + to_string(WSAGetLastError()) + "\n");
 			closesocket(ListenSocket);
 			WSACleanup();
 			exit(1);
@@ -86,21 +86,23 @@ void masterSocketFunc() {
 
 // main function
 int main(int argc, char* args[]) {
-	printf("SpybotServer.exe launched\n");
+	logInit("log-server.txt", false);
+	log("\n");
+	log("-----SpybotServer-----\n");
 
 	// initialize the server
 	_server = new Server(false, "levels/multi");
-	printf("Server initialized\n");
+	log("Server initialized\n");
 
 	// start up the master listener thread
 	std::thread masterListener(masterSocketFunc);
 	masterListener.detach();
-	printf("Master listener set up and detached\n");
+	log("Master listener set up and detached\n");
 
 	// start up the command line thread
 	std::thread commandLine(processCommandLoop);
 	commandLine.detach();
-	printf("Command line parser set up and detached\n");
+	log("Command line parser set up and detached\n");
 
 	// tick the server continuously
 	while (!_quit)

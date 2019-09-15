@@ -61,12 +61,6 @@ SDL_Texture* _program_core_horizontal;
 
 SDL_Texture* _program_icons[PROGRAM_NUM_PROGTYPES];
 std::string _program_icons_paths[PROGRAM_NUM_PROGTYPES];
-int _program_colorDefault[PROGRAM_NUM_PROGTYPES][3];
-int _program_maxHealthDefault[PROGRAM_NUM_PROGTYPES];
-int _program_speedDefault[PROGRAM_NUM_PROGTYPES];
-std::string _program_nameDefault[PROGRAM_NUM_PROGTYPES];
-std::string _program_descriptionDefault[PROGRAM_NUM_PROGTYPES];
-int _program_costDefault[PROGRAM_NUM_PROGTYPES];
 
 SDL_Texture* _item_icons[ITEM_NUM_ITEMS];
 
@@ -107,6 +101,8 @@ SDL_Texture* _game_icon_action_slow;
 SDL_Texture* _game_icon_action_speedup;
 SDL_Texture* _game_icon_action_tilecreate;
 SDL_Texture* _game_icon_action_tiledestroy;
+SDL_Texture* _game_icon_action_maxactionsup;
+SDL_Texture* _game_icon_action_maxactionsdown;
 
 std::string _game_disp_playerturn;
 std::string _game_disp_compturn;
@@ -152,6 +148,8 @@ SDL_Color _color_action_slow;
 SDL_Color _color_action_speedup;
 SDL_Color _color_action_tilecreate;
 SDL_Color _color_action_tiledestroy;
+SDL_Color _color_action_maxactionsup;
+SDL_Color _color_action_maxactionsdown;
 
 // animations
 SDL_Texture* _particle_basic;
@@ -351,6 +349,7 @@ void initData() {
 	_program_icons_paths[PROGRAM_WATCHMAN] = "resources/board/programs/program_icon_watchman.png";
 	_program_icons_paths[PROGRAM_WATCHMAN2] = "resources/board/programs/program_icon_watchman2.png";
 	_program_icons_paths[PROGRAM_WATCHMAN3] = "resources/board/programs/program_icon_watchman3.png";
+	_program_icons_paths[PROGRAM_MENTALIST] = "resources/board/programs/program_icon_mentalist.png";
 	_program_icons_paths[PROGRAM_NUM_PROGTYPES] = "";
 	_program_icons_paths[PROGRAM_CUSTOM] = "";
 	_program_icons_paths[PROGRAM_NONE] = "";
@@ -406,6 +405,8 @@ void initData() {
 	_game_icon_action_speedup = loadTexture("resources/board/actions/program_icon_action_speedup.png");
 	_game_icon_action_tilecreate = loadTexture("resources/board/actions/program_icon_action_tilecreate.png");
 	_game_icon_action_tiledestroy = loadTexture("resources/board/actions/program_icon_action_tiledestroy.png");
+	_game_icon_action_maxactionsup = loadTexture("resources/board/actions/program_icon_action_courage.png");
+	_game_icon_action_maxactionsdown = loadTexture("resources/board/actions/program_icon_action_fear.png");
 
 	_game_disp_compturn = "resources/board/disp_turn_ai.png";
 	_game_disp_playerturn = "resources/board/disp_turn_player.png";
@@ -450,6 +451,8 @@ void initData() {
 	_color_action_speedup = { 255, 255, 0, 255 };
 	_color_action_tilecreate = { 153, 255, 102, 255 };
 	_color_action_tiledestroy = { 102, 51, 0, 255 };
+	_color_action_maxactionsup = { 0, 221, 255, 255 };
+	_color_action_maxactionsdown = { 47, 0, 66, 255 };
 
 	// animations
 	_particle_basic = loadTexture("resources/board/particle.png");

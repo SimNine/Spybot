@@ -170,3 +170,14 @@ void GUIObject::processEffects(int ms) {
 void GUIObject::addEffect(GUIEffect* e) {
 	effectList_->addFirst(e);
 }
+
+void GUIObject::removeAllEffects(bool finishFirst) {
+	while (effectList_->getLength() > 0) {
+		GUIEffect* currEffect = effectList_->poll();
+		if (finishFirst) {
+			currEffect->tick(INT_MAX);
+			currEffect->affectObject(this);
+		}
+		delete currEffect;
+	}
+}

@@ -129,25 +129,25 @@ void initGUIs() {
 bool initSDL() {
 	// set non-thread-naming hint
 	if (!SDL_SetHint(SDL_HINT_WINDOWS_DISABLE_THREAD_NAMING, "1")) {
-		printf("Warning: thread non-naming failed to enable!");
+		log("Warning: thread non-naming failed to enable!");
 	}
 
 	//Initialize SDL
 	if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) < 0) {
-		printf("SDL could not initialize! SDL Error: %s\n", SDL_GetError());
+		log("SDL could not initialize! SDL Error: " + std::string(SDL_GetError()) + "\n");
 		return false;
 	}
 
 	//Set texture filtering to linear
 	if (!SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "1")) {
-		printf("Warning: Linear texture filtering not enabled!");
+		log("Warning: Linear texture filtering not enabled!");
 	}
 
 	//Create window
 	int flags = SDL_WINDOW_RESIZABLE | SDL_WINDOW_HIDDEN;
 	_window = SDL_CreateWindow("Spybot: The Nightfall Incident", 50, 50, _screenWidth, _screenHeight, flags);
 	if (_window == NULL) {
-		printf("Window could not be created! SDL Error: %s\n", SDL_GetError());
+		log("Window could not be created! SDL Error: " + std::string(SDL_GetError()) + "\n");
 		return false;
 	}
 	SDL_SetWindowMinimumSize(_window, _screenWidth, _screenHeight);
@@ -156,7 +156,7 @@ bool initSDL() {
 	//Create renderer for window
 	_renderer = SDL_CreateRenderer(_window, -1, SDL_RENDERER_ACCELERATED);
 	if (_renderer == NULL) {
-		printf("Renderer could not be created! SDL Error: %s\n", SDL_GetError());
+		log("Renderer could not be created! SDL Error: " + std::string(SDL_GetError()) + "\n");
 		return false;
 	}
 
@@ -167,19 +167,19 @@ bool initSDL() {
 	//Initialize PNG loading
 	int imgFlags = IMG_INIT_PNG;
 	if (!(IMG_Init(imgFlags) & imgFlags)) {
-		printf("SDL_image could not initialize! SDL_image Error: %s\n", IMG_GetError());
+		log("SDL_image could not initialize! SDL_image Error: " + std::string(IMG_GetError()) + "\n");
 		return false;
 	}
 
 	//Initialize SDL_mixer
 	if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048) < 0) {
-		printf("SDL_mixer could not initialize! SDL_mixer Error: %s\n", Mix_GetError());
+		log("SDL_mixer could not initialize! SDL_mixer Error: " + std::string(Mix_GetError()) + "\n");
 		return false;
 	}
 
 	// initialize TTF
 	if (TTF_Init() != 0) {
-		printf("SDL_TTF could not initialize! SDL_TTF error: %s\n", TTF_GetError());
+		log("SDL_TTF could not initialize! SDL_TTF error: " + std::string(TTF_GetError()) + "\n");
 		return false;
 	}
 
@@ -191,7 +191,7 @@ bool initWinsock() {
 	WSADATA wsaData;
 	int iResult = WSAStartup(MAKEWORD(2, 2), &wsaData);
 	if (iResult != 0) {
-		printf("WSAStartup failed with error: %d\n", iResult);
+		log("WSAStartup failed with error: " + to_string(iResult) + "\n");
 		return false;
 	}
 
@@ -214,10 +214,10 @@ void saveProgress() {
 	prog.open("progress.dat", std::ios::out | std::ios::binary | std::ios::trunc);
 	if (!prog.is_open()) {
 		if (_debug >= DEBUG_MINIMAL)
-			printf("err saving progress\n");
+			log("err saving progress\n");
 	} else {
 		if (_debug >= DEBUG_MINIMAL)
-			printf("saving progress...\n");
+			log("saving progress...\n");
 
 		// write the size of various data types
 		int8_t sizeOfInt = sizeof(int);
@@ -226,7 +226,8 @@ void saveProgress() {
 		int8_t sizeOfBool = sizeof(bool);
 		int8_t sizeOfLong = sizeof(long);
 		if (_debug >= DEBUG_NORMAL)
-			printf("saving constants... int:%i, char:%i, double:%i, bool:%i, long:%i\n", sizeOfInt, sizeOfChar, sizeOfDouble, sizeOfBool, sizeOfLong);
+			log("saving constants... int:" + to_string(sizeOfInt) + " char:" + to_string(sizeOfChar) + " double:" + to_string(sizeOfDouble) +
+				" bool:" + to_string(sizeOfBool) + " long:" + to_string(sizeOfLong) + "\n");
 		prog.write((char*)&sizeOfInt, 1);
 		prog.write((char*)&sizeOfChar, 1);
 		prog.write((char*)&sizeOfDouble, 1);
@@ -249,11 +250,11 @@ void saveProgress() {
 
 		// flush and close
 		if (_debug >= DEBUG_MINIMAL)
-			printf("flushing and closing prefs file... ");
+			log("flushing and closing prefs file... ");
 		prog.flush();
 		prog.close();
 		if (_debug >= DEBUG_MINIMAL)
-			printf("done\n");
+			log("done\n");
 	}
 }
 
@@ -264,14 +265,14 @@ void loadProgress() {
 
 	if (!prog.is_open()) {
 		if (_debug >= DEBUG_MINIMAL)
-			printf("err reading progress\n");
+			log("err reading progress\n");
 	} else {
 		if (_debug >= DEBUG_MINIMAL)
-			printf("reading progress...\n");
+			log("reading progress...\n");
 
 		// read the sizes of various data types
 		if (_debug >= DEBUG_NORMAL)
-			printf("loading constants...\n");
+			log("loading constants...\n");
 		int8_t sizeOfInt;
 		prog.read((char*)&sizeOfInt, 1);
 		int8_t sizeOfChar;
@@ -283,11 +284,12 @@ void loadProgress() {
 		int8_t sizeOfLong;
 		prog.read((char*)&sizeOfLong, 1);
 		if (_debug >= DEBUG_NORMAL)
-			printf("loaded constants: int:%i, char:%i, double:%i, bool:%i, long:%i\n", sizeOfInt, sizeOfChar, sizeOfDouble, sizeOfBool, sizeOfLong);
+			log("loaded constants: int:" + to_string(sizeOfInt) + " char:" + to_string(sizeOfChar) + " double:" + to_string(sizeOfDouble) + 
+				" bool:" + to_string(sizeOfBool) + " long:" + to_string(sizeOfLong) + "\n");
 
 		// read prefs
 		if (_debug >= DEBUG_NORMAL)
-			printf("loading progress...\n");
+			log("loading progress...\n");
 		prog.read((char*)&_progressNightfall, sizeOfBool);
 		prog.read((char*)&_progressFreeform, sizeOfBool);
 		for (int i = 0; i < ACHIEVEMENT_NUM_ACHIEVEMENTS; i++) {
@@ -304,7 +306,7 @@ void loadProgress() {
 		// close the file
 		prog.close();
 		if (_debug >= DEBUG_MINIMAL)
-			printf("done\n");
+			log("done\n");
 	}
 }
 
@@ -314,29 +316,33 @@ void savePrefs() {
 	prefs.open("prefs.dat", std::ios::out | std::ios::binary | std::ios::trunc);
 	if (!prefs.is_open()) {
 		if (_debug >= DEBUG_MINIMAL)
-			printf("err saving prefs\n");
+			log("err saving prefs\n");
 	} else {
 		if (_debug >= DEBUG_MINIMAL)
-			printf("saving prefs...\n");
+			log("saving prefs...\n");
 
 		// begin by writing the sizes of various data types
 		int8_t sizeOfInt = sizeof(int);
 		int8_t sizeOfChar = sizeof(char);
 		int8_t sizeOfDouble = sizeof(double);
 		int8_t sizeOfBool = sizeof(bool);
+		int8_t sizeOfLong = sizeof(long);
 		if (_debug >= DEBUG_NORMAL)
-			printf("saving constants... int:%i, char:%i, double:%i, bool:%i\n", sizeOfInt, sizeOfChar, sizeOfDouble, sizeOfBool);
+			log("saving constants: int:" + to_string(sizeOfInt) + " char:" + to_string(sizeOfChar) + " double:" + to_string(sizeOfDouble) +
+				" bool:" + to_string(sizeOfBool) + " long:" + to_string(sizeOfLong) + "\n");
 		prefs.write((char*)&sizeOfInt, 1);
 		prefs.write((char*)&sizeOfChar, 1);
 		prefs.write((char*)&sizeOfDouble, 1);
 		prefs.write((char*)&sizeOfBool, 1);
+		prefs.write((char*)&sizeOfLong, 1);
 
 		// save preferences
 		int soundVol = Mix_Volume(-1, 0);
 		int musicVol = Mix_VolumeMusic(0);
 		Uint32 windowFlags = SDL_GetWindowFlags(_window);
 		if (_debug >= DEBUG_NORMAL)
-			printf("saving preferences... soundVol:%i, musicVol:%i, SCRWIDTH:%i, SCRHEIGHT:%i\n", soundVol, musicVol, _screenWidth, _screenHeight);
+			log("saving preferences... soundVol:" + to_string(soundVol) + " musicVol:" + to_string(musicVol) + 
+				" SCRWIDTH:" + to_string(_screenWidth) + " SCRHEIGHT:" + to_string(_screenHeight) + "\n");
 		prefs.write((char*)&soundVol, sizeOfInt);
 		prefs.write((char*)&musicVol, sizeOfInt);
 		prefs.write((char*)&windowFlags, sizeof(Uint32));
@@ -345,11 +351,11 @@ void savePrefs() {
 
 		// flush and close
 		if (_debug >= DEBUG_MINIMAL)
-			printf("flushing and closing prefs file... ");
+			log("flushing and closing prefs file... ");
 		prefs.flush();
 		prefs.close();
 		if (_debug >= DEBUG_MINIMAL)
-			printf("done\n");
+			log("done\n");
 	}
 }
 
@@ -359,12 +365,15 @@ void loadPrefs() {
 	prefs.open("prefs.dat", std::ios::in | std::ios::binary);
 
 	if (!prefs.is_open()) {
-		if (_debug >= DEBUG_MINIMAL) printf("err reading prefs\n");
+		if (_debug >= DEBUG_MINIMAL)
+			log("err reading prefs\n");
 	} else {
-		if (_debug >= DEBUG_MINIMAL) printf("reading prefs...\n");
+		if (_debug >= DEBUG_MINIMAL)
+			log("reading prefs...\n");
 
 		// read the sizes of various data types
-		if (_debug >= DEBUG_NORMAL) printf("loading constants...\n");
+		if (_debug >= DEBUG_NORMAL)
+			log("loading constants...\n");
 		int8_t sizeOfInt;
 		prefs.read((char*)&sizeOfInt, 1);
 		int8_t sizeOfChar;
@@ -373,10 +382,15 @@ void loadPrefs() {
 		prefs.read((char*)&sizeOfDouble, 1);
 		int8_t sizeOfBool;
 		prefs.read((char*)&sizeOfBool, 1);
-		if (_debug >= DEBUG_NORMAL) printf("loaded constants: int:%i, char:%i, double:%i, bool:%i\n", sizeOfInt, sizeOfChar, sizeOfDouble, sizeOfBool);
+		int8_t sizeOfLong;
+		prefs.read((char*)&sizeOfLong, 1);
+		if (_debug >= DEBUG_NORMAL)
+			log("loaded constants: int:" + to_string(sizeOfInt) + " char:" + to_string(sizeOfChar) + " double:" + to_string(sizeOfDouble) +
+				" bool:" + to_string(sizeOfBool) + " long:" + to_string(sizeOfLong) + "\n");
 
 		// read prefs
-		if (_debug >= DEBUG_NORMAL) printf("loading prefs...\n");
+		if (_debug >= DEBUG_NORMAL)
+			log("loading prefs...\n");
 		int soundVol;
 		prefs.read((char*)&soundVol, sizeOfInt);
 		Mix_Volume(-1, soundVol);
@@ -385,16 +399,19 @@ void loadPrefs() {
 		Mix_VolumeMusic(musicVol);
 		int windowFlags;
 		prefs.read((char*)&windowFlags, sizeof(Uint32));
-		if (windowFlags & SDL_WINDOW_FULLSCREEN) SDL_SetWindowFullscreen(_window, SDL_WINDOW_FULLSCREEN_DESKTOP);
+		if (windowFlags & SDL_WINDOW_FULLSCREEN) 
+			SDL_SetWindowFullscreen(_window, SDL_WINDOW_FULLSCREEN_DESKTOP);
 		prefs.read((char*)&_screenWidth, sizeOfInt);
 		prefs.read((char*)&_screenHeight, sizeOfInt);
 		SDL_SetWindowSize(_window, _screenWidth, _screenHeight);
-		if (_debug >= DEBUG_NORMAL) printf("loaded prefs: soundVol:%i, musicVol:%i, fullscreen:%i, SCRWIDTH:%i, SCRHEIGHT:%i\n",
-			soundVol, musicVol, windowFlags, _screenWidth, _screenHeight);
+		if (_debug >= DEBUG_NORMAL)
+			log("loaded preferences: soundVol:" + to_string(soundVol) + " musicVol:" + to_string(musicVol) +
+				" SCRWIDTH:" + to_string(_screenWidth) + " SCRHEIGHT:" + to_string(_screenHeight) + "\n");
 
 		// close the file
 		prefs.close();
-		if (_debug >= DEBUG_MINIMAL) printf("done\n");
+		if (_debug >= DEBUG_MINIMAL)
+			log("done\n");
 	}
 }
 
@@ -406,18 +423,15 @@ void handleEvents() {
 	//Handle events on queue
 	while (SDL_PollEvent(&e) != 0) {
 		// handle events not specific to a screen
-		if (e.type == SDL_QUIT) // window close
-		{
+		if (e.type == SDL_QUIT) { // window close
 			_quit = true;
-		} else if (e.type == SDL_WINDOWEVENT) // window resize
-		{
+		} else if (e.type == SDL_WINDOWEVENT) { // window resize
 			if (e.window.event == SDL_WINDOWEVENT_RESIZED) {
 				_screenWidth = e.window.data1;
 				_screenHeight = e.window.data2;
 				resetBounds();
 			}
-		} else if (e.type == SDL_KEYDOWN) // keypress
-		{
+		} else if (e.type == SDL_KEYDOWN) { // keypress
 			if (e.key.keysym.sym == SDLK_F12) { // toggle fullscreen on F12
 				toggleFullscreen();
 			} else if (e.key.keysym.sym == SDLK_F2) {
@@ -427,7 +441,8 @@ void handleEvents() {
 		} else if (e.type == SDL_MOUSEMOTION) {
 			if (_heldContainer != NULL) {
 				Coord delta = { e.motion.x - _mousePos.x, e.motion.y - _mousePos.y };
-				if (_debug >= DEBUG_EXTRA) printf("%i,%i\n", delta.x, delta.y);
+				if (_debug >= DEBUG_EXTRA) 
+					log(to_string(delta.x) + "," + to_string(delta.y) + "\n");
 				_heldContainer->incDisplacement(delta);
 			}
 
@@ -466,7 +481,7 @@ void handleEvents() {
 					Message m;
 					m.type = MSGTYPE_PROGINVENTORY;
 					m.progType = (PROGRAM)(rand() % PROGRAM_NUM_PROGTYPES);
-					m.programID = 1;
+					m.num = 1;
 					m.clientID = _client->getClientID();
 					_connectionManager->sendMessage(m);
 				}
@@ -561,14 +576,19 @@ void unlockAchievement(ACHIEVEMENT a) {
 
 // main function
 int main(int argc, char* args[]) {
+	// log app entry
+	logInit("log-client.txt", false);
+	log("\n");
+	log("-----SpybotClient-----\n");
+
 	// start up winsock
 	if (!initWinsock()) {
-		printf("Failed to initialize Winsock\n");
+		log("Failed to initialize Winsock\n");
 	}
 
 	// start up SDL and create window
 	if (!initSDL()) {
-		printf("Failed to initialize SDL\n");
+		log("Failed to initialize SDL\n");
 		return 1;
 	}
 
@@ -610,8 +630,9 @@ int main(int argc, char* args[]) {
 	while (!_quit) {
 		// process messages
 		_client->processAllMessages();
-		if (_server != NULL)
+		if (_server != NULL) {
 			_server->processAllMessages();
+		}
 
 		// handle ticks
 		unsigned int ticksPassed = tickTimer.getTicks();
@@ -648,8 +669,8 @@ int main(int argc, char* args[]) {
 			if (numTicks >= 1000) {
 				float fps = (float)(frameCount / (numTicks / 1000.0));
 				renderTimer.stop();
-				printf("avg fps: %f\n", fps);
-				printf("num frames: %i\n\n", frameCount);
+				log("avg fps: " + to_string(fps) + "\n");
+				log("num frames: " + to_string(frameCount) + "\n\n");
 				frameCount = 0;
 				renderTimer.start();
 			}

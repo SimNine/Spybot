@@ -61,7 +61,7 @@ void ConnectionManager::connectToExternalServer(std::string IP) {
 	struct addrinfo *result = NULL;
 	iResult = getaddrinfo(IP.c_str(), DEFAULT_PORT, &hints, &result);
 	if (iResult != 0) {
-		printf("CLIENT ERR: getaddrinfo failed with error: %d\n", iResult);
+		log("CLIENT ERR: getaddrinfo failed with error: " + to_string(iResult) + "\n");
 	}
 
 	// Attempt to connect to an address until one succeeds
@@ -71,7 +71,7 @@ void ConnectionManager::connectToExternalServer(std::string IP) {
 		socket_ = socket(ptr->ai_family, ptr->ai_socktype,
 			ptr->ai_protocol);
 		if (socket_ == INVALID_SOCKET) {
-			printf("CLIENT ERR: socket failed with error: %ld\n", WSAGetLastError());
+			log("CLIENT ERR: socket failed with error: " + to_string(WSAGetLastError()) + "\n");
 		}
 
 		// Connect to server.
@@ -87,11 +87,11 @@ void ConnectionManager::connectToExternalServer(std::string IP) {
 	freeaddrinfo(result);
 
 	if (socket_ == INVALID_SOCKET) {
-		printf("CLIENT ERR: Unable to connect to server!\n");
+		log("CLIENT ERR: Unable to connect to server!\n");
 	}
 
 	// Receive until the peer closes the connection
-	printf("CLIENT: attempting to connect to server \"%s\"\n", IP.c_str());
+	log("CLIENT: attempting to connect to server \"" + IP + "\"\n");
 	std::thread newThread(&ConnectionManager::listen, this);
 	newThread.detach();
 }
@@ -99,7 +99,7 @@ void ConnectionManager::connectToExternalServer(std::string IP) {
 void ConnectionManager::disconnect() {
 	if (socket_ != INVALID_SOCKET) { // disconnect from external server
 		if (shutdown(socket_, SD_SEND) == SOCKET_ERROR) {
-			printf("CLIENT ERR: shutdown failed with error: %d\n", WSAGetLastError());
+			log("CLIENT ERR: shutdown failed with error: " + to_string(WSAGetLastError()) + "\n");
 		}
 		closesocket(socket_);
 
@@ -125,34 +125,34 @@ void ConnectionManager::listen() {
 	// listen for the first message, which should be a connection confirmation
 	bytesRead = recv(socket_, readBuffer, readBufferLength, 0);
 	if (bytesRead > 0) {
-		Message m = deserializeMessage(readBuffer);
+		Message m = _deserializeMessage(readBuffer);
 		if (m.type == MSGTYPE_CONNECT) {
 			_client->setClientID(m.clientID);
 			//strncpy_s(m.text, DEFAULT_MSG_TEXTSIZE, username.c_str(), DEFAULT_MSG_TEXTSIZE);
-			printf("CLIENT: received connection confirmation from server, acquired client ID %i\n", _client->getClientID());
+			log("CLIENT: received connection confirmation from server, acquired client ID " + to_string(_client->getClientID()) + "\n");
 			this->recieveMessage(m);
 			this->sendMessage(m);
 		} else {
-			printf("CLIENT ERR: first message recieved from server was not connection confirmation\n");
+			log("CLIENT ERR: first message recieved from server was not connection confirmation\n");
 			disconnect();
 			return;
 		}
 	} else if (bytesRead == 0) {
-		printf("CLIENT: recieved shutdown from server\n");
+		log("CLIENT: recieved shutdown from server\n");
 	} else {
-		printf("CLIENT ERR: recieve from server failed with error: %d\n", WSAGetLastError());
+		log("CLIENT ERR: recieve from server failed with error: " + to_string(WSAGetLastError()) + "\n");
 	}
 
 	// receive messages until the peer shuts down the connection or there's a read error
 	do {
 		bytesRead = recv(socket_, readBuffer, readBufferLength, 0);
 		if (bytesRead > 0) {
-			Message m = deserializeMessage(readBuffer);
+			Message m = _deserializeMessage(readBuffer);
 			recieveMessage(m);
 		} else if (bytesRead == 0)
-			printf("CLIENT: recieved shutdown from server\n");
+			log("CLIENT: recieved shutdown from server\n");
 		else {
-			printf("CLIENT ERR: recieve from server failed with error: %d\n", WSAGetLastError());
+			log("CLIENT ERR: recieve from server failed with error: " + to_string(WSAGetLastError()) + "\n");
 		}
 	} while (bytesRead > 0);
 
@@ -162,14 +162,13 @@ void ConnectionManager::listen() {
 
 void ConnectionManager::sendMessage(Message m) {
 	m.clientID = _client->getClientID();
-
 	if (socket_ != INVALID_SOCKET) {
 		char buffer[DEFAULT_MSGSIZE];
-		serializeMessage(buffer, m);
+		_serializeMessage(buffer, m);
 
 		int bytesSent = send(socket_, buffer, DEFAULT_MSGSIZE, 0);
 		if (bytesSent == SOCKET_ERROR) {
-			printf("CLIENT ERR: send failed with error: %d\n", WSAGetLastError());
+			log("CLIENT ERR: send failed with error: " + to_string(WSAGetLastError()) + "\n");
 			closesocket(socket_);
 		}
 	} else if (_server != NULL) {

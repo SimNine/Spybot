@@ -37,7 +37,7 @@ MapOverlay::MapOverlay()
 		if (_mapOverlay->getSelectedNode()->getNodeType() != 7) {
 			Message msg;
 			msg.type = MSGTYPE_LOAD;
-			msg.levelNum = _mapOverlay->getSelectedNode()->getLevelId();
+			msg.num = _mapOverlay->getSelectedNode()->getLevelId();
 			_connectionManager->sendMessage(msg);
 		}
 		_mapOverlay->clearSelectedNode();
@@ -148,7 +148,7 @@ bool MapOverlay::mouseDown() {
 
 	// spits out the location (on the map bkg) of this click
 	if (_debug >= DEBUG_NORMAL)
-		printf("%i,%i\n", (int)bkgX_ + _mousePos.x, (int)bkgY_ + _mousePos.y);
+		log(to_string((int)bkgX_ + _mousePos.x) + "," + to_string((int)bkgY_ + _mousePos.y) + "\n");
 
 	// if mapscreen animation is occurring, don't take input
 	if (selectedNode_ != NULL)
@@ -448,10 +448,10 @@ void MapOverlay::saveMap(std::string url) {
 	m.open(url, std::ios::out | std::ios::binary | std::ios::trunc);
 	if (!m.is_open()) {
 		if (_debug >= DEBUG_MINIMAL) 
-			printf("err opening file for saving map\n");
+			log("err opening file " + url + " for saving map\n");
 	} else {
 		if (_debug >= DEBUG_MINIMAL) 
-			printf("saving map %s...\n", url.c_str());
+			log("saving map " + url + "...\n");
 
 		// begin by writing the sizes of various data types
 		int8_t sizeOfInt = sizeof(int);
@@ -459,7 +459,7 @@ void MapOverlay::saveMap(std::string url) {
 		int8_t sizeOfDouble = sizeof(double);
 		int8_t sizeOfBool = sizeof(bool);
 		if (_debug >= DEBUG_NORMAL) 
-			printf("saving constants... int:%i, char:%i, double:%i, bool:%i\n", sizeOfInt, sizeOfChar, sizeOfDouble, sizeOfBool);
+			log("saving constants...\n");
 		m.write((char*)&sizeOfInt, 1);
 		m.write((char*)&sizeOfChar, 1);
 		m.write((char*)&sizeOfDouble, 1);
@@ -469,7 +469,7 @@ void MapOverlay::saveMap(std::string url) {
 		int numNodes = nodeList_->getLength();
 		m.write((char*)&numNodes, sizeOfInt);
 		if (_debug >= DEBUG_NORMAL) 
-			printf("saving %i nodes...\n", numNodes);
+			log("saving " + to_string(numNodes) + " nodes...\n");
 
 		// save each node's data
 		for (int i = 0; i < numNodes; i++) {
@@ -487,8 +487,8 @@ void MapOverlay::saveMap(std::string url) {
 		}
 
 		// save each node's children
-		if (_debug >= DEBUG_NORMAL) 
-			printf("saving nodes' children...\n");
+		if (_debug >= DEBUG_NORMAL)
+			log ("saving nodes' children...\n");
 		for (int i = 0; i < numNodes; i++) {
 			Node* curr = nodeList_->getObjectAt(i);
 			int numChildren = curr->getNeighbors()->getLength();
@@ -502,11 +502,11 @@ void MapOverlay::saveMap(std::string url) {
 
 		// flush and close the file
 		if (_debug >= DEBUG_MINIMAL)
-			printf("flushing and closing map file... ");
+			log("flushing and closing map file... ");
 		m.flush();
 		m.close();
 		if (_debug >= DEBUG_MINIMAL)
-			printf("done\n");
+			log("done\n");
 	}
 }
 
@@ -514,12 +514,15 @@ void MapOverlay::loadMap(std::string url) {
 	std::ifstream m;
 	m.open(url, std::ios::in | std::ios::binary);
 	if (!m.is_open()) {
-		if (_debug >= DEBUG_MINIMAL) printf("err opening map %s\n", url.c_str());
+		if (_debug >= DEBUG_MINIMAL)
+			log("err opening map " + url + "\n");
 	} else {
-		if (_debug >= DEBUG_MINIMAL) printf("loading map %s...\n", url.c_str());
+		if (_debug >= DEBUG_MINIMAL)
+			log("loading map " + url + "...\n");
 
 		// read the sizes of various data types
-		if (_debug >= DEBUG_NORMAL) printf("loading constants...\n");
+		if (_debug >= DEBUG_NORMAL)
+			log("loading constants...\n");
 		int8_t sizeOfInt;
 		m.read((char*)&sizeOfInt, 1);
 		int8_t sizeOfChar;
@@ -571,7 +574,8 @@ void MapOverlay::loadMap(std::string url) {
 
 		// close the file
 		m.close();
-		if (_debug >= DEBUG_MINIMAL) printf("done\n");
+		if (_debug >= DEBUG_MINIMAL)
+			log("done\n");
 	}
 }
 
@@ -586,7 +590,7 @@ void MapOverlay::switchMap(MAPPRESET pre) {
 		loadMap("levels/nightfall.urf");
 		break;
 	case MAPPRESET_PROCEDURAL:
-		printf("placeholder: load procedural map\n");
+		log("placeholder: load procedural map\n");
 		break;
 	default:
 		break;

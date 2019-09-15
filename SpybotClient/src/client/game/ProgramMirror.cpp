@@ -4,25 +4,26 @@
 #include "Global.h"
 #include "PlayerMirror.h"
 #include "ProgramActionMirror.h"
+#include "GameMirror.h"
 
-ProgramMirror::ProgramMirror(PROGRAM type, int team, Coord head) {
-	this->team_ = team;
+ProgramMirror::ProgramMirror(PROGRAM type, int programID) {
 	this->type_ = type;
+	programID_ = programID;
 	color_[0] = rand() % 255;
 	color_[1] = rand() % 255;
 	color_[2] = rand() % 255;
 	actionList_ = new LinkedList<ProgramActionMirror*>();
 	tiles_ = new LinkedList<Coord*>();
-	tiles_->addFirst(new Coord(head));
 
 	if (this->type_ == PROGRAM_CUSTOM) {
 		return;
 	}
 
+	maxActions_ = 1;
 	switch (this->type_) {
 	case PROGRAM_NONE:
 	case PROGRAM_NUM_PROGTYPES:
-		printf("CLIENT ERR: trying to instantiate an invalid programmirror type");
+		log("CLIENT ERR: trying to instantiate an invalid programmirror type");
 		exit(1);
 		break;
 	case PROGRAM_CUSTOM:
@@ -496,14 +497,23 @@ ProgramMirror::ProgramMirror(PROGRAM type, int team, Coord head) {
 		cost_ = 750;
 		addAction(MOVEPRESET_BYTE);
 		break;
+	case PROGRAM_MENTALIST:
+		name_ = "Mentalist";
+		description_ = "A master manipulator of the mind";
+		maxMoves_ = 1;
+		maxHealth_ = 2;
+		cost_ = 10000;
+		addAction(MOVEPRESET_FEAR);
+		addAction(MOVEPRESET_COURAGE);
+		break;
 	}
 
 	moves_ = maxMoves_;
-	actionsLeft_ = 1;
+	actionsLeft_ = maxActions_;
 }
 
 ProgramMirror::~ProgramMirror() {
-	printf("CLIENT: Program '%s' deleted\n", name_.c_str());
+	log("CLIENT: Program '" + name_ + "' deleted\n");
 
 	while (tiles_->getLength() > 0)
 		delete tiles_->poll();
@@ -512,10 +522,6 @@ ProgramMirror::~ProgramMirror() {
 	while (actionList_->getLength() > 0)
 		delete actionList_->poll();
 	delete actionList_;
-}
-
-Coord ProgramMirror::getCore() {
-	return *tiles_->getFirst();
 }
 
 int ProgramMirror::getColor(int n) {
@@ -532,8 +538,8 @@ void ProgramMirror::setColor(int r, int g, int b) {
 	color_[2] = b;
 }
 
-int ProgramMirror::getTeam() {
-	return owner_->getTeam();
+int ProgramMirror::getTeamID() {
+	return owner_->getTeamID();
 }
 
 int ProgramMirror::getHealth() {
@@ -565,8 +571,10 @@ void ProgramMirror::setMaxHealth(int i) {
 }
 
 void ProgramMirror::setMoves(int i) {
-	if (i < 0) moves_ = 0;
-	else moves_ = i;
+	if (i < 0)
+		moves_ = 0;
+	else
+		moves_ = i;
 }
 
 void ProgramMirror::setMaxMoves(int i) {
@@ -586,7 +594,7 @@ void ProgramMirror::addAction(MOVEPRESET p) {
 }
 
 void ProgramMirror::endTurn() {
-	actionsLeft_ = 1;
+	actionsLeft_ = maxActions_;
 	moves_ = maxMoves_;
 }
 
@@ -602,41 +610,39 @@ Coord ProgramMirror::getTail() {
 	return *tiles_->getLast();
 }
 
-void ProgramMirror::moveTo(Coord pos) {
-	// decrement number of moves left
-	moves_--;
+void ProgramMirror::addHead(Coord pos) {
+	// remove this tile if it's already owned by the program
+	removeTile(pos);
 
-	// check if the tile to move to is already occupied by this program
-	for (int i = 0; i < tiles_->getLength(); i++) {
-		Coord* curr = tiles_->getObjectAt(i);
-		if (curr->x == pos.x && curr->y == pos.y) {
-			tiles_->removeObjectAt(i);
-			tiles_->addFirst(curr);
-			return;
-		}
-	}
-
-	// if this program is at max health
-	if (tiles_->getLength() == maxHealth_)
-		delete tiles_->removeLast();
-
-	// add a new head
+	// add the tile to the front of the queue
 	tiles_->addFirst(new Coord(pos));
-}
-
-void ProgramMirror::setCore(Coord pos) {
-	moveTo(pos);
+	owner_->getGame()->setProgramAt(pos, this);
 }
 
 void ProgramMirror::addTail(Coord pos) {
-	// check if the tail to add is already occupied by this program
-	for (int i = 0; i < tiles_->getLength(); i++) {
-		Coord curr = *tiles_->getObjectAt(i);
-		if (curr.x == pos.x && curr.y == pos.y) return;
+	// remove this tile if it's already owned by the program
+	removeTile(pos);
+
+	// add the tile to the end of the queue
+	tiles_->addLast(new Coord(pos));
+	owner_->getGame()->setProgramAt(pos, this);
+}
+
+void ProgramMirror::removeTile(Coord pos) {
+	Coord* toRemove = NULL;
+	Iterator<Coord*> it = tiles_->getIterator();
+	while (it.hasNext()) {
+		Coord* curr = it.next();
+		if (curr->x == pos.x && curr->y == pos.y) {
+			toRemove = curr;
+			break;
+		}
 	}
 
-	// if the given coords aren't occupied by this program, add it
-	if (tiles_->getLength() < maxHealth_) tiles_->addLast(new Coord(pos));
+	if (toRemove != NULL) {
+		tiles_->remove(toRemove);
+		owner_->getGame()->setProgramAt(pos, NULL);
+	}
 }
 
 int ProgramMirror::getActionsLeft() {
@@ -674,10 +680,6 @@ int ProgramMirror::getProgramID() {
 	return programID_;
 }
 
-void ProgramMirror::setProgramID(int progID) {
-	programID_ = progID;
-}
-
 ProgramActionMirror* ProgramMirror::getActionByID(int actionID) {
 	Iterator<ProgramActionMirror*> it = actionList_->getIterator();
 	while (it.hasNext()) {
@@ -687,4 +689,12 @@ ProgramActionMirror* ProgramMirror::getActionByID(int actionID) {
 	}
 
 	return NULL;
+}
+
+int ProgramMirror::getMaxActions() {
+	return maxActions_;
+}
+
+void ProgramMirror::setMaxActions(int i) {
+	maxActions_ = i;
 }

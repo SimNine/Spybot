@@ -17,6 +17,7 @@
 #define DEFAULT_BUFLEN 512
 #define DEFAULT_PORT "27015"
 
+#include "Logger.h"
 #include "Enums.h"
 #include "Coord.h"
 #include "Pair.h"

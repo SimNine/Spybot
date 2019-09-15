@@ -117,6 +117,9 @@
     <ClInclude Include="..\SpybotShared\server\CommandProcessor.h">
       <Filter>Header Files\shared\server</Filter>
     </ClInclude>
+    <ClInclude Include="..\SpybotShared\utils\Logger.h">
+      <Filter>Header Files\shared\util</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Main.cpp">
@@ -166,6 +169,9 @@
     </ClCompile>
     <ClCompile Include="..\SpybotShared\server\CommandProcessor.cpp">
       <Filter>Source Files\shared\server</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SpybotShared\utils\Logger.cpp">
+      <Filter>Source Files\shared\util</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

@@ -51,7 +51,7 @@ void ProgramInventoryDisplay::updateContents() {
 				_program_icons_paths[i], [] (PROGRAM p) {
 				// check for associated player
 				if (_client->getPlayer() == NULL) {
-					printf("CLIENT ERR: clicked programselectbutton without a player\n");
+					log("CLIENT ERR: clicked programselectbutton without a player\n");
 					return;
 				}
 

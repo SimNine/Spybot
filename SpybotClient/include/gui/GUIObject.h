@@ -25,6 +25,7 @@ public:
 
 	void processEffects(int ms);
 	void addEffect(GUIEffect* e);
+	void removeAllEffects(bool finishFirst);
 
 	void recomputePosition();
 

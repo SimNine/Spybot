@@ -131,7 +131,7 @@ public:
 	/* gets the index of the given item, or returns -1 if not in the list */
 	int getIndexOf(T obj) {
 		if (obj == NULL) {
-			printf("err: tried to find index of a null object\n");
+			log("err: tried to find index of a null object\n");
 			return -1;
 		}
 

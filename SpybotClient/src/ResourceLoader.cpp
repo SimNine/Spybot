@@ -11,12 +11,12 @@ SDL_Texture* loadTexture(std::string path) {
 	//Load image at specified path
 	SDL_Surface* loadedSurface = IMG_Load(path.c_str());
 	if (loadedSurface == NULL) {
-		printf("Unable to load image %s! SDL_image Error: %s\n", path.c_str(), IMG_GetError());
+		log("Unable to load image " + path + "! SDL_image Error: " + std::string(IMG_GetError()) + "\n");
 	} else {
 		//Create texture from surface pixels
 		newTexture = SDL_CreateTextureFromSurface(_renderer, loadedSurface);
 		if (newTexture == NULL) {
-			printf("Unable to create texture from %s! SDL Error: %s\n", path.c_str(), SDL_GetError());
+			log("Unable to create texture from " + path + "! SDL Error: " + std::string(SDL_GetError()) + "\n");
 		}
 
 		//Get rid of old loaded surface
@@ -29,7 +29,7 @@ SDL_Texture* loadTexture(std::string path) {
 Mix_Music* loadMusic(std::string path) {
 	Mix_Music* gMusic = Mix_LoadMUS(path.c_str());
 	if (gMusic == NULL) {
-		printf("Failed to load music at %s! SDL_mixer Error: %s\n", path.c_str(), Mix_GetError());
+		log("Failed to load music at " + path + "! SDL_mixer Error: " + std::string(Mix_GetError()) + "\n");
 	}
 	return gMusic;
 }
@@ -37,7 +37,7 @@ Mix_Music* loadMusic(std::string path) {
 Mix_Chunk* loadSound(std::string path) {
 	Mix_Chunk* gChunk = Mix_LoadWAV(path.c_str());
 	if (gChunk == NULL) {
-		printf("Failed to load sound at %s! SDL_mixer Error: %s\n", path.c_str(), Mix_GetError());
+		log("Failed to load sound at " + path + "! SDL_mixer Error: " + std::string(Mix_GetError()) + "\n");
 	}
 	return gChunk;
 }
@@ -52,7 +52,7 @@ SDL_Texture* loadString(std::string str, FONT ft, int fsize, SDL_Color col) {
 	else 
 		f = TTF_OpenFont("resources/AGENCYR.ttf", fsize);
 	if (!f) 
-		printf("TTF_OpenFont: %s\n", TTF_GetError());
+		log("TTF_OpenFont: " + std::string(TTF_GetError()) + "\n");
 
 	// load the surface
 	SDL_Surface* s = TTF_RenderText_Blended(f, str.c_str(), col);

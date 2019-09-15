@@ -4,25 +4,28 @@
 #include "Global.h"
 #include "Player.h"
 #include "ProgramAction.h"
+#include "MiscUtil.h"
+#include "Message.h"
+#include "Server.h"
+#include "Game.h"
 
-Program::Program(PROGRAM type, int team, Coord head) {
-	this->team_ = team;
+Program::Program(PROGRAM type) {
 	this->type_ = type;
+	programID_ = randInt();
 	color_[0] = rand() % 255;
 	color_[1] = rand() % 255;
 	color_[2] = rand() % 255;
 	actionList_ = new LinkedList<ProgramAction*>();
 	tiles_ = new LinkedList<Coord*>();
-	tiles_->addFirst(new Coord(head));
 
-	if (this->type_ == PROGRAM_CUSTOM) {
+	if (this->type_ == PROGRAM_CUSTOM)
 		return;
-	}
 
+	maxActions_ = 1;
 	switch (this->type_) {
 	case PROGRAM_NONE:
 	case PROGRAM_NUM_PROGTYPES:
-		printf("ERROR: trying to instantiate an invalid program type");
+		log("SERVER ERR: trying to instantiate an invalid program type");
 		exit(1);
 		break;
 	case PROGRAM_CUSTOM:
@@ -496,10 +499,19 @@ Program::Program(PROGRAM type, int team, Coord head) {
 		cost_ = 750;
 		addAction(MOVEPRESET_BYTE);
 		break;
+	case PROGRAM_MENTALIST:
+		name_ = "Mentalist";
+		description_ = "A master manipulator of the mind";
+		maxMoves_ = 1;
+		maxHealth_ = 2;
+		cost_ = 10000;
+		addAction(MOVEPRESET_FEAR);
+		addAction(MOVEPRESET_COURAGE);
+		break;
 	}
 
 	moves_ = maxMoves_;
-	actionsLeft_ = 1;
+	actionsLeft_ = maxActions_;
 }
 
 Program::~Program() {
@@ -516,18 +528,13 @@ Program::~Program() {
 	delete actionList_;
 
 	if (_debug >= DEBUG_NORMAL) {
-		printf("Program '%s' deleted\n", name_.c_str());
+		log("SERVER: program '" + name_ + "' deleted\n");
 	}
-}
-
-Coord Program::getCore() {
-	return *tiles_->getFirst();
 }
 
 int Program::getColor(int n) {
-	if (n < 0 || n > 2) {
+	if (n < 0 || n > 2)
 		return 0;
-	}
 
 	return color_[n];
 }
@@ -567,16 +574,58 @@ void Program::setType(PROGRAM i) {
 }
 
 void Program::setMaxHealth(int i) {
-	maxHealth_ = i;
+	int newMax = (i < 0) ? 0 : i;
+
+	while (newMax < tiles_->getLength()) {
+		Coord tail = getTail();
+		if (tail == NULLCOORD)
+			break;
+		removeTile(tail);
+	}
+
+	maxHealth_ = newMax;
+
+	Message m;
+	m.type = MSGTYPE_INFO;
+	m.infoType = MSGINFOTYPE_PROGRAMCHANGEMAXHEALTH;
+	m.num = newMax;
+	m.teamID = owner_->getTeam();
+	m.playerID = owner_->getPlayerID();
+	m.programID = programID_;
+	_server->sendMessageToAllClients(m);
 }
 
 void Program::setMoves(int i) {
-	if (i < 0) moves_ = 0;
-	else moves_ = i;
+	int newMoves = (i < 0) ? 0 : i;
+
+	moves_ = newMoves;
+
+	Message m;
+	m.type = MSGTYPE_INFO;
+	m.infoType = MSGINFOTYPE_PROGRAMCHANGENUMMOVES;
+	m.num = newMoves;
+	m.teamID = owner_->getTeam();
+	m.playerID = owner_->getPlayerID();
+	m.programID = programID_;
+	_server->sendMessageToAllClients(m);
 }
 
 void Program::setMaxMoves(int i) {
+	int newMaxMoves = (i < 0) ? 0 : i;
+
+	if (moves_ > newMaxMoves)
+		setMoves(newMaxMoves);
+
 	maxMoves_ = i;
+
+	Message m;
+	m.type = MSGTYPE_INFO;
+	m.infoType = MSGINFOTYPE_PROGRAMCHANGEMAXMOVES;
+	m.num = newMaxMoves;
+	m.teamID = owner_->getTeam();
+	m.playerID = owner_->getPlayerID();
+	m.programID = programID_;
+	_server->sendMessageToAllClients(m);
 }
 
 std::string Program::getName() {
@@ -592,7 +641,7 @@ void Program::addAction(MOVEPRESET p) {
 }
 
 void Program::endTurn() {
-	actionsLeft_ = 1;
+	actionsLeft_ = maxActions_;
 	moves_ = maxMoves_;
 }
 
@@ -601,47 +650,94 @@ LinkedList<ProgramAction*>* Program::getActions() {
 }
 
 Coord Program::getHead() {
-	return *tiles_->getFirst();
+	Coord* ret = tiles_->getFirst();
+	if (ret == NULL)
+		return NULLCOORD;
+	else
+		return *ret;
 }
 
 Coord Program::getTail() {
-	return *tiles_->getLast();
+	Coord* ret = tiles_->getLast();
+	if (ret == NULL)
+		return NULLCOORD;
+	else
+		return *ret;
 }
 
 void Program::moveTo(Coord pos) {
 	// decrement number of moves left
-	moves_--;
+	setMoves(getMoves() - 1);
 
-	// check if the tile to move to is already occupied by this program
-	for (int i = 0; i < tiles_->getLength(); i++) {
-		Coord* curr = tiles_->getObjectAt(i);
-		if (curr->x == pos.x && curr->y == pos.y) {
-			tiles_->removeObjectAt(i);
-			tiles_->addFirst(curr);
-			return;
-		}
-	}
+	// add the new head
+	addHead(pos);
 
-	// if this program is at max health
-	if (tiles_->getLength() == maxHealth_) delete tiles_->removeLast();
-
-	// add a new head
-	tiles_->addFirst(new Coord(pos));
+	// if this program is above max health, disown the last tile
+	if (tiles_->getLength() > maxHealth_)
+		removeTile(getTail());
 }
 
-void Program::setCore(Coord pos) {
-	moveTo(pos);
+void Program::addHead(Coord pos) {
+	// remove this tile if it's already owned by the program
+	removeTile(pos);
+
+	// add the tile to the front of the queue
+	tiles_->addFirst(new Coord(pos));
+	owner_->getGame()->setProgramAt(pos, this);
+
+	Message m;
+	m.type = MSGTYPE_INFO;
+	m.infoType = MSGINFOTYPE_PROGRAMADDHEAD;
+	m.teamID = owner_->getTeam();
+	m.playerID = owner_->getPlayerID();
+	m.programID = programID_;
+	m.pos = pos;
+	_server->sendMessageToAllClients(m);
 }
 
 void Program::addTail(Coord pos) {
-	// check if the tail to add is already occupied by this program
-	for (int i = 0; i < tiles_->getLength(); i++) {
-		Coord curr = *tiles_->getObjectAt(i);
-		if (curr.x == pos.x && curr.y == pos.y) return;
+	// remove this tile if it's already owned by the program
+	removeTile(pos);
+
+	// add the tile to the end of the queue
+	tiles_->addLast(new Coord(pos));
+	owner_->getGame()->setProgramAt(pos, this);
+
+	Message m;
+	m.type = MSGTYPE_INFO;
+	m.infoType = MSGINFOTYPE_PROGRAMADDTAIL;
+	m.teamID = owner_->getTeam();
+	m.playerID = owner_->getPlayerID();
+	m.programID = programID_;
+	m.pos = pos;
+	_server->sendMessageToAllClients(m);
+}
+
+void Program::removeTile(Coord pos) {
+	Coord* toRemove = NULL;
+	Iterator<Coord*> it = tiles_->getIterator();
+	while (it.hasNext()) {
+		Coord* curr = it.next();
+		if (curr->x == pos.x && curr->y == pos.y) {
+			toRemove = curr;
+			break;
+		}
 	}
 
-	// if the given coords aren't occupied by this program, add it
-	if (tiles_->getLength() < maxHealth_) tiles_->addLast(new Coord(pos));
+	if (toRemove != NULL) {
+		tiles_->remove(toRemove);
+		delete toRemove;
+		owner_->getGame()->setProgramAt(pos, NULL);
+
+		Message m;
+		m.type = MSGTYPE_INFO;
+		m.infoType = MSGINFOTYPE_PROGRAMREMOVETILE;
+		m.teamID = owner_->getTeam();
+		m.playerID = owner_->getPlayerID();
+		m.programID = programID_;
+		m.pos = pos;
+		_server->sendMessageToAllClients(m);
+	}
 }
 
 int Program::getActionsLeft() {
@@ -649,16 +745,47 @@ int Program::getActionsLeft() {
 }
 
 void Program::setActionsLeft(int i) {
-	actionsLeft_ = i;
+	int newActionsLeft = (i < 0) ? 0 : i;
+
+	actionsLeft_ = newActionsLeft;
+
+	Message m;
+	m.type = MSGTYPE_INFO;
+	m.infoType = MSGINFOTYPE_PROGRAMCHANGENUMACTIONS;
+	m.num = newActionsLeft;
+	m.teamID = owner_->getTeam();
+	m.playerID = owner_->getPlayerID();
+	m.programID = programID_;
+	_server->sendMessageToAllClients(m);
+}
+
+int Program::getMaxActions() {
+	return maxActions_;
+}
+
+void Program::setMaxActions(int i) {
+	int newMaxActions = (i < 0) ? 0 : i;
+
+	if (actionsLeft_ > newMaxActions)
+		setActionsLeft(newMaxActions);
+
+	maxActions_ = newMaxActions;
+
+	Message m;
+	m.type = MSGTYPE_INFO;
+	m.infoType = MSGINFOTYPE_PROGRAMCHANGEMAXACTIONS;
+	m.num = newMaxActions;
+	m.teamID = owner_->getTeam();
+	m.playerID = owner_->getPlayerID();
+	m.programID = programID_;
+	_server->sendMessageToAllClients(m);
 }
 
 bool Program::isDone() {
-	if (moves_ == 0 && actionsLeft_ == 0) return true;
-	else return false;
-}
-
-Coord* Program::popTail() {
-	return tiles_->removeLast();
+	if (moves_ == 0 && actionsLeft_ == 0)
+		return true;
+	else
+		return false;
 }
 
 LinkedList<Coord*>* Program::getTiles() {
@@ -675,10 +802,6 @@ void Program::setOwner(Player* p) {
 
 int Program::getProgramID() {
 	return programID_;
-}
-
-void Program::setProgramID(int progID) {
-	programID_ = progID;
 }
 
 ProgramAction* Program::getActionByID(int actionID) {

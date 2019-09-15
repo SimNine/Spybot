@@ -39,7 +39,7 @@ UserDisplay::UserDisplay(ANCHOR anchor, Coord disp, Coord dims, GUIContainer* pa
 
 		GUIButtonParamaterized<User*>* deleteButton_ = new GUIButtonParamaterized<User*>(this, ANCHOR_SOUTH, { 0, -30 }, "DELETE", 30,
 			[] (User* u) {
-			printf(u->username_.c_str());
+			log("CLIENT: deleted user " + u->username_);
 		}, user);
 		this->addObject(deleteButton_);
 

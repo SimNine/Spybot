@@ -93,14 +93,10 @@ void GameMirror::setTileAt(Coord pos, TILE t) {
 	}
 }
 
-void GameMirror::removeReferencesToProgram(ProgramMirror* p) {
-	if (p == NULL)
-		return;
-
-	for (int i = 0; i < 200; i++)
-		for (int j = 0; j < 200; j++)
-			if (gridPrograms_[i][j] == p)
-				gridPrograms_[i][j] = NULL;
+TILE GameMirror::getTileAt(Coord pos) {
+	if (pos.x >= 200 || pos.x < 0 || pos.y >= 200 || pos.y < 0)
+		return TILE_NONE;
+	return gridTiles_[pos.x][pos.y];
 }
 
 int GameMirror::getLeftBound() {
@@ -123,18 +119,12 @@ void GameMirror::setProgramAt(Coord pos, ProgramMirror* p) {
 	gridPrograms_[pos.x][pos.y] = p;
 }
 
-void GameMirror::setItemAt(Coord pos, ITEM i) {
-	gridItems_[pos.x][pos.y] = i;
-}
-
-TILE GameMirror::getTileAt(Coord pos) {
-	if (pos.x >= 200 || pos.x < 0 || pos.y >= 200 || pos.y < 0)
-		return TILE_NONE;
-	return gridTiles_[pos.x][pos.y];
-}
-
 ProgramMirror* GameMirror::getProgramAt(Coord pos) {
 	return gridPrograms_[pos.x][pos.y];
+}
+
+void GameMirror::setItemAt(Coord pos, ITEM i) {
+	gridItems_[pos.x][pos.y] = i;
 }
 
 ITEM GameMirror::getItemAt(Coord pos) {
@@ -175,18 +165,6 @@ void GameMirror::setStatus(GAMESTATUS g) {
 	status_ = g;
 }
 
-void GameMirror::moveProgramTo(ProgramMirror* p, Coord c) {
-	// delete the tail of this program if it's at max health
-	if (p->getHealth() == p->getMaxHealth() && getProgramAt(c) != p) {
-		Coord temp = p->getTail();
-		gridPrograms_[temp.x][temp.y] = NULL;
-	}
-
-	// move the program
-	gridPrograms_[c.x][c.y] = p;
-	p->moveTo(c);
-}
-
 PlayerMirror* GameMirror::getCurrTurnPlayer() {
 	return currTurnPlayer_;
 }
@@ -199,11 +177,11 @@ LinkedList<TeamMirror*>* GameMirror::getAllTeams() {
 	return teamList_;
 }
 
-TeamMirror* GameMirror::getTeamByNum(int teamNum) {
+TeamMirror* GameMirror::getTeamByID(int teamNum) {
 	Iterator<TeamMirror*> it = teamList_->getIterator();
 	while (it.hasNext()) {
 		TeamMirror* curr = it.next();
-		if (curr->getTeamNum() == teamNum)
+		if (curr->getTeamID() == teamNum)
 			return curr;
 	}
 
@@ -215,7 +193,7 @@ void GameMirror::useActionAt(PlayerMirror* userPlayer, ProgramMirror* userProgra
 
 	switch (action->type_) {
 	case ACTIONTYPE_DAMAGE:
-		if (tgtProg->getTeam() != userPlayer->getTeam()) {
+		if (tgtProg->getTeamID() != userPlayer->getTeamID()) {
 			_gameOverlay->addAnimation(new AnimationAttack(tgtProg->getHead(), action->power_));
 			for (int i = 0; i < action->power_; i++) {
 				Coord* curr = tgtProg->popTail();
@@ -224,7 +202,6 @@ void GameMirror::useActionAt(PlayerMirror* userPlayer, ProgramMirror* userProgra
 				} else {
 					SDL_Color c = tgtProg->getOwner()->getColor();
 					_gameOverlay->addAnimation(new AnimationTileFade(*curr, i * 255 + 255, c.r, c.g, c.b));
-					gridPrograms_[curr->x][curr->y] = NULL;
 				}
 			}
 		}
@@ -265,7 +242,7 @@ void GameMirror::useActionAt(PlayerMirror* userPlayer, ProgramMirror* userProgra
 		tgtProg->setMaxHealth(tgtProg->getMaxHealth() + action->power_);
 		break;
 	case ACTIONTYPE_HEAL:
-		printf("CLIENT ERR: action type HEAL not implemented yet\n");
+		log("CLIENT ERR: action type HEAL not implemented yet\n");
 	default:
 		break;
 	}
@@ -273,4 +250,103 @@ void GameMirror::useActionAt(PlayerMirror* userPlayer, ProgramMirror* userProgra
 	userProgram->setActionsLeft(userProgram->getActionsLeft() - 1);
 	userPlayer->setSelectedAction(NULL);
 	userPlayer->setSelectedProgram(userProgram);
+}
+
+TeamMirror* GameMirror::addTeam(int teamID) {
+	TeamMirror* t = new TeamMirror(teamID);
+	teamList_->addFirst(t);
+	return t;
+}
+
+PlayerMirror* GameMirror::addPlayer(int playerID, int teamID) {
+	TeamMirror* t = getTeamByID(teamID);
+	if (t == NULL) {
+		log("CLIENT ERR: tried to create PlayerMirror " + to_string(playerID) + " on nonexistent TeamMirror " + to_string(teamID) + "\n");
+		return NULL;
+	}
+
+	PlayerMirror* p = new PlayerMirror(this, playerID, teamID);
+	t->getAllPlayers()->addFirst(p);
+	return p;
+}
+
+ProgramMirror* GameMirror::addProgram(PROGRAM type, int programID, int playerID, int teamID) {
+	TeamMirror* t = getTeamByID(teamID);
+	if (t == NULL) {
+		log("CLIENT ERR: tried to create new ProgramMirror " + to_string(programID) + " on PlayerMirror " + to_string(playerID) + " on nonexistent TeamMirror " + to_string(teamID) + "\n");
+		return NULL;
+	}
+
+	PlayerMirror* p = t->getPlayerByID(playerID);
+	if (p == NULL) {
+		log("CLIENT ERR: tried to create new ProgramMirror " + to_string(programID) + " on nonexistent PlayerMirror " + to_string(playerID) + " on TeamMirror %i\n");
+		return NULL;
+	}
+
+	ProgramMirror* pr = new ProgramMirror(type, programID);
+	p->addProgram(pr);
+	return pr;
+}
+
+void GameMirror::removeTeam(int teamID) {
+	TeamMirror* t = getTeamByID(teamID);
+	if (t == NULL) {
+		log("SERVER ERR: tried to remove nonexistent team " + to_string(teamID) + "\n");
+		return;
+	}
+
+	while (t->getAllPlayers()->getLength() > 0) {
+		removePlayer(t->getAllPlayers()->getFirst()->getPlayerID(), teamID);
+	}
+
+	teamList_->remove(t);
+	delete t;
+}
+
+void GameMirror::removePlayer(int playerID, int teamID) {
+	TeamMirror* t = getTeamByID(teamID);
+	if (t == NULL) {
+		log("SERVER ERR: tried to remove player " + to_string(playerID) + " on nonexistent team " + to_string(teamID) + "\n");
+		return;
+	}
+
+	PlayerMirror* p = t->getPlayerByID(playerID);
+	if (p == NULL) {
+		log("SERVER ERR: tried to remove nonexistent player " + to_string(playerID) + " on team " + to_string(teamID) + "\n");
+		return;
+	}
+
+	while (p->getProgList()->getLength() > 0) {
+		removeProgram(p->getProgList()->getFirst()->getProgramID(), p->getPlayerID(), t->getTeamID());
+	}
+
+	t->getAllPlayers()->remove(p);
+	delete p;
+}
+
+void GameMirror::removeProgram(int programID, int playerID, int teamID) {
+	TeamMirror* t = getTeamByID(teamID);
+	if (t == NULL) {
+		log("SERVER ERR: tried to remove program " + to_string(programID) + " on player " + to_string(playerID) + " on nonexistent team " + to_string(teamID) + "\n");
+		return;
+	}
+
+	PlayerMirror* p = t->getPlayerByID(playerID);
+	if (p == NULL) {
+		log("SERVER ERR: tried to remove program " + to_string(programID) + " on nonexistent player " + to_string(playerID) + " on team " + to_string(teamID) + "\n");
+		return;
+	}
+
+	ProgramMirror* pr = p->getProgramByID(programID);
+	if (pr == NULL) {
+		log("SERVER ERR: tried to remove nonexistent program " + to_string(programID) + " on player " + to_string(playerID) + " on team " + to_string(teamID) + "\n");
+		return;
+	}
+
+	while (pr->getTiles()->getLength() > 0) {
+		pr->removeTile(pr->getTail());
+	}
+
+	p->getProgList()->remove(pr);
+	delete pr;
 }

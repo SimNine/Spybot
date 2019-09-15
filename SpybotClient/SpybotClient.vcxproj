@@ -187,6 +187,7 @@
     <ClInclude Include="..\SpybotShared\utils\Iterator.h" />
     <ClInclude Include="..\SpybotShared\utils\LinkedList.h" />
     <ClInclude Include="..\SpybotShared\utils\ListNode.h" />
+    <ClInclude Include="..\SpybotShared\utils\Logger.h" />
     <ClInclude Include="..\SpybotShared\utils\Map.h" />
     <ClInclude Include="..\SpybotShared\utils\MiscUtil.h" />
     <ClInclude Include="..\SpybotShared\utils\NameGenerator.h" />
@@ -257,6 +258,7 @@
     <ClCompile Include="..\SpybotShared\server\Message.cpp" />
     <ClCompile Include="..\SpybotShared\server\Server.cpp" />
     <ClCompile Include="..\SpybotShared\server\User.cpp" />
+    <ClCompile Include="..\SpybotShared\utils\Logger.cpp" />
     <ClCompile Include="..\SpybotShared\utils\MiscUtil.cpp" />
     <ClCompile Include="..\SpybotShared\utils\NameGenerator.cpp" />
     <ClCompile Include="..\SpybotShared\utils\Timer.cpp" />

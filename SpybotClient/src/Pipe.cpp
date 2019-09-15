@@ -22,9 +22,8 @@ Pipe::Pipe(SOCKET client) {
 	// send a message informing this client about its new ID
 	Message m;
 	m.type = MSGTYPE_CONNECT;
-	m.clientID = clientID_;
 	this->sendData(m);
-	printf("SERVER: new client attempting to connect, assigning clientID %u\n", clientID_);
+	log("SERVER: new client attempting to connect, assigning clientID " + to_string(clientID_) + "\n");
 }
 
 Pipe::~Pipe() {
@@ -34,6 +33,7 @@ Pipe::~Pipe() {
 }
 
 void Pipe::sendData(Message m) {
+	m.clientID = clientID_;
 	_connectionManager->recieveMessage(m);
 }
 

@@ -16,7 +16,7 @@ Game::Game(std::string lvlStr) {
 	teamList_ = new LinkedList<Team*>();
 	initBoard();
 	loadLevel(lvlStr);
-	status_ = GAMESTATUS_PREGAME;
+	//status_ = GAMESTATUS_NONE;
 }
 
 Game::~Game() {
@@ -105,6 +105,14 @@ void Game::setTileAt(Coord pos, TILE t) {
 			}
 		}
 	}
+
+	// send a message indicating this tile was placed here to all clients
+	Message m;
+	m.type = MSGTYPE_INFO;
+	m.infoType = MSGINFOTYPE_TILE;
+	m.tileType = t;
+	m.pos = pos;
+	_server->sendMessageToAllClients(m);
 }
 
 bool Game::isDrawValid(Coord pos, Coord dims) {
@@ -150,217 +158,6 @@ void Game::fillOvalInBoard(TILE tileType, Coord pos, Coord dims) {
 				setTileAt({ i, j }, tileType);
 }
 
-void Game::saveLevel(std::string fileName) {
-	std::ofstream lvl;
-	lvl.open("levels/" + fileName + ".urf", std::ios::out | std::ios::binary | std::ios::trunc);
-	if (!lvl.is_open()) {
-		if (_debug >= DEBUG_MINIMAL) printf("err opening file for saving\n");
-	} else {
-		if (_debug >= DEBUG_MINIMAL) printf("saving level...\n");
-
-		// begin by writing the sizes of various data types
-		int8_t sizeOfInt = sizeof(int);
-		int8_t sizeOfChar = sizeof(char);
-		int8_t sizeOfDouble = sizeof(double);
-		int8_t sizeOfBool = sizeof(bool);
-		if (_debug >= DEBUG_NORMAL) printf("saving constants... int:%i, char:%i, double:%i, bool:%i\n", sizeOfInt, sizeOfChar, sizeOfDouble, sizeOfBool);
-		lvl.write((char*)&sizeOfInt, 1);
-		lvl.write((char*)&sizeOfChar, 1);
-		lvl.write((char*)&sizeOfDouble, 1);
-		lvl.write((char*)&sizeOfBool, 1);
-
-		// write the size of the game grid to the file
-		if (_debug >= DEBUG_NORMAL) printf("saving grid bounds... left:%i, right:%i, top:%i, bottom:%i\n", gridLeftBound_, gridRightBound_, gridTopBound_, gridBottomBound_);
-		lvl.write((char*)&gridLeftBound_, sizeOfInt);
-		lvl.write((char*)&gridRightBound_, sizeOfInt);
-		lvl.write((char*)&gridTopBound_, sizeOfInt);
-		lvl.write((char*)&gridBottomBound_, sizeOfInt);
-
-		// write the enum of the level's background
-		lvl.write((char*)&bkg_, sizeOfInt);
-
-		// collect all the programs in a linked list
-		if (_debug >= DEBUG_NORMAL) printf("gathering program list...\n");
-		LinkedList<Program*> progs = LinkedList<Program*>();
-		for (int x = gridLeftBound_; x < gridRightBound_; x++) {
-			for (int y = gridTopBound_; y < gridBottomBound_; y++) {
-				if (gridPrograms_[x][y] == NULL) {
-					continue;
-				}
-				if (progs.contains(gridPrograms_[x][y])) {
-					if (_debug >= DEBUG_NORMAL) printf("saving program\n");
-					progs.addLast(gridPrograms_[x][y]);
-				}
-			}
-		}
-
-		// write all programs to the file
-		int numPrograms = progs.getLength();
-		if (_debug >= DEBUG_NORMAL) printf("saving %i programs...\n", numPrograms);
-		lvl.write((char*)(&numPrograms), sizeOfInt);
-		for (int i = 0; i < progs.getLength(); i++) {
-			Program* currProg = progs.getObjectAt(i);
-
-			int xHead = currProg->getCore().x;
-			lvl.write((char*)(&xHead), sizeOfInt);
-			int yHead = currProg->getCore().y;
-			lvl.write((char*)(&yHead), sizeOfInt);
-			int type = currProg->getType();
-			lvl.write((char*)(&type), sizeOfInt);
-			int health = currProg->getHealth();
-			lvl.write((char*)(&health), sizeOfInt);
-			int maxHealth = currProg->getMaxHealth();
-			lvl.write((char*)(&maxHealth), sizeOfInt);
-			int maxMoves = currProg->getMaxMoves();
-			lvl.write((char*)(&maxMoves), sizeOfInt);
-			int team = currProg->getTeam();
-			lvl.write((char*)(&team), sizeOfInt);
-		}
-
-		// write the grid to the file
-		if (_debug >= DEBUG_NORMAL) printf("saving tiles, items, and program pointers...\n");
-		for (int x = gridLeftBound_; x < gridRightBound_; x++) {
-			for (int y = gridTopBound_; y < gridBottomBound_; y++) {
-				lvl.write((char*)(&(gridTiles_[x][y])), sizeOfInt);
-				lvl.write((char*)(&(gridItems_[x][y])), sizeOfInt);
-				int index = progs.getIndexOf(gridPrograms_[x][y]);
-				lvl.write((char*)(&index), sizeOfInt);
-			}
-		}
-
-		// flush and close the file
-		if (_debug >= DEBUG_MINIMAL)
-			printf("flushing and closing save file... ");
-		lvl.flush();
-		lvl.close();
-		if (_debug >= DEBUG_MINIMAL)
-			printf("done\n");
-	}
-}
-
-void Game::loadLevel(std::string str) {
-	std::ifstream lvl;
-	if (str.size() == 0) {
-		lvl.open("levels/default.urf", std::ios::in | std::ios::binary);
-	} else {
-		lvl.open(str, std::ios::in | std::ios::binary);
-	}
-
-	if (!lvl.is_open()) {
-		if (_debug >= DEBUG_MINIMAL)
-			printf("err opening level %s\n", str.c_str());
-	} else {
-		if (_debug >= DEBUG_MINIMAL)
-			printf("loading level %s...\n", str.c_str());
-
-		// read the sizes of various data types
-		if (_debug >= DEBUG_NORMAL) printf("loading constants...\n");
-		int8_t sizeOfInt;
-		lvl.read((char*)&sizeOfInt, 1);
-		int8_t sizeOfChar;
-		lvl.read((char*)&sizeOfChar, 1);
-		int8_t sizeOfDouble;
-		lvl.read((char*)&sizeOfDouble, 1);
-		int8_t sizeOfBool;
-		lvl.read((char*)&sizeOfBool, 1);
-
-		// load the size of the game grid
-		if (_debug >= DEBUG_NORMAL) printf("loading grid bounds...\n");
-		int left, right, top, bottom;
-		lvl.read((char*)&left, sizeOfInt);
-		lvl.read((char*)&right, sizeOfInt);
-		lvl.read((char*)&top, sizeOfInt);
-		lvl.read((char*)&bottom, sizeOfInt);
-
-		// load the enum of the level's background
-		lvl.read((char*)&bkg_, sizeOfInt);
-		setBackground(bkg_);
-
-		// load the list of programs
-		int numPrograms;
-		lvl.read((char*)(&numPrograms), sizeOfInt);
-		if (_debug >= DEBUG_NORMAL) printf("loading %i programs...\n", numPrograms);
-		LinkedList<Program*> progs = LinkedList<Program*>();
-		for (int i = 0; i < numPrograms; i++) {
-			int xHead, yHead, type, health, maxHealth, maxMoves, team;
-			lvl.read((char*)(&xHead), sizeOfInt);
-			lvl.read((char*)(&yHead), sizeOfInt);
-			lvl.read((char*)(&type), sizeOfInt);
-			lvl.read((char*)(&health), sizeOfInt);
-			lvl.read((char*)(&maxHealth), sizeOfInt);
-			lvl.read((char*)(&maxMoves), sizeOfInt);
-			lvl.read((char*)(&team), sizeOfInt);
-			Program* p = new Program((PROGRAM)type, team, { xHead, yHead });
-			p->setProgramID(i);
-
-			p->setMaxHealth(maxHealth);
-			p->setMaxMoves(maxMoves);
-
-			// create this program's team if it doesn't exist
-			Team* t = getTeamByNum(team);
-			if (t == NULL) {
-				t = new Team(team);
-				teamList_->addFirst(t);
-			}
-
-			// create this program's player if it doesn't exist
-			Player* pl = t->getAllPlayers()->getFirst();
-			if (pl == NULL) {
-				pl = new Player(this, team);
-				pl->setPlayerID(randInt());
-				t->getAllPlayers()->addFirst(pl);
-
-				// for now, the default AI team is team 1, so add a mind if team == 1
-				if (team == 1)
-					pl->setMind(new AIBasic(pl));
-			}
-
-			// add this program to this player
-			pl->addProgram(p);
-
-			progs.addLast(p);
-		}
-
-		// load the grid from the file
-		if (_debug >= DEBUG_NORMAL) printf("loading tiles, items, and program pointers...\n");
-		for (int x = left; x < right; x++) {
-			for (int y = top; y < bottom; y++) {
-				// tiles
-				TILE typ;
-				lvl.read((char*)(&typ), sizeOfInt);
-				setTileAt({ x, y }, typ);
-
-				// items
-				ITEM itm;
-				lvl.read((char*)(&itm), sizeOfInt);
-				gridItems_[x][y] = itm;
-
-				// programs
-				int indx;
-				lvl.read((char*)(&indx), sizeOfInt);
-				gridPrograms_[x][y] = progs.getObjectAt(indx);
-				if (gridPrograms_[x][y] != NULL)
-					gridPrograms_[x][y]->addTail({ x, y });
-			}
-		}
-
-		// close the file
-		lvl.close();
-		if (_debug >= DEBUG_MINIMAL)
-			printf("done\n");
-	}
-}
-
-void Game::removeReferencesToProgram(Program* p) {
-	if (p == NULL)
-		return;
-
-	for (int i = 0; i < 200; i++)
-		for (int j = 0; j < 200; j++)
-			if (gridPrograms_[i][j] == p)
-				gridPrograms_[i][j] = NULL;
-}
-
 int Game::getLeftBound() {
 	return gridLeftBound_;
 }
@@ -379,19 +176,17 @@ int Game::getBottomBound() {
 
 void Game::setBackground(BACKGROUND b) {
 	bkg_ = b;
+
+	// send message to clients indicating this change in background
+	Message m;
+	m.type = MSGTYPE_INFO;
+	m.infoType = MSGINFOTYPE_BKG;
+	m.bkgType = b;
+	_server->sendMessageToAllClients(m);
 }
 
 BACKGROUND Game::getBackground() {
 	return bkg_;
-}
-
-void Game::setProgramAt(Coord pos, Program* p) {
-	// sanity check
-	if (isOOB(pos))
-		return;
-
-	// place the program
-	gridPrograms_[pos.x][pos.y] = p;
 }
 
 void Game::setItemAt(Coord pos, ITEM i) {
@@ -401,12 +196,24 @@ void Game::setItemAt(Coord pos, ITEM i) {
 
 	// place the item here
 	gridItems_[pos.x][pos.y] = i;
+
+	// send a message indicating this item was placed here to all clients
+	Message m;
+	m.type = MSGTYPE_INFO;
+	m.infoType = MSGINFOTYPE_ITEM;
+	m.itemType = i;
+	m.pos = pos;
+	_server->sendMessageToAllClients(m);
 }
 
 TILE Game::getTileAt(Coord pos) {
 	if (pos.x >= 200 || pos.x < 0 || pos.y >= 200 || pos.y < 0)
 		return TILE_NONE;
 	return gridTiles_[pos.x][pos.y];
+}
+
+void Game::setProgramAt(Coord pos, Program* p) {
+	gridPrograms_[pos.x][pos.y] = p;
 }
 
 Program* Game::getProgramAt(Coord pos) {
@@ -449,20 +256,15 @@ GAMESTATUS Game::getStatus() {
 
 void Game::setStatus(GAMESTATUS g) {
 	switch (g) {
+	case GAMESTATUS_NONE:
+		break;
 	case GAMESTATUS_PREGAME:
 		break;
 	case GAMESTATUS_PLAYING:
 		for (int x = 0; x < 200; x++) for (int y = 0; y < 200; y++)
 			if (getTileAt({ x, y }) == TILE_SPAWN || getTileAt({ x, y }) == TILE_SPAWN2) {
-
 				// convert all spawntiles to plain tiles
 				setTileAt({ x, y }, TILE_PLAIN);
-				Message msg;
-				msg.type = MSGTYPE_INFO;
-				msg.infoType = MSGINFOTYPE_TILE;
-				msg.tileType = TILE_PLAIN;
-				msg.pos = Coord{ x, y };
-				_server->sendMessageToAllClients(msg);
 			}
 		{
 			// set the turn to be the first player
@@ -487,11 +289,6 @@ void Game::setStatus(GAMESTATUS g) {
 	_server->sendMessageToAllClients(m);
 }
 
-void Game::moveProgramTo(Program* p, Coord c) {
-	p->moveTo(c);
-	setProgramAt(c, p);
-}
-
 Player* Game::getCurrTurnPlayer() {
 	return currTurnPlayer_;
 }
@@ -511,11 +308,33 @@ LinkedList<Team*>* Game::getAllTeams() {
 	return teamList_;
 }
 
-Team* Game::getTeamByNum(int teamNum) {
+Team* Game::getTeamByID(int teamNum) {
 	Iterator<Team*> it = teamList_->getIterator();
 	while (it.hasNext()) {
 		Team* curr = it.next();
-		if (curr->getTeamNum() == teamNum)
+		if (curr->getTeamID() == teamNum)
+			return curr;
+	}
+
+	return NULL;
+}
+
+Team* Game::getDefaultTeamAI() {
+	Iterator<Team*> it = teamList_->getIterator();
+	while (it.hasNext()) {
+		Team* curr = it.next();
+		if (curr->isDefaultAI())
+			return curr;
+	}
+
+	return NULL;
+}
+
+Team* Game::getDefaultTeamHuman() {
+	Iterator<Team*> it = teamList_->getIterator();
+	while (it.hasNext()) {
+		Team* curr = it.next();
+		if (curr->isDefaultHuman())
 			return curr;
 	}
 
@@ -523,7 +342,7 @@ Team* Game::getTeamByNum(int teamNum) {
 }
 
 Player* Game::getFollowingPlayer(Player* currPlayer) {
-	Team* currTeam = getTeamByNum(currPlayer->getTeam());
+	Team* currTeam = getTeamByID(currPlayer->getTeam());
 
 	int teamIndex = teamList_->getIndexOf(currTeam);
 	int playerIndex = currTeam->getAllPlayers()->getIndexOf(currPlayer);
@@ -554,7 +373,7 @@ void Game::checkForWinCondition() {
 			Player* currPlayer = itPlayer.next();
 			if (currPlayer->getProgList()->getLength() > 0) { // if this player is alive
 				if (currTeamWinning == -1) { // if there is not yet a winning team
-					currTeamWinning = currTeam->getTeamNum();
+					currTeamWinning = currTeam->getTeamID();
 				} else { // if this team is alive, and is a different team than previously (no winning condition)
 					return;
 				}
@@ -569,9 +388,9 @@ void Game::checkForWinCondition() {
 		m.type = MSGTYPE_INFO;
 		m.infoType = MSGINFOTYPE_GAMESTATUS;
 		m.statusType = GAMESTATUS_END;
-		m.team = currTeamWinning;
+		m.teamID = currTeamWinning;
 		_server->sendMessageToAllClients(m);
-		printf("SERVER: game detected winning condition for team %i\n", currTeamWinning);
+		log("SERVER: game detected winning condition for team " + to_string(currTeamWinning) + "\n");
 	}
 
 	// refund all players' programs
@@ -588,7 +407,7 @@ void Game::checkForWinCondition() {
 					Message m;
 					m.type = MSGTYPE_PROGINVENTORY;
 					m.progType = (PROGRAM)i;
-					m.programID = currUser->progsOwned_[i];
+					m.num = currUser->progsOwned_[i];
 					_server->sendMessageToClient(m, curr->getClientID());
 				}
 			}
@@ -598,7 +417,7 @@ void Game::checkForWinCondition() {
 
 	// send all players on the winning team a winning message
 	if (_server->getSavePath() == "levels/classic" || _server->getSavePath() == "levels/nightfall") {
-		Team* t = this->getTeamByNum(currTeamWinning);
+		Team* t = this->getTeamByID(currTeamWinning);
 		Iterator<Player*> itPlayers = t->getAllPlayers()->getIterator();
 		while (itPlayers.hasNext()) {
 			Player* currPlayer = itPlayers.next();
@@ -620,10 +439,451 @@ void Game::checkForWinCondition() {
 					// send message letting client know of level unlock
 					Message m;
 					m.type = MSGTYPE_LEVELUNLOCK;
-					m.levelNum = _server->getCurrentLevel();
+					m.num = _server->getCurrentLevel();
 					currPipe->sendData(m);
 				}
 			}
 		}
+	}
+}
+
+Team* Game::addTeam() {
+	Team* t = new Team();
+	teamList_->addFirst(t);
+
+	Message m;
+	m.type = MSGTYPE_INFO;
+	m.infoType = MSGINFOTYPE_TEAM;
+	m.teamID = t->getTeamID();
+	_server->sendMessageToAllClients(m);
+
+	return t;
+}
+
+Player* Game::addPlayer(int teamID) {
+	Team* t = getTeamByID(teamID);
+	if (t == NULL) {
+		log("SERVER ERR: tried adding new player to team " + to_string(teamID) + ", which doesn't exist\n");
+		return NULL;
+	}
+
+	Player* p = new Player(this, teamID);
+	t->getAllPlayers()->addFirst(p);
+
+	Message m;
+	m.type = MSGTYPE_INFO;
+	m.infoType = MSGINFOTYPE_PLAYER;
+	m.teamID = teamID;
+	m.playerID = p->getPlayerID();
+	_server->sendMessageToAllClients(m);
+
+	return p;
+}
+
+Program* Game::addProgram(PROGRAM type, int playerID, int teamID) {
+	Team* t = getTeamByID(teamID);
+	if (t == NULL) {
+		log("SERVER ERR: tried adding new program to player " + to_string(playerID) + " on nonexistent team " + to_string(teamID) + "\n");
+		return NULL;
+	}
+
+	Player* p = t->getPlayerByID(playerID);
+	if (t == NULL) {
+		log("SERVER ERR: tried adding new program to nonexistent player " + to_string(playerID) + " on team " + to_string(teamID) + "\n");
+		return NULL;
+	}
+
+	Program* pr = new Program(type);
+	p->addProgram(pr);
+
+	Message m;
+	m.type = MSGTYPE_INFO;
+	m.infoType = MSGINFOTYPE_PROGRAM;
+	m.teamID = teamID;
+	m.playerID = playerID;
+	m.programID = pr->getProgramID();
+	m.progType = type;
+	_server->sendMessageToAllClients(m);
+
+	return pr;
+}
+
+void Game::removeTeam(int teamID) {
+	Team* t = getTeamByID(teamID);
+	if (t == NULL) {
+		log("SERVER ERR: tried to remove nonexistent team " + to_string(teamID) + "\n");
+		return;
+	}
+
+	while (t->getAllPlayers()->getLength() > 0) {
+		removePlayer(t->getAllPlayers()->getFirst()->getPlayerID(), teamID);
+	}
+
+	teamList_->remove(t);
+	delete t;
+
+	Message m;
+	m.type = MSGTYPE_INFO;
+	m.infoType = MSGINFOTYPE_TEAMDELETE;
+	m.teamID = teamID;
+	_server->sendMessageToAllClients(m);
+}
+
+void Game::removePlayer(int playerID, int teamID) {
+	Team* t = getTeamByID(teamID);
+	if (t == NULL) {
+		log("SERVER ERR: tried to remove player " + to_string(playerID) + " on nonexistent team " + to_string(teamID) + "\n");
+		return;
+	}
+
+	Player* p = t->getPlayerByID(playerID);
+	if (p == NULL) {
+		log("SERVER ERR: tried to remove nonexistent player " + to_string(playerID) + " on team " + to_string(teamID) + "\n");
+		return;
+	}
+
+	while (p->getProgList()->getLength() > 0) {
+		removeProgram(p->getProgList()->getFirst()->getProgramID(), p->getPlayerID(), t->getTeamID());
+	}
+
+	t->getAllPlayers()->remove(p);
+	delete p;
+
+	Message m;
+	m.type = MSGTYPE_INFO;
+	m.infoType = MSGINFOTYPE_PLAYERDELETE;
+	m.teamID = teamID;
+	m.playerID = playerID;
+	_server->sendMessageToAllClients(m);
+}
+
+void Game::removeProgram(int programID, int playerID, int teamID) {
+	Team* t = getTeamByID(teamID);
+	if (t == NULL) {
+		log("SERVER ERR: tried to remove program " + to_string(programID) + " on player " + to_string(playerID) + " on nonexistent team " + to_string(teamID) + "\n");
+		return;
+	}
+
+	Player* p = t->getPlayerByID(playerID);
+	if (p == NULL) {
+		log("SERVER ERR: tried to remove program " + to_string(programID) + " on nonexistent player " + to_string(playerID) + " on team " + to_string(teamID) + "\n");
+		return;
+	}
+
+	Program* pr = p->getProgramByID(programID);
+	if (pr == NULL) {
+		log("SERVER ERR: tried to remove nonexistent program " + to_string(programID) + " on player " + to_string(playerID) + " on team " + to_string(teamID) + "\n");
+		return;
+	}
+
+	while (pr->getTiles()->getLength() > 0) {
+		pr->removeTile(pr->getTail());
+	}
+
+	p->getProgList()->remove(pr);
+	delete pr;
+
+	Message m;
+	m.type = MSGTYPE_INFO;
+	m.infoType = MSGINFOTYPE_PROGRAMDELETE;
+	m.teamID = teamID;
+	m.playerID = playerID;
+	m.programID = programID;
+	_server->sendMessageToAllClients(m);
+}
+
+void Game::saveLevel(std::string fileName) {
+	std::ofstream lvl;
+	lvl.open("levels/" + fileName + ".urf", std::ios::out | std::ios::binary | std::ios::trunc);
+	if (!lvl.is_open()) {
+		if (_debug >= DEBUG_MINIMAL)
+			log("err opening file " + fileName + " for saving\n");
+	} else {
+		if (_debug >= DEBUG_MINIMAL)
+			log("saving level + " + fileName + "...\n");
+
+		// write the sizes of standard data types
+		int8_t sizeOfInt = sizeof(int);
+		int8_t sizeOfChar = sizeof(char);
+		int8_t sizeOfDouble = sizeof(double);
+		int8_t sizeOfBool = sizeof(bool);
+		if (_debug >= DEBUG_NORMAL)
+			log("saving constants... int:" + to_string(sizeOfInt) + " char:" + to_string(sizeOfChar) +
+				" double:" + to_string(sizeOfDouble) + " bool:" + to_string(sizeOfBool) + "\n");
+		lvl.write((char*)&sizeOfInt, 1);
+		lvl.write((char*)&sizeOfChar, 1);
+		lvl.write((char*)&sizeOfDouble, 1);
+		lvl.write((char*)&sizeOfBool, 1);
+
+		// write sizes of custom enum datatypes
+		int8_t sizeOfItem = sizeof(ITEM);
+		int8_t sizeOfTile = sizeof(TILE);
+		int8_t sizeOfBkg = sizeof(BACKGROUND);
+		int8_t sizeOfProg = sizeof(PROGRAM);
+		if (_debug >= DEBUG_NORMAL)
+			log("saving enums... item:" + to_string(sizeOfItem) + " tile:" + to_string(sizeOfTile) +
+				" bkg:" + to_string(sizeOfBkg) + " prog:" + to_string(sizeOfProg) + "\n");
+		lvl.write((char*)&sizeOfItem, 1);
+		lvl.write((char*)&sizeOfTile, 1);
+		lvl.write((char*)&sizeOfBkg, 1);
+		lvl.write((char*)&sizeOfProg, 1);
+
+		// write the size of the game grid to the file
+		if (_debug >= DEBUG_NORMAL)
+			log("saving grid bounds... left" + to_string(gridLeftBound_) + " right:" + to_string(gridRightBound_) +
+				" top:" + to_string(gridTopBound_) + " bottom:" + to_string(gridBottomBound_) + "\n");
+		lvl.write((char*)&gridLeftBound_, sizeOfInt);
+		lvl.write((char*)&gridRightBound_, sizeOfInt);
+		lvl.write((char*)&gridTopBound_, sizeOfInt);
+		lvl.write((char*)&gridBottomBound_, sizeOfInt);
+
+		// write the enum of the level's background
+		lvl.write((char*)&bkg_, sizeOfBkg);
+
+		// write tiles and items to file
+		if (_debug >= DEBUG_NORMAL)
+			log("saving tiles and items...\n");
+		for (int x = gridLeftBound_; x < gridRightBound_; x++) {
+			for (int y = gridTopBound_; y < gridBottomBound_; y++) {
+				lvl.write((char*)(&(gridTiles_[x][y])), sizeOfTile);
+				lvl.write((char*)(&(gridItems_[x][y])), sizeOfItem);
+			}
+		}
+
+		// write debug delineation
+		int delineator = -1; // 0xFFFFFFFF - easy to see in hexdump
+		lvl.write((char*)&delineator, sizeOfInt);
+
+		// write number of teams
+		int numTeams = teamList_->getLength();
+		lvl.write((char*)&numTeams, sizeOfInt);
+		if (_debug >= DEBUG_NORMAL)
+			log("saving " + to_string(numTeams) + " teams...\n");
+
+		// for each team
+		Iterator<Team*> teamIt = teamList_->getIterator();
+		while (teamIt.hasNext()) {
+			Team* currTeam = teamIt.next();
+
+			// write whether this team is a default human or AI team
+			bool isDefaultHuman = (currTeam->isDefaultHuman() || currTeam->getTeamID() == 0) ? true : false;
+			lvl.write((char*)&isDefaultHuman, sizeOfBool);
+			bool isDefaultAI = (currTeam->isDefaultAI() || currTeam->getTeamID() == 1) ? true : false;
+			lvl.write((char*)&isDefaultAI, sizeOfBool);
+
+			// write the number of players on this team
+			int numPlayers = currTeam->getAllPlayers()->getLength();
+			lvl.write((char*)&numPlayers, sizeOfInt);
+			if (_debug >= DEBUG_NORMAL)
+				log("saving " + to_string(numPlayers) + " players on team " + to_string(currTeam->getTeamID()) + "...\n");
+
+			// for each player
+			Iterator<Player*> playerIt = currTeam->getAllPlayers()->getIterator();
+			while (playerIt.hasNext()) {
+				Player* currPlayer = playerIt.next();
+
+				// write whether this player has an AI mind
+				bool hasMind = (currPlayer->getMind() == NULL) ? false : true;
+				lvl.write((char*)&hasMind, sizeOfBool);
+
+				// write the number of programs that this player has
+				int numPrograms = currPlayer->getProgList()->getLength();
+				lvl.write((char*)&numPrograms, sizeOfInt);
+				if (_debug >= DEBUG_NORMAL)
+					log("saving " + to_string(numPrograms) + " programs owned by player " + to_string(currPlayer->getPlayerID()) + "...\n");
+
+				// for each program
+				Iterator<Program*> progIt = currPlayer->getProgList()->getIterator();
+				while (progIt.hasNext()) {
+					Program* currProg = progIt.next();
+
+					// write program properties
+					PROGRAM type = currProg->getType();
+					lvl.write((char*)(&type), sizeOfProg);
+					int maxHealth = currProg->getMaxHealth();
+					lvl.write((char*)(&maxHealth), sizeOfInt);
+					int maxMoves = currProg->getMaxMoves();
+					lvl.write((char*)(&maxMoves), sizeOfInt);
+
+					// write the number of tiles this program owns
+					int numOwnedTiles = currProg->getTiles()->getLength();
+					lvl.write((char*)&numOwnedTiles, sizeOfInt);
+					if (_debug >= DEBUG_NORMAL)
+						log("saving " + to_string(numOwnedTiles) + " tiles owned by program " + to_string(currProg->getProgramID()) + "...\n");
+
+					// for each owned tile
+					Iterator<Coord*> coordIt = currProg->getTiles()->getIterator();
+					while (coordIt.hasNext()) {
+						Coord* currCoord = coordIt.next();
+
+						// write these coords
+						int xCoord = currCoord->x;
+						lvl.write((char*)&xCoord, sizeOfInt);
+						int yCoord = currCoord->y;
+						lvl.write((char*)&yCoord, sizeOfInt);
+					}
+				}
+			}
+		}
+
+		// flush and close the file
+		if (_debug >= DEBUG_MINIMAL)
+			log("flushing and closing save file... ");
+		lvl.flush();
+		lvl.close();
+		if (_debug >= DEBUG_MINIMAL)
+			log("done\n");
+	}
+}
+
+void Game::loadLevel(std::string str) {
+	std::ifstream lvl;
+	if (str.size() == 0) {
+		lvl.open("levels/default.urf", std::ios::in | std::ios::binary);
+	} else {
+		lvl.open(str, std::ios::in | std::ios::binary);
+	}
+
+	if (!lvl.is_open()) {
+		if (_debug >= DEBUG_MINIMAL)
+			log("err opening level " + str + "\n");
+	} else {
+		if (_debug >= DEBUG_MINIMAL)
+			log("loading level " + str + "...\n");
+
+		// read the sizes of standard data types
+		int8_t sizeOfInt;
+		lvl.read((char*)&sizeOfInt, 1);
+		int8_t sizeOfChar;
+		lvl.read((char*)&sizeOfChar, 1);
+		int8_t sizeOfDouble;
+		lvl.read((char*)&sizeOfDouble, 1);
+		int8_t sizeOfBool;
+		lvl.read((char*)&sizeOfBool, 1);
+		if (_debug >= DEBUG_NORMAL)
+			log("loaded constants... int:" + to_string(sizeOfInt) + " char:" + to_string(sizeOfChar) +
+				" double:" + to_string(sizeOfDouble) + " bool:" + to_string(sizeOfBool) + "\n");
+
+		// write sizes of custom enum datatypes
+		int8_t sizeOfItem, sizeOfTile, sizeOfBkg, sizeOfProg;
+		lvl.read((char*)&sizeOfItem, 1);
+		lvl.read((char*)&sizeOfTile, 1);
+		lvl.read((char*)&sizeOfBkg, 1);
+		lvl.read((char*)&sizeOfProg, 1);
+		if (_debug >= DEBUG_NORMAL)
+			log("loaded enums: item:" + to_string(sizeOfItem) + " tile:" + to_string(sizeOfTile) +
+				" bkg:" + to_string(sizeOfBkg) + " prog:" + to_string(sizeOfProg) + "\n");
+
+		// load the size of the game grid
+		int left, right, top, bottom;
+		lvl.read((char*)&left, sizeOfInt);
+		lvl.read((char*)&right, sizeOfInt);
+		lvl.read((char*)&top, sizeOfInt);
+		lvl.read((char*)&bottom, sizeOfInt);
+		if (_debug >= DEBUG_NORMAL)
+			log("loaded grid bounds... left" + to_string(left) + " right:" + to_string(right) +
+				" top:" + to_string(top) + " bottom:" + to_string(bottom) + "\n");
+
+		// load the enum of the level's background
+		BACKGROUND bkg;
+		lvl.read((char*)&bkg, sizeOfBkg);
+		setBackground(bkg);
+
+		// load tiles and items from the file
+		if (_debug >= DEBUG_NORMAL)
+			log("loading tiles and items...\n");
+		for (int x = left; x < right; x++) {
+			for (int y = top; y < bottom; y++) {
+				// tiles
+				TILE typ;
+				lvl.read((char*)(&typ), sizeOfTile);
+				setTileAt({ x, y }, typ);
+
+				// items
+				ITEM itm;
+				lvl.read((char*)(&itm), sizeOfItem);
+				setItemAt({ x,y }, itm);
+			}
+		}
+
+		// load (waste) debug delineation
+		int delineator = -1; // 0xFFFFFFFF - easy to see in hexdump
+		lvl.read((char*)&delineator, sizeOfInt);
+
+		// load number of teams
+		int numTeams;
+		lvl.read((char*)&numTeams, sizeOfInt);
+		if (_debug >= DEBUG_NORMAL)
+			log("loading " + to_string(numTeams) + " teams...\n");
+
+		// for each team
+		for (int teamCount = 0; teamCount < numTeams; teamCount++) {
+			Team* currTeam = addTeam();
+
+			// load whether this team is a default human or AI team
+			bool isDefaultHuman, isDefaultAI;
+			lvl.read((char*)&isDefaultHuman, sizeOfBool);
+			lvl.read((char*)&isDefaultAI, sizeOfBool);
+			currTeam->setDefaultHuman(isDefaultHuman);
+			currTeam->setDefaultAI(isDefaultAI);
+
+			// load the number of players on this team
+			int numPlayers;
+			lvl.read((char*)&numPlayers, sizeOfInt);
+			if (_debug >= DEBUG_NORMAL)
+				log("loading " + to_string(numPlayers) + " players on team " + to_string(currTeam->getTeamID()) + "...\n");
+
+			// for each player
+			for (int playerCount = 0; playerCount < numPlayers; playerCount++) {
+				Player* currPlayer = addPlayer(currTeam->getTeamID());
+
+				// load whether this player has an AI mind
+				bool hasMind;
+				lvl.read((char*)&hasMind, sizeOfBool);
+				if (hasMind)
+					currPlayer->setMind(new AIBasic(currPlayer));
+
+				// load the number of programs that this player has
+				int numPrograms;
+				lvl.read((char*)&numPrograms, sizeOfInt);
+				if (_debug >= DEBUG_NORMAL)
+					log("loading " + to_string(numPrograms) + " programs owned by player " + to_string(currPlayer->getPlayerID()) + "...\n");
+
+				// for each program
+				for (int programCount = 0; programCount < numPrograms; programCount++) {
+					// load program properties
+					PROGRAM type;
+					int maxHealth, maxMoves;
+					lvl.read((char*)(&type), sizeOfProg);
+					lvl.read((char*)(&maxHealth), sizeOfInt);
+					lvl.read((char*)(&maxMoves), sizeOfInt);
+
+					Program* currProg = addProgram(type, currPlayer->getPlayerID(), currTeam->getTeamID());
+
+					// load the number of tiles this program owns
+					int numOwnedTiles;
+					lvl.read((char*)&numOwnedTiles, sizeOfInt);
+					if (_debug >= DEBUG_NORMAL)
+						log("loading " + to_string(numOwnedTiles) + " tiles owned by program " + to_string(currProg->getProgramID()) + "...\n");
+
+					// for each owned tile
+					for (int tileCount = 0; tileCount < numOwnedTiles; tileCount++) {
+						// load coords
+						int xCoord, yCoord;
+						lvl.read((char*)&xCoord, sizeOfInt);
+						lvl.read((char*)&yCoord, sizeOfInt);
+						currProg->addTail({ xCoord, yCoord });
+					}
+				}
+			}
+		}
+
+		// close the file
+		lvl.close();
+		if (_debug >= DEBUG_MINIMAL)
+			log("done\n");
+
+		// set the gamestatus to pregame
+		setStatus(GAMESTATUS_PREGAME);
 	}
 }

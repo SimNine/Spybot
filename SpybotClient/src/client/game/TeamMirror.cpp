@@ -3,9 +3,9 @@
 
 #include "PlayerMirror.h"
 
-TeamMirror::TeamMirror(int teamNum) {
+TeamMirror::TeamMirror(int teamID) {
 	players_ = new LinkedList<PlayerMirror*>();
-	teamNum_ = teamNum;
+	teamID_ = teamID;
 }
 
 TeamMirror::~TeamMirror() {
@@ -29,6 +29,6 @@ PlayerMirror* TeamMirror::getPlayerByID(int playerID) {
 	return NULL;
 }
 
-int TeamMirror::getTeamNum() {
-	return teamNum_;
+int TeamMirror::getTeamID() {
+	return teamID_;
 }

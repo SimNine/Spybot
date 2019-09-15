@@ -236,10 +236,9 @@ bool GameOverlay::mouseDown() {
 				msg.playerID = _client->getPlayer()->getPlayerID();
 				msg.programID = _client->getPlayer()->getSelectedProgram()->getProgramID();
 				_connectionManager->sendMessage(msg);
-			} else if (_client->getPlayer()->getSelectedActionDist(click) > 0) {
-				if (_debug >= DEBUG_NORMAL)
-					printf("player using move\n");
-
+			} else if (((_client->getPlayer()->getSelectedAction()->type_ == ACTIONTYPE_TILEPLACE && !_client->getGame()->isTiled(click) &&	_client->getPlayer()->getSelectedActionDistAll(click) > 0) || 
+						(_client->getPlayer()->getSelectedActionDist(click) > 0 && _client->getPlayer()->getSelectedAction()->type_ != ACTIONTYPE_TILEPLACE)) &&
+						_client->getPlayer()->getSelectedProgram()->getActionsLeft() > 0) {
 				Message msg;
 				msg.type = MSGTYPE_ACTION;
 				msg.pos = click;
@@ -266,11 +265,15 @@ void GameOverlay::drawBkg() {
 
 void GameOverlay::drawGrid() {
 	if (_client->getGame() == NULL) {
-		printf("CLIENT ERR: doing GameOverlay::drawGrid() without a game in session\n");
+		log("CLIENT ERR: doing GameOverlay::drawGrid() without a game in session\n");
 		return;
 	}
 
-	SDL_Rect tileRect;
+	// pointer for convenience
+	GameMirror* g = _client->getGame();
+	//PlayerMirror* currTurnPlayer = g->getCurrTurnPlayer();
+	//ProgramActionMirror* selectedAction = ();
+	// TODO: find out why TILEPLACE action candidates are not showing
 
 	// set temp variables
 	Coord topLeft = { bkgPos_.x / _tileWidth, bkgPos_.y / _tileWidth };
@@ -289,12 +292,13 @@ void GameOverlay::drawGrid() {
 		topLeft.y = 0;
 
 	// draw grid
+	SDL_Rect tileRect;
 	for (int x = topLeft.x; x < bottomRight.x; x++) {
 		for (int y = topLeft.y; y < bottomRight.y; y++) {
 			Coord curr = { x, y };
 
 			// if there's no tile to be drawn here
-			if (_client->getGame()->getTileAt(curr) == TILE_NONE)
+			if (g->getTileAt(curr) == TILE_NONE)
 				continue;
 
 			// default position of a tile,
@@ -307,10 +311,12 @@ void GameOverlay::drawGrid() {
 			tileRect.w = sizeDefault;
 			tileRect.h = sizeDefault;
 
+			//log("check 2\n");
+
 			// if there's a program at this tile
-			if (_client->getGame()->getProgramAt(curr) != NULL) {
+			if (g->getProgramAt(curr) != NULL) {
 				// get this program
-				ProgramMirror* prog = _client->getGame()->getProgramAt(curr);
+				ProgramMirror* prog = g->getProgramAt(curr);
 
 				// draw this program's tile
 				tileRect.x = xDefault - 1;
@@ -322,13 +328,13 @@ void GameOverlay::drawGrid() {
 					SDL_Color c = prog->getOwner()->getColor();
 					SDL_SetTextureColorMod(_program_core, c.r, c.g, c.b);
 				} else if (programViewTeams_) {
-					if (prog->getTeam() == 0)
+					if (prog->getTeamID() == 0)
 						SDL_SetTextureColorMod(_program_core, 0, 0, prog->getColor(2));
-					else if (prog->getTeam() == 1)
+					else if (prog->getTeamID() == 1)
 						SDL_SetTextureColorMod(_program_core, prog->getColor(0), 0, 0);
-					else if (prog->getTeam() == 2)
+					else if (prog->getTeamID() == 2)
 						SDL_SetTextureColorMod(_program_core, 0, prog->getColor(1), 0);
-					else if (prog->getTeam() == 3)
+					else if (prog->getTeamID() == 3)
 						SDL_SetTextureColorMod(_program_core, prog->getColor(0), prog->getColor(1), 0);
 					else
 						SDL_SetTextureColorMod(_program_core, 0, prog->getColor(1), prog->getColor(2));
@@ -336,8 +342,8 @@ void GameOverlay::drawGrid() {
 					SDL_SetTextureColorMod(_program_core, prog->getColor(0), prog->getColor(1), prog->getColor(2));
 
 				// if this is the farthest chunk of this program
-				if (_client->getGame()->getCurrTurnPlayer() != NULL &&
-					prog == _client->getGame()->getCurrTurnPlayer()->getSelectedProgram() &&
+				if (g->getCurrTurnPlayer() != NULL &&
+					prog == g->getCurrTurnPlayer()->getSelectedProgram() &&
 					prog->getHealth() == prog->getMaxHealth() &&
 					prog->getMoves() > 0) {
 					Coord currTail = prog->getTail();
@@ -349,8 +355,8 @@ void GameOverlay::drawGrid() {
 				} else SDL_RenderCopy(_renderer, _program_core, NULL, &tileRect);
 
 				// if this is part of the selected program, indicate it
-				if (_client->getGame()->getCurrTurnPlayer() != NULL &&
-					prog == _client->getGame()->getCurrTurnPlayer()->getSelectedProgram() &&
+				if (g->getCurrTurnPlayer() != NULL &&
+					prog == g->getCurrTurnPlayer()->getSelectedProgram() &&
 					_debug >= DEBUG_NORMAL) {
 					SDL_SetRenderDrawColor(_renderer, 255, 0, 0, 0);
 					SDL_RenderDrawLine(_renderer, tileRect.x, tileRect.y, tileRect.x + tileRect.w, tileRect.y + tileRect.h);
@@ -358,7 +364,7 @@ void GameOverlay::drawGrid() {
 				}
 
 				// draw the bridges from this program's tile to adjacent tiles
-				if (_client->getGame()->getProgramAt({ curr.x, curr.y + 1 }) == prog) {
+				if (g->getProgramAt({ curr.x, curr.y + 1 }) == prog) {
 					tileRect.x = xDefault + 9;
 					tileRect.y = yDefault + 26;
 					tileRect.w = 10;
@@ -367,13 +373,13 @@ void GameOverlay::drawGrid() {
 						SDL_Color c = prog->getOwner()->getColor();
 						SDL_SetTextureColorMod(_program_core_vertical, c.r, c.g, c.b);
 					} else if (programViewTeams_) {
-						if (prog->getTeam() == 0)
+						if (prog->getTeamID() == 0)
 							SDL_SetTextureColorMod(_program_core_vertical, 0, 0, prog->getColor(2));
-						else if (prog->getTeam() == 1)
+						else if (prog->getTeamID() == 1)
 							SDL_SetTextureColorMod(_program_core_vertical, prog->getColor(0), 0, 0);
-						else if (prog->getTeam() == 2)
+						else if (prog->getTeamID() == 2)
 							SDL_SetTextureColorMod(_program_core_vertical, 0, prog->getColor(1), 0);
-						else if (prog->getTeam() == 3)
+						else if (prog->getTeamID() == 3)
 							SDL_SetTextureColorMod(_program_core_vertical, prog->getColor(0), prog->getColor(1), 0);
 						else
 							SDL_SetTextureColorMod(_program_core_vertical, 0, prog->getColor(1), prog->getColor(2));
@@ -381,7 +387,7 @@ void GameOverlay::drawGrid() {
 						SDL_SetTextureColorMod(_program_core_vertical, prog->getColor(0), prog->getColor(1), prog->getColor(2));
 					SDL_RenderCopy(_renderer, _program_core_vertical, NULL, &tileRect);
 				}
-				if (_client->getGame()->getProgramAt({ curr.x + 1, curr.y }) == prog) {
+				if (g->getProgramAt({ curr.x + 1, curr.y }) == prog) {
 					tileRect.x = xDefault + 26;
 					tileRect.y = yDefault + 8;
 					tileRect.w = 5;
@@ -390,13 +396,13 @@ void GameOverlay::drawGrid() {
 						SDL_Color c = prog->getOwner()->getColor();
 						SDL_SetTextureColorMod(_program_core_horizontal, c.r, c.g, c.b);
 					} else if (programViewTeams_) {
-						if (prog->getTeam() == 0)
+						if (prog->getTeamID() == 0)
 							SDL_SetTextureColorMod(_program_core_horizontal, 0, 0, prog->getColor(2));
-						else if (prog->getTeam() == 1)
+						else if (prog->getTeamID() == 1)
 							SDL_SetTextureColorMod(_program_core_horizontal, prog->getColor(0), 0, 0);
-						else if (prog->getTeam() == 2)
+						else if (prog->getTeamID() == 2)
 							SDL_SetTextureColorMod(_program_core_horizontal, 0, prog->getColor(1), 0);
-						else if (prog->getTeam() == 3)
+						else if (prog->getTeamID() == 3)
 							SDL_SetTextureColorMod(_program_core_horizontal, prog->getColor(0), prog->getColor(1), 0);
 						else
 							SDL_SetTextureColorMod(_program_core_horizontal, 0, prog->getColor(1), prog->getColor(2));
@@ -406,7 +412,7 @@ void GameOverlay::drawGrid() {
 				}
 
 				// draw the icon IF this is the core tile
-				if (prog->getCore().x == curr.x && prog->getCore().y == curr.y) {
+				if (prog->getHead().x == curr.x && prog->getHead().y == curr.y) {
 					tileRect.x = xDefault - 1;
 					tileRect.y = yDefault - 1;
 					tileRect.w = 27;
@@ -415,14 +421,14 @@ void GameOverlay::drawGrid() {
 					SDL_RenderCopy(_renderer, _program_icons[prog->getType()], NULL, &tileRect);
 
 					// draw the highlight rectangle if this program is selected
-					if (_client->getGame()->getCurrTurnPlayer() != NULL &&
-						_client->getGame()->getCurrTurnPlayer() &&
-						prog == _client->getGame()->getCurrTurnPlayer()->getSelectedProgram()) {
+					if (g->getCurrTurnPlayer() != NULL &&
+						g->getCurrTurnPlayer() &&
+						prog == g->getCurrTurnPlayer()->getSelectedProgram()) {
 						tileRect.x = xDefault - 2;
 						tileRect.y = yDefault - 2;
 						tileRect.w = _tileWidth;
 						tileRect.h = _tileWidth;
-						SDL_Color c = _client->getGame()->getCurrTurnPlayer()->getColor();
+						SDL_Color c = g->getCurrTurnPlayer()->getColor();
 						SDL_SetTextureColorMod(_tile_selected, c.r, c.g, c.b);
 						SDL_SetTextureAlphaMod(_tile_selected, (Uint8)((double)-textureTickCount_ / 1000.0) * 255 + 255);
 						SDL_RenderCopy(_renderer, _tile_selected, NULL, &tileRect);
@@ -438,8 +444,8 @@ void GameOverlay::drawGrid() {
 					}
 				}
 			} else { // if there is no program on this tile
-				SDL_Texture* tileImg = _tile_images[_client->getGame()->getTileAt(curr)];
-				if (_client->getGame()->getTileAt(curr) == TILE_NONE)
+				SDL_Texture* tileImg = _tile_images[g->getTileAt(curr)];
+				if (g->getTileAt(curr) == TILE_NONE)
 					continue;
 
 				SDL_QueryTexture(tileImg, NULL, NULL, &tileRect.w, &tileRect.h);
@@ -447,6 +453,8 @@ void GameOverlay::drawGrid() {
 				tileRect.y = yDefault - (tileRect.h - 28) / 2;
 				SDL_RenderCopy(_renderer, tileImg, NULL, &tileRect);
 			}
+
+			//log("check 3\n");
 
 			// if the mouse is over this tile
 			if (_mousePos.x - tileRect.x > 0 &&
@@ -462,13 +470,18 @@ void GameOverlay::drawGrid() {
 				SDL_RenderCopy(_renderer, _tile_over, NULL, &tileRect);
 			}
 
+			//log("check 4\n");
+
 			// if there is an item on this tile
-			if (_client->getGame()->getItemAt(curr) != ITEM_NONE) {
-				SDL_QueryTexture(_item_icons[_client->getGame()->getItemAt(curr)], NULL, NULL, &tileRect.w, &tileRect.h);
+			if (g->getItemAt(curr) != ITEM_NONE) {
+				//log("ITEM\n");
+				SDL_QueryTexture(_item_icons[g->getItemAt(curr)], NULL, NULL, &tileRect.w, &tileRect.h);
 				tileRect.x = xDefault - (tileRect.w - 28) / 2;
 				tileRect.y = yDefault - (tileRect.h - 28) / 2;
-				SDL_RenderCopy(_renderer, _item_icons[_client->getGame()->getItemAt(curr)], NULL, &tileRect);
+				SDL_RenderCopy(_renderer, _item_icons[g->getItemAt(curr)], NULL, &tileRect);
 			}
+
+			//log("check 5\n");
 
 			// if this is a selected tile
 			Iterator<ClientMirror*> playIt = _connectionManager->getClientList()->getIterator();
@@ -485,68 +498,87 @@ void GameOverlay::drawGrid() {
 				}
 			}
 
+			//log("check 6\n");
+
 			// if this tile is movable-to by the current player
-			if (_client->getGame()->getCurrTurnPlayer() != NULL &&
-				_client->getGame()->getCurrTurnPlayer()->getSelectedProgramDist(curr) > 0 &&
-				_client->getGame()->getCurrTurnPlayer()->getSelectedProgram()->getOwner() == _client->getGame()->getCurrTurnPlayer() &&
-				_client->getGame()->getCurrTurnPlayer()->getSelectedAction() == NULL) {
+			if (g->getCurrTurnPlayer() != NULL &&
+				g->getCurrTurnPlayer()->getSelectedProgramDist(curr) > 0 &&
+				g->getCurrTurnPlayer()->getSelectedProgram()->getOwner() == g->getCurrTurnPlayer() &&
+				g->getCurrTurnPlayer()->getSelectedAction() == NULL) {
 				tileRect.x = xDefault;
 				tileRect.y = yDefault;
 				tileRect.w = sizeDefault;
 				tileRect.h = sizeDefault;
 
-				if (curr == _client->getGame()->getCurrTurnPlayer()->getSelectedProgram()->getCore() + Coord{ 0, 1 })
+				if (curr == g->getCurrTurnPlayer()->getSelectedProgram()->getHead() + Coord{ 0, 1 })
 					SDL_RenderCopy(_renderer, _tile_moveSouth, NULL, &tileRect);
-				else if (curr == _client->getGame()->getCurrTurnPlayer()->getSelectedProgram()->getCore() + Coord{ 1, 0 })
+				else if (curr == g->getCurrTurnPlayer()->getSelectedProgram()->getHead() + Coord{ 1, 0 })
 					SDL_RenderCopy(_renderer, _tile_moveEast, NULL, &tileRect);
-				else if (curr == _client->getGame()->getCurrTurnPlayer()->getSelectedProgram()->getCore() + Coord{ 0, -1 })
+				else if (curr == g->getCurrTurnPlayer()->getSelectedProgram()->getHead() + Coord{ 0, -1 })
 					SDL_RenderCopy(_renderer, _tile_moveNorth, NULL, &tileRect);
-				else if (curr == _client->getGame()->getCurrTurnPlayer()->getSelectedProgram()->getCore() + Coord{ -1, 0 })
+				else if (curr == g->getCurrTurnPlayer()->getSelectedProgram()->getHead() + Coord{ -1, 0 })
 					SDL_RenderCopy(_renderer, _tile_moveWest, NULL, &tileRect);
 				else
 					SDL_RenderCopy(_renderer, _tile_movePossible, NULL, &tileRect);
 			}
 
+			//log("check 7\n");
+
 			// if this tile is in the range of a programAction
-			if (_client->getGame()->getCurrTurnPlayer() != NULL &&
-				_client->getGame()->getCurrTurnPlayer()->getSelectedActionDist(curr) > 0 &&
-				_client->getGame()->getProgramAt(curr) != _client->getGame()->getCurrTurnPlayer()->getSelectedProgram()) {
+			if (g->getCurrTurnPlayer() != NULL &&
+				g->getProgramAt(curr) != g->getCurrTurnPlayer()->getSelectedProgram() &&
+				g->getCurrTurnPlayer()->getSelectedAction() != NULL) {
 				tileRect.x = xDefault - 2;
 				tileRect.y = yDefault - 2;
 				tileRect.w = sizeDefault + 4;
 				tileRect.h = sizeDefault + 4;
-
-				switch (_client->getGame()->getCurrTurnPlayer()->getSelectedAction()->type_) {
-				case ACTIONTYPE_DAMAGE:
-					SDL_RenderCopy(_renderer, _tile_actionDamage, NULL, &tileRect);
-					break;
-				case ACTIONTYPE_HEAL:
+				
+				if (g->getCurrTurnPlayer()->getSelectedAction()->type_ == ACTIONTYPE_TILEPLACE && 
+					!g->isTiled(curr) && 
+					g->getCurrTurnPlayer()->getSelectedActionDistAll(curr) > 0) {
 					SDL_RenderCopy(_renderer, _tile_actionHeal, NULL, &tileRect);
-					break;
-				case ACTIONTYPE_MAXHEALTHDOWN:
-					SDL_RenderCopy(_renderer, _tile_actionHeal, NULL, &tileRect);
-					break;
-				case ACTIONTYPE_MAXHEALTHUP:
-					SDL_RenderCopy(_renderer, _tile_actionHeal, NULL, &tileRect);
-					break;
-				case ACTIONTYPE_SPEEDDOWN:
-					SDL_RenderCopy(_renderer, _tile_actionSpeed, NULL, &tileRect);
-					break;
-				case ACTIONTYPE_SPEEDUP:
-					SDL_RenderCopy(_renderer, _tile_actionHeal, NULL, &tileRect);
-					break;
-				case ACTIONTYPE_TILEDELETE:
-					SDL_RenderCopy(_renderer, _tile_actionHeal, NULL, &tileRect);
-					break;
-				case ACTIONTYPE_TILEPLACE:
-					SDL_RenderCopy(_renderer, _tile_actionHeal, NULL, &tileRect);
-					break;
-				default:
-					break;
+				} else if (g->getCurrTurnPlayer()->getSelectedActionDist(curr) > 0 && 
+						   g->getCurrTurnPlayer()->getSelectedAction()->type_ != ACTIONTYPE_TILEPLACE) {
+					switch (g->getCurrTurnPlayer()->getSelectedAction()->type_) {
+					case ACTIONTYPE_DAMAGE:
+						SDL_RenderCopy(_renderer, _tile_actionDamage, NULL, &tileRect);
+						break;
+					case ACTIONTYPE_HEAL:
+						SDL_RenderCopy(_renderer, _tile_actionHeal, NULL, &tileRect);
+						break;
+					case ACTIONTYPE_MAXHEALTHDOWN:
+						SDL_RenderCopy(_renderer, _tile_actionHeal, NULL, &tileRect);
+						break;
+					case ACTIONTYPE_MAXHEALTHUP:
+						SDL_RenderCopy(_renderer, _tile_actionHeal, NULL, &tileRect);
+						break;
+					case ACTIONTYPE_SPEEDDOWN:
+						SDL_RenderCopy(_renderer, _tile_actionSpeed, NULL, &tileRect);
+						break;
+					case ACTIONTYPE_SPEEDUP:
+						SDL_RenderCopy(_renderer, _tile_actionHeal, NULL, &tileRect);
+						break;
+					case ACTIONTYPE_TILEDELETE:
+						SDL_RenderCopy(_renderer, _tile_actionHeal, NULL, &tileRect);
+						break;
+					case ACTIONTYPE_TILEPLACE:
+						SDL_RenderCopy(_renderer, _tile_actionHeal, NULL, &tileRect);
+						break;
+					case ACTIONTYPE_MAXACTIONSUP:
+						SDL_RenderCopy(_renderer, _tile_actionSpeed, NULL, &tileRect);
+						break;
+					case ACTIONTYPE_MAXACTIONSDOWN:
+						SDL_RenderCopy(_renderer, _tile_actionSpeed, NULL, &tileRect);
+						break;
+					default:
+						break;
+					}
 				}
 			}
 		}
 	}
+
+	//log("check X\n");
 
 	// draw all animation effects
 	Iterator<Animation*> it = animList_->getIterator();
@@ -569,10 +601,10 @@ void GameOverlay::drawGrid() {
 		SDL_RenderDrawLine(_renderer, -bkgPos_.x + (_boardWidth / 2)*_tileWidth, -bkgPos_.y + 4, -bkgPos_.x + (_boardWidth / 2)*_tileWidth, -bkgPos_.y + _boardHeight*_tileWidth); // vert
 		SDL_RenderDrawLine(_renderer, -bkgPos_.x + 4, -bkgPos_.y + (_boardHeight / 2)*_tileWidth, -bkgPos_.x + _boardWidth*_tileWidth, -bkgPos_.y + (_boardHeight / 2)*_tileWidth); // horiz
 
-		tileRect.x = -bkgPos_.x + _client->getGame()->getLeftBound()*_tileWidth;
-		tileRect.y = -bkgPos_.y + _client->getGame()->getTopBound()*_tileWidth;
-		tileRect.w = (_client->getGame()->getRightBound() - _client->getGame()->getLeftBound())*_tileWidth;
-		tileRect.h = (_client->getGame()->getBottomBound() - _client->getGame()->getTopBound())*_tileWidth;
+		tileRect.x = -bkgPos_.x + g->getLeftBound()*_tileWidth;
+		tileRect.y = -bkgPos_.y + g->getTopBound()*_tileWidth;
+		tileRect.w = (g->getRightBound() - g->getLeftBound())*_tileWidth;
+		tileRect.h = (g->getBottomBound() - g->getTopBound())*_tileWidth;
 		SDL_RenderDrawRect(_renderer, &tileRect);
 	}
 }
@@ -625,12 +657,6 @@ void GameOverlay::tick(int ms) {
 	GUIContainer::tick(ms);
 	chatDisplay_->tick(ms);
 
-	// check for updated selected program
-	// TODO: refactor this to have its own method
-	if (_client->getPlayer()->getSelectedProgram() != progDisp_->getCurrProg()) {
-		progDisp_->setCurrProg(_client->getPlayer()->getSelectedProgram());
-	}
-
 	// don't do anything if pause is visible
 	if (pauseMenu_->isVisible())
 		return;
@@ -666,7 +692,7 @@ void GameOverlay::tick(int ms) {
 			anim++;
 	}
 	if (_debug >= DEBUG_NORMAL)
-		printf("num anims: %i\n", animList_->getLength());
+		log("num anims: " + to_string(animList_->getLength()) + "\n");
 
 	// check if the current music track is done, if so, pick a new one
 	if (Mix_PlayingMusic() == 0) {
@@ -825,4 +851,8 @@ void GameOverlay::refreshCreditCounter() {
 
 	creditCounterContainer_->setDimensions({ 60 + creditCounterText_->getDimensions().x, 50 });
 	creditCounterContainer_->resetBounds();
+}
+
+ProgramDisplayContainer* GameOverlay::getProgramDisplayContainer() {
+	return progDisp_;
 }

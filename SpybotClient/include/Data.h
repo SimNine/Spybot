@@ -62,12 +62,6 @@ extern SDL_Texture* _program_core_horizontal;
 
 extern SDL_Texture* _program_icons[PROGRAM_NUM_PROGTYPES];
 extern std::string _program_icons_paths[PROGRAM_NUM_PROGTYPES];
-extern int _program_colorDefault[PROGRAM_NUM_PROGTYPES][3];
-extern int _program_maxHealthDefault[PROGRAM_NUM_PROGTYPES];
-extern int _program_speedDefault[PROGRAM_NUM_PROGTYPES];
-extern std::string _program_nameDefault[PROGRAM_NUM_PROGTYPES];
-extern std::string _program_descriptionDefault[PROGRAM_NUM_PROGTYPES];
-extern int _program_costDefault[PROGRAM_NUM_PROGTYPES];
 
 extern SDL_Texture* _item_icons[ITEM_NUM_ITEMS];
 
@@ -108,6 +102,8 @@ extern SDL_Texture* _game_icon_action_slow;
 extern SDL_Texture* _game_icon_action_speedup;
 extern SDL_Texture* _game_icon_action_tilecreate;
 extern SDL_Texture* _game_icon_action_tiledestroy;
+extern SDL_Texture* _game_icon_action_maxactionsup;
+extern SDL_Texture* _game_icon_action_maxactionsdown;
 
 extern std::string _game_disp_playerturn;
 extern std::string _game_disp_compturn;
@@ -153,6 +149,8 @@ extern SDL_Color _color_action_slow;
 extern SDL_Color _color_action_speedup;
 extern SDL_Color _color_action_tilecreate;
 extern SDL_Color _color_action_tiledestroy;
+extern SDL_Color _color_action_maxactionsup;
+extern SDL_Color _color_action_maxactionsdown;
 
 // animations
 extern SDL_Texture* _particle_basic;

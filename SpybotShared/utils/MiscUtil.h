@@ -9,8 +9,6 @@ void deserializeInt(char* buf, int* i);
 
 void serializeInt(char* buf, int i);
 
-std::string to_string(int);
-
 int dist(Coord, Coord);
 
 int tokenize(char** pointer, const char* string, char delimiter);

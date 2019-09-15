@@ -16,7 +16,7 @@ public:
 
 	//getters and setters
 	LinkedList<TeamMirror*>* getAllTeams();
-	TeamMirror* getTeamByNum(int teamNum);
+	TeamMirror* getTeamByID(int teamNum);
 	PlayerMirror* getPlayerByID(int playerID);
 	void setCurrTurnPlayer(PlayerMirror* p);
 	PlayerMirror* getCurrTurnPlayer();
@@ -28,11 +28,12 @@ public:
 
 	void setTileAt(Coord, TILE);
 	TILE getTileAt(Coord);
-	void setProgramAt(Coord, ProgramMirror*);
-	ProgramMirror* getProgramAt(Coord);
-	void moveProgramTo(ProgramMirror*, Coord);
 	void setItemAt(Coord, ITEM);
 	ITEM getItemAt(Coord);
+
+	void setProgramAt(Coord, ProgramMirror*);
+	ProgramMirror* getProgramAt(Coord);
+
 	bool isOOB(Coord);
 	bool isTiled(Coord);
 
@@ -40,6 +41,13 @@ public:
 
 	GAMESTATUS getStatus();
 	void setStatus(GAMESTATUS gs);
+
+	TeamMirror* addTeam(int teamID);
+	PlayerMirror* addPlayer(int playerID, int teamID);
+	ProgramMirror* addProgram(PROGRAM type, int programID, int playerID, int teamID);
+	void removeTeam(int teamID);
+	void removePlayer(int playerID, int teamID);
+	void removeProgram(int programID, int playerID, int teamID);
 protected:
 private:
 	// players
@@ -52,7 +60,7 @@ private:
 	TILE gridTiles_[200][200];
 	ITEM gridItems_[200][200];
 	ProgramMirror* gridPrograms_[200][200];
-	void removeReferencesToProgram(ProgramMirror* p);
+
 	BACKGROUND bkg_;
 
 	// game status

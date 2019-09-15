@@ -14,16 +14,24 @@ public:
 	void initBoard();
 	virtual ~Game();
 
-	// level save method
-	void saveLevel(std::string fileName);
+	// entity creation and deletion
+	Team* addTeam();
+	Player* addPlayer(int teamID);
+	Program* addProgram(PROGRAM type, int playerID, int teamID);
+	void removeTeam(int teamID);
+	void removePlayer(int playerID, int teamID);
+	void removeProgram(int programID, int playerID, int teamID);
 
 	// getters and setters
 	LinkedList<Team*>* getAllTeams();
-	Team* getTeamByNum(int teamNum);
+	Team* getTeamByID(int teamNum);
+	Team* getDefaultTeamAI();
+	Team* getDefaultTeamHuman();
+
 	Player* getPlayerByID(int playerID);
 	Player* getFollowingPlayer(Player* currPlayer);
-	void setCurrTurnPlayer(Player* p);
 	Player* getCurrTurnPlayer();
+	void setCurrTurnPlayer(Player* p);
 
 	void checkForWinCondition();
 
@@ -34,11 +42,13 @@ public:
 
 	void setTileAt(Coord, TILE);
 	TILE getTileAt(Coord);
-	void setProgramAt(Coord, Program*);
-	Program* getProgramAt(Coord);
-	void moveProgramTo(Program*, Coord);
 	void setItemAt(Coord, ITEM);
 	ITEM getItemAt(Coord);
+
+	// ONLY call this method from the Player class
+	void setProgramAt(Coord, Program*);
+	Program* getProgramAt(Coord);
+
 	bool isOOB(Coord);
 	bool isTiled(Coord);
 	void setSpawnGroup(Coord pos, int group);
@@ -48,6 +58,9 @@ public:
 
 	GAMESTATUS getStatus();
 	void setStatus(GAMESTATUS gs);
+
+	void loadLevel(std::string);
+	void saveLevel(std::string fileName);
 protected:
 private:
 	// players
@@ -62,11 +75,9 @@ private:
 	Program* gridPrograms_[200][200];
 	int gridSpawnGroups_[200][200];
 
-	void removeReferencesToProgram(Program*);
 	BACKGROUND bkg_;
 
 	// helper methods
-	void loadLevel(std::string);
 	void drawRectInBoard(TILE, Coord, Coord);
 	void fillRectInBoard(TILE, Coord, Coord);
 	void drawOvalInBoard(TILE, Coord, Coord);

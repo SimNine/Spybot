@@ -348,6 +348,9 @@
     <ClInclude Include="include\client\game\TeamMirror.h">
       <Filter>Header Files\client\game</Filter>
     </ClInclude>
+    <ClInclude Include="..\SpybotShared\utils\Logger.h">
+      <Filter>Header Files\shared\util</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Global.cpp">
@@ -538,6 +541,9 @@
     </ClCompile>
     <ClCompile Include="src\client\game\TeamMirror.cpp">
       <Filter>Source Files\client\game</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SpybotShared\utils\Logger.cpp">
+      <Filter>Source Files\shared\utils</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

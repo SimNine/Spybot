@@ -25,3 +25,4 @@
 #include "Enums.h"
 #include "Coord.h"
 #include "Data.h"
+#include "Logger.h"

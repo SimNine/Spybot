@@ -84,7 +84,7 @@ void ProgramDisplayContainer::tick(int ms) {
 		programInfoContainer_->removeObject(actionsText_);
 		delete actionsText_;
 	}
-	std::string actionsText = to_string(currProg_->getActionsLeft()) + "/" + to_string(1);
+	std::string actionsText = to_string(currProg_->getActionsLeft()) + "/" + to_string(currProg_->getMaxActions());
 	actionsText_ = new GUITexture(programInfoContainer_, ANCHOR_NORTHWEST, { 5, 110 }, "Actions: " + actionsText, 30);
 	programInfoContainer_->addObject(actionsText_);
 }
@@ -106,9 +106,11 @@ bool ProgramDisplayContainer::mouseDown() {
 
 void ProgramDisplayContainer::setCurrProg(ProgramMirror* p) {
 	// fade in / out
-	if (p == NULL) {
+	if (p == NULL && currProg_ != NULL) {
+		this->removeAllEffects(true);
 		this->addEffect(new GUIEffectFade(0, 500, 255, 0));
 	} else if (p != NULL && currProg_ == NULL) {
+		this->removeAllEffects(true);
 		this->addEffect(new GUIEffectFade(0, 500, 0, 255));
 	}
 

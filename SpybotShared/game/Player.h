@@ -10,7 +10,7 @@ class AICore;
 
 class Player {
 public:
-	Player(Game*, int);
+	Player(Game* g, int teamID);
 	virtual ~Player();
 
 	void endTurn();
@@ -48,6 +48,7 @@ public:
 	SDL_Color getColor();
 	Game* getGame();
 protected:
+private:
 	Game* game_;
 	int team_;
 	bool doneTurn_;
@@ -55,9 +56,9 @@ protected:
 	ProgramAction* selectedAction_;
 	LinkedList<Program*>* progsOwned_;
 
-	// helper methods for AI subclasses
+	// helper method for AI subclasses
 	void calculateProgramDist(Program*);
-private:
+
 	Coord selectedTile_;
 	int selectedProgDist_[200][200];
 	int selectedProgDistAll_[200][200];

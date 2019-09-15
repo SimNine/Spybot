@@ -59,7 +59,7 @@ void Server::sendMessageToAllClients(Message message) {
 	Iterator<Pipe*> it = clients_->getIterator();
 	while (it.hasNext()) {
 		Pipe* curr = it.next();
-		if (curr->getUser() != "")
+		if (curr->getUser() != "") // dont send messages to clients that aren't logged in
 			curr->sendData(message);
 	}
 }
@@ -98,7 +98,7 @@ void Server::recieveMessage(Message message) {
 	mtx_.unlock();
 }
 
-// attempts attempts to log a Client in
+// attempts to log a Client in
 void Server::tryLogin(Pipe* client, Message m) {
 	char* tokens[1024];
 	int numTokens = tokenize(tokens, (std::string(m.text) + "\n").c_str(), '\n');
@@ -107,21 +107,21 @@ void Server::tryLogin(Pipe* client, Message m) {
 
 	if (m.type == MSGTYPE_CREATEUSER) {
 		if (username.length() <= 0) {
-			printf("SERVER ERR: client tried to create an account with a blank username\n");
+			log("SERVER ERR: client tried to create an account with a blank username\n");
 
 			Message m;
 			m.type = MSGTYPE_CREATEUSER;
 			strncpy_s(m.text, DEFAULT_MSG_TEXTSIZE, "ERR: username cannot be blank", DEFAULT_MSG_TEXTSIZE);
 			client->sendData(m);
 		} else if (getUserByName(username) != NULL) {
-			printf("SERVER ERR: client tried to create an account with a name that already exists\n");
+			log("SERVER ERR: client tried to create an account with a name that already exists\n");
 
 			Message m;
 			m.type = MSGTYPE_CREATEUSER;
 			strncpy_s(m.text, DEFAULT_MSG_TEXTSIZE, "ERR: username already taken", DEFAULT_MSG_TEXTSIZE);
 			client->sendData(m);
 		} else if (password.length() <= 0) {
-			printf("SERVER ERR: tried to create an account with a blank password\n");
+			log("SERVER ERR: tried to create an account with a blank password\n");
 
 			Message m;
 			m.type = MSGTYPE_CREATEUSER;
@@ -140,7 +140,7 @@ void Server::tryLogin(Pipe* client, Message m) {
 		}
 	} else if (m.type == MSGTYPE_LOGIN) {
 		if (username.length() <= 0) {
-			printf("SERVER ERR: client tried to log into an account with a blank username\n");
+			log("SERVER ERR: client tried to log into an account with a blank username\n");
 
 			Message m;
 			m.type = MSGTYPE_CREATEUSER;
@@ -149,21 +149,21 @@ void Server::tryLogin(Pipe* client, Message m) {
 		} else {
 			User* requestedUser = getUserByName(username);
 			if (requestedUser == NULL) {
-				printf("SERVER ERR: requested user does not exist in database\n");
+				log("SERVER ERR: requested user does not exist in database\n");
 
 				Message m;
 				m.type = MSGTYPE_CREATEUSER;
 				strncpy_s(m.text, DEFAULT_MSG_TEXTSIZE, "ERR: user not found", DEFAULT_MSG_TEXTSIZE);
 				client->sendData(m);
 			} else if (requestedUser->loggedIn_) {
-				printf("SERVER ERR: requested user is already logged in\n");
+				log("SERVER ERR: requested user is already logged in\n");
 
 				Message m;
 				m.type = MSGTYPE_CREATEUSER;
 				strncpy_s(m.text, DEFAULT_MSG_TEXTSIZE, "ERR: user already logged in", DEFAULT_MSG_TEXTSIZE);
 				client->sendData(m);
 			} else if (password.length() <= 0) {
-				printf("SERVER ERR: tried to log into an account with a blank password\n");
+				log("SERVER ERR: tried to log into an account with a blank password\n");
 
 				Message m;
 				m.type = MSGTYPE_CREATEUSER;
@@ -174,7 +174,7 @@ void Server::tryLogin(Pipe* client, Message m) {
 					// log in this client
 					login(client, requestedUser);
 				} else {
-					printf("SERVER: client tried to log into user %s with wrong password %s\n", requestedUser->username_.c_str(), password.c_str());
+					log("SERVER: client tried to log into user " + requestedUser->username_ + " with wrong password " + password + "\n");
 
 					Message m;
 					m.type = MSGTYPE_CREATEUSER;
@@ -226,14 +226,14 @@ void Server::login(Pipe* client, User* user) {
 	// send the issuing client its credits
 	m.type = MSGTYPE_INFO;
 	m.infoType = MSGINFOTYPE_CREDITS;
-	m.actionID = getUserByName(client->getUser())->numCredits_;
+	m.num = getUserByName(client->getUser())->numCredits_;
 	client->sendData(m);
 
 	// send the issuing client its program inventory contents
 	for (int i = 0; i < PROGRAM_NUM_PROGTYPES; i++) {
 		m.type = MSGTYPE_PROGINVENTORY;
 		m.progType = (PROGRAM)i;
-		m.programID = getUserByName(client->getUser())->progsOwned_[i];
+		m.num = getUserByName(client->getUser())->progsOwned_[i];
 		client->sendData(m);
 	}
 
@@ -242,16 +242,15 @@ void Server::login(Pipe* client, User* user) {
 		for (int i = 0; i < NUM_LEVELS_CLASSIC; i++) {
 			if (user->campaignClassic_[i]) {
 				m.type = MSGTYPE_LEVELUNLOCK;
-				m.levelNum = i;
+				m.num = i;
 				client->sendData(m);
-				printf("SERVER: BINGBINGBINGBINGBING\n");
 			}
 		}
 	} else if (savePath_ == "levels/nightfall") {
 		for (int i = 0; i < NUM_LEVELS_NIGHTFALL; i++) {
 			if (user->campaignNightfall_[i]) {
 				m.type = MSGTYPE_LEVELUNLOCK;
-				m.levelNum = i;
+				m.num = i;
 				client->sendData(m);
 			}
 		}
@@ -269,13 +268,13 @@ void Server::login(Pipe* client, User* user) {
 }
 
 void Server::processMessage(Message* msg) {
-	printf("SERVER RECIEVED MSG: ");
+	log("SERVER RECIEVED MSG: ");
 	_printMessage(*msg);
 
 	// get the client of the issuer
 	Pipe* issuingClient = getClientByID(msg->clientID);
 	if (issuingClient == NULL && msg->clientID != 0) {
-		printf("SERVER ERR: got a message from a client that doesn't exist\n");
+		log("SERVER ERR: got a message from a client that doesn't exist\n");
 		return;
 	}
 
@@ -347,9 +346,9 @@ void Server::processMessage(Message* msg) {
 			if (game_ != NULL)
 				delete game_;
 
-			currentLevel_ = msg->levelNum;
-			game_ = new Game(savePath_ + "/" + to_string(msg->levelNum) + ".urf");
+			currentLevel_ = msg->num;
 			sendMessageToAllClients(*msg);
+			game_ = new Game(savePath_ + "/" + to_string(msg->num) + ".urf");
 
 			Iterator<Pipe*> it = clients_->getIterator();
 			while (it.hasNext()) {
@@ -367,29 +366,30 @@ void Server::processMessage(Message* msg) {
 		break;
 	case MSGTYPE_JOIN:
 		if (game_ == NULL) {
-			printf("SERVER ERR: client %i tried to join a game that doesn't exist\n", msg->clientID);
+			log("SERVER ERR: client " + to_string(msg->clientID) + " tried to join a game that doesn't exist\n");
 			return;
 		} else if (issuingClient->getPlayer() == -1) {
-			printf("SERVER: client %i has joined the current game\n", msg->clientID);
+			log("SERVER: client " + to_string(msg->clientID) + " has joined the current game\n");
 
-			// if team 0 doesn't exist, create it
-			if (game_->getTeamByNum(0) == NULL)
-				game_->getAllTeams()->addFirst(new Team(0));
+			// get the default human team, creating one if it doesn't exist
+			Team* humanTeam = game_->getDefaultTeamHuman();
+			if (humanTeam == NULL) {
+				humanTeam = game_->addTeam();
+				humanTeam->setDefaultHuman(true);
+			}
 
-			// create a new player in the local game, assign it a unique playerID, assign it by default to team 0
-			int team = 0;
-			Player* newPlayer = new Player(game_, team);
-			msg->team = 0;
-			msg->playerID = issuingClient->getClientID();
-			newPlayer->setPlayerID(msg->playerID);
-			Team* teamPtr = game_->getTeamByNum(team);
-			teamPtr->getAllPlayers()->addFirst(newPlayer);
-			issuingClient->setPlayer(msg->playerID);
+			// create the new player
+			Player* p = game_->addPlayer(humanTeam->getTeamID());
+			issuingClient->setPlayer(p->getPlayerID());
 
-			// send this client's new unique playerID to every client
-			sendMessageToAllClients(*msg);
+			Message m;
+			m.type = MSGTYPE_JOIN;
+			m.clientID = msg->clientID;
+			m.teamID = humanTeam->getTeamID();
+			m.playerID = p->getPlayerID();
+			sendMessageToAllClients(m);
 		} else {
-			printf("SERVER ERR: client %i trying to join an already-joined game\n", msg->clientID);
+			log("SERVER ERR: client " + to_string(msg->clientID) + " trying to join an already-joined game\n");
 			return;
 		}
 		break;
@@ -413,9 +413,9 @@ void Server::processMessage(Message* msg) {
 	}
 	case MSGTYPE_INFO:
 		if (msg->infoType == MSGINFOTYPE_GAMESTATUS) {
-			if (issuingClient == ownerClient_)
+			if (issuingClient == ownerClient_) {
 				game_->setStatus(msg->statusType);
-			else {
+			} else {
 				Message err;
 				err.type = MSGTYPE_ERROR;
 				strncpy_s(err.text, DEFAULT_MSG_TEXTSIZE, "ERR: only the owner can change the game state", DEFAULT_MSG_TEXTSIZE);
@@ -430,7 +430,8 @@ void Server::processMessage(Message* msg) {
 
 		// check if this message actually came from the current player
 		if (p->getPlayerID() != game_->getCurrTurnPlayer()->getPlayerID()) {
-			printf("SERVER ERR: NEXTTURN message received from player %i, but current player is %i\n", p->getPlayerID(), game_->getCurrTurnPlayer()->getPlayerID());
+			log("SERVER ERR: NEXTTURN message received from player " + to_string(p->getPlayerID()) + 
+				", but current player is " + to_string(game_->getCurrTurnPlayer()->getPlayerID()) + "\n");
 			return;
 		}
 
@@ -473,13 +474,17 @@ void Server::processMessage(Message* msg) {
 	{
 		// check for existence of game
 		if (game_ == NULL) {
+			log("SERVER ERR: cannot place program while no game in session\n");
 			Message err;
 			err.type = MSGTYPE_ERROR;
 			strncpy_s(err.text, DEFAULT_MSG_TEXTSIZE, "ERR: you may only place a program while a game is in session", DEFAULT_MSG_TEXTSIZE);
+			issuingClient->sendData(err);
+			return;
 		}
 
 		// check for correct game status
 		if (game_->getStatus() != GAMESTATUS_PREGAME) {
+			log("SERVER ERR: cannot place program while game not in pregame\n");
 			Message err;
 			err.type = MSGTYPE_ERROR;
 			strncpy_s(err.text, DEFAULT_MSG_TEXTSIZE, "ERR: you may only place a program during the pregame", DEFAULT_MSG_TEXTSIZE);
@@ -489,6 +494,7 @@ void Server::processMessage(Message* msg) {
 
 		// check for spawn tile
 		if (game_->getTileAt(msg->pos) != TILE_SPAWN && game_->getTileAt(msg->pos) != TILE_SPAWN2) {
+			log("SERVER ERR: can only place program on spawntile\n");
 			Message err;
 			err.type = MSGTYPE_ERROR;
 			strncpy_s(err.text, DEFAULT_MSG_TEXTSIZE, "ERR: you may only place a program on a spawn tile", DEFAULT_MSG_TEXTSIZE);
@@ -508,46 +514,54 @@ void Server::processMessage(Message* msg) {
 			}
 
 			if (u == NULL)
-				printf("SERVER ERR: replaced program had no related user?\n");
+				log("SERVER ERR: replaced program had no related user\n");
 
-			u->progsOwned_[currProg->getType()]++;
-			currProg->getOwner()->getProgList()->remove(currProg);
-			game_->setProgramAt(msg->pos, NULL);
-			delete currProg;
+			currProg->getOwner()->setSelectedProgram(NULL);
+
+			PROGRAM type = currProg->getType();
+			game_->removeProgram(currProg->getProgramID(), currProg->getOwner()->getPlayerID(), currProg->getOwner()->getTeam());
+
+			u->progsOwned_[type]++;
+			u->progsInPlay_[type]--;
+
+			Message m;
+			m.type = MSGTYPE_PROGINVENTORY;
+			m.progType = type;
+			m.num = u->progsOwned_[type];
+			m.clientID = msg->clientID;
+			sendMessageToAllClients(m);
 		}
 
-		// place the new program, send a message indicating this to all clients
-		Message response;
-		response.type = MSGTYPE_PLACEPROG;
-		response.team = 0;
+		// place the new program
 		if (msg->progType != PROGRAM_NONE) {
-			Program* p = new Program(msg->progType, 0, msg->pos);
+			Player* pl = game_->getPlayerByID(msg->playerID);
+			Program* p = game_->addProgram(msg->progType, msg->playerID, pl->getTeam());
+			p->addTail(msg->pos);
+
+			pl->setSelectedProgram(p);
+
 			User* u = getUserByName(issuingClient->getUser());
 			u->progsOwned_[msg->progType]--;
 			u->progsInPlay_[msg->progType]++;
-			p->setProgramID(randInt());
-			game_->getPlayerByID(msg->playerID)->addProgram(p);
-			game_->setProgramAt(msg->pos, p);
 
-			response.programID = p->getProgramID();
+			Message m;
+			m.type = MSGTYPE_PROGINVENTORY;
+			m.progType = msg->progType;
+			m.num = u->progsOwned_[msg->progType];
+			m.clientID = msg->clientID;
+			sendMessageToAllClients(m);
 		}
-		response.pos = msg->pos;
-		response.progType = msg->progType;
-		response.playerID = msg->playerID;
-		response.clientID = msg->clientID;
-
-		sendMessageToAllClients(response);
 	}
 	break;
 	case MSGTYPE_PROGINVENTORY:
-		getUserByName(issuingClient->getUser())->progsOwned_[msg->progType] += msg->programID;
+		getUserByName(issuingClient->getUser())->progsOwned_[msg->progType] += msg->num;
 		saveUsers();
 
 		Message m;
 		m.type = MSGTYPE_PROGINVENTORY;
 		m.clientID = 0;
 		m.progType = msg->progType;
-		m.programID = getUserByName(issuingClient->getUser())->progsOwned_[msg->progType];
+		m.num = getUserByName(issuingClient->getUser())->progsOwned_[msg->progType];
 		sendMessageToClient(m, msg->clientID);
 		break;
 	}
@@ -569,7 +583,7 @@ void Server::disconnect(Pipe* client) {
 	}
 
 	// let the server know
-	printf("SERVER: Client %i disconnected\n", client->getClientID());
+	log("SERVER: Client " + to_string(client->getClientID()) + " disconnected\n");
 
 	// remove client from list
 	clients_->remove(client);
@@ -585,7 +599,7 @@ void Server::disconnect(Pipe* client) {
 	// remove the player from the game
 	if (game_ != NULL) {
 		Player* p = game_->getPlayerByID(client->getPlayer());
-		Team* t = game_->getTeamByNum(p->getTeam());
+		Team* t = game_->getTeamByID(p->getTeam());
 		t->getAllPlayers()->remove(p);
 		delete p;
 	}
@@ -632,7 +646,7 @@ void Server::resyncClient(int clientID) {
 	sendMessageToClient(msg, clientID);
 
 	// send tiles and items
-	for (int x = game_->getLeftBound(); x < game_->getRightBound(); x++)
+	for (int x = game_->getLeftBound(); x < game_->getRightBound(); x++) {
 		for (int y = game_->getTopBound(); y < game_->getBottomBound(); y++) {
 			msg.infoType = MSGINFOTYPE_TILE;
 			msg.pos = Coord{ x, y };
@@ -645,24 +659,26 @@ void Server::resyncClient(int clientID) {
 				sendMessageToClient(msg, clientID);
 			}
 		}
+	}
 
 	// send players and programs
 	LinkedList<Team*>* allTeams = game_->getAllTeams();
 	for (int teamNum = 0; teamNum < allTeams->getLength(); teamNum++) {
-		LinkedList<Player*>* currTeam = allTeams->getObjectAt(teamNum)->getAllPlayers();
-		for (int playerNum = 0; playerNum < currTeam->getLength(); playerNum++) {
-			Player* currPlayer = currTeam->getObjectAt(playerNum);
+		Team* currTeam = allTeams->getObjectAt(teamNum);
+		LinkedList<Player*>* playerList = currTeam->getAllPlayers();
+		for (int playerNum = 0; playerNum < playerList->getLength(); playerNum++) {
+			Player* currPlayer = playerList->getObjectAt(playerNum);
 			LinkedList<Program*>* progList = currPlayer->getProgList();
 			for (int progNum = 0; progNum < progList->getLength(); progNum++) {
 				Program* currProg = progList->getObjectAt(progNum);
 				LinkedList<Coord*>* progCoords = currProg->getTiles();
 				for (int coordNum = 0; coordNum < progCoords->getLength(); coordNum++) {
 					msg.infoType = MSGINFOTYPE_PROGRAM;
+					msg.teamID = currTeam->getTeamID();
 					msg.playerID = currPlayer->getPlayerID();
 					msg.programID = currProg->getProgramID();
 					msg.progType = currProg->getType();
 					msg.pos = *(progCoords->getObjectAt(coordNum));
-					msg.team = teamNum;
 					sendMessageToClient(msg, clientID);
 				}
 			}
@@ -684,7 +700,7 @@ void Server::processAITurn(Player* p) {
 	// execute this player's moves and actions
 	AICore* core = p->getMind();
 	if (core == NULL) {
-		printf("SERVER ERR: AI player %i doesn't have a mind, although it should\n", p->getPlayerID());
+		log("SERVER ERR: AI player " + to_string(p->getPlayerID()) + " doesn't have a mind, although it should\n");
 	} else
 		while (!p->getDoneTurn()) {
 			core->act(1);
@@ -705,12 +721,12 @@ void Server::loadUsers() {
 	userStream.open(filePath, std::ios::in | std::ios::binary);
 
 	if (!userStream.is_open()) {
-		printf("SERVER ERROR: could not open %s\n", filePath.c_str());
+		log("SERVER ERROR: could not open " + filePath + "\n");
 	} else {
-		printf("SERVER: reading %s\n", filePath.c_str());
+		log("SERVER: reading " + filePath + "\n");
 
 		// read the sizes of various data types
-		printf("SERVER: reading constants\n");
+		log("SERVER: reading constants\n");
 		int8_t sizeOfInt;
 		userStream.read((char*)&sizeOfInt, 1);
 		int8_t sizeOfChar;
@@ -719,12 +735,13 @@ void Server::loadUsers() {
 		userStream.read((char*)&sizeOfDouble, 1);
 		int8_t sizeOfBool;
 		userStream.read((char*)&sizeOfBool, 1);
-		printf("SERVER: read constants: int:%i, char:%i, double:%i, bool:%i\n", sizeOfInt, sizeOfChar, sizeOfDouble, sizeOfBool);
+		log("SERVER: read constants: int:" + to_string(sizeOfInt) + " char:" + to_string(sizeOfChar) +
+			" double:" + to_string(sizeOfDouble) + " bool:" + to_string(sizeOfBool) + "\n");
 
 		// read user table
 		int numUsers;
 		userStream.read((char*)&numUsers, sizeOfInt);
-		printf("SERVER: reading %i users\n", numUsers);
+		log("SERVER: reading " + to_string(numUsers) + " users\n");
 		for (int i = 0; i < numUsers; i++) {
 			User* currUser = new User();
 
@@ -751,7 +768,7 @@ void Server::loadUsers() {
 
 		// close the file
 		userStream.close();
-		printf("SERVER: successfully read user table\n");
+		log("SERVER: successfully read user table\n");
 	}
 }
 
@@ -761,16 +778,17 @@ void Server::saveUsers() {
 	userStream.open(filePath, std::ios::out | std::ios::binary | std::ios::trunc);
 
 	if (!userStream.is_open()) {
-		printf("SERVER ERROR: could not open %s\n", filePath.c_str());
+		log("SERVER ERROR: could not open " + filePath + "\n");
 	} else {
-		printf("SERVER: writing %s\n", filePath.c_str());
+		log("SERVER: writing " + filePath + "\n");
 
 		// begin by writing the sizes of various data types
 		int8_t sizeOfInt = sizeof(int);
 		int8_t sizeOfChar = sizeof(char);
 		int8_t sizeOfDouble = sizeof(double);
 		int8_t sizeOfBool = sizeof(bool);
-		printf("SERVER: saving constants... int:%i, char:%i, double:%i, bool:%i\n", sizeOfInt, sizeOfChar, sizeOfDouble, sizeOfBool);
+		log("SERVER: saving constants... int:" + to_string(sizeOfInt) + " char:" + to_string(sizeOfChar) + 
+			" double:" + to_string(sizeOfDouble) + " bool:" + to_string(sizeOfBool) + "\n");
 		userStream.write((char*)&sizeOfInt, 1);
 		userStream.write((char*)&sizeOfChar, 1);
 		userStream.write((char*)&sizeOfDouble, 1);
@@ -779,7 +797,7 @@ void Server::saveUsers() {
 		// write user table
 		int numUsers = users_->getLength();
 		userStream.write((char*)&numUsers, sizeOfInt);
-		printf("SERVER: writing %i users\n", numUsers);
+		log("SERVER: writing " + to_string(numUsers) + " users\n");
 		for (int i = 0; i < numUsers; i++) {
 			User* currUser = users_->getObjectAt(i);
 			userStream.write(currUser->username_.c_str(), sizeOfChar*DEFAULT_MSG_TEXTSIZE);
@@ -798,7 +816,7 @@ void Server::saveUsers() {
 
 		// close the file
 		userStream.close();
-		printf("SERVER: successfully wrote user table\n");
+		log("SERVER: successfully wrote user table\n");
 	}
 }
 

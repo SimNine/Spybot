@@ -210,16 +210,22 @@ ProgramAction::ProgramAction(MOVEPRESET p) {
 	case MOVEPRESET_ZERO:
 		setMove(ACTIONTYPE_TILEDELETE, "Zero", "Deletes one grid square", 1, 0, 0);
 		break;
-	case MOVEPRESET_CUSTOM:
-		printf("err: tried to initialize ProgramAction of invalid type\n");
-		exit(1);
+	case MOVEPRESET_FEAR:
+		setMove(ACTIONTYPE_MAXACTIONSDOWN, "Fear", "Reduces a program's actions by one", 3, 1, 0);
+		break;
+	case MOVEPRESET_COURAGE:
+		setMove(ACTIONTYPE_MAXACTIONSUP, "Courage", "Increases a program's actions by one", 3, 1, 0);
 		break;
 	case MOVEPRESET_NUM_MOVEPRESETS:
-		printf("err: tried to initialize ProgramAction of invalid type\n");
+		log("err: tried to initialize ProgramAction of invalid type\n");
+		exit(1);
+		break;
+	case MOVEPRESET_CUSTOM:
+		log("err: tried to initialize ProgramAction of invalid type\n");
 		exit(1);
 		break;
 	default:
-		printf("err: tried to initialize ProgramAction of invalid type\n");
+		log("err: tried to initialize ProgramAction of invalid type\n");
 		exit(1);
 		break;
 	}
@@ -228,7 +234,7 @@ ProgramAction::ProgramAction(MOVEPRESET p) {
 ProgramAction::~ProgramAction() {
 	//if (debug >= DEBUG_NORMAL)
 	{
-		printf("Move '%s' deleted\n", name_.c_str());
+		log("SERVER: Move '" + name_ + "' deleted\n");
 	}
 }
 

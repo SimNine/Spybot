@@ -17,7 +17,7 @@
 
 void processCommandResponse(std::string message, int clientID) {
 	if (clientID == 0) {
-		printf(">> %s\n", message.c_str());
+		log(">> " + message + "\n");
 	} else {
 		Message m;
 		m.type = MSGTYPE_CHAT;
@@ -36,13 +36,13 @@ void processCommand(std::string cmd, int clientID) {
 		processCommandResponse("no command entered", clientID);
 	} else if (strcmp(tokens[0], "getowner") == 0) {
 		Pipe* ownerClient = _server->getOwner();
-		if (ownerClient == NULL)
+		if (ownerClient == NULL) {
 			processCommandResponse("there is no owner client", clientID);
-		else {
+		} else {
 			std::string str = "the owner client is " + ownerClient->getClientID();
 			processCommandResponse(str, clientID);
 			if (ownerClient->getUser() != "") {
-				std::string loginStr = " <logged in as " + ownerClient->getUser() + ">";
+				std::string loginStr = to_string(ownerClient->getClientID()) + " <logged in as " + ownerClient->getUser() + ">";
 				processCommandResponse(loginStr, clientID);
 			}
 		}
@@ -54,10 +54,10 @@ void processCommand(std::string cmd, int clientID) {
 			std::string str = "" + curr->getClientID();
 			processCommandResponse(str, clientID);
 			if (curr->getUser() != "") {
-				std::string clientStr = "<logged in as " + curr->getUser() + ">";
+				std::string clientStr = to_string(curr->getClientID()) + "<logged in as " + curr->getUser() + ">";
 				processCommandResponse(clientStr, clientID);
 			} else {
-				processCommandResponse("<not logged in>", clientID);
+				processCommandResponse(to_string(curr->getClientID()) + "<not logged in>", clientID);
 			}
 		}
 	} else if (strcmp(tokens[0], "kick") == 0) {
@@ -74,7 +74,7 @@ void processCommand(std::string cmd, int clientID) {
 			destroyTokens(tokens);
 			return;
 		}
-		std::string str = "attempting to kick clientID " + clientID;
+		std::string str = "attempting to kick clientID " + to_string(clientID);
 		processCommandResponse(str, clientID);
 
 		Message m;
@@ -93,7 +93,7 @@ void processCommand(std::string cmd, int clientID) {
 
 		Message m;
 		m.type = MSGTYPE_LOAD;
-		m.levelNum = levelNum;
+		m.num = levelNum;
 		m.clientID = 0;
 		_server->recieveMessage(m);
 	} else if (strcmp(tokens[0], "help") == 0) {
@@ -132,20 +132,26 @@ void processCommand(std::string cmd, int clientID) {
 			return;
 		}
 
+		if (_server->getGame()->getAllTeams()->getLength() == 0) {
+			processCommandResponse("there are no players", clientID);
+			destroyTokens(tokens);
+			return;
+		}
+
 		Iterator<Team*> itTeam = _server->getGame()->getAllTeams()->getIterator();
 		while (itTeam.hasNext()) {
 			Team* currTeam = itTeam.next();
-			std::string str = "Team " + currTeam->getTeamNum();
+			std::string str = "team " + to_string(currTeam->getTeamID()) + ":";
 			processCommandResponse(str, clientID);
 
 			Iterator<Player*> itPlayer = currTeam->getAllPlayers()->getIterator();
 			while (itPlayer.hasNext()) {
 				Player* pCurr = itPlayer.next();
 				if (pCurr->getMind() == NULL) {
-					std::string str2 = "Player " + std::string(pCurr->getPlayerID() + " - Human");
+					std::string str2 = "player " + std::string(to_string(pCurr->getPlayerID()) + " - human");
 					processCommandResponse(str2, clientID);
 				} else {
-					std::string str2 = "Player " + std::string(pCurr->getPlayerID() + " - AI");
+					std::string str2 = "player " + std::string(to_string(pCurr->getPlayerID()) + " - AI");
 					processCommandResponse(str2, clientID);
 				}
 			}
@@ -208,14 +214,14 @@ void processCommand(std::string cmd, int clientID) {
 
 		User* u = _server->getUserByName(std::string(tokens[1]));
 		if (u == NULL) {
-			std::string str = "User \"" + std::string(tokens[1]) + "\" not found";
+			std::string str = "user \"" + std::string(tokens[1]) + "\" not found";
 			processCommandResponse(str, clientID);
 		} else {
-			std::string str = "User \"" + std::string(tokens[1]) + " stats:";
+			std::string str = "user \"" + std::string(tokens[1]) + "\" details:";
 			processCommandResponse(str, clientID);
-			str = (u->loggedIn_) ? "Logged in: TRUE" : "Logged in: FALSE";
+			str = (u->loggedIn_) ? "logged in: TRUE" : "logged in: FALSE";
 			processCommandResponse(str, clientID);
-			str = "Credits: " + to_string(u->numCredits_);
+			str = "credits: " + to_string(u->numCredits_);
 			processCommandResponse(str, clientID);
 		}
 	} else if (strcmp(tokens[0], "printgrid") == 0) {
@@ -284,6 +290,14 @@ void processCommand(std::string cmd, int clientID) {
 		}
 
 		g->saveLevel(std::string(tokens[1]));
+	} else if (strcmp(tokens[0], "giveprogram") == 0) {
+		if (numTokens != 4) {
+			processCommandResponse("wrong number of arguments: giveprogram (user) (programtype) (number of programs)", clientID);
+			destroyTokens(tokens);
+			return;
+		}
+
+		// TODO: add programs to client's user
 	} else {
 		std::string str = "\"" + cmd + "\" is not a valid command";
 		processCommandResponse(str, clientID);
@@ -304,5 +318,5 @@ void processCommandLoop() {
 		processCommand(buffer, 0);
 	}
 
-	printf("SERVER: parser loop existed for some reason\n");
+	log("SERVER: parser loop existed for some reason\n");
 }

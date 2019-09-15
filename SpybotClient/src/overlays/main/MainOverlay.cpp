@@ -120,7 +120,7 @@ MainOverlay::MainOverlay()
 	proceduralContainer->addObject(proceduralCampaignIcon);
 	GUIButton* proceduralCampaignButton = new GUIButton(proceduralContainer, ANCHOR_SOUTH, { 0, -10 }, "PROCEDURAL", 50,
 		[] () {
-		printf("placeholder: goto freeform map");
+		log("placeholder: goto freeform map");
 		Mix_PlayChannel(-1, _sound_move_player, 0);
 	});
 	proceduralContainer->addObject(proceduralCampaignButton);
