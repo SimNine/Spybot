@@ -116,3 +116,19 @@
 -The player can now pick up credits, and a sound is played
 -Some GUIButtons no longer share common resources; dataContainer now contains strings
 	containing URLs to the textures it represents
+
+1.0.0 - 12/26/17
+Multiplayer framework, IDE switch
+-----
+TOO MUCH STUFF TO REMEMBER IT ALL - THIS MILESTONE IS A SANITY CHECK, NOT THE FINAL VERSION
+-Now using Microsoft Visual Studio instead of Code::Blocks
+-Began using WinSock API to pass messages over network (new DLL dependencies)
+-Separated game into SpybotServer and SpybotClient
+--Separated game logic:
+---Client responds to user input by sending it to the Server
+---Server confirms that messages received from Client are valid, then updates state, sends message back to Client
+---Client updates view
+--Some logical resources are shared, these are in SpybotShared
+--Works on the basis of message passing: packets of fixed size, about 96 bytes
+-New "Multiplayer" button on main screen
+-Singleplayer is broken

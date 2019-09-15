@@ -1,0 +1,10 @@
+/Release/*.iobj
+/Release/*.ipdb
+/Release/*.pdb
+/Release/*.exp
+
+/SpybotClient/Debug/*
+/SpybotClient/Release/*
+
+/SpybotServer/Debug/*
+/SpybotServer/Release/*

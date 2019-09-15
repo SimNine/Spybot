@@ -1,0 +1,2 @@
+SpybotServer
+pause

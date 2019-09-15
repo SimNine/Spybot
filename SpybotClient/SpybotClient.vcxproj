@@ -1,0 +1,239 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <VCProjectVersion>15.0</VCProjectVersion>
+    <ProjectGuid>{265158C1-89F6-4DD2-9F1F-E19F09277EB0}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+    <RootNamespace>Spybot</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0.15063.0</WindowsTargetPlatformVersion>
+    <ProjectName>SpybotClient</ProjectName>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v141</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v141</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v141</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v141</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="Shared">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <LinkIncremental>true</LinkIncremental>
+    <IncludePath>C:\Users\curff\Desktop\Workspaces\C &amp; C++\[Libraries]\SDL2-2.0.7-VC++\include;C:\Users\curff\Desktop\Workspaces\C &amp; C++\[Libraries]\SDL2_ttf-2.0.14-VC++\include;C:\Users\curff\Desktop\Workspaces\C &amp; C++\[Libraries]\SDL2_mixer-2.0.2-VC++\include;C:\Users\curff\Desktop\Workspaces\C &amp; C++\[Libraries]\SDL2_image-2.0.2-VC++\include;C:\Users\curff\Desktop\Workspaces\C &amp; C++\Spybot\SpybotClient;C:\Users\curff\Desktop\Workspaces\C &amp; C++\Spybot\SpybotClient\include\game\server;C:\Users\curff\Desktop\Workspaces\C &amp; C++\Spybot\SpybotClient\include\game\client;C:\Users\curff\Desktop\Workspaces\C &amp; C++\Spybot\SpybotClient\include\game;C:\Users\curff\Desktop\Workspaces\C &amp; C++\Spybot\SpybotClient\include\notify;C:\Users\curff\Desktop\Workspaces\C &amp; C++\Spybot\SpybotClient\include\lobby;C:\Users\curff\Desktop\Workspaces\C &amp; C++\Spybot\SpybotClient\include\gui;C:\Users\curff\Desktop\Workspaces\C &amp; C++\Spybot\SpybotClient\include\map;C:\Users\curff\Desktop\Workspaces\C &amp; C++\Spybot\SpybotClient\include\main;C:\Users\curff\Desktop\Workspaces\C &amp; C++\Spybot\SpybotClient\include\title;C:\Users\curff\Desktop\Workspaces\C &amp; C++\Spybot\SpybotClient\include\util;C:\Users\curff\Desktop\Workspaces\C &amp; C++\Spybot\SpybotClient\include;C:\Users\curff\Desktop\Workspaces\C &amp; C++\Spybot\SpybotShared;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\Users\curff\Desktop\Workspaces\C &amp; C++\[Libraries]\SDL2_image-2.0.2-VC++\lib\x86;C:\Users\curff\Desktop\Workspaces\C &amp; C++\[Libraries]\SDL2_mixer-2.0.2-VC++\lib\x86;C:\Users\curff\Desktop\Workspaces\C &amp; C++\[Libraries]\SDL2_ttf-2.0.14-VC++\lib\x86;C:\Users\curff\Desktop\Workspaces\C &amp; C++\[Libraries]\SDL2-2.0.7-VC++\lib\x86;$(LibraryPath)</LibraryPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <LinkIncremental>true</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <LinkIncremental>false</LinkIncremental>
+    <IncludePath>C:\Users\curff\Desktop\Workspaces\C &amp; C++\[Libraries]\SDL2-2.0.7-VC++\include;C:\Users\curff\Desktop\Workspaces\C &amp; C++\[Libraries]\SDL2_ttf-2.0.14-VC++\include;C:\Users\curff\Desktop\Workspaces\C &amp; C++\[Libraries]\SDL2_mixer-2.0.2-VC++\include;C:\Users\curff\Desktop\Workspaces\C &amp; C++\[Libraries]\SDL2_image-2.0.2-VC++\include;C:\Users\curff\Desktop\Workspaces\C &amp; C++\Spybot\SpybotClient;C:\Users\curff\Desktop\Workspaces\C &amp; C++\Spybot\SpybotClient\include\game\server;C:\Users\curff\Desktop\Workspaces\C &amp; C++\Spybot\SpybotClient\include\game\client;C:\Users\curff\Desktop\Workspaces\C &amp; C++\Spybot\SpybotClient\include\game;C:\Users\curff\Desktop\Workspaces\C &amp; C++\Spybot\SpybotClient\include\notify;C:\Users\curff\Desktop\Workspaces\C &amp; C++\Spybot\SpybotClient\include\lobby;C:\Users\curff\Desktop\Workspaces\C &amp; C++\Spybot\SpybotClient\include\gui;C:\Users\curff\Desktop\Workspaces\C &amp; C++\Spybot\SpybotClient\include\map;C:\Users\curff\Desktop\Workspaces\C &amp; C++\Spybot\SpybotClient\include\main;C:\Users\curff\Desktop\Workspaces\C &amp; C++\Spybot\SpybotClient\include\title;C:\Users\curff\Desktop\Workspaces\C &amp; C++\Spybot\SpybotClient\include\util;C:\Users\curff\Desktop\Workspaces\C &amp; C++\Spybot\SpybotClient\include;C:\Users\curff\Desktop\Workspaces\C &amp; C++\Spybot\SpybotShared;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\Users\curff\Desktop\Workspaces\C &amp; C++\[Libraries]\SDL2_image-2.0.2-VC++\lib\x86;C:\Users\curff\Desktop\Workspaces\C &amp; C++\[Libraries]\SDL2_mixer-2.0.2-VC++\lib\x86;C:\Users\curff\Desktop\Workspaces\C &amp; C++\[Libraries]\SDL2_ttf-2.0.14-VC++\lib\x86;C:\Users\curff\Desktop\Workspaces\C &amp; C++\[Libraries]\SDL2-2.0.7-VC++\lib\x86;$(LibraryPath)</LibraryPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <SDLCheck>true</SDLCheck>
+      <PrecompiledHeaderFile>Standard.h</PrecompiledHeaderFile>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>SDL2.lib;SDL2main.lib;SDL2_mixer.lib;SDL2_ttf.lib;SDL2_image.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <SDLCheck>true</SDLCheck>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <SDLCheck>true</SDLCheck>
+      <PrecompiledHeaderFile>Standard.h</PrecompiledHeaderFile>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>SDL2.lib;SDL2main.lib;SDL2_mixer.lib;SDL2_ttf.lib;SDL2_image.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <SDLCheck>true</SDLCheck>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <Text Include="ReadMe.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\SpybotShared\Coord.h" />
+    <ClInclude Include="..\SpybotShared\Entry.h" />
+    <ClInclude Include="..\SpybotShared\Iterator.h" />
+    <ClInclude Include="..\SpybotShared\LinkedList.h" />
+    <ClInclude Include="..\SpybotShared\ListNode.h" />
+    <ClInclude Include="..\SpybotShared\Map.h" />
+    <ClInclude Include="..\SpybotShared\Message.h" />
+    <ClInclude Include="..\SpybotShared\MiscUtil.h" />
+    <ClInclude Include="..\SpybotShared\Pair.h" />
+    <ClInclude Include="..\SpybotShared\Timer.h" />
+    <ClInclude Include="include\Client.h" />
+    <ClInclude Include="include\DataContainer.h" />
+    <ClInclude Include="include\Enums.h" />
+    <ClInclude Include="include\game\client\GameScreen.h" />
+    <ClInclude Include="include\game\client\PlayerDisplayContainer.h" />
+    <ClInclude Include="include\game\client\ProgramDisplayContainer.h" />
+    <ClInclude Include="include\game\server\Game.h" />
+    <ClInclude Include="include\game\server\Player.h" />
+    <ClInclude Include="include\game\server\AIBasic.h" />
+    <ClInclude Include="include\game\server\AICore.h" />
+    <ClInclude Include="include\game\server\AIModerate.h" />
+    <ClInclude Include="include\game\server\Program.h" />
+    <ClInclude Include="include\game\server\ProgramAction.h" />
+    <ClInclude Include="include\game\server\Server.h" />
+    <ClInclude Include="include\Global.h" />
+    <ClInclude Include="include\gui\GUIButton.h" />
+    <ClInclude Include="include\gui\GUIContainer.h" />
+    <ClInclude Include="include\gui\GUIObject.h" />
+    <ClInclude Include="include\gui\GUISlider.h" />
+    <ClInclude Include="include\gui\GUITexture.h" />
+    <ClInclude Include="include\lobby\LobbyScreen.h" />
+    <ClInclude Include="include\Main.h" />
+    <ClInclude Include="include\main\MainScreen.h" />
+    <ClInclude Include="include\main\MainScreenGlow.h" />
+    <ClInclude Include="include\map\MapScreen.h" />
+    <ClInclude Include="include\map\Node.h" />
+    <ClInclude Include="include\map\ProgramInventoryButton.h" />
+    <ClInclude Include="include\map\ProgramInventoryDisplay.h" />
+    <ClInclude Include="include\notify\NotifyScreen.h" />
+    <ClInclude Include="include\ResourceLoader.h" />
+    <ClInclude Include="include\Standard.h" />
+    <ClInclude Include="include\title\TitleScreen.h" />
+    <ClInclude Include="targetver.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\SpybotShared\Message.cpp" />
+    <ClCompile Include="..\SpybotShared\MiscUtil.cpp" />
+    <ClCompile Include="..\SpybotShared\Timer.cpp" />
+    <ClCompile Include="src\Client.cpp" />
+    <ClCompile Include="src\DataContainer.cpp" />
+    <ClCompile Include="src\game\client\GameScreen.cpp" />
+    <ClCompile Include="src\game\client\PlayerDisplayContainer.cpp" />
+    <ClCompile Include="src\game\client\ProgramDisplayContainer.cpp" />
+    <ClCompile Include="src\game\server\Game.cpp" />
+    <ClCompile Include="src\game\server\Player.cpp" />
+    <ClCompile Include="src\game\server\Program.cpp" />
+    <ClCompile Include="src\game\server\ProgramAction.cpp" />
+    <ClCompile Include="src\Global.cpp" />
+    <ClCompile Include="src\gui\GUIButton.cpp" />
+    <ClCompile Include="src\gui\GUIContainer.cpp" />
+    <ClCompile Include="src\gui\GUIObject.cpp" />
+    <ClCompile Include="src\gui\GUISlider.cpp" />
+    <ClCompile Include="src\gui\GUITexture.cpp" />
+    <ClCompile Include="src\lobby\LobbyScreen.cpp" />
+    <ClCompile Include="src\Main.cpp" />
+    <ClCompile Include="src\main\MainScreen.cpp" />
+    <ClCompile Include="src\main\MainScreenGlow.cpp" />
+    <ClCompile Include="src\map\MapScreen.cpp" />
+    <ClCompile Include="src\map\Node.cpp" />
+    <ClCompile Include="src\map\ProgramInventoryButton.cpp" />
+    <ClCompile Include="src\map\ProgramInventoryDisplay.cpp" />
+    <ClCompile Include="src\notify\NotifyScreen.cpp" />
+    <ClCompile Include="src\ResourceLoader.cpp" />
+    <ClCompile Include="src\title\TitleScreen.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="include\icon.rc" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

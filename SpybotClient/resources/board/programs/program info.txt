@@ -1,0 +1,98 @@
+-----
+STORE 1
+-----
+
+Hack:
+Price = 500
+Move = 2
+Max size = 4
+Commands:
+Slice (1 range, 2 dmg)
+
+Bug:
+Price = 750
+Move = 5
+Max size = 1
+Commands:
+Glitch (1 range, 2 dmg)
+
+Slingshot:
+Price = 750
+Move = 2
+Max size = 2
+Commands:
+Stone (3 range, 1 dmg)
+
+Data Doctor:
+Price = 500
+Move = 4
+Max size = 5
+Commands:
+Grow (1 range, 2 heal)
+
+Bit-Man:
+Price = 250
+Move = 3
+Max size = 3
+Commands:
+Zero (delete adjacent tile)
+One (create adjacent tile)
+
+-----
+STORE 2
+-----
+
+Hack 2.0:
+Price = 1500
+Move = 3
+Max Size = 4
+Commands:
+Slice (1 range, 2 dmg)
+Dice (1 range, 3 dmg, requires size of 3)
+
+Golem.mud:
+Price = 1200
+Move = 1
+Max Size = 5
+Commands:
+Thump (1 range, 3 dmg)
+
+Wolf Spider:
+Price = 750
+Move = 3
+Max size = 3
+Commands:
+Byte (1 range, 2 dmg)
+
+Seeker:
+Price = 1000
+Move = 3
+Max size = 3
+Commands:
+Peek (2 range, 2 dmg)
+
+TOWER:
+Price = 1000
+Move = 0
+Max size = 1
+Commands:
+Spot (3 range, 3 dmg)
+
+Medic:
+Price = 1000
+Move = 3
+Max size = 3
+Commands:
+Hypo (3 range, 2 heal)
+
+Turbo:
+Price = 1000
+Move = 3
+Max size = 3
+Commands:
+Boost (2 range, 1 speedup of target, 1 dmg to self)
+
+-----
+STORE 3
+-----
+
