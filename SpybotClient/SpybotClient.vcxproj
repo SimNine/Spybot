@@ -171,6 +171,7 @@
     <ClInclude Include="include\Enums.h" />
     <ClInclude Include="include\game\client\GameScreen.h" />
     <ClInclude Include="include\game\client\PlayerDisplayContainer.h" />
+    <ClInclude Include="include\game\client\ProgramDisplayActionButton.h" />
     <ClInclude Include="include\game\client\ProgramDisplayContainer.h" />
     <ClInclude Include="include\game\server\Game.h" />
     <ClInclude Include="include\game\server\Player.h" />
@@ -210,6 +211,7 @@
     <ClCompile Include="src\Data.cpp" />
     <ClCompile Include="src\game\client\GameScreen.cpp" />
     <ClCompile Include="src\game\client\PlayerDisplayContainer.cpp" />
+    <ClCompile Include="src\game\client\ProgramDisplayActionButton.cpp" />
     <ClCompile Include="src\game\client\ProgramDisplayContainer.cpp" />
     <ClCompile Include="src\game\server\Game.cpp" />
     <ClCompile Include="src\game\server\Player.cpp" />

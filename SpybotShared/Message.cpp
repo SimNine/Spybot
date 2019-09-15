@@ -214,7 +214,18 @@ void printMessage(Message m) {
 		printf("MSGTYPE_RESYNCGAME\n");
 		break;
 	case MSGTYPE_SELECT:
-		printf("MSGTYPE_SELECT - Pos %i,%i\n", m.pos.x, m.pos.y);
+		printf("MSGTYPE_SELECT - ");
+		switch (m.selectType) {
+		case MSGSELECTTYPE_TILE:
+			printf("TILE - %i,%i\n", m.pos.x, m.pos.y);
+			break;
+		case MSGSELECTTYPE_PROGRAM:
+			printf("PROGRAM - ID %i\n", m.programID);
+			break;
+		case MSGSELECTTYPE_ACTION:
+			printf("ACTION - ID %i\n", m.actionID);
+			break;
+		}
 		break;
 	case MSGTYPE_SOUND:
 		printf("MSGTYPE_SOUND\n");

@@ -327,9 +327,7 @@ int Player::getSelectedActionDist(Coord pos)
 
 void Player::useSelectedActionAt(Coord pos)
 {
-    selectedProgram->setActionsLeft(0);
-
-    if (selectedAction == NULL || game->isOOB(pos))
+    if (selectedAction == NULL || game->isOOB(pos) || selectedProgram->getActionsLeft() <= 0)
         return;
 
     Program* tgtProg = game->getProgramAt(pos);
@@ -358,23 +356,52 @@ void Player::useSelectedActionAt(Coord pos)
             delete tgtProg;
         }
         break;
-    case ACTIONTYPE_SPEEDUP:
-        if (tgtProg == NULL)
-            return;
+	case ACTIONTYPE_SPEEDDOWN:
+		if (tgtProg == NULL)
+			return;
 
-        tgtProg->setMaxMoves(tgtProg->getMaxMoves() + selectedAction->power);
-        break;
-    case ACTIONTYPE_TILEDELETE:
-        if (game->isTiled(pos) && game->getProgramAt(pos) == NULL)
-            game->setTileAt(pos, TILE_NONE);
-        break;
-    case ACTIONTYPE_TILEPLACE:
-        if (!game->isTiled(pos))
-            game->setTileAt(pos, TILE_PLAIN);
-        break;
-    default:
-        break;
+		if (tgtProg->getMaxMoves() < selectedAction->power)
+			tgtProg->setMaxMoves(0);
+		else
+			tgtProg->setMaxMoves(tgtProg->getMaxMoves() - selectedAction->power);
+		break;
+	case ACTIONTYPE_SPEEDUP:
+		if (tgtProg == NULL)
+			return;
+
+		tgtProg->setMaxMoves(tgtProg->getMaxMoves() + selectedAction->power);
+		break;
+	case ACTIONTYPE_TILEDELETE:
+		if (game->isTiled(pos) && game->getProgramAt(pos) == NULL)
+			game->setTileAt(pos, TILE_NONE);
+		break;
+	case ACTIONTYPE_TILEPLACE:
+		if (!game->isTiled(pos))
+			game->setTileAt(pos, TILE_PLAIN);
+		break;
+	case ACTIONTYPE_MAXHEALTHDOWN:
+		if (tgtProg == NULL)
+			return;
+
+		if (tgtProg->getMaxHealth() < selectedAction->power - 1)
+			tgtProg->setMaxHealth(0);
+		else
+			tgtProg->setMaxHealth(tgtProg->getMaxHealth() - selectedAction->power);
+		break;
+	case ACTIONTYPE_MAXHEALTHUP:
+		if (tgtProg == NULL)
+			return;
+
+		tgtProg->setMaxHealth(tgtProg->getMaxHealth() + selectedAction->power);
+		break;
+	case ACTIONTYPE_HEAL:
+		printf("CLIENT ERR: action type HEAL not implemented yet\n");
+	default:
+		break;
     }
+
+	selectedProgram->setActionsLeft(selectedProgram->getActionsLeft() - 1);
+	setSelectedAction(NULL);
 }
 
 int Player::getPlayerID()

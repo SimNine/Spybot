@@ -101,6 +101,14 @@ extern SDL_Texture* _game_icon_ai;
 extern SDL_Texture* _game_icon_human;
 extern SDL_Texture* _game_icon_currTurn;
 
+extern SDL_Texture* _game_icon_action_attack;
+extern SDL_Texture* _game_icon_action_medic;
+extern SDL_Texture* _game_icon_action_unmedic;
+extern SDL_Texture* _game_icon_action_slow;
+extern SDL_Texture* _game_icon_action_speedup;
+extern SDL_Texture* _game_icon_action_tilecreate;
+extern SDL_Texture* _game_icon_action_tiledestroy;
+
 extern std::string _game_disp_playerturn;
 extern std::string _game_disp_compturn;
 
@@ -147,5 +155,12 @@ extern Mix_Chunk* _sound_pickup_files;
 extern SDL_Color _color_bkg_standard;
 extern SDL_Color _color_black;
 extern SDL_Color _color_white;
+extern SDL_Color _color_action_medic;
+extern SDL_Color _color_action_unmedic;
+extern SDL_Color _color_action_attack;
+extern SDL_Color _color_action_slow;
+extern SDL_Color _color_action_speedup;
+extern SDL_Color _color_action_tilecreate;
+extern SDL_Color _color_action_tiledestroy;
 
 #endif // DATA_H

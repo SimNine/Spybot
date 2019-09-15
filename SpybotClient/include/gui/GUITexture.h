@@ -9,8 +9,8 @@ class GUIContainer;
 class GUITexture : public GUIObject
 {
     public:
-        GUITexture(ANCHOR a, Coord disp, SDL_Texture* tex, Coord, GUIContainer* parent);
-        GUITexture(ANCHOR a, Coord disp, SDL_Texture* tex, Coord, bool, GUIContainer* parent);
+        GUITexture(ANCHOR a, Coord disp, SDL_Texture* tex, Coord dims, GUIContainer* parent);
+        GUITexture(ANCHOR a, Coord disp, SDL_Texture* tex, Coord dims, bool willDestroy, GUIContainer* parent);
         GUITexture(ANCHOR a, Coord disp, std::string addrOfTex, Coord dims, GUIContainer* parent);
         GUITexture(ANCHOR a, Coord disp, std::string strToTexturize, int fontSize, GUIContainer* parent);
         virtual ~GUITexture();

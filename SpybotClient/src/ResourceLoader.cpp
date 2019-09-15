@@ -76,3 +76,11 @@ SDL_Texture* loadString(std::string str, FONT ft, int fsize, SDL_Color col)
     SDL_FreeSurface(s);
     return t;
 }
+
+void drawString(std::string str, FONT ft, int fsize, SDL_Color col, SDL_Rect bounds)
+{
+	SDL_Texture* tex = loadString(str, ft, fsize, col);
+	SDL_QueryTexture(tex, NULL, NULL, &bounds.w, &bounds.h);
+	SDL_RenderCopy(_renderer, tex, NULL, &bounds);
+	SDL_DestroyTexture(tex);
+}

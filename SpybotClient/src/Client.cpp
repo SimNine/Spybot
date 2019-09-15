@@ -79,7 +79,7 @@ void Client::processMessage(Message* msg)
 		break;
 	case MSGTYPE_LOAD:
 		if (msg->clientID != myClientID_)
-			_notifyScreen->addNotification("client " + to_string(msg->clientID) + " has loaded level " + to_string(msg->levelNum));
+			_notifyScreen->addNotification("Client " + to_string(msg->clientID) + " has loaded level " + to_string(msg->levelNum));
 
 		player_ = NULL;
 		delete game_;
@@ -186,9 +186,8 @@ void Client::processMessage(Message* msg)
 		}
 		else if (msg->selectType == MSGSELECTTYPE_ACTION)
 		{
-			printf("GOT A MSGINFOTYPE ACTION\n");
 			Program* p = game_->getPlayerByID(msg->playerID)->getProgramByID(msg->programID);
-			game_->getPlayerByID(msg->playerID)->setSelectedAction(p->getActions()->getFirst());
+			game_->getPlayerByID(msg->playerID)->setSelectedAction(p->getActions()->getObjectAt(msg->actionID));
 		}
 		break;
 	case MSGTYPE_JOIN:

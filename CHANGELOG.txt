@@ -173,3 +173,12 @@ Server-side users, internal quality rehash
 -Eliminated DataContainer class, all global variables now prefixed with an underscore
 -Began adding LobbyScreen buttons and controls
 --Added buttons for gamemodes: Free-for-All, Team Deathmatch, Co-op
+
+1.3.0 - 1/7/18
+Program display redo, action messages enabled
+-----
+-Revamped ProgramDisplayContainer
+--Now is anchored to upper-right corner
+--Includes dropdown menu-like section for ProgramDisplayActionButtons
+-Enabled passing of action messages from client to server
+-All action types except HEAL and TILEDELETE are now functional

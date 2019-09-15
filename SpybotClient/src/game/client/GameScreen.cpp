@@ -870,7 +870,8 @@ void GameScreen::buildGUI()
 	addObject(playerDisp_);
 
 	// program display window
-	progDisp_ = new ProgramDisplayContainer(ANCHOR_NORTHWEST, { 220, 10 }, { 200, 200 }, this);
+	progDisp_ = new ProgramDisplayContainer(ANCHOR_NORTHEAST, { -320, 10 }, { 300, 400 }, this);
+	progDisp_->setMovable(false);
 	progDisp_->setTransparency(0);
 	addObject(progDisp_);
 
@@ -1006,6 +1007,8 @@ bool GameScreen::mouseDown()
                     Message msg;
                     msg.type = MSGTYPE_ACTION;
                     msg.pos = click;
+					msg.playerID = _client->getPlayer()->getPlayerID();
+					msg.programID = _client->getPlayer()->getSelectedProgram()->getProgramID();
 					_client->sendMessage(msg);
                 }
             }
@@ -1318,7 +1321,8 @@ void GameScreen::drawGrid()
             // if this tile is movable-to by the current player
             if (_client->getGame()->getCurrTurnPlayer() != NULL &&
 				_client->getGame()->getCurrTurnPlayer()->getSelectedProgramDist(curr) > 0 &&
-				_client->getGame()->getCurrTurnPlayer()->getSelectedProgram()->getOwner() == _client->getGame()->getCurrTurnPlayer())
+				_client->getGame()->getCurrTurnPlayer()->getSelectedProgram()->getOwner() == _client->getGame()->getCurrTurnPlayer() &&
+				_client->getGame()->getCurrTurnPlayer()->getSelectedAction() == NULL)
             {
                 tileRect.x = xDefault;
                 tileRect.y = yDefault;

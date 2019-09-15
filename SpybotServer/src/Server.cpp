@@ -388,12 +388,22 @@ void Server::processMessage(Message* msg)
 		break;
 	case MSGTYPE_SELECT:
 	{
-		Player* p = issuingClient->getPlayer();
-		p->setSelectedTile(msg->pos);
+		if (msg->selectType == MSGSELECTTYPE_TILE)
+		{
+			Player* p = issuingClient->getPlayer();
+			p->setSelectedTile(msg->pos);
+		}
+		else if (msg->selectType == MSGSELECTTYPE_ACTION)
+		{
+			Player* p = issuingClient->getPlayer();
+			p->setSelectedAction(p->getSelectedProgram()->getActions()->getObjectAt(msg->actionID));
+		}
 		break;
 	}
 	case MSGTYPE_LEAVE:
 	{
+		// this case is triggered ONLY if the client voluntarily and intentionally disconnects
+		// do NOT do anything else in this case
 		disconnect(issuingClient);
 		break;
 	}
@@ -486,6 +496,9 @@ void Server::processMessage(Message* msg)
 
 		sendMessageToAllClients(*msg);
 		break;
+	case MSGTYPE_ACTION:
+		issuingClient->getPlayer()->useSelectedActionAt(msg->pos);
+		break;
     }
 }
 
@@ -512,6 +525,15 @@ void Server::disconnect(Pipe* client)
 
 	// remove client from list
 	clients_->remove(client);
+
+	// if this client was the owner
+	if (client == ownerClient_)
+	{
+		if (clients_->getLength() == 0)
+			ownerClient_ = NULL;
+		else
+			ownerClient_ = clients_->getFirst();
+	}
 
 	// remove the player from the game
 	if (game_ != NULL)

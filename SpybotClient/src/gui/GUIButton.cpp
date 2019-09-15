@@ -19,6 +19,28 @@ GUIButton::GUIButton(ANCHOR a, Coord disp, std::string str, GUIContainer* parent
 }
 
 GUIButton::GUIButton(ANCHOR a, Coord disp, Coord dims, GUIContainer* parent,
+	void(*func) (void), std::string bkgN)
+	: GUIObject(a, disp, dims, parent)
+{
+	this->func = func;
+	this->bkgNormal = loadTexture(bkgN);
+	this->bkgOver = loadTexture(bkgN);
+	this->bkgPressed = loadTexture(bkgN);
+	willDestroyTextures = true;
+}
+
+GUIButton::GUIButton(ANCHOR a, Coord disp, Coord dims, GUIContainer* parent,
+	void(*func) (void), std::string bkgN, std::string bkgO)
+	: GUIObject(a, disp, dims, parent)
+{
+	this->func = func;
+	this->bkgNormal = loadTexture(bkgN);
+	this->bkgOver = loadTexture(bkgO);
+	this->bkgPressed = loadTexture(bkgO);
+	willDestroyTextures = true;
+}
+
+GUIButton::GUIButton(ANCHOR a, Coord disp, Coord dims, GUIContainer* parent,
                      void (*func) (void), std::string bkgN, std::string bkgO, std::string bkgP)
     : GUIObject(a, disp, dims, parent)
 {
@@ -26,28 +48,6 @@ GUIButton::GUIButton(ANCHOR a, Coord disp, Coord dims, GUIContainer* parent,
     this->bkgNormal = loadTexture(bkgN);
     this->bkgOver = loadTexture(bkgO);
     this->bkgPressed = loadTexture(bkgP);
-    willDestroyTextures = true;
-}
-
-GUIButton::GUIButton(ANCHOR a, Coord disp, Coord dims, GUIContainer* parent,
-                     void (*func) (void), std::string bkgN, std::string bkgO)
-    : GUIObject(a, disp, dims, parent)
-{
-    this->func = func;
-    this->bkgNormal = loadTexture(bkgN);
-    this->bkgOver = loadTexture(bkgO);
-    this->bkgPressed = loadTexture(bkgO);
-    willDestroyTextures = true;
-}
-
-GUIButton::GUIButton(ANCHOR a, Coord disp, Coord dims, GUIContainer* parent,
-                     void (*func) (void), std::string bkgN)
-    : GUIObject(a, disp, dims, parent)
-{
-    this->func = func;
-    this->bkgNormal = loadTexture(bkgN);
-    this->bkgOver = loadTexture(bkgN);
-    this->bkgPressed = loadTexture(bkgN);
     willDestroyTextures = true;
 }
 

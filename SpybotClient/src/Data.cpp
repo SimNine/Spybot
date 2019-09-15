@@ -99,6 +99,14 @@ SDL_Texture* _game_icon_ai;
 SDL_Texture* _game_icon_human;
 SDL_Texture* _game_icon_currTurn;
 
+SDL_Texture* _game_icon_action_attack;
+SDL_Texture* _game_icon_action_medic;
+SDL_Texture* _game_icon_action_unmedic;
+SDL_Texture* _game_icon_action_slow;
+SDL_Texture* _game_icon_action_speedup;
+SDL_Texture* _game_icon_action_tilecreate;
+SDL_Texture* _game_icon_action_tiledestroy;
+
 std::string _game_disp_playerturn;
 std::string _game_disp_compturn;
 
@@ -145,6 +153,13 @@ Mix_Chunk* _sound_pickup_files;
 SDL_Color _color_bkg_standard;
 SDL_Color _color_black;
 SDL_Color _color_white;
+SDL_Color _color_action_medic;
+SDL_Color _color_action_unmedic;
+SDL_Color _color_action_attack;
+SDL_Color _color_action_slow;
+SDL_Color _color_action_speedup;
+SDL_Color _color_action_tilecreate;
+SDL_Color _color_action_tiledestroy;
 
 // initialize all data
 void initData()
@@ -376,6 +391,14 @@ void initData()
 	_game_icon_ai = loadTexture("resources/lobby/cpu_30px.png");
 	_game_icon_currTurn = loadTexture("resources/lobby/arrow_30px.png");
 
+	_game_icon_action_attack = loadTexture("resources/board/actions/program_icon_action_attack.png");
+	_game_icon_action_medic = loadTexture("resources/board/actions/program_icon_action_medic.png");
+	_game_icon_action_unmedic = loadTexture("resources/board/actions/program_icon_action_unmedic.png");
+	_game_icon_action_slow = loadTexture("resources/board/actions/program_icon_action_slow.png");
+	_game_icon_action_speedup = loadTexture("resources/board/actions/program_icon_action_speedup.png");
+	_game_icon_action_tilecreate = loadTexture("resources/board/actions/program_icon_action_tilecreate.png");
+	_game_icon_action_tiledestroy = loadTexture("resources/board/actions/program_icon_action_tiledestroy.png");
+
 	_game_disp_compturn = "resources/board/disp_turn_ai.png";
 	_game_disp_playerturn = "resources/board/disp_turn_player.png";
 
@@ -421,4 +444,11 @@ void initData()
 	_color_bkg_standard = { 120, 120, 120, 140 };
 	_color_black = { 0, 0, 0, 255 };
 	_color_white = { 255, 255, 255, 255 };
+	_color_action_medic = { 255, 80, 80, 255 };
+	_color_action_unmedic = { 160, 180, 160, 255 };
+	_color_action_attack = { 255, 51, 0, 255 };
+	_color_action_slow = { 0, 102, 255, 255 };
+	_color_action_speedup = { 255, 255, 0, 255 };
+	_color_action_tilecreate = { 153, 255, 102, 255 };
+	_color_action_tiledestroy = { 102, 51, 0, 255 };
 }

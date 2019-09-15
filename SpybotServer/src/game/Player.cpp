@@ -39,16 +39,16 @@ void Player::setSelectedProgram(Program* p)
     setSelectedAction(NULL);
     selectedProgram = p;
 
+	Message m;
+	m.type = MSGTYPE_SELECT;
+	m.selectType = MSGSELECTTYPE_PROGRAM;
+	m.clientID = 0;
+	m.playerID = playerID_;
 	if (p != NULL)
-	{
-		Message m;
-		m.type = MSGTYPE_SELECT;
-		m.selectType = MSGSELECTTYPE_PROGRAM;
-		m.clientID = 0;
-		m.playerID = playerID_;
 		m.programID = p->getProgramID();
-		server->sendMessageToAllClients(m);
-	}
+	else
+		m.programID = -1;
+	server->sendMessageToAllClients(m);
 }
 
 void Player::moveSelectedProgram(Coord pos)
@@ -363,7 +363,7 @@ void Player::setSelectedAction(ProgramAction* pa)
 	m.clientID = 0;
 	m.playerID = playerID_;
 	m.programID = selectedProgram->getProgramID();
-	m.actionID = 1;
+	m.actionID = selectedProgram->getActions()->getIndexOf(pa);
 	server->sendMessageToAllClients(m);
 }
 
@@ -379,19 +379,12 @@ int Player::getSelectedActionDist(Coord pos)
 
 void Player::useSelectedActionAt(Coord pos)
 {
-    selectedProgram->setActionsLeft(0);
-
-    if (selectedAction == NULL || game->isOOB(pos))
+	// check for validity of move
+    if (selectedAction == NULL || game->isOOB(pos) || selectedProgram->getActionsLeft() <= 0)
         return;
 
+	// get program on target tile
     Program* tgtProg = game->getProgramAt(pos);
-
-	Message m;
-	m.type = MSGTYPE_ACTION;
-	m.clientID = 0;
-	m.playerID = playerID_;
-	m.pos = pos;
-	server->sendMessageToAllClients(m);
 
     switch (selectedAction->type)
     {
@@ -417,6 +410,15 @@ void Player::useSelectedActionAt(Coord pos)
             delete tgtProg;
         }
         break;
+	case ACTIONTYPE_SPEEDDOWN:
+		if (tgtProg == NULL)
+			return;
+
+		if (tgtProg->getMaxMoves() < selectedAction->power)
+			tgtProg->setMaxMoves(0);
+		else
+			tgtProg->setMaxMoves(tgtProg->getMaxMoves() - selectedAction->power);
+		break;
     case ACTIONTYPE_SPEEDUP:
         if (tgtProg == NULL)
             return;
@@ -431,9 +433,36 @@ void Player::useSelectedActionAt(Coord pos)
         if (!game->isTiled(pos))
             game->setTileAt(pos, TILE_PLAIN);
         break;
+	case ACTIONTYPE_MAXHEALTHDOWN:
+		if (tgtProg == NULL)
+			return;
+
+		if (tgtProg->getMaxHealth() < selectedAction->power - 1)
+			tgtProg->setMaxHealth(0);
+		else
+			tgtProg->setMaxHealth(tgtProg->getMaxHealth() - selectedAction->power);
+		break;
+	case ACTIONTYPE_MAXHEALTHUP:
+		if (tgtProg == NULL)
+			return;
+
+		tgtProg->setMaxHealth(tgtProg->getMaxHealth() + selectedAction->power);
+		break;
+	case ACTIONTYPE_HEAL:
+		printf("SERVER ERR: action type HEAL not implemented yet\n");
     default:
         break;
     }
+
+	selectedProgram->setActionsLeft(selectedProgram->getActionsLeft() - 1);
+	setSelectedAction(NULL);
+
+	Message m;
+	m.type = MSGTYPE_ACTION;
+	m.clientID = 0;
+	m.playerID = playerID_;
+	m.pos = pos;
+	server->sendMessageToAllClients(m);
 }
 
 int Player::getPlayerID()
