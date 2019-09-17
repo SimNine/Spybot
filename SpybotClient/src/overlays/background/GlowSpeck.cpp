@@ -4,12 +4,10 @@
 #include "Data.h"
 #include "Global.h"
 
-GlowSpeck::GlowSpeck() {
+GlowSpeck::GlowSpeck(SDL_Color col) {
 	radius_ = (rand() % 300);
 
-	rCol_ = rand() % 255;
-	gCol_ = rand() % 255;
-	bCol_ = rand() % 255;
+	col_ = col;
 
 	xPos_ = (float)(rand() % (_screenWidth + radius_ * 2) - radius_);
 	yPos_ = (float)(rand() % (_screenHeight + radius_ * 2) - radius_);
@@ -28,8 +26,8 @@ GlowSpeck::~GlowSpeck() {
 }
 
 void GlowSpeck::draw() {
-	//SDL_SetTextureColorMod(_main_bkgsplotch2, rCol, gCol, bCol);
-	SDL_SetTextureAlphaMod(_main_bkgsplotch, (Uint8)aPos_);
+	SDL_SetTextureColorMod(_main_bkgsplotch2, col_.r, col_.g, col_.b);
+	SDL_SetTextureAlphaMod(_main_bkgsplotch2, (Uint8)aPos_);
 
 	SDL_Rect destRect;
 	destRect.x = (int)xPos_;
@@ -37,7 +35,7 @@ void GlowSpeck::draw() {
 	destRect.w = radius_;
 	destRect.h = radius_;
 
-	SDL_RenderCopy(_renderer, _main_bkgsplotch, NULL, &destRect);
+	SDL_RenderCopy(_renderer, _main_bkgsplotch2, NULL, &destRect);
 }
 
 void GlowSpeck::tick(int ms) {

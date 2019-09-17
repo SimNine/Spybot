@@ -23,33 +23,33 @@
     <ProjectGuid>{265158C1-89F6-4DD2-9F1F-E19F09277EB0}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>Spybot</RootNamespace>
-    <WindowsTargetPlatformVersion>10.0.15063.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
     <ProjectName>SpybotClient</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v141</PlatformToolset>
+    <PlatformToolset>v142</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v141</PlatformToolset>
+    <PlatformToolset>v142</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v141</PlatformToolset>
+    <PlatformToolset>v142</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v141</PlatformToolset>
+    <PlatformToolset>v142</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
@@ -73,7 +73,7 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>C:\Users\curff\Desktop\Workspaces\C &amp; C++\Spybot\SpybotClient\include\overlays\background;C:\Users\curff\Desktop\Workspaces\C &amp; C++\Spybot\SpybotClient\include\overlays\locallogin;C:\Users\curff\Desktop\Workspaces\C &amp; C++\Spybot\SpybotClient\include\overlays\title;C:\Users\curff\Desktop\Workspaces\C &amp; C++\Spybot\SpybotClient\include\overlays\notify;C:\Users\curff\Desktop\Workspaces\C &amp; C++\Spybot\SpybotClient\include\overlays\map;C:\Users\curff\Desktop\Workspaces\C &amp; C++\Spybot\SpybotClient\include\overlays\main;C:\Users\curff\Desktop\Workspaces\C &amp; C++\Spybot\SpybotClient\include\overlays\lobby;C:\Users\curff\Desktop\Workspaces\C &amp; C++\Spybot\SpybotClient\include\overlays\game\animations\particles;C:\Users\curff\Desktop\Workspaces\C &amp; C++\Spybot\SpybotClient\include\overlays\game\animations;C:\Users\curff\Desktop\Workspaces\C &amp; C++\Spybot\SpybotClient\include\overlays\game;C:\Users\curff\Desktop\Workspaces\C &amp; C++\Spybot\SpybotClient\include\client;C:\Users\curff\Desktop\Workspaces\C &amp; C++\Spybot\SpybotClient\include\client\game;C:\Users\curff\Desktop\Workspaces\C &amp; C++\Spybot\SpybotClient\include\gui\GUIEffects;C:\Users\curff\Desktop\Workspaces\C &amp; C++\Spybot\SpybotClient\include\gui;C:\Users\curff\Desktop\Workspaces\C &amp; C++\Spybot\SpybotClient\include;C:\Users\curff\Desktop\Workspaces\C &amp; C++\Spybot\SpybotClient;C:\Users\curff\Desktop\Workspaces\C &amp; C++\Spybot\SpybotShared\utils;C:\Users\curff\Desktop\Workspaces\C &amp; C++\Spybot\SpybotShared\server;C:\Users\curff\Desktop\Workspaces\C &amp; C++\Spybot\SpybotShared\game;C:\Users\curff\Desktop\Workspaces\C &amp; C++\Spybot\SpybotShared;C:\Users\curff\Desktop\Workspaces\C &amp; C++\[Libraries]\SDL2-2.0.7-VC++\include;C:\Users\curff\Desktop\Workspaces\C &amp; C++\[Libraries]\SDL2_ttf-2.0.14-VC++\include;C:\Users\curff\Desktop\Workspaces\C &amp; C++\[Libraries]\SDL2_mixer-2.0.2-VC++\include;C:\Users\curff\Desktop\Workspaces\C &amp; C++\[Libraries]\SDL2_image-2.0.2-VC++\include;$(IncludePath)</IncludePath>
+    <IncludePath>C:\Users\curff\Desktop\Workspaces\C &amp; C++\Spybot\SpybotClient\include\overlays;C:\Users\curff\Desktop\Workspaces\C &amp; C++\Spybot\SpybotClient\include\overlays\background;C:\Users\curff\Desktop\Workspaces\C &amp; C++\Spybot\SpybotClient\include\overlays\locallogin;C:\Users\curff\Desktop\Workspaces\C &amp; C++\Spybot\SpybotClient\include\overlays\title;C:\Users\curff\Desktop\Workspaces\C &amp; C++\Spybot\SpybotClient\include\overlays\notify;C:\Users\curff\Desktop\Workspaces\C &amp; C++\Spybot\SpybotClient\include\overlays\map;C:\Users\curff\Desktop\Workspaces\C &amp; C++\Spybot\SpybotClient\include\overlays\main;C:\Users\curff\Desktop\Workspaces\C &amp; C++\Spybot\SpybotClient\include\overlays\lobby;C:\Users\curff\Desktop\Workspaces\C &amp; C++\Spybot\SpybotClient\include\overlays\game\animations\particles;C:\Users\curff\Desktop\Workspaces\C &amp; C++\Spybot\SpybotClient\include\overlays\game\animations;C:\Users\curff\Desktop\Workspaces\C &amp; C++\Spybot\SpybotClient\include\overlays\game;C:\Users\curff\Desktop\Workspaces\C &amp; C++\Spybot\SpybotClient\include\client;C:\Users\curff\Desktop\Workspaces\C &amp; C++\Spybot\SpybotClient\include\client\game;C:\Users\curff\Desktop\Workspaces\C &amp; C++\Spybot\SpybotClient\include\gui\GUIEffects;C:\Users\curff\Desktop\Workspaces\C &amp; C++\Spybot\SpybotClient\include\gui;C:\Users\curff\Desktop\Workspaces\C &amp; C++\Spybot\SpybotClient\include;C:\Users\curff\Desktop\Workspaces\C &amp; C++\Spybot\SpybotClient;C:\Users\curff\Desktop\Workspaces\C &amp; C++\Spybot\SpybotShared\presets;C:\Users\curff\Desktop\Workspaces\C &amp; C++\Spybot\SpybotShared\utils;C:\Users\curff\Desktop\Workspaces\C &amp; C++\Spybot\SpybotShared\server;C:\Users\curff\Desktop\Workspaces\C &amp; C++\Spybot\SpybotShared\game;C:\Users\curff\Desktop\Workspaces\C &amp; C++\Spybot\SpybotShared;C:\Users\curff\Desktop\Workspaces\C &amp; C++\[Libraries]\SDL2-2.0.7-VC++\include;C:\Users\curff\Desktop\Workspaces\C &amp; C++\[Libraries]\SDL2_ttf-2.0.14-VC++\include;C:\Users\curff\Desktop\Workspaces\C &amp; C++\[Libraries]\SDL2_mixer-2.0.2-VC++\include;C:\Users\curff\Desktop\Workspaces\C &amp; C++\[Libraries]\SDL2_image-2.0.2-VC++\include;$(IncludePath)</IncludePath>
     <LibraryPath>C:\Users\curff\Desktop\Workspaces\C &amp; C++\[Libraries]\SDL2_image-2.0.2-VC++\lib\x86;C:\Users\curff\Desktop\Workspaces\C &amp; C++\[Libraries]\SDL2_mixer-2.0.2-VC++\lib\x86;C:\Users\curff\Desktop\Workspaces\C &amp; C++\[Libraries]\SDL2_ttf-2.0.14-VC++\lib\x86;C:\Users\curff\Desktop\Workspaces\C &amp; C++\[Libraries]\SDL2-2.0.7-VC++\lib\x86;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -81,7 +81,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>C:\Users\curff\Desktop\Workspaces\C &amp; C++\Spybot\SpybotClient\include\overlays\background;C:\Users\curff\Desktop\Workspaces\C &amp; C++\Spybot\SpybotClient\include\overlays\locallogin;C:\Users\curff\Desktop\Workspaces\C &amp; C++\Spybot\SpybotClient\include\overlays\title;C:\Users\curff\Desktop\Workspaces\C &amp; C++\Spybot\SpybotClient\include\overlays\notify;C:\Users\curff\Desktop\Workspaces\C &amp; C++\Spybot\SpybotClient\include\overlays\map;C:\Users\curff\Desktop\Workspaces\C &amp; C++\Spybot\SpybotClient\include\overlays\main;C:\Users\curff\Desktop\Workspaces\C &amp; C++\Spybot\SpybotClient\include\overlays\lobby;C:\Users\curff\Desktop\Workspaces\C &amp; C++\Spybot\SpybotClient\include\overlays\game\animations\particles;C:\Users\curff\Desktop\Workspaces\C &amp; C++\Spybot\SpybotClient\include\overlays\game\animations;C:\Users\curff\Desktop\Workspaces\C &amp; C++\Spybot\SpybotClient\include\overlays\game;C:\Users\curff\Desktop\Workspaces\C &amp; C++\Spybot\SpybotClient\include\client;C:\Users\curff\Desktop\Workspaces\C &amp; C++\Spybot\SpybotClient\include\client\game;C:\Users\curff\Desktop\Workspaces\C &amp; C++\Spybot\SpybotClient\include\gui\GUIEffects;C:\Users\curff\Desktop\Workspaces\C &amp; C++\Spybot\SpybotClient\include\gui;C:\Users\curff\Desktop\Workspaces\C &amp; C++\Spybot\SpybotClient\include;C:\Users\curff\Desktop\Workspaces\C &amp; C++\Spybot\SpybotClient;C:\Users\curff\Desktop\Workspaces\C &amp; C++\Spybot\SpybotShared\utils;C:\Users\curff\Desktop\Workspaces\C &amp; C++\Spybot\SpybotShared\server;C:\Users\curff\Desktop\Workspaces\C &amp; C++\Spybot\SpybotShared\game;C:\Users\curff\Desktop\Workspaces\C &amp; C++\Spybot\SpybotShared;C:\Users\curff\Desktop\Workspaces\C &amp; C++\[Libraries]\SDL2-2.0.7-VC++\include;C:\Users\curff\Desktop\Workspaces\C &amp; C++\[Libraries]\SDL2_ttf-2.0.14-VC++\include;C:\Users\curff\Desktop\Workspaces\C &amp; C++\[Libraries]\SDL2_mixer-2.0.2-VC++\include;C:\Users\curff\Desktop\Workspaces\C &amp; C++\[Libraries]\SDL2_image-2.0.2-VC++\include;$(IncludePath)</IncludePath>
+    <IncludePath>C:\Users\curff\Desktop\Workspaces\C &amp; C++\Spybot\SpybotClient\include\overlays;C:\Users\curff\Desktop\Workspaces\C &amp; C++\Spybot\SpybotClient\include\overlays\background;C:\Users\curff\Desktop\Workspaces\C &amp; C++\Spybot\SpybotClient\include\overlays\locallogin;C:\Users\curff\Desktop\Workspaces\C &amp; C++\Spybot\SpybotClient\include\overlays\title;C:\Users\curff\Desktop\Workspaces\C &amp; C++\Spybot\SpybotClient\include\overlays\notify;C:\Users\curff\Desktop\Workspaces\C &amp; C++\Spybot\SpybotClient\include\overlays\map;C:\Users\curff\Desktop\Workspaces\C &amp; C++\Spybot\SpybotClient\include\overlays\main;C:\Users\curff\Desktop\Workspaces\C &amp; C++\Spybot\SpybotClient\include\overlays\lobby;C:\Users\curff\Desktop\Workspaces\C &amp; C++\Spybot\SpybotClient\include\overlays\game\animations\particles;C:\Users\curff\Desktop\Workspaces\C &amp; C++\Spybot\SpybotClient\include\overlays\game\animations;C:\Users\curff\Desktop\Workspaces\C &amp; C++\Spybot\SpybotClient\include\overlays\game;C:\Users\curff\Desktop\Workspaces\C &amp; C++\Spybot\SpybotClient\include\client;C:\Users\curff\Desktop\Workspaces\C &amp; C++\Spybot\SpybotClient\include\client\game;C:\Users\curff\Desktop\Workspaces\C &amp; C++\Spybot\SpybotClient\include\gui\GUIEffects;C:\Users\curff\Desktop\Workspaces\C &amp; C++\Spybot\SpybotClient\include\gui;C:\Users\curff\Desktop\Workspaces\C &amp; C++\Spybot\SpybotClient\include;C:\Users\curff\Desktop\Workspaces\C &amp; C++\Spybot\SpybotClient;C:\Users\curff\Desktop\Workspaces\C &amp; C++\Spybot\SpybotShared\presets;C:\Users\curff\Desktop\Workspaces\C &amp; C++\Spybot\SpybotShared\utils;C:\Users\curff\Desktop\Workspaces\C &amp; C++\Spybot\SpybotShared\server;C:\Users\curff\Desktop\Workspaces\C &amp; C++\Spybot\SpybotShared\game;C:\Users\curff\Desktop\Workspaces\C &amp; C++\Spybot\SpybotShared;C:\Users\curff\Desktop\Workspaces\C &amp; C++\[Libraries]\SDL2-2.0.7-VC++\include;C:\Users\curff\Desktop\Workspaces\C &amp; C++\[Libraries]\SDL2_ttf-2.0.14-VC++\include;C:\Users\curff\Desktop\Workspaces\C &amp; C++\[Libraries]\SDL2_mixer-2.0.2-VC++\include;C:\Users\curff\Desktop\Workspaces\C &amp; C++\[Libraries]\SDL2_image-2.0.2-VC++\include;$(IncludePath)</IncludePath>
     <LibraryPath>C:\Users\curff\Desktop\Workspaces\C &amp; C++\[Libraries]\SDL2_image-2.0.2-VC++\lib\x86;C:\Users\curff\Desktop\Workspaces\C &amp; C++\[Libraries]\SDL2_mixer-2.0.2-VC++\lib\x86;C:\Users\curff\Desktop\Workspaces\C &amp; C++\[Libraries]\SDL2_ttf-2.0.14-VC++\lib\x86;C:\Users\curff\Desktop\Workspaces\C &amp; C++\[Libraries]\SDL2-2.0.7-VC++\lib\x86;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -165,6 +165,8 @@
     <ClInclude Include="..\SpybotShared\game\ProgramAction.h" />
     <ClInclude Include="..\SpybotShared\game\SpawnGroup.h" />
     <ClInclude Include="..\SpybotShared\game\Team.h" />
+    <ClInclude Include="..\SpybotShared\presets\ActionPreset.h" />
+    <ClInclude Include="..\SpybotShared\presets\ProgramPreset.h" />
     <ClInclude Include="..\SpybotShared\server\CommandProcessor.h" />
     <ClInclude Include="..\SpybotShared\server\GameConfig.h" />
     <ClInclude Include="..\SpybotShared\server\Message.h" />
@@ -228,6 +230,7 @@
     <ClInclude Include="include\overlays\notify\PopupAchievement.h" />
     <ClInclude Include="include\overlays\notify\PopupNotification.h" />
     <ClInclude Include="include\overlays\notify\NotifyOverlay.h" />
+    <ClInclude Include="include\overlays\TimedEvent.h" />
     <ClInclude Include="include\overlays\title\TitleOverlay.h" />
     <ClInclude Include="include\Pipe.h" />
     <ClInclude Include="include\ResourceLoader.h" />
@@ -244,6 +247,8 @@
     <ClCompile Include="..\SpybotShared\game\ProgramAction.cpp" />
     <ClCompile Include="..\SpybotShared\game\SpawnGroup.cpp" />
     <ClCompile Include="..\SpybotShared\game\Team.cpp" />
+    <ClCompile Include="..\SpybotShared\presets\ActionPreset.cpp" />
+    <ClCompile Include="..\SpybotShared\presets\ProgramPreset.cpp" />
     <ClCompile Include="..\SpybotShared\server\CommandProcessor.cpp" />
     <ClCompile Include="..\SpybotShared\server\GameConfig.cpp" />
     <ClCompile Include="..\SpybotShared\server\Message.cpp" />
@@ -299,6 +304,7 @@
     <ClCompile Include="src\overlays\notify\PopupAchievement.cpp" />
     <ClCompile Include="src\overlays\notify\PopupNotification.cpp" />
     <ClCompile Include="src\overlays\notify\NotifyOverlay.cpp" />
+    <ClCompile Include="src\overlays\TimedEvent.cpp" />
     <ClCompile Include="src\overlays\title\TitleOverlay.cpp" />
     <ClCompile Include="src\Pipe.cpp" />
     <ClCompile Include="src\ResourceLoader.cpp" />

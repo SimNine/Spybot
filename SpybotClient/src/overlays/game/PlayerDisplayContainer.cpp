@@ -13,10 +13,14 @@
 #include "ClientMirror.h"
 #include "TeamMirror.h"
 #include "ConnectionManager.h"
+#include "GUIButton.h"
 
 PlayerDisplayContainer::PlayerDisplayContainer(ANCHOR a, Coord disp, Coord dims, GUIContainer* par)
 	: GUIContainer(par, a, disp, dims, _color_bkg_standard) {
-	//nothing
+	this->addObject(new GUIButton(this, ANCHOR_NORTHEAST, { -10, 10 }, "MINIMIZE", 20,
+		[]() {
+		_gameOverlay->hidePlayerDisp();
+	}));
 }
 
 PlayerDisplayContainer::~PlayerDisplayContainer() {
@@ -38,7 +42,7 @@ void PlayerDisplayContainer::draw() {
 	this->setDimensions({ this->getDimensions().x, height });
 
 	// draw the container itself
-	GUIContainer::drawBkg();
+	GUIContainer::draw();
 
 	// draw bounds
 	if (_debug >= DEBUG_NORMAL)
@@ -60,6 +64,7 @@ void PlayerDisplayContainer::draw() {
 		SDL_QueryTexture(humanPTitle, NULL, NULL, &objBounds.w, &objBounds.h);
 		objBounds.x = bounds_.x + xOffset;
 		objBounds.y = bounds_.y + yOffset;
+		SDL_SetTextureAlphaMod(humanPTitle, currAlpha_);
 		SDL_RenderCopy(_renderer, humanPTitle, NULL, &objBounds);
 		SDL_DestroyTexture(humanPTitle);
 		yOffset += fontSize + 5;
@@ -73,7 +78,7 @@ void PlayerDisplayContainer::draw() {
 			objBounds.y = bounds_.y + yOffset;
 			objBounds.w = 190;
 			objBounds.h = fontSize;
-			SDL_SetRenderDrawColor(_renderer, curr->getColor().r, curr->getColor().g, curr->getColor().b, 150);
+			SDL_SetRenderDrawColor(_renderer, curr->getColor().r, curr->getColor().g, curr->getColor().b, Uint8(150.0*(currAlpha_/255.0)));
 			SDL_RenderFillRect(_renderer, &objBounds);
 
 			// draw player ID (or client name)
@@ -86,6 +91,7 @@ void PlayerDisplayContainer::draw() {
 			SDL_QueryTexture(str, NULL, NULL, &objBounds.w, &objBounds.h);
 			objBounds.x = bounds_.x + xOffset;
 			objBounds.y = bounds_.y + yOffset;
+			SDL_SetTextureAlphaMod(str, currAlpha_);
 			SDL_RenderCopy(_renderer, str, NULL, &objBounds);
 			SDL_DestroyTexture(str);
 			xOffset += objBounds.w + 5;
@@ -102,6 +108,7 @@ void PlayerDisplayContainer::draw() {
 			SDL_QueryTexture(playerType, NULL, NULL, &objBounds.w, &objBounds.h);
 			objBounds.x = bounds_.x + xOffset;
 			objBounds.y = bounds_.y + yOffset;
+			SDL_SetTextureAlphaMod(playerType, currAlpha_);
 			SDL_RenderCopy(_renderer, playerType, NULL, &objBounds);
 			xOffset += objBounds.w + 5;
 
@@ -112,6 +119,7 @@ void PlayerDisplayContainer::draw() {
 				SDL_QueryTexture(_game_icon_owner, NULL, NULL, &objBounds.w, &objBounds.h);
 				objBounds.x = bounds_.x + xOffset;
 				objBounds.y = bounds_.y + yOffset;
+				SDL_SetTextureAlphaMod(_game_icon_owner, currAlpha_);
 				SDL_RenderCopy(_renderer, _game_icon_owner, NULL, &objBounds);
 				xOffset += objBounds.w + 5;
 			}
@@ -121,6 +129,7 @@ void PlayerDisplayContainer::draw() {
 				SDL_QueryTexture(_game_icon_dead, NULL, NULL, &objBounds.w, &objBounds.h);
 				objBounds.x = bounds_.x + xOffset;
 				objBounds.y = bounds_.y + yOffset;
+				SDL_SetTextureAlphaMod(_game_icon_dead, currAlpha_);
 				SDL_RenderCopy(_renderer, _game_icon_dead, NULL, &objBounds);
 				xOffset += objBounds.w + 5;
 			}
@@ -130,6 +139,7 @@ void PlayerDisplayContainer::draw() {
 				SDL_QueryTexture(_game_icon_currTurn, NULL, NULL, &objBounds.w, &objBounds.h);
 				objBounds.x = bounds_.x + xOffset;
 				objBounds.y = bounds_.y + yOffset;
+				SDL_SetTextureAlphaMod(_game_icon_currTurn, currAlpha_);
 				SDL_RenderCopy(_renderer, _game_icon_currTurn, NULL, &objBounds);
 				xOffset += objBounds.w + 5;
 			}

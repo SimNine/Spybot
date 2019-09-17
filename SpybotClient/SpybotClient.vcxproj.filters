@@ -121,6 +121,12 @@
     <Filter Include="Source Files\client\game">
       <UniqueIdentifier>{105cbfc8-0f65-497d-9a95-a721cb585999}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\shared\presets">
+      <UniqueIdentifier>{f830e879-7ca9-4cb5-a426-59b19d655fb9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\shared\presets">
+      <UniqueIdentifier>{533f5f07-b67d-4764-b926-e58b52c499c1}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <Text Include="ReadMe.txt" />
@@ -360,6 +366,15 @@
     <ClInclude Include="..\SpybotShared\server\GameConfig.h">
       <Filter>Header Files\shared\server</Filter>
     </ClInclude>
+    <ClInclude Include="..\SpybotShared\presets\ProgramPreset.h">
+      <Filter>Header Files\shared\presets</Filter>
+    </ClInclude>
+    <ClInclude Include="..\SpybotShared\presets\ActionPreset.h">
+      <Filter>Header Files\shared\presets</Filter>
+    </ClInclude>
+    <ClInclude Include="include\overlays\TimedEvent.h">
+      <Filter>Header Files\overlays</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Global.cpp">
@@ -562,6 +577,15 @@
     </ClCompile>
     <ClCompile Include="..\SpybotShared\server\GameConfig.cpp">
       <Filter>Source Files\shared\server</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SpybotShared\presets\ProgramPreset.cpp">
+      <Filter>Source Files\shared\presets</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SpybotShared\presets\ActionPreset.cpp">
+      <Filter>Source Files\shared\presets</Filter>
+    </ClCompile>
+    <ClCompile Include="src\overlays\TimedEvent.cpp">
+      <Filter>Source Files\overlays</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

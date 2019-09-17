@@ -10,6 +10,7 @@
 #include "Server.h"
 #include "Pipe.h"
 #include "User.h"
+#include "Team.h"
 
 Player::Player(Game* g, int teamID) {
 	game_ = g;
@@ -343,10 +344,15 @@ int Player::getSelectedActionDist(Coord pos) {
 }
 
 void Player::useSelectedActionAt(Coord pos) {
-	if (selectedAction_ == NULL || game_->isOOB(pos) || selectedProgram_->getActionsLeft() <= 0)
+	if (selectedAction_ == NULL || 
+		game_->isOOB(pos) || 
+		selectedProgram_->getActionsLeft() <= 0 ||
+		selectedProgram_->getHealth() < selectedAction_->minSize_)
 		return;
 
 	Program* tgtProg = game_->getProgramAt(pos);
+
+	int tileFadeDelay = 200;
 
 	switch (selectedAction_->type_) {
 	case ACTIONTYPE_DAMAGE:
@@ -381,7 +387,7 @@ void Player::useSelectedActionAt(Coord pos) {
 			m.infoType = MSGINFOTYPE_ANIM;
 			m.animType = ANIMTYPE_PROGRAMTILEDESTROY;
 			m.pos = tail;
-			m.num = (i + 1) * 100;
+			m.num = (i + 1) * tileFadeDelay;
 			_server->sendMessageToAllClients(m);
 
 			tgtProg->removeTile(tail);
@@ -550,8 +556,259 @@ void Player::useSelectedActionAt(Coord pos) {
 			_server->sendMessageToAllClients(m);
 		}
 		break;
+	case ACTIONTYPE_TELEPORT:
+		if (tgtProg == NULL)
+			return;
+
+		if (tgtProg->getTeam() != team_)
+			return;
+
+		{
+			// identify all unoccupied tiles
+			LinkedList<Coord*>* openTiles = new LinkedList<Coord*>();
+			for (int x = game_->getLeftBound(); x < game_->getRightBound(); x++) {
+				for (int y = game_->getTopBound(); y < game_->getBottomBound(); y++) {
+					if (game_->getTileAt({ x, y }) != TILE_NONE && game_->getProgramAt({ x, y }) == NULL) {
+						openTiles->addFirst(new Coord{ x, y });
+					}
+				}
+			}
+
+			// pick one
+			int location = rand() % openTiles->getLength();
+			Coord pos = *openTiles->getObjectAt(location);
+
+			// destroy coord list
+			while (openTiles->getLength() > 0)
+				delete openTiles->poll();
+			delete openTiles;
+
+			// if this program is at max health (or max health minus one)
+			if (tgtProg->getHealth() >= tgtProg->getMaxHealth() - 1) {
+				Coord tail = tgtProg->getTail();
+				if (tail == NULLCOORD)
+					break;
+
+				Message m;
+				m.type = MSGTYPE_INFO;
+				m.infoType = MSGINFOTYPE_ANIM;
+				m.animType = ANIMTYPE_PROGRAMTILEDESTROY;
+				m.pos = tail;
+				m.num = tileFadeDelay;
+				_server->sendMessageToAllClients(m);
+
+				tgtProg->removeTile(tail);
+			}
+
+			tgtProg->addHead(pos);
+
+			Message m;
+			m.type = MSGTYPE_INFO;
+			m.infoType = MSGINFOTYPE_ANIM;
+			m.animType = ANIMTYPE_ACTION_ATTACK;
+			m.pos = pos;
+			m.num = 20;
+			_server->sendMessageToAllClients(m);
+
+			m.type = MSGTYPE_SOUND;
+			m.soundType = MSGSOUNDNAME_SPEEDMOD;
+			m.num = 0;
+			_server->sendMessageToAllClients(m);
+		}
+		break;
+	case ACTIONTYPE_TRANSMIT:
+		if (tgtProg == NULL)
+			return;
+
+		if (tgtProg->getTeam() != team_)
+			return;
+
+		{
+			// identify all other transmitters on this team
+			LinkedList<Program*>* transmitterList = new LinkedList<Program*>();
+			Iterator<Player*> itPlayers = game_->getTeamByID(team_)->getAllPlayers()->getIterator();
+			while (itPlayers.hasNext()) {
+				Player* currPlayer = itPlayers.next();
+				Iterator<Program*> itProgs = currPlayer->getProgList()->getIterator();
+				while (itProgs.hasNext()) {
+					Program* currProg = itProgs.next();
+					if (currProg != selectedProgram_ && currProg->getType() == PROGRAM_TRANSMITTER)
+						transmitterList->addFirst(currProg);
+				}
+			}
+
+			// identify all unoccupied tiles adjacent to 
+			LinkedList<Coord*>* openTiles = new LinkedList<Coord*>();
+			Iterator<Program*> itTransmitters = transmitterList->getIterator();
+			while (itTransmitters.hasNext()) {
+				Coord c = itTransmitters.next()->getHead();
+				Coord left = c + Coord{ -1, 0 };
+				Coord right = c + Coord{ 1, 0 };
+				Coord top = c + Coord{ 0, -1 };
+				Coord bottom = c + Coord{ 0, 1 };
+
+				if (game_->getTileAt(left) != TILE_NONE && game_->getProgramAt(left) == NULL)
+					openTiles->addFirst(new Coord(left));
+				if (game_->getTileAt(right) != TILE_NONE && game_->getProgramAt(right) == NULL)
+					openTiles->addFirst(new Coord(right));
+				if (game_->getTileAt(top) != TILE_NONE && game_->getProgramAt(top) == NULL)
+					openTiles->addFirst(new Coord(top));
+				if (game_->getTileAt(bottom) != TILE_NONE && game_->getProgramAt(bottom) == NULL)
+					openTiles->addFirst(new Coord(bottom));
+			}
+
+			// pick one and use it
+			if (openTiles->getLength() > 0) {
+				int location = rand() % openTiles->getLength();
+				Coord pos = *openTiles->getObjectAt(location);
+				log("pos: " + to_string(pos.x) + "," + to_string(pos.y));
+
+				// if this program is at max health (or max health minus one)
+				if (tgtProg->getHealth() >= tgtProg->getMaxHealth() - 1) {
+					Coord tail = tgtProg->getTail();
+					if (tail == NULLCOORD)
+						break;
+
+					Message m;
+					m.type = MSGTYPE_INFO;
+					m.infoType = MSGINFOTYPE_ANIM;
+					m.animType = ANIMTYPE_PROGRAMTILEDESTROY;
+					m.pos = tail;
+					m.num = tileFadeDelay;
+					_server->sendMessageToAllClients(m);
+
+					tgtProg->removeTile(tail);
+				}
+
+				// place the new head of the program
+				tgtProg->addHead(pos);
+
+				// show an animation at the tile the head was placed
+				Message m;
+				m.type = MSGTYPE_INFO;
+				m.infoType = MSGINFOTYPE_ANIM;
+				m.animType = ANIMTYPE_ACTION_ATTACK;
+				m.pos = pos;
+				m.num = 20;
+				_server->sendMessageToAllClients(m);
+
+				// play a sound
+				m.type = MSGTYPE_SOUND;
+				m.soundType = MSGSOUNDNAME_SPEEDMOD;
+				m.num = 0;
+				_server->sendMessageToAllClients(m);
+			}
+
+			// destroy transmitter list
+			while (transmitterList->getLength() > 0)
+				transmitterList->poll();
+			delete transmitterList;
+
+			// destroy coord list
+			while (openTiles->getLength() > 0)
+				delete openTiles->poll();
+			delete openTiles;
+		}
+		break;
+	case ACTIONTYPE_FRAGMENT:
+		if (tgtProg == NULL)
+			return;
+
+		if (tgtProg->getTeam() == team_)
+			return;
+
+		{
+			// identify all unoccupied tiles
+			LinkedList<Coord*>* openTiles = new LinkedList<Coord*>();
+			for (int x = game_->getLeftBound(); x < game_->getRightBound(); x++) {
+				for (int y = game_->getTopBound(); y < game_->getBottomBound(); y++) {
+					if (game_->getTileAt({ x, y }) != TILE_NONE && game_->getProgramAt({ x, y }) == NULL) {
+						openTiles->addFirst(new Coord{ x, y });
+					}
+				}
+			}
+
+			// for each tile in the targeted program
+			for (int i = 0; i < tgtProg->getHealth(); i++) {
+				// pick a random unoccupied tile
+				int location = rand() % openTiles->getLength();
+				Coord* pos = openTiles->removeObjectAt(location);
+
+				// get the targeted program's tail
+				Coord tail = tgtProg->getTail();
+
+				// send tilefade anim
+				Message m;
+				m.type = MSGTYPE_INFO;
+				m.infoType = MSGINFOTYPE_ANIM;
+				m.animType = ANIMTYPE_PROGRAMTILEDESTROY;
+				m.pos = tail;
+				m.num = tileFadeDelay;
+				_server->sendMessageToAllClients(m);
+
+				// send tile appear anim
+				m.type = MSGTYPE_INFO;
+				m.infoType = MSGINFOTYPE_ANIM;
+				m.animType = ANIMTYPE_ACTION_ATTACK;
+				m.pos = *pos;
+				m.num = 5;
+				_server->sendMessageToAllClients(m);
+
+				// move the program
+				tgtProg->removeTile(tail);
+				tgtProg->addHead(*pos);
+				delete pos;
+			}
+
+			// destroy coord list
+			while (openTiles->getLength() > 0)
+				delete openTiles->poll();
+			delete openTiles;
+
+			// send sound
+			Message m;
+			m.type = MSGTYPE_SOUND;
+			m.soundType = MSGSOUNDNAME_SPEEDMOD;
+			m.num = 0;
+			_server->sendMessageToAllClients(m);
+		}
+		break;
 	default:
 		break;
+	}
+
+	// if this action has a cost to the user, make it happen
+	if (selectedAction_->sizeCost_ != 0) {
+		int numCost;
+		if (selectedAction_->sizeCost_ == -1)
+			numCost = selectedProgram_->getHealth();
+		else
+			numCost = selectedAction_->sizeCost_;
+
+		// for each tile that is spent
+		for (int i = 0; i < numCost; i++) {
+			Coord tail = selectedProgram_->getTail();
+			if (tail == NULLCOORD)
+				break;
+
+			Message m;
+			m.type = MSGTYPE_INFO;
+			m.infoType = MSGINFOTYPE_ANIM;
+			m.animType = ANIMTYPE_PROGRAMTILEDESTROY;
+			m.pos = tail;
+			m.num = (i + 1) * tileFadeDelay;
+			_server->sendMessageToAllClients(m);
+
+			selectedProgram_->removeTile(tail);
+		}
+
+		if (selectedProgram_->getHealth() <= 0) {
+			game_->removeProgram(selectedProgram_->getProgramID(), selectedProgram_->getOwner()->getPlayerID(), selectedProgram_->getOwner()->getTeam());
+			setSelectedAction(NULL);
+			setSelectedProgram(NULL);
+			game_->checkForWinCondition();
+			return;
+		}
 	}
 
 	selectedProgram_->setActionsLeft(selectedProgram_->getActionsLeft() - 1);

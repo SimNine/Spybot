@@ -4,7 +4,7 @@
 
 class GlowSpeck {
 public:
-	GlowSpeck();
+	GlowSpeck(SDL_Color col);
 	virtual ~GlowSpeck();
 	void draw();
 	void tick(int);
@@ -16,9 +16,7 @@ protected:
 private:
 	int radius_;
 
-	Uint8 rCol_;
-	Uint8 gCol_;
-	Uint8 bCol_;
+	SDL_Color col_;
 
 	float xPos_, yPos_;
 	float xVel_, yVel_;

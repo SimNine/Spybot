@@ -11,7 +11,8 @@ public:
 	virtual ~GUIEffectFade();
 
 	void affectObject(GUIObject* object);
+	int getAlpha();
 protected:
-	Uint8 alphaInitial_;
-	Uint8 alphaFinal_;
+	int alphaInitial_;
+	int alphaFinal_;
 };

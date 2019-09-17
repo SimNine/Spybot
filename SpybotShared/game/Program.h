@@ -51,7 +51,7 @@ public:
 	void endTurn();
 	bool isDone();
 
-	void addAction(MOVEPRESET);
+	void addAction(ACTION);
 	void addAction(ProgramAction*);
 	LinkedList<ProgramAction*>* getActions();
 	ProgramAction* getActionByID(int actionID);

@@ -10,18 +10,16 @@
 #include "User.h"
 #include "GUITexture.h"
 #include "GUIButtonParamaterized.h"
+#include "MainOverlay.h"
+#include "Server.h"
+#include "TimedEvent.h"
 
 UserDisplay::UserDisplay(ANCHOR anchor, Coord disp, Coord dims, GUIContainer* parent, User* user)
 	: GUIContainer(parent, anchor, disp, dims, _color_bkg_standard) {
 	if (user == NULL) {
 		GUIButton* createButton_ = new GUIButton(this, ANCHOR_SOUTH, { 0, -50 }, "CREATE", 30, [] () {
-			char temp[20];
-			_itoa_s(randInt(), temp, 20);
-			std::string text = "user" + std::string(temp) + "\n" + "userpass";
-			Message m;
-			m.type = MSGTYPE_CREATEUSER;
-			strncpy_s(m.text, DEFAULT_MSG_TEXTSIZE, text.c_str(), DEFAULT_MSG_TEXTSIZE);
-			_connectionManager->sendMessage(m);
+			_mainOverlay->hideLocalLoginContainer(1000);
+			_mainOverlay->showLocalUsernameEntry(1000);
 		});
 		this->addObject(createButton_);
 	} else {
@@ -30,7 +28,8 @@ UserDisplay::UserDisplay(ANCHOR anchor, Coord disp, Coord dims, GUIContainer* pa
 		GUITexture* credits_ = new GUITexture(this, ANCHOR_NORTH, { 0, 60 }, "CREDITS: " + to_string(user->numCredits_), 30);
 		this->addObject(credits_);
 		int numCompleted = 0;
-		for (int i = 0; i < NUM_LEVELS_CLASSIC; i++) { // TODO: fix this. is hardcoded to only work for classic, not nightfall or freeform
+		// TODO: fix this. is hardcoded to only work for classic, not nightfall or freeform
+		for (int i = 0; i < NUM_LEVELS_CLASSIC; i++) { 
 			if (user->campaignClassic_[i])
 				numCompleted++;
 		}
@@ -39,7 +38,15 @@ UserDisplay::UserDisplay(ANCHOR anchor, Coord disp, Coord dims, GUIContainer* pa
 
 		GUIButtonParamaterized<User*>* deleteButton_ = new GUIButtonParamaterized<User*>(this, ANCHOR_SOUTH, { 0, -30 }, "DELETE", 30,
 			[] (User* u) {
+			// TODO: find a way to do this that is consistent with the actual control flow
+			_server->getUsers()->remove(u);
 			log("CLIENT: deleted user " + u->username_);
+			delete u;
+			_server->saveUsers();
+			_timedEvents->addLast(new TimedEvent(1, 
+				[]() {
+				_mainOverlay->refreshUsers();
+			}));
 		}, user);
 		this->addObject(deleteButton_);
 

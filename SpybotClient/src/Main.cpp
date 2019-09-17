@@ -17,6 +17,7 @@
 #include "LinkedList.h"
 #include "BackgroundOverlay.h"
 #include "Message.h"
+#include "TimedEvent.h"
 
 void savePrefs();
 void loadPrefs();
@@ -107,8 +108,10 @@ void resetBounds() {
 	_mapOverlay->resetBounds();
 	_gameOverlay->resetBounds();
 	_lobbyOverlay->resetBounds();
-	_notifyOverlay->resetBounds();
 	_backgroundOverlay->resetBounds();
+
+	_fadeOverlay->resetBounds();
+	_notifyOverlay->resetBounds();
 }
 
 // initializes the GUIs and switches the screen to titleScreen
@@ -116,11 +119,12 @@ void initGUIs() {
 	_titleOverlay = new TitleOverlay();
 	_mainOverlay = new MainOverlay();
 	_mapOverlay = new MapOverlay();
-	_mapOverlay->switchMap(MAPPRESET_CLASSIC);
 	_gameOverlay = new GameOverlay();
 	_lobbyOverlay = new LobbyOverlay();
-	_notifyOverlay = new NotifyOverlay();
 	_backgroundOverlay = new BackgroundOverlay();
+
+	_fadeOverlay = new GUIContainer(NULL, ANCHOR_NORTHWEST, { 0, 0 }, { _screenWidth, _screenWidth }, _color_black);
+	_notifyOverlay = new NotifyOverlay();
 
 	_overlayStack->push(_titleOverlay);
 }
@@ -514,17 +518,42 @@ void draw() {
 	for (int i = _overlayStack->getLength() - 1; i >= 0; i--) {
 		_overlayStack->getObjectAt(i)->draw();
 	}
+	_fadeOverlay->draw();
 	_notifyOverlay->draw();
+
 	SDL_RenderPresent(_renderer); // update the screen
 }
 
 // tick each screen in the stack and check for time-related achievements
 void tick(int ms) {
+	// tick every screen in the stack
 	for (int i = _overlayStack->getLength() - 1; i >= 0; i--) {
 		_overlayStack->getObjectAt(i)->tick(ms);
 	}
+	_fadeOverlay->tick(ms);
 	_notifyOverlay->tick(ms);
 
+	// tick all overlaystackeffects
+	Iterator<TimedEvent*> oStackIt = _timedEvents->getIterator();
+	LinkedList<TimedEvent*> toRemove;
+	while (oStackIt.hasNext()) {
+		TimedEvent* curr = oStackIt.next();
+		curr->tick(ms);
+		if (curr->isDone()) {
+			curr->execute();
+			toRemove.addFirst(curr);
+		}
+	}
+
+	// remove all dead overlaystackeffects
+	Iterator<TimedEvent*> deadStackEventIt = toRemove.getIterator();
+	while (deadStackEventIt.hasNext()) {
+		TimedEvent* curr = deadStackEventIt.next();
+		_timedEvents->remove(curr);
+		delete curr;
+	}
+
+	// check for time-based achievements
 	_progressMSPlayed += ms;
 	if (_progressMSPlayed > 1000) {
 		int numSeconds = _progressMSPlayed / 1000;
@@ -603,6 +632,7 @@ int main(int argc, char* args[]) {
 	initData(); // initialize resource data
 	initGUIs(); // initialize GUIContainers
 	resetBounds(); // reset bounds of all containers
+	_fadeOverlay->addEffect(new GUIEffectFade(0, 100, 255, 0));
 
 	// setup timers
 	Timer tickTimer;

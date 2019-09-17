@@ -20,8 +20,6 @@ public:
 	void shiftTo(Node*);
 	Node* getSelectedNode();
 	void clearSelectedNode();
-	void updateProgramInvDisplay();
-	void toggleInvDisplay();
 
 	void unlockAllLevels();
 	void winNode(int nodeID);
@@ -32,6 +30,10 @@ public:
 
 	void hidePauseMenu();
 	void showPauseMenu();
+
+	void hideProgInv();
+	void showProgInv();
+	void updateProgramInvDisplay();
 protected:
 private:
 	SDL_Texture* bkgImg_;
@@ -43,7 +45,8 @@ private:
 	Node* selectedNode_;
 	GUIContainer* levelConfirm_;
 
-	ProgramInventoryDisplay* invDisplay_;
+	GUIContainer* progInvTab_;
+	ProgramInventoryDisplay* progInv_;
 
 	GUIContainer* pauseMenu_;
 

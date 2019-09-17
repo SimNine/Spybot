@@ -9,6 +9,7 @@ BackgroundOverlay::BackgroundOverlay()
 	: GUIContainer(NULL, ANCHOR_NORTHWEST, { 0, 0 }, { _screenWidth, _screenHeight }, _color_clear) {
 	glowList_ = new LinkedList<GlowSpeck*>();
 	textBkgDisplacement_ = 0;
+	mode_ = BKGMODE_STANDARD;
 }
 
 BackgroundOverlay::~BackgroundOverlay() {
@@ -17,13 +18,26 @@ BackgroundOverlay::~BackgroundOverlay() {
 
 void BackgroundOverlay::draw() {
 	// clear the screen (black)
-	SDL_SetRenderDrawColor(_renderer, 0, 0, 40, 0);
+	switch (mode_) {
+	case BKGMODE_STANDARD:
+		SDL_SetRenderDrawColor(_renderer, 0, 0, 40, 0);
+		break;
+	case BKGMODE_RAINBOW:
+		SDL_SetRenderDrawColor(_renderer, 0, 0, 0, 0);
+		break;
+	case BKGMODE_REDBLUE:
+		SDL_SetRenderDrawColor(_renderer, 40, 0, 40, 0);
+		break;
+	}
 	SDL_RenderClear(_renderer);
 
 	// draw all particulates
 	glowList_->forEach([] (GlowSpeck* g) { g->draw(); });
 
-	// draw the text chunk
+	// draw the text chunk if not in rainbow mode
+	if (mode_ == BKGMODE_RAINBOW)
+		return;
+
 	SDL_Rect destRect;
 	SDL_QueryTexture(_main_bkgdata, NULL, NULL, &destRect.w, &destRect.h);
 	for (int x = 0; x < _screenWidth; x += destRect.w) {
@@ -72,8 +86,36 @@ void BackgroundOverlay::tick(int ms) {
 
 	// the longer the delay, the more likely to add a particle
 	// at 50ms, a particle is guaranteed to be added
-	if (glowList_->getLength() < 50 && rand() % 50 < ms) {
-		GlowSpeck* newGlow = new GlowSpeck();
-		glowList_->addLast(newGlow);
+	// decrements 50ms for each attempt until counter is below 0
+	while (ms > 0) {
+		if (glowList_->getLength() < 50 && rand() % 50 < ms) {
+			GlowSpeck* newGlow;
+			switch (mode_) {
+			case BKGMODE_STANDARD:
+				newGlow = new GlowSpeck({ 0, 0, 255, 0 });
+				break;
+			case BKGMODE_RAINBOW:
+				newGlow = new GlowSpeck({ (Uint8)rand(), (Uint8)rand(), (Uint8)rand(), 0 });
+				break;
+			case BKGMODE_REDBLUE:
+				if (rand() % 2 == 0)
+					newGlow = new GlowSpeck({ 255, 0, 0, 0 });
+				else
+					newGlow = new GlowSpeck({ 0, 0, 255, 0 });
+				break;
+			default:
+				newGlow = new GlowSpeck({ 255, 255, 255, 0 });
+				break;
+			}
+			glowList_->addLast(newGlow);
+		}
+		ms -= 50;
 	}
+}
+
+void BackgroundOverlay::setMode(BKGMODE m) {
+	mode_ = m;
+
+	// tick a few seconds in order to clear miscolored particles
+	tick(3000);
 }

@@ -1,13 +1,13 @@
 #pragma once
 
 #include "GUIContainer.h"
+#include "GUIButtonParamaterized.h"
 
-class GUIButton;
 class GUITextbox;
 
 class PromptBox : public GUIContainer {
 public:
-	PromptBox(ANCHOR anchor, Coord disp, Coord dims, GUIContainer* parent, std::string prompt, void(*onOk) (void), void(*onCancel) (void));
+	PromptBox(ANCHOR anchor, Coord disp, Coord dims, GUIContainer* parent, std::string prompt, void(*onOk) (PromptBox* thisObj), void(*onCancel) (PromptBox* thisObj));
 	~PromptBox();
 
 	void draw();
@@ -20,8 +20,8 @@ public:
 private:
 	std::string promptText_;
 	GUITextbox* entryField_;
-	GUIButton* okButton_;
-	GUIButton* cancelButton_;
+	GUIButtonParamaterized<PromptBox*>* okButton_;
+	GUIButtonParamaterized<PromptBox*>* cancelButton_;
 
 	const int textSize_ = 40;
 };

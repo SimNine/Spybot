@@ -1,0 +1,131 @@
+---Games Played---
+
+Name: First Attempted Cybercrime
+Desc: Start a campaign game
+
+Name: First Committed Cybercrime
+Desc: Play a campaign game
+
+Name: First Successful Cybercrime
+Desc: Win a campaign game
+
+---Programs Killed---
+
+Name: Baby Hacker
+Desc: Kill a program in campaign mode
+
+Name: Casual Hacker
+Desc: Kill ten programs in campaign mode
+
+Name: Amateur Hacker
+Desc: Kill one hundred programs in campaign mode
+
+Name: Experienced Hacker
+Desc: Kill five hundred programs in campaign mode
+
+Name: Expert Hacker
+Desc: Kill one thousand programs in campaign mode
+
+Name: Professional Hacker
+Desc: Kill two thousand programs in campaign mode
+
+Name: Hackerman
+Desc: Kill five thousand programs in campaign mode
+
+---Credits Collected---
+
+Name: Bitcoin
+Desc: Collect a credit
+
+Name: Bitcoin Cash
+Desc: Collect 1k credits
+
+Name: Ripple
+Desc: Collect 2k credits
+
+Name: Ethereum
+Desc: Collect 5k credits
+
+Name: Litecoin
+Desc: Collect 10k credits
+
+Name: Raiblocks
+Desc: Collect 50k credits
+
+Name: Dogecoin (hidden)
+Desc: Collect 100k credits
+
+Name: Garlicoin (hidden)
+Desc: Collect 500k credits
+
+---Campaigns Completed---
+
+Name: Oldschool
+Desc: Completed the classic campaign
+
+Name: Nightfall
+Desc: Completed the nightfall campaign
+
+Name: Digital Wanderer
+Desc: Complete one freeform game
+
+Name: Digital Explorer
+Desc: Complete ten freeform games
+
+Name: Digital Cartographer
+Desc: Complete fifty freeform games
+
+Name: Digital Pioneer
+Desc: Complete one hundred freeform games
+
+Name: Digital Magellan (hidden)
+Desc: Complete five hundred freeform games (hidden)
+
+---Participation---
+
+Name: Participation
+Desc: Play Spybot on your computer
+
+Name: One Minute
+Desc: Play Spybot for one minute total
+
+Name: Five Minutes
+Desc: Play Spybot for five minutes total
+
+Name: One Hour
+Desc: Play Spybot for one hour total
+
+Name: Five Hours
+Desc: Play Spybot for five hours total
+
+Name: Ten Hours
+Desc: Play Spybot for ten hours total
+
+Name: Fifty Hou-- Actually, Two Days
+Desc: Play Spybot for 48 hours total
+
+Name: Centennial
+Desc: Play Spybot for 100 hours total
+
+Name: Casual Gamer
+Desc: Play Spybot for five minutes in one session
+
+Name: Serious Casual Gamer
+Desc: Play Spybot for thirty minutes in one session
+
+Name: Gamer
+Desc: Play Spybot for one hour in one session
+
+Name: Dedicated Gamer
+Desc: Play Spybot for three hours in one session
+
+Name: You Should Take a Break
+Desc: Play Spybot for five hours in one session
+
+Name: IT'S TIME TO STOP (hidden)
+Desc: Play Spybot for seven hours in one session (hidden)
+
+Name: WHY (hidden)
+Desc: Play Spybot for ten hours in one session (hidden)
+
+---Special---

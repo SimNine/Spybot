@@ -22,6 +22,7 @@
 #include "AchievementButton.h"
 #include "GUIEffectFade.h"
 #include "GUIEffectTranslate.h"
+#include "TimedEvent.h"
 
 MainOverlay::MainOverlay()
 	: GUIContainer(NULL, ANCHOR_NORTHWEST, { 0, 0 }, { _screenWidth, _screenHeight }, _color_clear) {
@@ -151,6 +152,18 @@ MainOverlay::MainOverlay()
 		_quit = true;
 	});
 	mainContainer_->addObject(button_quit);
+	GUIButton* button_credits = new GUIButton(mainContainer_, ANCHOR_SOUTHWEST, { 20, -(41 + 20)*ln++ - 20 }, "CREDITS", 50,
+		[]() {
+		_fadeOverlay->addEffect(new GUIEffectFade(0, 1000, 0, 255));
+		_timedEvents->addLast(new TimedEvent(1100,
+			[]() {
+			_mainOverlay->hideMainContainer(0);
+			_mainOverlay->showCreditsContainer(0);
+			_backgroundOverlay->setMode(BKGMODE_RAINBOW);
+		}));
+		_fadeOverlay->addEffect(new GUIEffectFade(1200, 1000, 255, 0));
+	});
+	mainContainer_->addObject(button_credits);
 	GUIButton* button_options = new GUIButton(mainContainer_, ANCHOR_SOUTHWEST, { 20, -(41 + 20)*ln++ - 20 }, "OPTIONS", 50,
 		[] () {
 		_mainOverlay->showOptions(1000);
@@ -158,7 +171,8 @@ MainOverlay::MainOverlay()
 		Mix_PlayChannel(-1, _sound_move_player, 0);
 	});
 	mainContainer_->addObject(button_options);
-	GUIButton* button_achievements = new GUIButton(mainContainer_, ANCHOR_SOUTHWEST, { 20, -(41 + 20)*ln++ - 20 }, "ACHIEVEMENTS", 50, [] () {
+	GUIButton* button_achievements = new GUIButton(mainContainer_, ANCHOR_SOUTHWEST, { 20, -(41 + 20)*ln++ - 20 }, "ACHIEVEMENTS", 50, 
+		[] () {
 		_mainOverlay->showAchievementsContainer(1000);
 		_mainOverlay->hideMainContainer(1000);
 		Mix_PlayChannel(-1, _sound_move_player, 0);
@@ -178,13 +192,75 @@ MainOverlay::MainOverlay()
 	mainContainer_->addObject(button_campaign);
 
 	/*
+	CREDITS CONTAINER
+	*/
+	creditsContainer_ = new GUIContainer(this, ANCHOR_CENTER, { 0,0 }, { 800, 600 }, _color_clear);
+	creditsContainer_->setTransparency(0);
+	this->addObject(creditsContainer_);
+	
+	int yDispCredits = 30;
+	creditsContainer_->addObject(new GUITexture(creditsContainer_, ANCHOR_NORTH, { 0, yDispCredits }, "ORIGINALLY CREATED BY", 30));
+	yDispCredits += 30;
+	creditsContainer_->addObject(new GUITexture(creditsContainer_, ANCHOR_NORTH, { 0, yDispCredits }, "GAMELAB", 40));
+	yDispCredits += 40;
+
+	yDispCredits += 30;
+
+	creditsContainer_->addObject(new GUITexture(creditsContainer_, ANCHOR_NORTH, { 0, yDispCredits }, "GAME DESIGN:", 30));
+	yDispCredits += 30;
+	creditsContainer_->addObject(new GUITexture(creditsContainer_, ANCHOR_NORTH, { 0, yDispCredits }, "NICK FORTUGNO", 20));
+	yDispCredits += 20;
+	creditsContainer_->addObject(new GUITexture(creditsContainer_, ANCHOR_NORTH, { 0, yDispCredits }, "FRANK LANTZ", 20));
+	yDispCredits += 20;
+	creditsContainer_->addObject(new GUITexture(creditsContainer_, ANCHOR_NORTH, { 0, yDispCredits }, "ERIC ZIMMERMAN", 20));
+	yDispCredits += 20;
+
+	yDispCredits += 30;
+
+	creditsContainer_->addObject(new GUITexture(creditsContainer_, ANCHOR_NORTH, { 0, yDispCredits }, "GRAPHICS:", 30));
+	yDispCredits += 30;
+	creditsContainer_->addObject(new GUITexture(creditsContainer_, ANCHOR_NORTH, { 0, yDispCredits }, "FRANK LANTZ", 20));
+	yDispCredits += 20;
+	creditsContainer_->addObject(new GUITexture(creditsContainer_, ANCHOR_NORTH, { 0, yDispCredits }, "JUNKO OTSUKI", 20));
+	yDispCredits += 20;
+
+	yDispCredits += 30;
+
+	creditsContainer_->addObject(new GUITexture(creditsContainer_, ANCHOR_NORTH, { 0, yDispCredits }, "AUDIO:", 30));
+	yDispCredits += 30;
+	creditsContainer_->addObject(new GUITexture(creditsContainer_, ANCHOR_NORTH, { 0, yDispCredits }, "MICHAEL SWEET", 20));
+	yDispCredits += 20;
+	creditsContainer_->addObject(new GUITexture(creditsContainer_, ANCHOR_NORTH, { 0, yDispCredits }, "AUDIOBRAIN", 20));
+	yDispCredits += 20;
+
+	yDispCredits += 30;
+
+	creditsContainer_->addObject(new GUITexture(creditsContainer_, ANCHOR_NORTH, { 0, yDispCredits }, "PROGRAMMING, C++ PORT AND MULTIPLAYER EXPANSION:", 30));
+	yDispCredits += 30;
+	creditsContainer_->addObject(new GUITexture(creditsContainer_, ANCHOR_NORTH, { 0, yDispCredits }, "CHRIS URFFER", 40));
+	yDispCredits += 20;
+
+	GUIButton* creditsBackButton = new GUIButton(creditsContainer_, ANCHOR_SOUTH, { 0, 0 }, "BACK", 30,
+		[]() {
+		_fadeOverlay->addEffect(new GUIEffectFade(0, 1000, 0, 255));
+		_timedEvents->addLast(new TimedEvent(1100,
+			[]() {
+			_mainOverlay->showMainContainer(0);
+			_mainOverlay->hideCreditsContainer(0);
+			_backgroundOverlay->setMode(BKGMODE_STANDARD);
+		}));
+		_fadeOverlay->addEffect(new GUIEffectFade(1200, 1000, 255, 0));
+	});
+	creditsContainer_->addObject(creditsBackButton);
+
+	/*
 	IP PROMPT CONTAINER
 	*/
 
 	IPEntryBox_ = new PromptBox(ANCHOR_CENTER, { 0, 0 }, { 600, 200 }, this, "SERVER IP:",
-		[] () {
-		_mainOverlay->submitIPEntry();
-	}, [] () {
+		[] (PromptBox* thisBox) {
+		_connectionManager->connectToExternalServer(thisBox->getTextbox()->getContents());
+	}, [] (PromptBox* thisBox) {
 		_mainOverlay->hideIPEntry(1000);
 		_mainOverlay->showMainContainer(1000);
 	});
@@ -209,7 +285,7 @@ MainOverlay::MainOverlay()
 	loginEntryContainer_->addObject(loginPassword_);
 	loginCancelButton_ = new GUIButton(loginEntryContainer_, ANCHOR_SOUTHWEST, { 20, -20 }, "CANCEL", 50,
 		[] () {
-		_mainOverlay->loginHide(1000);
+		_mainOverlay->hideLoginContainer(1000);
 		_connectionManager->disconnect();
 	});
 	loginEntryContainer_->addObject(loginCancelButton_);
@@ -248,6 +324,29 @@ MainOverlay::MainOverlay()
 	user1Container_ = NULL;
 	user2Container_ = NULL;
 	user3Container_ = NULL;
+
+	/*
+	LOCAL USERNAME CREATION BOX
+	*/
+
+	localUsernameEntryBox_ = new PromptBox(ANCHOR_CENTER, { 0, 0 }, { 600, 200 }, this, "NAME:",
+		[] (PromptBox* thisBox) {
+		std::string username = thisBox->getTextbox()->getContents();
+		if (username == "") {
+			return;
+		}
+		std::string text = thisBox->getTextbox()->getContents() + "\n" + "userpass";
+		Message m;
+		m.type = MSGTYPE_CREATEUSER;
+		strncpy_s(m.text, DEFAULT_MSG_TEXTSIZE, text.c_str(), DEFAULT_MSG_TEXTSIZE);
+		_connectionManager->sendMessage(m);
+	}, [](PromptBox* thisBox) {
+		_backgroundOverlay->addEffect(new GUIEffectFade(0, 1000, 255, 0));
+		_mainOverlay->showLocalLoginContainer(1000);
+		_mainOverlay->hideLocalUsernameEntry(1000);
+	});
+	this->addObject(localUsernameEntryBox_);
+	localUsernameEntryBox_->setTransparency(0);
 
 	/*
 	ACHIEVEMENTS CONTAINER
@@ -309,18 +408,14 @@ void MainOverlay::hideIPEntry(int fadeDuration) {
 	IPEntryBox_->addEffect(new GUIEffectFade(0, fadeDuration, IPEntryBox_->getTransparency(), 0));
 }
 
-void MainOverlay::submitIPEntry() {
-	_connectionManager->connectToExternalServer(IPEntryBox_->getContents());
-}
-
-void MainOverlay::loginShow(int fadeDuration) {
+void MainOverlay::showLoginContainer(int fadeDuration) {
 	loginEntryContainer_->addEffect(new GUIEffectFade(0, fadeDuration, loginEntryContainer_->getTransparency(), 255));
 	loginUsername_->clearContents();
 	loginPassword_->clearContents();
 	_activeTextbox = loginUsername_;
 }
 
-void MainOverlay::loginHide(int fadeDuration) {
+void MainOverlay::hideLoginContainer(int fadeDuration) {
 	loginEntryContainer_->addEffect(new GUIEffectFade(0, fadeDuration, loginEntryContainer_->getTransparency(), 0));
 }
 
@@ -357,6 +452,14 @@ void MainOverlay::hideMainContainer(int fadeDuration) {
 	mainContainer_->addEffect(new GUIEffectFade(0, fadeDuration, mainContainer_->getTransparency(), 0));
 }
 
+void MainOverlay::showCreditsContainer(int fadeDuration) {
+	creditsContainer_->addEffect(new GUIEffectFade(0, fadeDuration, mainContainer_->getTransparency(), 255));
+}
+
+void MainOverlay::hideCreditsContainer(int fadeDuration) {
+	creditsContainer_->addEffect(new GUIEffectFade(0, fadeDuration, mainContainer_->getTransparency(), 0));
+}
+
 void MainOverlay::showOptions(int fadeDuration) {
 	optionsContainer_->addEffect(new GUIEffectFade(0, fadeDuration, optionsContainer_->getTransparency(), 255));
 }
@@ -389,6 +492,16 @@ void MainOverlay::hideAchievementsContainer(int fadeDuration) {
 	achievementsContainer_->addEffect(new GUIEffectFade(0, fadeDuration, achievementsContainer_->getTransparency(), 0));
 }
 
+void MainOverlay::showLocalUsernameEntry(int fadeDuration) {
+	localUsernameEntryBox_->addEffect(new GUIEffectFade(0, fadeDuration, localUsernameEntryBox_->getTransparency(), 255));
+	localUsernameEntryBox_->clearContents();
+	_activeTextbox = localUsernameEntryBox_->getTextbox();
+}
+
+void MainOverlay::hideLocalUsernameEntry(int fadeDuration) {
+	localUsernameEntryBox_->addEffect(new GUIEffectFade(0, fadeDuration, localUsernameEntryBox_->getTransparency(), 0));
+}
+
 void MainOverlay::hideAll(int fadeDuration) {
 	mainContainer_->addEffect(new GUIEffectFade(0, fadeDuration, mainContainer_->getTransparency(), 0));
 	optionsContainer_->addEffect(new GUIEffectFade(0, fadeDuration, optionsContainer_->getTransparency(), 0));
@@ -396,6 +509,7 @@ void MainOverlay::hideAll(int fadeDuration) {
 	loginEntryContainer_->addEffect(new GUIEffectFade(0, fadeDuration, loginEntryContainer_->getTransparency(), 0));
 	localLoginContainer_->addEffect(new GUIEffectFade(0, fadeDuration, localLoginContainer_->getTransparency(), 0));
 	achievementsContainer_->addEffect(new GUIEffectFade(0, fadeDuration, achievementsContainer_->getTransparency(), 0));
+	localUsernameEntryBox_->addEffect(new GUIEffectFade(0, fadeDuration, localUsernameEntryBox_->getTransparency(), 0));
 }
 
 void MainOverlay::keyPress(char c) {
@@ -418,6 +532,8 @@ void MainOverlay::keyPress(char c) {
 		else if (loginPassword_ == _activeTextbox)
 			loginPassword_->addChar(c);
 	}
+	if (localUsernameEntryBox_->isClickable())
+		localUsernameEntryBox_->addChar(c);
 }
 
 void MainOverlay::refreshUsers() {

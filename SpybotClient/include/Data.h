@@ -29,7 +29,8 @@ extern std::string _map_button_beginDatabattle_over;
 extern std::string _map_button_cancel_normal;
 extern std::string _map_button_cancel_over;
 
-extern std::string _map_button_joingame;
+extern std::string _arrow_up;
+extern std::string _arrow_down;
 
 // lobbyScreen resources
 extern std::string _lobby_button_gamemode_coop;
@@ -55,6 +56,7 @@ extern SDL_Texture* _tile_actionDamage;
 extern SDL_Texture* _tile_actionHeal;
 extern SDL_Texture* _tile_actionSpeed;
 extern SDL_Texture* _tile_actionGrid;
+extern SDL_Texture* _tile_actionTransport;
 
 extern SDL_Texture* _program_core;
 extern SDL_Texture* _program_core_50px;
@@ -106,6 +108,7 @@ extern SDL_Texture* _game_icon_action_tilecreate;
 extern SDL_Texture* _game_icon_action_tiledestroy;
 extern SDL_Texture* _game_icon_action_maxactionsup;
 extern SDL_Texture* _game_icon_action_maxactionsdown;
+extern SDL_Texture* _game_icon_action_transport;
 
 extern std::string _game_disp_playerturn;
 extern std::string _game_disp_compturn;
@@ -144,6 +147,7 @@ extern SDL_Color _color_bkg_standard;
 extern SDL_Color _color_clear;
 extern SDL_Color _color_black;
 extern SDL_Color _color_white;
+
 extern SDL_Color _color_action_medic;
 extern SDL_Color _color_action_unmedic;
 extern SDL_Color _color_action_attack;
@@ -153,6 +157,7 @@ extern SDL_Color _color_action_tilecreate;
 extern SDL_Color _color_action_tiledestroy;
 extern SDL_Color _color_action_maxactionsup;
 extern SDL_Color _color_action_maxactionsdown;
+extern SDL_Color _color_action_transport;
 
 // animations
 extern SDL_Texture* _particle_basic;

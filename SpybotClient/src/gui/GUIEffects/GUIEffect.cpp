@@ -5,6 +5,7 @@ GUIEffect::GUIEffect(int delay, int duration) {
 	delayRemaining_ = delay;
 	durationElapsed_ = 0;
 	durationRemaining_ = duration;
+	percentFinished_ = 0.0;
 }
 
 GUIEffect::~GUIEffect() {

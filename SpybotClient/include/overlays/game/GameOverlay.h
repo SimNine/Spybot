@@ -43,8 +43,16 @@ public:
 	// container shows/hides
 	void showWinContainer(int teamID);
 	void hideWinContainer();
+
 	void showPauseMenu();
 	void hidePauseMenu();
+
+	void showProgInv();
+	void hideProgInv();
+
+	void showPlayerDisp();
+	void hidePlayerDisp();
+
 	void startGameContainers();
 
 	// credit displays
@@ -73,10 +81,14 @@ private:
 
 	// displays
 	GUITexture* currTurn_;
-	ProgramInventoryDisplay* progInv_;
 	ProgramDisplayContainer* progDisp_;
-	PlayerDisplayContainer* playerDisp_;
 	ChatDisplay* chatDisplay_;
+
+	PlayerDisplayContainer* playerDisp_;
+	GUIContainer* playerTab_;
+
+	ProgramInventoryDisplay* progInv_;
+	GUIContainer* progInvTab_;
 
 	// endgame container
 	GUIContainer* winMenu_;
@@ -88,7 +100,6 @@ private:
 
 	// credit counter container
 	GUIContainer* creditCounterContainer_;
-	GUITexture* creditCounterIcon_;
 	GUITexture* creditCounterText_;
 
 	// effects queue

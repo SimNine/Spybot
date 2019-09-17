@@ -1,0 +1,7 @@
+URF SOFTWARE:
+Font: Rockwell
+Main: 70pt
+Subtitle: 20pt
+
+SPYBOT:
+Format unknown, taken from image

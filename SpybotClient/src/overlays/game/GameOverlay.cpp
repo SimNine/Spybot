@@ -23,6 +23,7 @@
 #include "MiscUtil.h"
 #include "GUIEffectFade.h"
 #include "SpawnGroupMirror.h"
+#include "GUIEffectTranslate.h"
 
 GameOverlay::GameOverlay()
 	: GUIContainer(NULL, ANCHOR_NORTHWEST, { 0, 0 }, { _screenWidth, _screenHeight }, _color_black) {
@@ -90,8 +91,7 @@ void GameOverlay::buildGUI() {
 	creditCounterContainer_ = new GUIContainer(this, ANCHOR_NORTH, { 0, 10 }, { 500, 50 }, _color_bkg_standard);
 	this->addObject(creditCounterContainer_);
 
-	creditCounterIcon_ = new GUITexture(creditCounterContainer_, ANCHOR_WEST, { 10, 0 }, { 30, 30 }, _item_icons[ITEM_CREDIT]);
-	creditCounterContainer_->addObject(creditCounterIcon_);
+	creditCounterContainer_->addObject(new GUITexture(creditCounterContainer_, ANCHOR_WEST, { 10, 0 }, { 30, 30 }, _item_icons[ITEM_CREDIT]));
 
 	creditCounterText_ = NULL;
 
@@ -116,7 +116,10 @@ void GameOverlay::buildGUI() {
 		_game_button_aiStep);
 	debugOptions_->addObject(stepButton);
 
-	// end turn button
+	/*
+	END TURN BUTTON
+	*/
+
 	turnButton_ = new GUIButton(this, ANCHOR_SOUTHEAST, { -10, -10 }, { 200, 50 },
 		[] () {
 		Message msg;
@@ -127,12 +130,27 @@ void GameOverlay::buildGUI() {
 	turnButton_->setTransparency(0);
 	this->addObject(turnButton_);
 
-	// player display window
+	/*
+	PLAYER DISPLAY WINDOW
+	*/
+
+	playerTab_ = new GUIContainer(this, ANCHOR_SOUTHEAST, { -190, -50 }, { 150, 50 }, _color_bkg_standard);
+	this->addObject(playerTab_);
+
+	GUIButton* playerExpandButton = new GUIButton(playerTab_, ANCHOR_CENTER, { 0,0 }, "PLAYER LIST", 30,
+		[]() {
+		_gameOverlay->showPlayerDisp();
+	});
+	playerTab_->addObject(playerExpandButton);
+
 	playerDisp_ = new PlayerDisplayContainer(ANCHOR_NORTHWEST, { 10, 10 }, { 200, 200 }, this);
-	playerDisp_->setTransparency(255);
+	playerDisp_->setMovable(true);
 	this->addObject(playerDisp_);
 
-	// program display window
+	/*
+	PROGRAM DISPLAY WINDOW
+	*/
+
 	progDisp_ = new ProgramDisplayContainer(this, ANCHOR_NORTHEAST, { -10, 10 }, { 300, 400 });
 	progDisp_->setTransparency(0);
 	progDisp_->setMovable(true);
@@ -152,11 +170,27 @@ void GameOverlay::buildGUI() {
 	});
 	this->addObject(startGameButton_);
 
-	// add the program inventory display
-	progInv_ = new ProgramInventoryDisplay(ANCHOR_NORTHEAST, { 0, 0 }, { 0, 0 }, this);
+	/*
+	PROGRAM INVENTORY DISPLAY
+	*/
+
+	progInvTab_ = new GUIContainer(this, ANCHOR_SOUTHEAST, { -20, -50 }, { 150, 50 }, _color_bkg_standard);
+	this->addObject(progInvTab_);
+
+	GUIButton* progInvExpandButton = new GUIButton(progInvTab_, ANCHOR_CENTER, { 0,0 }, "PROGRAM LIST", 30, 
+		[]() {
+		_gameOverlay->showProgInv();
+	});
+	progInvTab_->addObject(progInvExpandButton);
+
+	progInv_ = new ProgramInventoryDisplay(this, ANCHOR_NORTHEAST, { -20, 20 }, { 400, 600 });
+	progInv_->setMovable(true);
 	this->addObject(progInv_);
 
-	// create but DON'T ADD the chat display
+	/*
+	CHAT DISPLAY
+	*/
+
 	chatDisplay_ = new ChatDisplay(this, ANCHOR_SOUTHWEST, { 0, 0 }, { 800, 500 }, 19);
 
 	/*
@@ -568,6 +602,15 @@ void GameOverlay::drawGrid() {
 					case ACTIONTYPE_MAXACTIONSDOWN:
 						SDL_RenderCopy(_renderer, _tile_actionSpeed, NULL, &tileRect);
 						break;
+					case ACTIONTYPE_TRANSMIT:
+						SDL_RenderCopy(_renderer, _tile_actionTransport, NULL, &tileRect);
+						break;
+					case ACTIONTYPE_TELEPORT:
+						SDL_RenderCopy(_renderer, _tile_actionTransport, NULL, &tileRect);
+						break;
+					case ACTIONTYPE_FRAGMENT:
+						SDL_RenderCopy(_renderer, _tile_actionTransport, NULL, &tileRect);
+						break;
 					default:
 						break;
 					}
@@ -789,6 +832,35 @@ void GameOverlay::hidePauseMenu() {
 	pauseMenu_->setTransparency(0);
 }
 
+void GameOverlay::showProgInv() {
+	progInv_->setDisplacement({ -20, 20 });
+	progInv_->resetBounds();
+	progInv_->updateContents();
+	progInv_->addEffect(new GUIEffectFade(0, 500, 0, 255));
+	progInvTab_->addEffect(new GUIEffectTranslate(0, 500, { -20, 0 }, { -20, 50 }));
+	progInvTab_->addEffect(new GUIEffectFade(0, 500, 255, 0));
+}
+
+void GameOverlay::hideProgInv() {
+	progInv_->addEffect(new GUIEffectFade(0, 500, 255, 0));
+	progInvTab_->addEffect(new GUIEffectTranslate(0, 500, { -20, 50 }, { -20, 0 }));
+	progInvTab_->addEffect(new GUIEffectFade(0, 500, 0, 255));
+}
+
+void GameOverlay::showPlayerDisp() {
+	playerDisp_->setDisplacement({ 20, 20 });
+	playerDisp_->resetBounds();
+	playerDisp_->addEffect(new GUIEffectFade(0, 500, 0, 255));
+	playerTab_->addEffect(new GUIEffectTranslate(0, 500, { -190, 0 }, { -190, 50 }));
+	playerTab_->addEffect(new GUIEffectFade(0, 500, 255, 0));
+}
+
+void GameOverlay::hidePlayerDisp() {
+	playerDisp_->addEffect(new GUIEffectFade(0, 500, 255, 0));
+	playerTab_->addEffect(new GUIEffectTranslate(0, 500, { -190, 50 }, { -190, 0 }));
+	playerTab_->addEffect(new GUIEffectFade(0, 500, 0, 255));
+}
+
 void GameOverlay::toggleTurnButtonShown(bool b) {
 	if (b)
 		turnButton_->setTransparency(255);
@@ -853,8 +925,13 @@ ProgramDisplayContainer* GameOverlay::getProgramDisplayContainer() {
 void GameOverlay::startGameContainers() {
 	winMenu_->setTransparency(0);
 	turnButton_->setTransparency(255);
-	playerDisp_->setTransparency(255);
 	progDisp_->setCurrProg(NULL);
-	progDisp_->setTransparency(255);
+	progDisp_->setTransparency(0);
 	creditCounterContainer_->setTransparency(255);
+
+	playerTab_->setTransparency(0);
+	playerDisp_->setTransparency(255);
+
+	progInvTab_->setTransparency(0);
+	progInv_->setTransparency(255);
 }

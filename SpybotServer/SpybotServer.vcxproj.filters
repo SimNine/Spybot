@@ -37,6 +37,12 @@
     <Filter Include="Header Files\shared\game">
       <UniqueIdentifier>{00d5152b-4606-4a4e-ac6a-2373a0487c33}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\shared\presets">
+      <UniqueIdentifier>{c6559d1c-edea-469c-aee8-270b8652af0c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\shared\presets">
+      <UniqueIdentifier>{59e2bcfd-ca1c-43e6-ae08-1fb9148adf51}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <Text Include="ReadMe.txt" />
@@ -126,6 +132,12 @@
     <ClInclude Include="..\SpybotShared\server\GameConfig.h">
       <Filter>Header Files\shared\server</Filter>
     </ClInclude>
+    <ClInclude Include="..\SpybotShared\presets\ActionPreset.h">
+      <Filter>Header Files\shared\presets</Filter>
+    </ClInclude>
+    <ClInclude Include="..\SpybotShared\presets\ProgramPreset.h">
+      <Filter>Header Files\shared\presets</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Main.cpp">
@@ -184,6 +196,12 @@
     </ClCompile>
     <ClCompile Include="..\SpybotShared\server\GameConfig.cpp">
       <Filter>Source Files\shared\server</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SpybotShared\presets\ActionPreset.cpp">
+      <Filter>Source Files\shared\presets</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SpybotShared\presets\ProgramPreset.cpp">
+      <Filter>Source Files\shared\presets</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

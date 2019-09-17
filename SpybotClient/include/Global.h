@@ -14,6 +14,7 @@ class Client;
 class GUITextbox;
 class ConnectionManager;
 class Server;
+class TimedEvent;
 class BackgroundOverlay;
 
 /*
@@ -33,6 +34,9 @@ extern SDL_Window* _window;
 // designate the renderer
 extern SDL_Renderer* _renderer;
 
+// designate a list of timed events
+extern LinkedList<TimedEvent*>* _timedEvents;
+
 // designate the GUI_containers
 extern LinkedList<GUIContainer*>* _overlayStack;
 extern TitleOverlay* _titleOverlay;
@@ -40,8 +44,10 @@ extern MainOverlay* _mainOverlay;
 extern MapOverlay* _mapOverlay;
 extern GameOverlay* _gameOverlay;
 extern LobbyOverlay* _lobbyOverlay;
-extern NotifyOverlay* _notifyOverlay;
 extern BackgroundOverlay* _backgroundOverlay;
+
+extern GUIContainer* _fadeOverlay;
+extern NotifyOverlay* _notifyOverlay;
 
 // mouse data
 extern Coord _mousePos;

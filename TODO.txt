@@ -1,0 +1,8 @@
+- Gameboard zoom levels
+- Campaign username creation
+- Automatically Generated CPU Names:
+	- Bighead202
+	- XXFireKillerXX
+- Procedurally Generated Map and Levels
+- Resizable chat
+- Make game option windows

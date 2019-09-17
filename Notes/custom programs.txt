@@ -1,0 +1,41 @@
+Mentalist:
+Description = "A master manipulator of the mind"
+Price = 10000
+Move = 1
+Max size = 2
+Commands:
+Fear (3 range, -1 max actions to target)
+Courage (3 range, +1 max actions to target)
+
+Teleporter:
+Description = "Streams programs aimlessly across the netscape"
+Price = 10000
+Move = 1
+Max size = 1
+Commands:
+Teleport (1 range, moves head of targeted program to a random spot on the board)
+
+Transmitter:
+Description = "Links two or more points in the netscape"
+Price = 15000
+Move = 1
+Max size = 1
+Commands:
+Transmit (1 range, moves head of targeted program to adjacent to another transmitter)
+
+Fragmenter:
+Description = "Pulls enemy programs apart"
+Price = 20000
+Move = 1
+Max size = 1
+Commands:
+Fragment (3 range, randomly scatters cells of targeted program across the board)
+
+Eel:
+Description = "A slippery program that damages anything near it"
+Price = 7500
+Move = 3
+Max size = 5
+Commands:
+Zap (all adjacent range, deletes 2 sectors from all adjacent programs)
+Fry (all adjacent range, required size 4, deletes 4 sectors from all adjacent programs and deletes 3 sectors from eel)

@@ -20,7 +20,8 @@ private:
 	int timingLego_;
 	int timingTitle_;
 	int timingSubtitle_;
-	int spanTiming_;
+	int spanFade_;
+	int spanHold_;
 
 	void endTitles();
 };

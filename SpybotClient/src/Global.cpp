@@ -13,6 +13,7 @@
 #include "GUITextbox.h"
 #include "ConnectionManager.h"
 #include "Server.h"
+#include "TimedEvent.h"
 
 /*
 GLOBAL VARIABLES
@@ -31,6 +32,9 @@ SDL_Window* _window = NULL;
 // designate the renderer
 SDL_Renderer* _renderer = NULL;
 
+// designate a list of timed events
+LinkedList<TimedEvent*>* _timedEvents = new LinkedList<TimedEvent*>();
+
 // designate the GUI_containers
 LinkedList<GUIContainer*>* _overlayStack = new LinkedList<GUIContainer*>();
 TitleOverlay* _titleOverlay = NULL;
@@ -38,8 +42,10 @@ MainOverlay* _mainOverlay = NULL;
 MapOverlay* _mapOverlay = NULL;
 GameOverlay* _gameOverlay = NULL;
 LobbyOverlay* _lobbyOverlay = NULL;
-NotifyOverlay* _notifyOverlay = NULL;
 BackgroundOverlay* _backgroundOverlay = NULL;
+
+GUIContainer* _fadeOverlay = NULL;
+NotifyOverlay* _notifyOverlay = NULL;
 
 // mouse position
 Coord _mousePos = { 0, 0 };
@@ -52,7 +58,7 @@ bool _acceptingInput = true;
 bool _quit = false;
 
 // debug flag
-DEBUG _debug = DEBUG_MINIMAL;
+DEBUG _debug = DEBUG_NONE;
 
 // GUIContainer currently held by the mouse, if any
 GUIContainer* _heldContainer = NULL;

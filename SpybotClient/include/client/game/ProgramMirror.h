@@ -49,7 +49,7 @@ public:
 	void endTurn();
 	bool isDone();
 
-	void addAction(MOVEPRESET);
+	void addAction(ACTION);
 	void addAction(ProgramActionMirror*);
 	LinkedList<ProgramActionMirror*>* getActions();
 	ProgramActionMirror* getActionByID(int actionID);

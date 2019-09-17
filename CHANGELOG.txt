@@ -340,3 +340,30 @@ Spawngroups, multiplayer levels, game configuration, general multiplayability
 	-pingSender thread is now only run by non-local servers
 -Fixed bug causing singleplayer dummy client mirror to appear in multiplayer lobby
 	-Message queue and ClientMirror list are now emptied on disconnect from a server
+
+2.7.0 - 9/16/19
+Custom programs, GUI overhaul
+Massive delay due to refocusing on school
+-----
+-Reorganized resources folder and respective paths in Data class
+-Added three new programs: Teleporter, Transmitter, and Fragmenter
+--Teleporter moves the head of the targeted program to a random grid square
+--Transmitter moves the head of the targeted program to the location of another transmitter
+--Fragmenter scatters the tiles of the targeted program onto random grid squares
+--Added related program icons, action icons, and ACTION enums
+-Added username prompt box when creating new campaign profiles
+-Added GUIContainer "_fadeOverlay", just a global GUIContainer that has a black background to create whole-screen fade effects
+-Added new class "TimedEvent" used to hold a generic anonymous function that is queued up to be executed later
+-Added global LinkedList "_timedEvents" used to hold events
+-Added a fade-out / fade-in transition when entering a campaign
+-Added Credits panel on mainOverlay, displaying original team's names as well as my own (did not include Code, Process, QA, or Lego.com sections)
+-Added BKGMODE enum, specifying the style in which the background overlay animates
+-Added BKGMODE_RAINBOW mode for use on Credits panel
+-Added BKGMODE_REDBLUE mode for use on Multiplayer lobby panel
+-Complete redoing of ProgramInventoryDisplay
+	-It is now a paged display consisting of a row for each program type, displaying num owned, speed, size, etc
+	-Two arrows on the right side to page through
+	-"Minimize" button fades the display out and makes a tab appear, which can be clicked to reexpand the display
+-Fixed the gameoverlay's PlayerDisplay not becoming appropriately translucent
+-Added a tab for PlayerDisplay in exactly the same manner as the tab for ProgramInventoryDisplay
+-Possibly other additions that I've forgotten

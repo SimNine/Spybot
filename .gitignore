@@ -8,3 +8,11 @@
 
 /SpybotServer/Debug/*
 /SpybotServer/Release/*
+
+/.vs/*
+
+/CodeBlocks-0.6.0/*
+
+/Compiles/*
+
+/Debug/*

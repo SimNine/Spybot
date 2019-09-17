@@ -24,6 +24,7 @@
 #include "TeamMirror.h"
 #include "AnimationTileFade.h"
 #include "SpawnGroupMirror.h"
+#include "TimedEvent.h"
 
 Client::Client() {
 	game_ = NULL;
@@ -240,12 +241,12 @@ void Client::processMessage(Message* msg) {
 	case MSGTYPE_CONNECT:
 	{
 		myClientID_ = msg->clientID;
-		_notifyOverlay->addNotification("Connection to server confirmed");
-		_notifyOverlay->addNotification("Assigned client ID " + to_string(msg->clientID));
+		log("CLIENT: Connection to server confirmed\n");
+		log("CLIENT: Assigned client ID " + to_string(msg->clientID) + "\n");
 
 		if (_server == NULL) {
 			_mainOverlay->hideIPEntry(1000);
-			_mainOverlay->loginShow(1000);
+			_mainOverlay->showLoginContainer(1000);
 		}
 	}
 	break;
@@ -311,11 +312,6 @@ void Client::processMessage(Message* msg) {
 	break;
 	case MSGTYPE_LOGIN:
 	{
-		if (msg->clientID == myClientID_)
-			_notifyOverlay->addNotification("Logged in as " + std::string(msg->text));
-		else
-			_notifyOverlay->addNotification(std::string(msg->text) + " has joined the game");
-
 		ClientMirror* mirror = new ClientMirror();
 		mirror->clientID_ = msg->clientID;
 		if (msg->actionID == 9000)// arbitrary value
@@ -328,19 +324,32 @@ void Client::processMessage(Message* msg) {
 			myClientMirror_ = mirror;
 		}
 
+		_fadeOverlay->addEffect(new GUIEffectFade(0, 1000, 0, 255));
 		// if coming from an external server, go to the lobby screen
 		if (_server == NULL) {
-			_mainOverlay->loginHide(0);
-			_mainOverlay->showMainContainer(0);
-			_overlayStack->removeAll();
-			_overlayStack->push(_backgroundOverlay);
-			_overlayStack->push(_lobbyOverlay);
+			if (msg->clientID == myClientID_)
+				_notifyOverlay->addNotification("Logged in as " + std::string(msg->text));
+			else
+				_notifyOverlay->addNotification(std::string(msg->text) + " has joined the game");
+
+			_timedEvents->addLast(new TimedEvent(2000, []() {
+				_mainOverlay->hideLoginContainer(0);
+				_mainOverlay->showMainContainer(0); 
+				_overlayStack->removeAll();
+				_overlayStack->push(_backgroundOverlay);
+				_overlayStack->push(_lobbyOverlay);
+				_backgroundOverlay->setMode(BKGMODE_REDBLUE);
+			}));
 		} else { // otherwise, go to the map screen
-			_mainOverlay->hideLocalLoginContainer(0);
-			_mainOverlay->showMainContainer(0);
-			_overlayStack->removeAll();
-			_overlayStack->push(_mapOverlay);
+			_timedEvents->addLast(new TimedEvent(2000, []() {
+				_mainOverlay->hideLocalLoginContainer(0);
+				_mainOverlay->hideLocalUsernameEntry(0);
+				_mainOverlay->showMainContainer(0); 
+				_overlayStack->removeAll();
+				_overlayStack->push(_mapOverlay); 
+			}));
 		}
+		_fadeOverlay->addEffect(new GUIEffectFade(4000, 1000, 255, 0));
 	}
 	break;
 	case MSGTYPE_CREATEUSER:

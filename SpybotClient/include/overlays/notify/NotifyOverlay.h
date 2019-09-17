@@ -3,6 +3,7 @@
 #include "Standard.h"
 #include "GUIContainer.h"
 #include "LinkedList.h"
+#include "GUIEffectFade.h"
 
 class PopupNotification;
 class PopupAchievement;

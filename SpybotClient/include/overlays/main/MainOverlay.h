@@ -27,10 +27,9 @@ public:
 
 	void showIPEntry(int fadeDuration);
 	void hideIPEntry(int fadeDuration);
-	void submitIPEntry();
 
-	void loginShow(int fadeDuration);
-	void loginHide(int fadeDuration);
+	void showLoginContainer(int fadeDuration);
+	void hideLoginContainer(int fadeDuration);
 	void loginCreate();
 	void loginSubmit();
 	void loginClear();
@@ -40,6 +39,12 @@ public:
 
 	void hideLocalLoginContainer(int fadeDuration);
 	void showLocalLoginContainer(int fadeDuration);
+
+	void hideLocalUsernameEntry(int fadeDuration);
+	void showLocalUsernameEntry(int fadeDuration);
+
+	void hideCreditsContainer(int fadeDuration);
+	void showCreditsContainer(int fadeDuration);
 
 	void showAchievementsContainer(int fadeDuration);
 	void hideAchievementsContainer(int fadeDuration);
@@ -58,7 +63,10 @@ private:
 
 	GUIContainer* campaignContainer_;
 
+	GUIContainer* creditsContainer_;
+
 	PromptBox* IPEntryBox_;
+	PromptBox* localUsernameEntryBox_;
 
 	GUIContainer* loginEntryContainer_;
 	GUIButton* loginCancelButton_;

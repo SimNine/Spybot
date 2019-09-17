@@ -97,6 +97,15 @@ void ProgramDisplayActionButton::draw() {
 	} else if (action_.type_ == ACTIONTYPE_MAXACTIONSDOWN) {
 		tex = _game_icon_action_maxactionsdown;
 		col = _color_action_maxactionsdown;
+	} else if (action_.type_ == ACTIONTYPE_TRANSMIT) {
+		tex = _game_icon_action_transport;
+		col = _color_action_transport;
+	} else if (action_.type_ == ACTIONTYPE_TELEPORT) {
+		tex = _game_icon_action_transport;
+		col = _color_action_transport;
+	} else if (action_.type_ == ACTIONTYPE_FRAGMENT) {
+		tex = _game_icon_action_transport;
+		col = _color_action_transport;
 	} else
 		log("CLIENT ERR: a nonexistent action type was found\n");
 	SDL_SetTextureColorMod(_program_core_50px, col.r, col.g, col.b);
@@ -119,11 +128,11 @@ void ProgramDisplayActionButton::draw() {
 	clipRect.y += 20;
 	drawString("Power: " + to_string(action_.power_), FONT_NORMAL, 20, whiteMod, clipRect);
 	clipRect.y += 20;
-	drawString("Min Size: " + to_string(action_.requiredSize_), FONT_NORMAL, 20, whiteMod, clipRect);
+	drawString("Min Size: " + to_string(action_.minSize_), FONT_NORMAL, 20, whiteMod, clipRect);
 
 	// draw tooltip
 	if (isMouseOver()) {
-		SDL_Texture* descText = loadString(action_.description_, FONT_NORMAL, 20, whiteMod);
+		SDL_Texture* descText = loadString(action_.desc_, FONT_NORMAL, 20, whiteMod);
 		SDL_QueryTexture(descText, NULL, NULL, &clipRect.w, &clipRect.h);
 		clipRect.x = _mousePos.x - clipRect.w;
 		clipRect.y = _mousePos.y;

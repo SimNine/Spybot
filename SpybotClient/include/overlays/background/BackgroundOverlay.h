@@ -16,8 +16,10 @@ public:
 
 	void draw();
 	void tick(int);
+	void setMode(BKGMODE);
 protected:
 private:
+	BKGMODE mode_;
 	int textBkgDisplacement_;
 	LinkedList<GlowSpeck*>* glowList_;
 };

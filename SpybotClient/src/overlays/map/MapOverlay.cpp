@@ -14,12 +14,14 @@
 #include "BackgroundOverlay.h"
 #include "Main.h"
 #include "GUITexture.h"
+#include "GUIEffectFade.h"
+#include "GUIEffectTranslate.h"
 
 MapOverlay::MapOverlay()
 	: GUIContainer(NULL, ANCHOR_NORTHWEST, { 0, 0 }, { _screenWidth, _screenHeight }, _color_clear) {
 	// check to make sure default maps are generated
 	nodeList_ = new LinkedList<Node*>();
-	loadMap("levels/classic.urf");
+	switchMap(MAPPRESET_CLASSIC);
 	if (nodeList_->getLength() == 0)
 		generateDefaultMaps();
 
@@ -29,7 +31,10 @@ MapOverlay::MapOverlay()
 	bkgY_ = 500;
 	shiftSpeed_ = 0.25;
 
-	// create level confirm / cancel dialog box
+	/*
+	LEVEL CONFIRMATION DIALOG
+	*/
+
 	levelConfirm_ = new GUIContainer(this, ANCHOR_NORTHWEST, { 20, 20 }, { 252, 194 }, _color_bkg_standard);
 	levelConfirm_->setTransparency(0);
 	GUIButton* battleButton = new GUIButton(levelConfirm_, ANCHOR_NORTHWEST, { 130, 169 }, { 115, 14 },
@@ -62,11 +67,55 @@ MapOverlay::MapOverlay()
 
 	this->addObject(levelConfirm_);
 
-	// add inventory display object
-	invDisplay_ = new ProgramInventoryDisplay(ANCHOR_NORTHEAST, { -20, 20 }, { 300, 500 }, this);
-	this->addObject(invDisplay_);
+	/*
+	CHAT DIALOG CONTAINER
+	*/
 
-	// add pause menu
+	GUIContainer* chatContainer_ = new GUIContainer(this, ANCHOR_CENTER, { 0,0 }, { 300, 300 }, _color_bkg_standard);
+	chatContainer_->setMovable(true);
+	chatContainer_->setTransparency(0);
+	this->addObject(chatContainer_);
+
+	GUITexture* chatImage_ = new GUITexture(chatContainer_, ANCHOR_NORTHWEST, { 10, 10 }, { 50, 50 }, _game_icon_ai);
+	chatContainer_->addObject(chatImage_);
+
+	GUIContainer* chatDialogContainer_ = new GUIContainer(chatContainer_, ANCHOR_NORTH, { 0, 70 }, { 280, 150 }, _color_bkg_standard);
+	chatContainer_->addObject(chatDialogContainer_);
+
+	GUIButton* chatButtonTop_ = new GUIButton(chatContainer_, ANCHOR_NORTH, {0, 230}, {280, 30},
+		[]() {
+		// do nothin yet
+	}, _map_button_cancel_normal, _map_button_cancel_over);
+	chatContainer_->addObject(chatButtonTop_);
+
+	GUIButton* chatButtonBottom_ = new GUIButton(chatContainer_, ANCHOR_NORTH, {0, 270}, {280, 30}, 
+		[]() {
+		// do nothing yet
+	}, _map_button_beginDatabattle_normal, _map_button_beginDatabattle_over);
+	chatContainer_->addObject(chatButtonBottom_);
+
+	/*
+	PROGRAM INVENTORY DISPLAY
+	*/
+
+	progInvTab_ = new GUIContainer(this, ANCHOR_SOUTHEAST, { -20, 0 }, { 150, 50 }, _color_bkg_standard);
+	this->addObject(progInvTab_);
+
+	GUIButton* progInvExpandButton = new GUIButton(progInvTab_, ANCHOR_CENTER, { 0,0 }, "PROGRAM LIST", 30,
+		[]() {
+		_mapOverlay->showProgInv();
+	});
+	progInvTab_->addObject(progInvExpandButton);
+
+	progInv_ = new ProgramInventoryDisplay(this, ANCHOR_NORTHEAST, { -20, 20 }, { 400, 600 });
+	progInv_->setTransparency(0);
+	progInv_->setMovable(true);
+	this->addObject(progInv_);
+
+	/*
+	PAUSE MENU
+	*/
+
 	pauseMenu_ = new GUIContainer(NULL, ANCHOR_CENTER, { 0, 0 }, { _screenWidth, _screenHeight }, _color_bkg_standard);
 	pauseMenu_->setTransparency(0);
 	this->addObject(pauseMenu_);
@@ -85,7 +134,7 @@ MapOverlay::MapOverlay()
 		[] () {_overlayStack->removeAll();
 	_overlayStack->push(_backgroundOverlay);
 	_overlayStack->push(_mainOverlay);
-	_mainOverlay->loginHide(0);
+	_mainOverlay->hideLoginContainer(0);
 	_mapOverlay->hidePauseMenu();
 	}, _game_button_quitToMain);
 	pauseMenuOptions->addObject(exitToMainButton);
@@ -289,14 +338,7 @@ void MapOverlay::tick(int ms) {
 }
 
 void MapOverlay::updateProgramInvDisplay() {
-	invDisplay_->updateContents();
-}
-
-void MapOverlay::toggleInvDisplay() {
-	if (invDisplay_->isVisible()) 
-		invDisplay_->setTransparency(0);
-	else 
-		invDisplay_->setTransparency(255);
+	progInv_->updateContents();
 }
 
 void MapOverlay::unlockAllLevels() {
@@ -610,6 +652,21 @@ void MapOverlay::showPauseMenu() {
 
 void MapOverlay::hidePauseMenu() {
 	pauseMenu_->setTransparency(0);
+}
+
+void MapOverlay::showProgInv() {
+	progInv_->setDisplacement({ -20, 20 });
+	progInv_->resetBounds();
+	progInv_->updateContents();
+	progInv_->addEffect(new GUIEffectFade(0, 500, 0, 255));
+	progInvTab_->addEffect(new GUIEffectTranslate(0, 500, { -20, 0 }, { -20, 50 }));
+	progInvTab_->addEffect(new GUIEffectFade(0, 500, 255, 0));
+}
+
+void MapOverlay::hideProgInv() {
+	progInv_->addEffect(new GUIEffectFade(0, 500, 255, 0));
+	progInvTab_->addEffect(new GUIEffectTranslate(0, 500, { -20, 50 }, { -20, 00 }));
+	progInvTab_->addEffect(new GUIEffectFade(0, 500, 0, 255));
 }
 
 void MapOverlay::winNode(int nodeID) {
