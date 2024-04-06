@@ -1,18 +1,16 @@
-/Release/*.iobj
-/Release/*.ipdb
-/Release/*.pdb
-/Release/*.exp
+/SpybotClient/Debug/
+/SpybotClient/Release/
+/SpybotClient/x64/
 
-/SpybotClient/Debug/*
-/SpybotClient/Release/*
+/SpybotServer/Debug/
+/SpybotServer/Release/
+/SpybotServer/x64/
 
-/SpybotServer/Debug/*
-/SpybotServer/Release/*
+/SpybotShared/Debug/
+/SpybotShared/Release/
+/SpybotShared/x64/
+/SpybotShared/.vs/
 
-/.vs/*
+/.vs/
 
-/CodeBlocks-0.6.0/*
-
-/Compiles/*
-
-/Debug/*
+/x64/
