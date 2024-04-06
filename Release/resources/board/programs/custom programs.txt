@@ -1,8 +1,0 @@
-Mentalist:
-Description = "A master manipulator of the mind"
-Price = 10000
-Move = 1
-Max size = 2
-Commands:
-Fear (3 range, -1 max actions to target)
-Courage (3 range, +1 max actions to target)
