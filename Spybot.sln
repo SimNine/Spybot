@@ -1,11 +1,13 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.26730.16
+# Visual Studio Version 17
+VisualStudioVersion = 17.8.34511.84
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SpybotServer", "SpybotServer\SpybotServer.vcxproj", "{E4063D2F-112D-4A1F-8B96-59F0F86B0B28}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SpybotClient", "SpybotClient\SpybotClient.vcxproj", "{265158C1-89F6-4DD2-9F1F-E19F09277EB0}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SpybotShared", "SpybotShared\SpybotShared.vcxproj", "{775ED287-5132-49AD-B3AA-3B125F019FB8}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -31,6 +33,14 @@ Global
 		{265158C1-89F6-4DD2-9F1F-E19F09277EB0}.Release|x64.Build.0 = Release|x64
 		{265158C1-89F6-4DD2-9F1F-E19F09277EB0}.Release|x86.ActiveCfg = Release|Win32
 		{265158C1-89F6-4DD2-9F1F-E19F09277EB0}.Release|x86.Build.0 = Release|Win32
+		{775ED287-5132-49AD-B3AA-3B125F019FB8}.Debug|x64.ActiveCfg = Debug|x64
+		{775ED287-5132-49AD-B3AA-3B125F019FB8}.Debug|x64.Build.0 = Debug|x64
+		{775ED287-5132-49AD-B3AA-3B125F019FB8}.Debug|x86.ActiveCfg = Debug|Win32
+		{775ED287-5132-49AD-B3AA-3B125F019FB8}.Debug|x86.Build.0 = Debug|Win32
+		{775ED287-5132-49AD-B3AA-3B125F019FB8}.Release|x64.ActiveCfg = Release|x64
+		{775ED287-5132-49AD-B3AA-3B125F019FB8}.Release|x64.Build.0 = Release|x64
+		{775ED287-5132-49AD-B3AA-3B125F019FB8}.Release|x86.ActiveCfg = Release|Win32
+		{775ED287-5132-49AD-B3AA-3B125F019FB8}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
