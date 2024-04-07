@@ -78,6 +78,12 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
+    <IncludePath>$(ProjectDir);$(ProjectDir)include;$(ProjectDir)include\overlays;$(ProjectDir)include\overlays\background;$(ProjectDir)include\overlays\game;$(ProjectDir)include\overlays\lobby;$(ProjectDir)include\overlays\main;$(ProjectDir)include\overlays\map;$(ProjectDir)include\overlays\notify;$(ProjectDir)include\overlays\title;$(ProjectDir)include\gui;$(ProjectDir)include\gui\GUIEffects;$(ProjectDir)include\client;$(ProjectDir)include\client\game;$(SolutionDir)SpybotShared;$(SolutionDir)SpybotShared\utils;$(SolutionDir)SpybotShared\server;$(SolutionDir)SpybotShared\presets;$(SolutionDir)SpybotShared\game;$(SolutionDir)SpybotServer\include;$(SolutionDir)Libs;$(SolutionDir)SDL2-2.30.2\include;$(SolutionDir)SDL2_mixer-2.8.0\include;$(SolutionDir)SDL2_image-2.8.2\include;$(SolutionDir)SDL2_ttf-2.22.0\include</IncludePath>
+    <PublicIncludeDirectories>
+    </PublicIncludeDirectories>
+    <AllProjectIncludesArePublic>false</AllProjectIncludesArePublic>
+    <ReferencePath>$(ReferencePath)</ReferencePath>
+    <LibraryPath>$(SolutionDir)SDL2-2.30.2\lib\x64;$(SolutionDir)SDL2_image-2.8.2\lib\x64;$(SolutionDir)SDL2_mixer-2.8.0\lib\x64;$(SolutionDir)SDL2_ttf-2.22.0\lib\x64;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
@@ -104,7 +110,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
-      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>

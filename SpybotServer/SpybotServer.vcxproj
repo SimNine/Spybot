@@ -77,6 +77,8 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
+    <IncludePath>C:\Users\URF-PC-2020\Desktop\Workspaces\C++\Spybot\SpybotServer;C:\Users\URF-PC-2020\Desktop\Workspaces\C++\Spybot\SpybotServer\include;C:\Users\URF-PC-2020\Desktop\Workspaces\C++\Spybot\SpybotServer\src;C:\Users\URF-PC-2020\Desktop\Workspaces\C++\Spybot\SpybotShared\game;C:\Users\URF-PC-2020\Desktop\Workspaces\C++\Spybot\SpybotShared\presets;C:\Users\URF-PC-2020\Desktop\Workspaces\C++\Spybot\SpybotShared\server;C:\Users\URF-PC-2020\Desktop\Workspaces\C++\Spybot\SpybotShared\utils;C:\Users\URF-PC-2020\Desktop\Workspaces\C++\Spybot\SpybotShared;$(IncludePath)</IncludePath>
+    <AllProjectIncludesArePublic>true</AllProjectIncludesArePublic>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
@@ -101,7 +103,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
-      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -146,9 +148,6 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
   </ItemDefinitionGroup>
-  <ItemGroup>
-    <Text Include="ReadMe.txt" />
-  </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\SpybotShared\Enums.h" />
     <ClInclude Include="..\SpybotShared\game\AIBasic.h" />

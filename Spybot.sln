@@ -6,6 +6,10 @@ MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SpybotServer", "SpybotServer\SpybotServer.vcxproj", "{E4063D2F-112D-4A1F-8B96-59F0F86B0B28}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SpybotClient", "SpybotClient\SpybotClient.vcxproj", "{265158C1-89F6-4DD2-9F1F-E19F09277EB0}"
+	ProjectSection(ProjectDependencies) = postProject
+		{775ED287-5132-49AD-B3AA-3B125F019FB8} = {775ED287-5132-49AD-B3AA-3B125F019FB8}
+		{E4063D2F-112D-4A1F-8B96-59F0F86B0B28} = {E4063D2F-112D-4A1F-8B96-59F0F86B0B28}
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SpybotShared", "SpybotShared\SpybotShared.vcxproj", "{775ED287-5132-49AD-B3AA-3B125F019FB8}"
 EndProject
