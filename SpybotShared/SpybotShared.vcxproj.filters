@@ -9,67 +9,97 @@
       <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
       <Extensions>h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
     </Filter>
+    <Filter Include="Header Files\game">
+      <UniqueIdentifier>{d3d742cc-f153-4adc-864d-8494302b8588}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\server">
+      <UniqueIdentifier>{ddbae1f9-ab09-4303-af0c-101424a45d20}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\presets">
+      <UniqueIdentifier>{baaebfce-a39b-4fe2-9c62-6e40aeae08ae}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\utils">
+      <UniqueIdentifier>{0a27afd5-d17c-4e10-b457-ea8964da9aa4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\game">
+      <UniqueIdentifier>{12db34f0-2224-44b8-b9c9-7113e73d6632}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\presets">
+      <UniqueIdentifier>{ef38b88a-fe3b-49f9-9870-07c26371244c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\server">
+      <UniqueIdentifier>{b1bbd8ea-a816-450b-a9d2-0f8fbd764934}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\utils">
+      <UniqueIdentifier>{9fe6c646-b47d-4486-a24f-68939783ee4a}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="game\AIBasic.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\game</Filter>
     </ClCompile>
     <ClCompile Include="game\AICore.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\game</Filter>
     </ClCompile>
     <ClCompile Include="game\AIModerate.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\game</Filter>
     </ClCompile>
     <ClCompile Include="game\Game.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\game</Filter>
     </ClCompile>
     <ClCompile Include="game\Player.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\game</Filter>
     </ClCompile>
     <ClCompile Include="game\Program.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\game</Filter>
     </ClCompile>
     <ClCompile Include="game\ProgramAction.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\game</Filter>
     </ClCompile>
     <ClCompile Include="game\SpawnGroup.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\game</Filter>
     </ClCompile>
     <ClCompile Include="game\Team.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\game</Filter>
     </ClCompile>
     <ClCompile Include="presets\ActionPreset.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\presets</Filter>
     </ClCompile>
     <ClCompile Include="presets\ProgramPreset.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\presets</Filter>
     </ClCompile>
     <ClCompile Include="server\CommandProcessor.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\server</Filter>
     </ClCompile>
     <ClCompile Include="server\GameConfig.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\server</Filter>
     </ClCompile>
     <ClCompile Include="server\Message.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\server</Filter>
     </ClCompile>
     <ClCompile Include="server\Server.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\server</Filter>
     </ClCompile>
     <ClCompile Include="server\User.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\server</Filter>
+    </ClCompile>
+    <ClCompile Include="utils\Global.cpp">
+      <Filter>Source Files\utils</Filter>
+    </ClCompile>
+    <ClCompile Include="utils\Pipe.cpp">
+      <Filter>Source Files\utils</Filter>
     </ClCompile>
     <ClCompile Include="utils\Logger.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\utils</Filter>
     </ClCompile>
     <ClCompile Include="utils\MiscUtil.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\utils</Filter>
     </ClCompile>
     <ClCompile Include="utils\NameGenerator.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\utils</Filter>
     </ClCompile>
     <ClCompile Include="utils\Timer.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\utils</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -77,91 +107,94 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="game\AIBasic.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header Files\game</Filter>
     </ClInclude>
     <ClInclude Include="game\AICore.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header Files\game</Filter>
     </ClInclude>
     <ClInclude Include="game\AIModerate.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header Files\game</Filter>
     </ClInclude>
     <ClInclude Include="game\Game.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header Files\game</Filter>
     </ClInclude>
     <ClInclude Include="game\Player.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header Files\game</Filter>
     </ClInclude>
     <ClInclude Include="game\Program.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header Files\game</Filter>
     </ClInclude>
     <ClInclude Include="game\ProgramAction.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header Files\game</Filter>
     </ClInclude>
     <ClInclude Include="game\SpawnGroup.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header Files\game</Filter>
     </ClInclude>
     <ClInclude Include="game\Team.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="presets\ActionPreset.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="presets\ProgramPreset.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header Files\game</Filter>
     </ClInclude>
     <ClInclude Include="server\CommandProcessor.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header Files\server</Filter>
     </ClInclude>
     <ClInclude Include="server\GameConfig.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header Files\server</Filter>
     </ClInclude>
     <ClInclude Include="server\Message.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header Files\server</Filter>
     </ClInclude>
     <ClInclude Include="server\Server.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header Files\server</Filter>
     </ClInclude>
     <ClInclude Include="server\User.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header Files\server</Filter>
+    </ClInclude>
+    <ClInclude Include="presets\ActionPreset.h">
+      <Filter>Header Files\presets</Filter>
+    </ClInclude>
+    <ClInclude Include="presets\ProgramPreset.h">
+      <Filter>Header Files\presets</Filter>
     </ClInclude>
     <ClInclude Include="utils\Coord.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header Files\utils</Filter>
     </ClInclude>
     <ClInclude Include="utils\Entry.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header Files\utils</Filter>
     </ClInclude>
     <ClInclude Include="utils\Iterator.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header Files\utils</Filter>
     </ClInclude>
     <ClInclude Include="utils\LinkedList.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header Files\utils</Filter>
     </ClInclude>
     <ClInclude Include="utils\ListNode.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header Files\utils</Filter>
     </ClInclude>
     <ClInclude Include="utils\Logger.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header Files\utils</Filter>
     </ClInclude>
     <ClInclude Include="utils\Map.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header Files\utils</Filter>
     </ClInclude>
     <ClInclude Include="utils\MiscUtil.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header Files\utils</Filter>
     </ClInclude>
     <ClInclude Include="utils\NameGenerator.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header Files\utils</Filter>
     </ClInclude>
     <ClInclude Include="utils\Pair.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header Files\utils</Filter>
     </ClInclude>
     <ClInclude Include="utils\Timer.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header Files\utils</Filter>
     </ClInclude>
-    <ClInclude Include="resource.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="utils\Global.h">
+      <Filter>Header Files\utils</Filter>
     </ClInclude>
-    <ClInclude Include="..\SpybotServer\include\Standard.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="utils\Pipe.h">
+      <Filter>Header Files\utils</Filter>
+    </ClInclude>
+    <ClInclude Include="utils\Standard.h">
+      <Filter>Header Files\utils</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

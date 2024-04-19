@@ -67,15 +67,19 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>$(ProjectDir);$(ProjectDir)server;$(ProjectDir)presets;$(ProjectDir)game;$(ProjectDir)utils;$(SolutionDir)SpybotServer\include;$(SolutionDir)SDL2-2.30.2\include;$(IncludePath)</IncludePath>
-    <AllProjectIncludesArePublic>true</AllProjectIncludesArePublic>
-    <PublicIncludeDirectories>C:\Users\URF-PC-2020\Desktop\Workspaces\C++\Spybot\SpybotShared\game;C:\Users\URF-PC-2020\Desktop\Workspaces\C++\Spybot\SpybotShared\server;C:\Users\URF-PC-2020\Desktop\Workspaces\C++\Spybot\SpybotShared\presets;C:\Users\URF-PC-2020\Desktop\Workspaces\C++\Spybot\SpybotShared\utils;C:\Users\URF-PC-2020\Desktop\Workspaces\C++\Spybot\SpybotShared;$(PublicIncludeDirectories)</PublicIncludeDirectories>
+    <IncludePath>$(ProjectDir);$(ProjectDir)server;$(ProjectDir)presets;$(ProjectDir)game;$(ProjectDir)utils;$(SolutionDir)SDL2-2.30.2\include;$(IncludePath)</IncludePath>
+    <AllProjectIncludesArePublic>false</AllProjectIncludesArePublic>
+    <PublicIncludeDirectories>
+    </PublicIncludeDirectories>
+    <LibraryPath>$(SolutionDir)SDL2-2.30.2\lib\x64;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>true</LinkIncremental>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>true</LinkIncremental>
+    <IncludePath>$(ProjectDir);$(ProjectDir)server;$(ProjectDir)presets;$(ProjectDir)game;$(ProjectDir)utils;$(SolutionDir)SDL2-2.30.2\include;$(IncludePath)</IncludePath>
+    <LibraryPath>$(SolutionDir)SDL2-2.30.2\lib\x64;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -91,10 +95,12 @@
     <ClCompile>
       <PreprocessorDefinitions>_DEBUG;_WINDOWS;_USRDLL;SPYBOTSHARED_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <WarningLevel>Level3</WarningLevel>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
+      <AdditionalDependencies>SDL2.lib;SDL2main.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -113,12 +119,14 @@
     <ClCompile>
       <PreprocessorDefinitions>NDEBUG;_WINDOWS;_USRDLL;SPYBOTSHARED_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <WarningLevel>Level3</WarningLevel>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
+      <AdditionalDependencies>SDL2.lib;SDL2main.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -138,13 +146,14 @@
     <ClCompile Include="server\Message.cpp" />
     <ClCompile Include="server\Server.cpp" />
     <ClCompile Include="server\User.cpp" />
+    <ClCompile Include="utils\Global.cpp" />
     <ClCompile Include="utils\Logger.cpp" />
     <ClCompile Include="utils\MiscUtil.cpp" />
     <ClCompile Include="utils\NameGenerator.cpp" />
+    <ClCompile Include="utils\Pipe.cpp" />
     <ClCompile Include="utils\Timer.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\SpybotServer\include\Standard.h" />
     <ClInclude Include="Enums.h" />
     <ClInclude Include="game\AIBasic.h" />
     <ClInclude Include="game\AICore.h" />
@@ -157,7 +166,6 @@
     <ClInclude Include="game\Team.h" />
     <ClInclude Include="presets\ActionPreset.h" />
     <ClInclude Include="presets\ProgramPreset.h" />
-    <ClInclude Include="resource.h" />
     <ClInclude Include="server\CommandProcessor.h" />
     <ClInclude Include="server\GameConfig.h" />
     <ClInclude Include="server\Message.h" />
@@ -165,6 +173,7 @@
     <ClInclude Include="server\User.h" />
     <ClInclude Include="utils\Coord.h" />
     <ClInclude Include="utils\Entry.h" />
+    <ClInclude Include="utils\Global.h" />
     <ClInclude Include="utils\Iterator.h" />
     <ClInclude Include="utils\LinkedList.h" />
     <ClInclude Include="utils\ListNode.h" />
@@ -173,6 +182,8 @@
     <ClInclude Include="utils\MiscUtil.h" />
     <ClInclude Include="utils\NameGenerator.h" />
     <ClInclude Include="utils\Pair.h" />
+    <ClInclude Include="utils\Pipe.h" />
+    <ClInclude Include="utils\Standard.h" />
     <ClInclude Include="utils\Timer.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

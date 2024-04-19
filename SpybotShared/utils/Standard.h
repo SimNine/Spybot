@@ -10,6 +10,8 @@
 #include <iostream>
 #undef UNICODE
 
+#include "SDL.h"
+
 #define WIN32_LEAN_AND_MEAN
 #include <winsock2.h>
 #include <ws2tcpip.h>
@@ -25,13 +27,13 @@
 
 #include <stdint.h>
 
-#define SDL_MAX_UINT8   ((Uint8)0xFF)           /* 255 */
-#define SDL_MIN_UINT8   ((Uint8)0x00)           /* 0 */
-typedef uint8_t Uint8;
+#define sdl_max_uint8   ((uint8)0xff)           /* 255 */
+#define sdl_min_uint8   ((uint8)0x00)           /* 0 */
+typedef uint8_t uint8;
 
-typedef struct SDL_Color {
-	Uint8 r;
-	Uint8 g;
-	Uint8 b;
-	Uint8 a;
-} SDL_Color;
+typedef struct sdl_color {
+	uint8 r;
+	uint8 g;
+	uint8 b;
+	uint8 a;
+} sdl_color;
