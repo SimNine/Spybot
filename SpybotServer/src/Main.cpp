@@ -7,6 +7,8 @@
 #include "MiscUtil.h"
 #include "CommandProcessor.h"
 
+#undef main
+
 // main loop to recieve new sockets
 void masterSocketFunc() {
 	WSADATA wsaData;

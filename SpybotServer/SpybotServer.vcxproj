@@ -72,21 +72,21 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>C:\Users\curff\Desktop\Workspaces\C &amp; C++\Spybot\SpybotShared\game;C:\Users\curff\Desktop\Workspaces\C &amp; C++\Spybot\SpybotShared\server;C:\Users\curff\Desktop\Workspaces\C &amp; C++\Spybot\SpybotShared\presets;C:\Users\curff\Desktop\Workspaces\C &amp; C++\Spybot\SpybotShared\utils;C:\Users\curff\Desktop\Workspaces\C &amp; C++\Spybot\SpybotShared;C:\Users\curff\Desktop\Workspaces\C &amp; C++\Spybot\SpybotServer\include;$(IncludePath)</IncludePath>
-    <LibraryPath>$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>C:\Users\URF-PC-2020\Desktop\Workspaces\C++\Spybot\SpybotServer;C:\Users\URF-PC-2020\Desktop\Workspaces\C++\Spybot\SpybotServer\include;C:\Users\URF-PC-2020\Desktop\Workspaces\C++\Spybot\SpybotServer\src;C:\Users\URF-PC-2020\Desktop\Workspaces\C++\Spybot\SpybotShared\game;C:\Users\URF-PC-2020\Desktop\Workspaces\C++\Spybot\SpybotShared\presets;C:\Users\URF-PC-2020\Desktop\Workspaces\C++\Spybot\SpybotShared\server;C:\Users\URF-PC-2020\Desktop\Workspaces\C++\Spybot\SpybotShared\utils;C:\Users\URF-PC-2020\Desktop\Workspaces\C++\Spybot\SpybotShared;$(IncludePath)</IncludePath>
-    <AllProjectIncludesArePublic>true</AllProjectIncludesArePublic>
+    <IncludePath>$(SolutionDir)SpybotServer;$(SolutionDir)SpybotServer\include;$(SolutionDir)SpybotShared\game;$(SolutionDir)SpybotShared\presets;$(SolutionDir)SpybotShared\server;$(SolutionDir)SpybotShared\utils;$(SolutionDir)SpybotShared;$(SolutionDir)SDL2-2.30.2\include;$(IncludePath)</IncludePath>
+    <AllProjectIncludesArePublic>false</AllProjectIncludesArePublic>
+    <LibraryPath>$(SolutionDir)x64\Debug;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>C:\Users\curff\Desktop\Workspaces\C &amp; C++\Spybot\SpybotShared\game;C:\Users\curff\Desktop\Workspaces\C &amp; C++\Spybot\SpybotShared\server;C:\Users\curff\Desktop\Workspaces\C &amp; C++\Spybot\SpybotShared\presets;C:\Users\curff\Desktop\Workspaces\C &amp; C++\Spybot\SpybotShared\utils;C:\Users\curff\Desktop\Workspaces\C &amp; C++\Spybot\SpybotShared;C:\Users\curff\Desktop\Workspaces\C &amp; C++\Spybot\SpybotServer\include;$(IncludePath)</IncludePath>
-    <LibraryPath>$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
+    <IncludePath>$(SolutionDir)SpybotServer;$(SolutionDir)SpybotServer\include;$(SolutionDir)SpybotShared\game;$(SolutionDir)SpybotShared\presets;$(SolutionDir)SpybotShared\server;$(SolutionDir)SpybotShared\utils;$(SolutionDir)SpybotShared;$(SolutionDir)SDL2-2.30.2\include;$(IncludePath)</IncludePath>
+    <AllProjectIncludesArePublic>false</AllProjectIncludesArePublic>
+    <LibraryPath>$(SolutionDir)x64\Debug;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -112,6 +112,7 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>SpybotShared.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -146,62 +147,15 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>SpybotShared.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="..\SpybotShared\Enums.h" />
-    <ClInclude Include="..\SpybotShared\game\AIBasic.h" />
-    <ClInclude Include="..\SpybotShared\game\AICore.h" />
-    <ClInclude Include="..\SpybotShared\game\AIModerate.h" />
-    <ClInclude Include="..\SpybotShared\game\Game.h" />
-    <ClInclude Include="..\SpybotShared\game\Player.h" />
-    <ClInclude Include="..\SpybotShared\game\Program.h" />
-    <ClInclude Include="..\SpybotShared\game\ProgramAction.h" />
-    <ClInclude Include="..\SpybotShared\game\SpawnGroup.h" />
-    <ClInclude Include="..\SpybotShared\game\Team.h" />
-    <ClInclude Include="..\SpybotShared\presets\ActionPreset.h" />
-    <ClInclude Include="..\SpybotShared\presets\ProgramPreset.h" />
-    <ClInclude Include="..\SpybotShared\server\CommandProcessor.h" />
-    <ClInclude Include="..\SpybotShared\server\GameConfig.h" />
-    <ClInclude Include="..\SpybotShared\server\Message.h" />
-    <ClInclude Include="..\SpybotShared\server\Server.h" />
-    <ClInclude Include="..\SpybotShared\server\User.h" />
-    <ClInclude Include="..\SpybotShared\utils\Coord.h" />
-    <ClInclude Include="..\SpybotShared\utils\Entry.h" />
-    <ClInclude Include="..\SpybotShared\utils\Iterator.h" />
-    <ClInclude Include="..\SpybotShared\utils\LinkedList.h" />
-    <ClInclude Include="..\SpybotShared\utils\ListNode.h" />
-    <ClInclude Include="..\SpybotShared\utils\Logger.h" />
-    <ClInclude Include="..\SpybotShared\utils\Map.h" />
-    <ClInclude Include="..\SpybotShared\utils\MiscUtil.h" />
-    <ClInclude Include="..\SpybotShared\utils\Pair.h" />
-    <ClInclude Include="include\Global.h" />
-    <ClInclude Include="include\Pipe.h" />
-    <ClInclude Include="include\Standard.h" />
-    <ClInclude Include="targetver.h" />
+    <ClInclude Include="include\targetver.h" />
+    <ClInclude Include="Main.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\SpybotShared\game\AIBasic.cpp" />
-    <ClCompile Include="..\SpybotShared\game\AICore.cpp" />
-    <ClCompile Include="..\SpybotShared\game\AIModerate.cpp" />
-    <ClCompile Include="..\SpybotShared\game\Game.cpp" />
-    <ClCompile Include="..\SpybotShared\game\Player.cpp" />
-    <ClCompile Include="..\SpybotShared\game\Program.cpp" />
-    <ClCompile Include="..\SpybotShared\game\ProgramAction.cpp" />
-    <ClCompile Include="..\SpybotShared\game\SpawnGroup.cpp" />
-    <ClCompile Include="..\SpybotShared\game\Team.cpp" />
-    <ClCompile Include="..\SpybotShared\presets\ActionPreset.cpp" />
-    <ClCompile Include="..\SpybotShared\presets\ProgramPreset.cpp" />
-    <ClCompile Include="..\SpybotShared\server\CommandProcessor.cpp" />
-    <ClCompile Include="..\SpybotShared\server\GameConfig.cpp" />
-    <ClCompile Include="..\SpybotShared\server\Message.cpp" />
-    <ClCompile Include="..\SpybotShared\server\Server.cpp" />
-    <ClCompile Include="..\SpybotShared\server\User.cpp" />
-    <ClCompile Include="..\SpybotShared\utils\Logger.cpp" />
-    <ClCompile Include="..\SpybotShared\utils\MiscUtil.cpp" />
-    <ClCompile Include="src\Global.cpp" />
     <ClCompile Include="src\Main.cpp" />
-    <ClCompile Include="src\Pipe.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
