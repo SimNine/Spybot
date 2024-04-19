@@ -4,7 +4,7 @@
 #include "LinkedList.h"
 #include "GameConfig.h"
 
-class Pipe;
+class PipeServerside;
 struct Message;
 class Game;
 class Player;
@@ -17,10 +17,10 @@ public:
 
 	void processAllMessages();
 
-	Pipe* connect(SOCKET client);
-	void disconnect(Pipe* client);
-	void login(Pipe* client, User* user);
-	void tryLogin(Pipe* client, Message message);
+	PipeServerside* connect(SOCKET client);
+	void disconnect(PipeServerside* client);
+	void login(PipeServerside* client, User* user);
+	void tryLogin(PipeServerside* client, Message message);
 
 	void sendMessageToNonLoggedInClients(Message message);
 	void sendMessageToClient(Message message, int clientID);
@@ -28,13 +28,13 @@ public:
 	void sendMessageToAllClientsExcept(Message message, int clientID);
 	void recieveMessage(Message message);
 
-	LinkedList<Pipe*>* getClientList();
+	LinkedList<PipeServerside*>* getClientList();
 	void processAITurn(Player* p);
 
 	Game* getGame();
 	LinkedList<User*>* getUsers();
 	User* getUserByName(std::string name);
-	Pipe* getOwner();
+	PipeServerside* getOwner();
 	bool isLocal();
 
 	void pingSender();
@@ -57,9 +57,9 @@ private:
 	Game* game_;
 
 	// clients
-	Pipe* ownerClient_;
-	LinkedList<Pipe*>* clients_;
-	Pipe* getClientByID(int clientID);
+	PipeServerside* ownerClient_;
+	LinkedList<PipeServerside*>* clients_;
+	PipeServerside* getClientByID(int clientID);
 
 	// users
 	LinkedList<User*>* users_;

@@ -9,7 +9,7 @@
 #include "PlayerMirror.h"
 #include "Server.h"
 #include "Client.h"
-#include "Pipe.h"
+#include "PipeClientside.h"
 #include "NotifyOverlay.h"
 #include "BackgroundOverlay.h"
 #include "MainOverlay.h"
@@ -48,7 +48,7 @@ void ConnectionManager::connectToLocalServer(CAMPAIGN campaign) {
 
 	// create a new local server and connect to it
 	_server = new Server(true, campaign);
-	serverPipe_  = _server->connect(NULL);
+	serverPipe_ = new PipeClientside(_server->connect(NULL));
 }
 
 void ConnectionManager::connectToExternalServer(std::string IP) {

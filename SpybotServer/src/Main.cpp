@@ -3,7 +3,7 @@
 #include "Global.h"
 #include "Message.h"
 #include "Server.h"
-#include "Pipe.h"
+#include "PipeServerside.h"
 #include "MiscUtil.h"
 #include "CommandProcessor.h"
 

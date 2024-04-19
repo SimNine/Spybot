@@ -10,7 +10,7 @@
 #include "MiscUtil.h"
 #include "Team.h"
 #include "User.h"
-#include "Pipe.h"
+#include "PipeServerside.h"
 #include "SpawnGroup.h"
 
 Game::Game(std::string lvlStr) {
@@ -448,9 +448,9 @@ void Game::checkForWinCondition() {
 	}
 
 	// refund all players' programs
-	Iterator<Pipe*> it = _server->getClientList()->getIterator();
+	Iterator<PipeServerside*> it = _server->getClientList()->getIterator();
 	while (it.hasNext()) {
-		Pipe* curr = it.next();
+		PipeServerside* curr = it.next();
 		User* currUser = _server->getUserByName(curr->getUser());
 		if (currUser != NULL) {
 			for (int i = 0; i < PROGRAM_NUM_PROGTYPES; i++) {
@@ -475,9 +475,9 @@ void Game::checkForWinCondition() {
 		Iterator<Player*> itPlayers = t->getAllPlayers()->getIterator();
 		while (itPlayers.hasNext()) {
 			Player* currPlayer = itPlayers.next();
-			Iterator<Pipe*> itPipes = _server->getClientList()->getIterator();
+			Iterator<PipeServerside*> itPipes = _server->getClientList()->getIterator();
 			while (itPipes.hasNext()) {
-				Pipe* currPipe = itPipes.next();
+				PipeServerside* currPipe = itPipes.next();
 				if (currPlayer->getPlayerID() == currPipe->getPlayer()) {
 					User* user = _server->getUserByName(currPipe->getUser());
 

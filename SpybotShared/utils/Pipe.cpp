@@ -1,5 +1,5 @@
 #include "Standard.h"
-#include "Pipe.h"
+#include "PipeServerside.h"
 
 #include "Message.h"
 #include "Server.h"
@@ -7,7 +7,7 @@
 #include "User.h"
 #include "Global.h"
 
-Pipe::Pipe(SOCKET client) {
+PipeServerside::PipeServerside(SOCKET client) {
 	// fill in fields
 	socket_ = client;
 	closed_ = false;
@@ -25,13 +25,13 @@ Pipe::Pipe(SOCKET client) {
 	log("SERVER: new client attempting to connect, assigning clientID " + to_string(clientID_) + "\n");
 }
 
-Pipe::~Pipe() {
+PipeServerside::~PipeServerside() {
 	closed_ = true;
 	if (user_ != "")
 		_server->getUserByName(user_)->loggedIn_ = false;
 }
 
-void Pipe::listenData() {
+void PipeServerside::listenData() {
 	int bytesRead;
 
 	char readBuffer[DEFAULT_MSGSIZE];
@@ -80,7 +80,7 @@ void Pipe::listenData() {
 	return;
 }
 
-void Pipe::sendData(Message m) {
+void PipeServerside::sendData(Message m) {
 	// create the buffer to serialize the message into
 	char buffer[DEFAULT_MSGSIZE];
 
@@ -100,15 +100,15 @@ void Pipe::sendData(Message m) {
 	}
 }
 
-int Pipe::getClientID() {
+int PipeServerside::getClientID() {
 	return clientID_;
 }
 
-int Pipe::getPlayer() {
+int PipeServerside::getPlayer() {
 	return playerID_;
 }
 
-void Pipe::setPlayer(int p) {
+void PipeServerside::setPlayer(int p) {
 	playerID_ = p;
 
 	Message m;
@@ -118,20 +118,20 @@ void Pipe::setPlayer(int p) {
 	_server->sendMessageToAllClients(m);
 }
 
-void Pipe::close() {
+void PipeServerside::close() {
 	closed_ = true;
 	shutdown(socket_, SD_SEND);
 	closesocket(socket_);
 }
 
-bool Pipe::isClosed() {
+bool PipeServerside::isClosed() {
 	return closed_;
 }
 
-std::string Pipe::getUser() {
+std::string PipeServerside::getUser() {
 	return user_;
 }
 
-void Pipe::setUser(std::string user) {
+void PipeServerside::setUser(std::string user) {
 	user_ = user;
 }

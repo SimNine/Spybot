@@ -78,12 +78,12 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>$(ProjectDir);$(ProjectDir)include;$(ProjectDir)include\overlays;$(ProjectDir)include\overlays\background;$(ProjectDir)include\overlays\game;$(ProjectDir)include\overlays\lobby;$(ProjectDir)include\overlays\main;$(ProjectDir)include\overlays\map;$(ProjectDir)include\overlays\notify;$(ProjectDir)include\overlays\title;$(ProjectDir)include\gui;$(ProjectDir)include\gui\GUIEffects;$(ProjectDir)include\client;$(ProjectDir)include\client\game;$(SolutionDir)SpybotShared;$(SolutionDir)SpybotShared\utils;$(SolutionDir)SpybotShared\server;$(SolutionDir)SpybotShared\presets;$(SolutionDir)SpybotShared\game;$(SolutionDir)SpybotServer\include;$(SolutionDir)Libs;$(SolutionDir)SDL2-2.30.2\include;$(SolutionDir)SDL2_mixer-2.8.0\include;$(SolutionDir)SDL2_image-2.8.2\include;$(SolutionDir)SDL2_ttf-2.22.0\include</IncludePath>
+    <IncludePath>$(ProjectDir);$(ProjectDir)include;$(ProjectDir)include\overlays;$(ProjectDir)include\overlays\background;$(ProjectDir)include\overlays\game;$(ProjectDir)include\overlays\game\animations;$(ProjectDir)include\overlays\game\animations\particles;$(ProjectDir)include\overlays\lobby;$(ProjectDir)include\overlays\main;$(ProjectDir)include\overlays\map;$(ProjectDir)include\overlays\notify;$(ProjectDir)include\overlays\title;$(ProjectDir)include\gui;$(ProjectDir)include\gui\GUIEffects;$(ProjectDir)include\client;$(ProjectDir)include\client\game;$(SolutionDir)SpybotShared;$(SolutionDir)SpybotShared\utils;$(SolutionDir)SpybotShared\server;$(SolutionDir)SpybotShared\presets;$(SolutionDir)SpybotShared\game;$(SolutionDir)SpybotServer\include;$(SolutionDir)Libs;$(SolutionDir)SDL2-2.30.2\include;$(SolutionDir)SDL2_mixer-2.8.0\include;$(SolutionDir)SDL2_image-2.8.2\include;$(SolutionDir)SDL2_ttf-2.22.0\include</IncludePath>
     <PublicIncludeDirectories>
     </PublicIncludeDirectories>
     <AllProjectIncludesArePublic>false</AllProjectIncludesArePublic>
     <ReferencePath>$(ReferencePath)</ReferencePath>
-    <LibraryPath>$(SolutionDir)SDL2-2.30.2\lib\x64;$(SolutionDir)SDL2_image-2.8.2\lib\x64;$(SolutionDir)SDL2_mixer-2.8.0\lib\x64;$(SolutionDir)SDL2_ttf-2.22.0\lib\x64;$(LibraryPath)</LibraryPath>
+    <LibraryPath>$(SolutionDir)SDL2-2.30.2\lib\x64;$(SolutionDir)SDL2_image-2.8.2\lib\x64;$(SolutionDir)SDL2_mixer-2.8.0\lib\x64;$(SolutionDir)SDL2_ttf-2.22.0\lib\x64;$(SolutionDir)x64\Debug;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
@@ -92,6 +92,9 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
+    <IncludePath>$(ProjectDir);$(ProjectDir)include;$(ProjectDir)include\overlays;$(ProjectDir)include\overlays\background;$(ProjectDir)include\overlays\game;$(ProjectDir)include\overlays\game\animations;$(ProjectDir)include\overlays\game\animations\particles;$(ProjectDir)include\overlays\lobby;$(ProjectDir)include\overlays\main;$(ProjectDir)include\overlays\map;$(ProjectDir)include\overlays\notify;$(ProjectDir)include\overlays\title;$(ProjectDir)include\gui;$(ProjectDir)include\gui\GUIEffects;$(ProjectDir)include\client;$(ProjectDir)include\client\game;$(SolutionDir)SpybotShared;$(SolutionDir)SpybotShared\utils;$(SolutionDir)SpybotShared\server;$(SolutionDir)SpybotShared\presets;$(SolutionDir)SpybotShared\game;$(SolutionDir)SpybotServer\include;$(SolutionDir)Libs;$(SolutionDir)SDL2-2.30.2\include;$(SolutionDir)SDL2_mixer-2.8.0\include;$(SolutionDir)SDL2_image-2.8.2\include;$(SolutionDir)SDL2_ttf-2.22.0\include</IncludePath>
+    <ReferencePath>$(ReferencePath)</ReferencePath>
+    <LibraryPath>$(SolutionDir)SDL2-2.30.2\lib\x64;$(SolutionDir)SDL2_image-2.8.2\lib\x64;$(SolutionDir)SDL2_mixer-2.8.0\lib\x64;$(SolutionDir)SDL2_ttf-2.22.0\lib\x64;$(SolutionDir)x64\Debug;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -119,6 +122,7 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>SpybotShared.lib;SDL2.lib;SDL2main.lib;SDL2_ttf.lib;SDL2_mixer.lib;SDL2_image.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -142,7 +146,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
-      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
@@ -155,40 +159,10 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>SpybotShared.lib;SDL2.lib;SDL2main.lib;SDL2_ttf.lib;SDL2_mixer.lib;SDL2_image.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <Text Include="ReadMe.txt" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="..\SpybotShared\Enums.h" />
-    <ClInclude Include="..\SpybotShared\game\AIBasic.h" />
-    <ClInclude Include="..\SpybotShared\game\AICore.h" />
-    <ClInclude Include="..\SpybotShared\game\AIModerate.h" />
-    <ClInclude Include="..\SpybotShared\game\Game.h" />
-    <ClInclude Include="..\SpybotShared\game\Player.h" />
-    <ClInclude Include="..\SpybotShared\game\Program.h" />
-    <ClInclude Include="..\SpybotShared\game\ProgramAction.h" />
-    <ClInclude Include="..\SpybotShared\game\SpawnGroup.h" />
-    <ClInclude Include="..\SpybotShared\game\Team.h" />
-    <ClInclude Include="..\SpybotShared\presets\ActionPreset.h" />
-    <ClInclude Include="..\SpybotShared\presets\ProgramPreset.h" />
-    <ClInclude Include="..\SpybotShared\server\CommandProcessor.h" />
-    <ClInclude Include="..\SpybotShared\server\GameConfig.h" />
-    <ClInclude Include="..\SpybotShared\server\Message.h" />
-    <ClInclude Include="..\SpybotShared\server\Server.h" />
-    <ClInclude Include="..\SpybotShared\server\User.h" />
-    <ClInclude Include="..\SpybotShared\utils\Coord.h" />
-    <ClInclude Include="..\SpybotShared\utils\Entry.h" />
-    <ClInclude Include="..\SpybotShared\utils\Iterator.h" />
-    <ClInclude Include="..\SpybotShared\utils\LinkedList.h" />
-    <ClInclude Include="..\SpybotShared\utils\ListNode.h" />
-    <ClInclude Include="..\SpybotShared\utils\Logger.h" />
-    <ClInclude Include="..\SpybotShared\utils\Map.h" />
-    <ClInclude Include="..\SpybotShared\utils\MiscUtil.h" />
-    <ClInclude Include="..\SpybotShared\utils\NameGenerator.h" />
-    <ClInclude Include="..\SpybotShared\utils\Pair.h" />
-    <ClInclude Include="..\SpybotShared\utils\Timer.h" />
     <ClInclude Include="include\client\Client.h" />
     <ClInclude Include="include\client\ConnectionManager.h" />
     <ClInclude Include="include\client\ClientMirror.h" />
@@ -238,32 +212,12 @@
     <ClInclude Include="include\overlays\notify\NotifyOverlay.h" />
     <ClInclude Include="include\overlays\TimedEvent.h" />
     <ClInclude Include="include\overlays\title\TitleOverlay.h" />
-    <ClInclude Include="include\Pipe.h" />
+    <ClInclude Include="include\PipeClientside.h" />
     <ClInclude Include="include\ResourceLoader.h" />
     <ClInclude Include="include\Standard.h" />
     <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\SpybotShared\game\AIBasic.cpp" />
-    <ClCompile Include="..\SpybotShared\game\AICore.cpp" />
-    <ClCompile Include="..\SpybotShared\game\AIModerate.cpp" />
-    <ClCompile Include="..\SpybotShared\game\Game.cpp" />
-    <ClCompile Include="..\SpybotShared\game\Player.cpp" />
-    <ClCompile Include="..\SpybotShared\game\Program.cpp" />
-    <ClCompile Include="..\SpybotShared\game\ProgramAction.cpp" />
-    <ClCompile Include="..\SpybotShared\game\SpawnGroup.cpp" />
-    <ClCompile Include="..\SpybotShared\game\Team.cpp" />
-    <ClCompile Include="..\SpybotShared\presets\ActionPreset.cpp" />
-    <ClCompile Include="..\SpybotShared\presets\ProgramPreset.cpp" />
-    <ClCompile Include="..\SpybotShared\server\CommandProcessor.cpp" />
-    <ClCompile Include="..\SpybotShared\server\GameConfig.cpp" />
-    <ClCompile Include="..\SpybotShared\server\Message.cpp" />
-    <ClCompile Include="..\SpybotShared\server\Server.cpp" />
-    <ClCompile Include="..\SpybotShared\server\User.cpp" />
-    <ClCompile Include="..\SpybotShared\utils\Logger.cpp" />
-    <ClCompile Include="..\SpybotShared\utils\MiscUtil.cpp" />
-    <ClCompile Include="..\SpybotShared\utils\NameGenerator.cpp" />
-    <ClCompile Include="..\SpybotShared\utils\Timer.cpp" />
     <ClCompile Include="src\client\Client.cpp" />
     <ClCompile Include="src\client\ConnectionManager.cpp" />
     <ClCompile Include="src\client\ClientMirror.cpp" />
@@ -312,7 +266,7 @@
     <ClCompile Include="src\overlays\notify\NotifyOverlay.cpp" />
     <ClCompile Include="src\overlays\TimedEvent.cpp" />
     <ClCompile Include="src\overlays\title\TitleOverlay.cpp" />
-    <ClCompile Include="src\Pipe.cpp" />
+    <ClCompile Include="src\PipeClientside.cpp" />
     <ClCompile Include="src\ResourceLoader.cpp" />
   </ItemGroup>
   <ItemGroup>

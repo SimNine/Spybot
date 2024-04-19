@@ -1,15 +1,16 @@
 #pragma once
 
 #include "Standard.h"
+#include "PipeServerside.h"
 
 struct Message;
 class Player;
 class User;
 
-class Pipe {
+class PipeClientside {
 public:
-	Pipe(SOCKET socket);
-	virtual ~Pipe();
+	PipeClientside(PipeServerside* socket);
+	virtual ~PipeClientside();
 
 	void sendData(Message m);
 	void listenData();

@@ -12,7 +12,7 @@
 #include "AICore.h"
 #include "Team.h"
 #include "User.h"
-#include "Pipe.h"
+#include "PipeServerside.h"
 #include "SpawnGroup.h"
 #include "CommandProcessor.h"
 #include "AIBasic.h"
@@ -32,7 +32,7 @@ Server::Server(bool isLocal, CAMPAIGN campaign) {
 
 	isLocal_ = isLocal;
 
-	clients_ = new LinkedList<Pipe*>();
+	clients_ = new LinkedList<PipeServerside*>();
 	msgQueue_ = new LinkedList<Message*>();
 	users_ = new LinkedList<User*>();
 	loadUsers();
@@ -70,42 +70,42 @@ void Server::processAllMessages() {
 }
 
 void Server::sendMessageToAllClients(Message message) {
-	Iterator<Pipe*> it = clients_->getIterator();
+	Iterator<PipeServerside*> it = clients_->getIterator();
 	while (it.hasNext()) {
-		Pipe* curr = it.next();
+		PipeServerside* curr = it.next();
 		if (curr->getUser() != "") // dont send messages to clients that aren't logged in
 			curr->sendData(message);
 	}
 }
 
 void Server::sendMessageToNonLoggedInClients(Message msg) {
-	Iterator<Pipe*> it = clients_->getIterator();
+	Iterator<PipeServerside*> it = clients_->getIterator();
 	while (it.hasNext()) {
-		Pipe* curr = it.next();
+		PipeServerside* curr = it.next();
 		if (curr->getUser() == "") // only send messages to clients that aren't logged in
 			curr->sendData(msg);
 	}
 }
 
 void Server::sendMessageToClient(Message message, int clientID) {
-	Pipe* curr = getClientByID(clientID);
+	PipeServerside* curr = getClientByID(clientID);
 	if (curr->getUser() != "")
 		curr->sendData(message);
 }
 
 void Server::sendMessageToAllClientsExcept(Message message, int clientID) {
-	Iterator<Pipe*> it = clients_->getIterator();
+	Iterator<PipeServerside*> it = clients_->getIterator();
 	while (it.hasNext()) {
-		Pipe* curr = it.next();
+		PipeServerside* curr = it.next();
 		if (curr->getClientID() != clientID && curr->getUser() != "")
 			curr->sendData(message);
 	}
 }
 
-Pipe* Server::getClientByID(int clientID) {
-	Iterator<Pipe*> it = clients_->getIterator();
+PipeServerside* Server::getClientByID(int clientID) {
+	Iterator<PipeServerside*> it = clients_->getIterator();
 	while (it.hasNext()) {
-		Pipe* curr = it.next();
+		PipeServerside* curr = it.next();
 		if (curr->getClientID() == clientID) {
 			return curr;
 		}
@@ -122,7 +122,7 @@ void Server::recieveMessage(Message message) {
 }
 
 // attempts to log a Client in
-void Server::tryLogin(Pipe* client, Message m) {
+void Server::tryLogin(PipeServerside* client, Message m) {
 	if (m.type != MSGTYPE_CREATEUSER && m.type != MSGTYPE_LOGIN) {
 		log("SERVER ERR: first message recieved from client " + to_string(m.clientID) + " was not a CREATEUSER or LOGIN");
 		return;
@@ -217,7 +217,7 @@ void Server::tryLogin(Pipe* client, Message m) {
 }
 
 // logs a Client in as the given User
-void Server::login(Pipe* client, User* user) {
+void Server::login(PipeServerside* client, User* user) {
 	// set this client's user
 	client->setUser(user->username_);
 
@@ -234,9 +234,9 @@ void Server::login(Pipe* client, User* user) {
 	sendMessageToAllClientsExcept(m, client->getClientID());
 
 	// send the issuing client a message for every client currently connected
-	Iterator<Pipe*> it = clients_->getIterator();
+	Iterator<PipeServerside*> it = clients_->getIterator();
 	while (it.hasNext()) {
-		Pipe* curr = it.next();
+		PipeServerside* curr = it.next();
 
 		// check that this client is logged in
 		if (curr->getUser() == "")
@@ -302,7 +302,7 @@ void Server::processMessage(Message* msg) {
 	}
 
 	// get the client of the issuer
-	Pipe* issuingClient = getClientByID(msg->clientID);
+	PipeServerside* issuingClient = getClientByID(msg->clientID);
 	if (issuingClient == NULL && msg->clientID != 0) {
 		log("SERVER ERR: got a message from a client that doesn't exist\n");
 		return;
@@ -354,9 +354,9 @@ void Server::processMessage(Message* msg) {
 
 		// send the issuing client a message for every client currently connected
 		{
-			Iterator<Pipe*> it = clients_->getIterator();
+			Iterator<PipeServerside*> it = clients_->getIterator();
 			while (it.hasNext()) {
-				Pipe* curr = it.next();
+				PipeServerside* curr = it.next();
 
 				// send the newly connected client a list of all clients
 				Message m;
@@ -393,7 +393,7 @@ void Server::processMessage(Message* msg) {
 				issuingClient->setPlayer(p->getPlayerID());
 			} else if (config_.gameMode_ == GAMEMODE_FFA) {
 				// create a player for each client and assign it a spawn group
-				Iterator<Pipe*> it = clients_->getIterator();
+				Iterator<PipeServerside*> it = clients_->getIterator();
 				while (it.hasNext()) {
 					Team* t = game_->addTeam();
 					Player* p = game_->addPlayer(t->getTeamID());
@@ -449,7 +449,7 @@ void Server::processMessage(Message* msg) {
 			} else if (config_.gameMode_ == GAMEMODE_COOP) {
 				// create a human team and assign each client a player on it
 				Team* humanTeam = game_->addTeam();
-				Iterator<Pipe*> it = clients_->getIterator();
+				Iterator<PipeServerside*> it = clients_->getIterator();
 				while (it.hasNext()) {
 					Player* p = game_->addPlayer(humanTeam->getTeamID());
 					it.next()->setPlayer(p->getPlayerID());
@@ -644,9 +644,9 @@ void Server::processMessage(Message* msg) {
 		Program* currProg = game_->getProgramAt(msg->pos);
 		if (currProg != NULL) {
 			User* u = NULL;
-			Iterator<Pipe*> it = clients_->getIterator();
+			Iterator<PipeServerside*> it = clients_->getIterator();
 			while (it.hasNext()) {
-				Pipe* curr = it.next();
+				PipeServerside* curr = it.next();
 				if (game_->getPlayerByID(curr->getPlayer()) == currProg->getOwner())
 					u = getUserByName(curr->getUser());
 			}
@@ -705,17 +705,17 @@ void Server::processMessage(Message* msg) {
 	}
 }
 
-Pipe* Server::connect(SOCKET client) {
-	Pipe* newPipe = new Pipe(client);
+PipeServerside* Server::connect(SOCKET client) {
+	PipeServerside* newPipe = new PipeServerside(client);
 	clients_->addFirst(newPipe);
 
-	std::thread newThread(&Pipe::listenData, newPipe);
+	std::thread newThread(&PipeServerside::listenData, newPipe);
 	newThread.detach();
 
 	return newPipe;
 }
 
-void Server::disconnect(Pipe* client) {
+void Server::disconnect(PipeServerside* client) {
 	if (!client->isClosed()) {
 		// kill the thread formally so that death can begin; the pipe will call this method again
 		client->close();
@@ -752,9 +752,9 @@ void Server::disconnect(Pipe* client) {
 }
 
 void Server::quitAll() {
-	Iterator<Pipe*> it = clients_->getIterator();
+	Iterator<PipeServerside*> it = clients_->getIterator();
 	while (it.hasNext()) {
-		Pipe* curr = it.next();
+		PipeServerside* curr = it.next();
 
 		if (curr->getPlayer() != -1) {
 			curr->setPlayer(-1);
@@ -768,7 +768,7 @@ void Server::quitAll() {
 }
 
 void Server::resyncAll() {
-	Iterator<Pipe*> it = clients_->getIterator();
+	Iterator<PipeServerside*> it = clients_->getIterator();
 	while (it.hasNext()) {
 		resyncClient(it.next()->getClientID());
 	}
@@ -832,7 +832,7 @@ void Server::resyncClient(int clientID) {
 	sendMessageToClient(msg, clientID);
 }
 
-LinkedList<Pipe*>* Server::getClientList() {
+LinkedList<PipeServerside*>* Server::getClientList() {
 	return clients_;
 }
 
@@ -979,7 +979,7 @@ LinkedList<User*>* Server::getUsers() {
 	return users_;
 }
 
-Pipe* Server::getOwner() {
+PipeServerside* Server::getOwner() {
 	return ownerClient_;
 }
 

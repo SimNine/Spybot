@@ -183,7 +183,7 @@
     <ClInclude Include="utils\MiscUtil.h" />
     <ClInclude Include="utils\NameGenerator.h" />
     <ClInclude Include="utils\Pair.h" />
-    <ClInclude Include="utils\Pipe.h" />
+    <ClInclude Include="utils\PipeServerside.h" />
     <ClInclude Include="utils\Standard.h" />
     <ClInclude Include="utils\Timer.h" />
   </ItemGroup>

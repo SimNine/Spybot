@@ -8,7 +8,7 @@
 #include "MiscUtil.h"
 #include "Server.h"
 #include "Message.h"
-#include "Pipe.h"
+#include "PipeServerside.h"
 #include "User.h"
 #include "Player.h"
 #include "Team.h"
@@ -178,9 +178,9 @@ void processCommand(std::string cmd, int clientID) {
 	// CLIENT AND PLAYER MANIPULATION 
 	else if (strcmp(tokens[0], "listclients") == 0) {
 		processCommandResponse("connected clientIDs:", clientID);
-		Iterator<Pipe*> it = _server->getClientList()->getIterator();
+		Iterator<PipeServerside*> it = _server->getClientList()->getIterator();
 		while (it.hasNext()) {
-			Pipe* curr = it.next();
+			PipeServerside* curr = it.next();
 			if (curr->getUser() != "") {
 				processCommandResponse("-- client " + to_string(curr->getClientID()) + " : logged in as " + curr->getUser(), clientID);
 			} else {
@@ -218,7 +218,7 @@ void processCommand(std::string cmd, int clientID) {
 		m.clientID = 0;
 		strncpy_s(m.text, DEFAULT_CHATSIZE, ret.c_str(), DEFAULT_CHATSIZE);
 
-		Iterator<Pipe*> clientIt = _server->getClientList()->getIterator();
+		Iterator<PipeServerside*> clientIt = _server->getClientList()->getIterator();
 		while (clientIt.hasNext()) {
 			clientIt.next()->sendData(m);
 		}
@@ -254,7 +254,7 @@ void processCommand(std::string cmd, int clientID) {
 			}
 		}
 	} else if (strcmp(tokens[0], "getowner") == 0) {
-		Pipe* ownerClient = _server->getOwner();
+		PipeServerside* ownerClient = _server->getOwner();
 		if (ownerClient == NULL) {
 			processCommandResponse("there is no owner client", clientID);
 		} else {
@@ -549,10 +549,10 @@ void processCommand(std::string cmd, int clientID) {
 		_server->saveUsers();
 
 		// get the client currently controlling this user
-		Pipe* client = NULL;
-		Iterator<Pipe*> it = _server->getClientList()->getIterator();
+		PipeServerside* client = NULL;
+		Iterator<PipeServerside*> it = _server->getClientList()->getIterator();
 		while (it.hasNext()) {
-			Pipe* curr = it.next();
+			PipeServerside* curr = it.next();
 			if (curr->getUser() == std::string(tokens[1]))
 				client = curr;
 		}

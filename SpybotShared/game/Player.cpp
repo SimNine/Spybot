@@ -8,7 +8,7 @@
 #include "MiscUtil.h"
 #include "ProgramAction.h"
 #include "Server.h"
-#include "Pipe.h"
+#include "PipeServerside.h"
 #include "User.h"
 #include "Team.h"
 
@@ -83,10 +83,10 @@ void Player::moveSelectedProgram(Coord pos) {
 			msg.soundType = MSGSOUNDNAME_PICKUPCREDIT;
 			_server->sendMessageToAllClients(msg);
 
-			Pipe* recievingClient = NULL;
-			Iterator<Pipe*> it = _server->getClientList()->getIterator();
+			PipeServerside* recievingClient = NULL;
+			Iterator<PipeServerside*> it = _server->getClientList()->getIterator();
 			while (it.hasNext()) {
-				Pipe* curr = it.next();
+				PipeServerside* curr = it.next();
 				if (curr->getPlayer() == playerID_) {
 					Message msg;
 					msg.type = MSGTYPE_CREDITPICKUP;

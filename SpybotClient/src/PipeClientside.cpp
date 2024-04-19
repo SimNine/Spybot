@@ -1,5 +1,5 @@
 #include "Standard.h"
-#include "Pipe.h"
+#include "PipeClientside.h"
 
 #include "Global.h"
 #include "Message.h"
@@ -9,9 +9,9 @@
 #include "Client.h"
 #include "ConnectionManager.h"
 
-Pipe::Pipe(SOCKET client) {
+PipeClientside::PipeClientside(PipeServerside* client) {
 	// fill in fields
-	socket_ = client;
+	socket_ = NULL;
 	closed_ = false;
 	playerID_ = -1;
 	user_ = "";
@@ -26,35 +26,35 @@ Pipe::Pipe(SOCKET client) {
 	log("SERVER: new client attempting to connect, assigning clientID " + to_string(clientID_) + "\n");
 }
 
-Pipe::~Pipe() {
+PipeClientside::~PipeClientside() {
 	closed_ = true;
 	//if (user_ != "")
 		//user_->loggedIn_ = false;
 }
 
-void Pipe::sendData(Message m) {
+void PipeClientside::sendData(Message m) {
 	m.clientID = clientID_;
 	_connectionManager->recieveMessage(m);
 }
 
-void Pipe::listenData() {
+void PipeClientside::listenData() {
 	// this purposefully does nothing for local servers
 }
 
-void Pipe::recieveData(Message m) {
+void PipeClientside::recieveData(Message m) {
 	m.clientID = clientID_;
 	_server->recieveMessage(m);
 }
 
-int Pipe::getClientID() {
+int PipeClientside::getClientID() {
 	return clientID_;
 }
 
-int Pipe::getPlayer() {
+int PipeClientside::getPlayer() {
 	return playerID_;
 }
 
-void Pipe::setPlayer(int playerID) {
+void PipeClientside::setPlayer(int playerID) {
 	playerID_ = playerID;
 
 	Message m;
@@ -64,20 +64,20 @@ void Pipe::setPlayer(int playerID) {
 	_connectionManager->recieveMessage(m);
 }
 
-void Pipe::close() {
+void PipeClientside::close() {
 	closed_ = true;
 	shutdown(socket_, SD_SEND);
 	closesocket(socket_);
 }
 
-bool Pipe::isClosed() {
+bool PipeClientside::isClosed() {
 	return closed_;
 }
 
-std::string Pipe::getUser() {
+std::string PipeClientside::getUser() {
 	return user_;
 }
 
-void Pipe::setUser(std::string user) {
+void PipeClientside::setUser(std::string user) {
 	user_ = user;
 }

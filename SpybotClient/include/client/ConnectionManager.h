@@ -6,7 +6,7 @@
 class ClientMirror;
 struct Message;
 class Server;
-class Pipe;
+class PipeClientside;
 
 class ConnectionManager {
 public:
@@ -41,7 +41,7 @@ private:
 	SOCKET socket_;
 
 	// for internal server interaction
-	Pipe* serverPipe_;
+	PipeClientside* serverPipe_;
 
 	// message passing utils
 	LinkedList<Message*>* msgQueue_;

@@ -6,10 +6,10 @@ struct Message;
 class Player;
 class User;
 
-class Pipe {
+class PipeServerside {
 public:
-	Pipe(SOCKET socket);
-	virtual ~Pipe();
+	PipeServerside(SOCKET socket);
+	virtual ~PipeServerside();
 
 	void listenData();
 	void sendData(Message m);

@@ -190,7 +190,7 @@
     <ClInclude Include="utils\Global.h">
       <Filter>Header Files\utils</Filter>
     </ClInclude>
-    <ClInclude Include="utils\Pipe.h">
+    <ClInclude Include="utils\PipeServerside.h">
       <Filter>Header Files\utils</Filter>
     </ClInclude>
     <ClInclude Include="utils\Standard.h">
